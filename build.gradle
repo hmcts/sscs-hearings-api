@@ -129,8 +129,8 @@ project.tasks['sonarqube'].dependsOn jacocoTestReport
 
 sonarqube {
   properties {
-    property "sonar.projectName", "Reform :: sscs-sscs-hearings-api"
-    property "sonar.projectKey", "uk.gov.hmcts.reform:sscs-sscs-hearings-api"
+    property "sonar.projectName", "Reform :: sscs-hearings-api"
+    property "sonar.projectKey", "uk.gov.hmcts.reform:sscs-hearings-api"
     property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
   }
 }
@@ -194,7 +194,7 @@ dependencies {
 mainClassName = 'uk.gov.hmcts.reform.sscs.Application'
 
 bootJar {
-  archiveFileName = "sscs-sscs-hearings-api.jar"
+  archiveFileName = "sscs-hearings-api.jar"
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
