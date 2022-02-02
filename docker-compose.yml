@@ -1,7 +1,7 @@
 version: '2.1'
 
 services:
-  sscs-sscs-hearings-api:
+  sscs-hearings-api:
     build:
       context: .
       args:
