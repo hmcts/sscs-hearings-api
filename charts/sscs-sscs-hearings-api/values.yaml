@@ -1,5 +1,5 @@
 java:
-  applicationPort: 8081
+  applicationPort: 8083
   image: 'hmctspublic.azurecr.io/sscs/sscs-hearings-api:latest'
   ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: sscs
