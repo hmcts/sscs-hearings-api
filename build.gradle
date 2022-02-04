@@ -35,6 +35,8 @@ gitProperties {
   dateFormatTimeZone = "GMT"
 }
 
+apply plugin: 'net.serenity-bdd.aggregator'
+
 group = 'uk.gov.hmcts.reform'
 version = '0.0.1'
 
