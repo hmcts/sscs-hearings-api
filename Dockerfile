@@ -3,5 +3,5 @@ FROM hmctspublic.azurecr.io/base/java:11-distroless
 
 COPY build/libs/sscs-hearings-api.jar /opt/app/
 
-EXPOSE 8081
+EXPOSE 8083
 CMD [ "sscs-hearings-api.jar" ]
