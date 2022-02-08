@@ -8,6 +8,9 @@ def component = "sscs-hearings-api"
 
 def secrets = [
   'sscs-${env}' : [
+  ],
+  's2s-${env}' : [
+
   ]
 ]
 
