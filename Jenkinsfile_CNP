@@ -8,10 +8,6 @@ def component = "sscs-hearings-api"
 
 def secrets = [
   'sscs-${env}' : [
-  ],
-
-  's2s-${env}' : [
-    secret('microservicekey-sscs-hearings-api', 'S2S_SECRET_SSCS_HEARINGS_API')
   ]
 ]
 
