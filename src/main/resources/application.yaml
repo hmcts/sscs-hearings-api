@@ -1,6 +1,13 @@
 server:
   port: 8083
 
+logging:
+  level:
+    uk:
+      gov:
+        hmcts:
+          fortifyclient: INFO
+
 management:
   endpoint:
     health:
@@ -13,6 +20,15 @@ management:
 
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
+
+idam:
+  s2s-auth:
+    url: ${S2S_URL:http://service-auth-provider-api}
+    secret: ${S2S_SECRET_SSCS_HEARINGS_API:AAAAAAAAAAAAAAAA}
+    name: ${S2S_NAME_SSCS_HEARINGS_API:wa_case_event_handler}
+  s2s-authorised:
+    #services: ${WA_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
+    services: ${SSCS_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
 
 #If you use a database then uncomment below lines and update db properties accordingly
 spring:
@@ -44,4 +60,5 @@ spring:
 
 azure:
   application-insights:
-    instrumentation-key: ${sscs.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}
+    instrumentation-key: ${sscs.AppInsightsInstrumentationKey:azure.application-insights.instrumentation-key}
+    s2s-secret-sscs-hearings-api: S2S_SECRET_SSCS_HEARINGS_API

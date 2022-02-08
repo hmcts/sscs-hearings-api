@@ -4,9 +4,9 @@ java:
   ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: sscs
 #  Uncomment once the vault containing the app insights key has been set up
-#  keyVaults:
-#    sscs:
-#      secrets:
-#        - name: AppInsightsInstrumentationKey
-#          alias: azure.application-insights.instrumentation-key
+  keyVaults:
+    sscs:
+      secrets:
+        - name: AppInsightsInstrumentationKey
+          alias: s2s-secret-sscs-hearings-api
   environment:

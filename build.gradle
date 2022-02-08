@@ -17,6 +17,7 @@ plugins {
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.41.0'
   id 'org.sonarqube' version '3.3'
+  id 'info.solidsoft.pitest' version '1.5.2'
 }
 
 apply plugin: 'net.serenity-bdd.aggregator'
@@ -143,11 +144,26 @@ sonarqube {
     property "sonar.projectName", "Reform :: sscs-hearings-api"
     property "sonar.projectKey", "uk.gov.hmcts.reform:sscs-hearings-api"
     property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
+    property "sonar.pitest.mode", "reuseReport"
+    property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/Application.java" +
       "src/main/java/uk/gov/hmcts/reform/sscs/config/**,"
   }
 }
+pitest {
+  junit5PluginVersion = '0.12'
+  targetClasses = ['uk.gov.hmcts.reform.sscs.*']
+  excludedClasses = [
+    'uk.gov.hmcts.reform.sscs.config.*',
+    'uk.gov.hmcts.reform.sscs.Application'
+  ]
+  threads = 10
+  outputFormats = ['XML', 'HTML']
+  timestampedReports = false
+  mutationThreshold = 80
+}
 
+project.tasks['pitest'].group = "Verification"
 // before committing a change, make sure task still works
 dependencyUpdates {
   def isNonStable = { String version ->
@@ -177,7 +193,19 @@ repositories {
   mavenLocal()
   mavenCentral()
   maven { url 'https://jitpack.io' }
+  // Requires authentication, if it gets here the library cannot be found!
+  maven {
+    url 'https://repo.spring.io/libs-milestone'
+  }
 }
+
+def versions =[
+        springdoc: '1.6.5',
+        logging: '5.1.7',
+        serenity: '2.2.12',
+        pitest: '1.5.2',
+        junit: '5.7.2'
+]
 
 ext {
   log4JVersion = "2.17.0"
@@ -189,17 +217,19 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.5'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springdoc
 
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.0.0'
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.logging
 
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4JVersion
 
-  implementation group: 'net.serenity-bdd', name: 'serenity-core', version: '2.2.12'
-  implementation group: 'net.serenity-bdd', name: 'serenity-junit', version: '2.2.12'
-  implementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: '2.2.12'
-  implementation group: 'net.serenity-bdd', name: 'serenity-spring', version: '2.2.12'
+  implementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
+  implementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+  implementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
+  implementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+
+  //implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '4.0.0'
 
   testImplementation(platform('org.junit:junit-bom:5.8.2'))
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -207,11 +237,17 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  testImplementation "org.junit.vintage:junit-vintage-engine:5.7.2"
+  testImplementation "org.junit.vintage:junit-vintage-engine:${versions.junit}"
+
+  testImplementation group: 'org.pitest', name: 'pitest', version: versions.pitest
+  testImplementation 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.2'
+  testImplementation 'org.codehaus.sonar-plugins:sonar-pitest-plugin:0.5'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation sourceSets.test.runtimeClasspath
 
+  smokeTestImplementation sourceSets.main.runtimeClasspath
+  smokeTestImplementation sourceSets.test.runtimeClasspath
 }
 
 mainClassName = 'uk.gov.hmcts.reform.sscs.Application'
