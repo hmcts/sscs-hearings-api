@@ -25,7 +25,7 @@ idam:
   s2s-auth:
     url: ${S2S_URL:http://service-auth-provider-api}
     secret: ${S2S_SECRET_SSCS_HEARINGS_API:AAAAAAAAAAAAAAAA}
-    name: ${S2S_NAME_SSCS_HEARINGS_API:wa_case_event_handler}
+    name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
   s2s-authorised:
     #services: ${WA_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
     services: ${SSCS_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
@@ -35,7 +35,7 @@ spring:
   config:
     import: "optional:configtree:/mnt/secrets/"
   application:
-    name: Spring Boot Template
+    name: SSCS HEARINGS API
 #  datasource:
 #    driver-class-name: org.postgresql.Driver
 #    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_OPTIONS:}
