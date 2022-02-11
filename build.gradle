@@ -154,8 +154,8 @@ integration.shouldRunAfter(test)
 
 sonarqube {
   properties {
-    property "sonar.projectName", "Reform :: sscs-hearings-api"
-    property "sonar.projectKey", "uk.gov.hmcts.reform:sscs-hearings-api"
+    property "sonar.projectName", "SSCS - Hearings Api"
+    property "sonar.projectKey", "SSCSHA"
     property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
