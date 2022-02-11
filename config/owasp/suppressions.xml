@@ -15,4 +15,76 @@
     <cve>CVE-2020-10663</cve>
     <cve>CVE-2020-7712</cve>
    </suppress>
+
+  <suppress until="2022-08-01">
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+   file name: jquery-1.11.3.js
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
+    <cve>CVE-2011-4969</cve>
+    <cve>CVE-2012-6708</cve>
+    <cve>CVE-2015-9251</cve>
+    <cve>CVE-2019-11358</cve>
+    <cve>CVE-2020-11022</cve>
+    <cve>CVE-2020-11023</cve>
+  </suppress>
+  <suppress until="2022-08-01">
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+   file name: jquery-ui-dialog.min.js
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/jquery\-ui\-dialog@.*$</packageUrl>
+    <cve>CVE-2016-7103</cve>
+    <cve>CVE-2021-41182</cve>
+    <cve>CVE-2021-41183</cve>
+    <cve>CVE-2021-41184</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+   file name: jquery-ui.min.js
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/jquery\-ui@.*$</packageUrl>
+    <cve>CVE-2021-41184</cve>
+  </suppress>
+  <suppress until="2022-08-01">
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+   file name: bootstrap.min.js
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
+    <cve>CVE-2016-10735</cve>
+    <cve>CVE-2018-14040</cve>
+    <cve>CVE-2018-14041</cve>
+    <cve>CVE-2018-14042</cve>
+    <cve>CVE-2019-8331</cve>
+  </suppress>
+  <suppress until="2022-08-01">
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+   file name: flexmark-ext-xwiki-macros-0.34.30.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.vladsch\.flexmark/flexmark\-ext\-xwiki\-macros@.*$</packageUrl>
+    <cve>CVE-2007-4898</cve>
+    <cve>CVE-2010-4641</cve>
+    <cve>CVE-2010-4642</cve>
+    <cve>CVE-2018-16277</cve>
+    <cve>CVE-2020-13654</cve>
+    <cve>CVE-2020-15171</cve>
+    <cve>CVE-2020-15252</cve>
+    <cve>CVE-2021-29459</cve>
+    <cve>CVE-2021-32730</cve>
+    <cve>CVE-2021-32732</cve>
+  </suppress>
+  <suppress until="2022-08-01">
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+     file name: openhtmltopdf-jsoup-dom-converter-1.0.0.jar
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.openhtmltopdf/openhtmltopdf\-jsoup\-dom\-converter@.*$</packageUrl>
+    <cve>CVE-2015-6748</cve>
+    <cve>CVE-2021-37714</cve>
+  </suppress>
+
 </suppressions>

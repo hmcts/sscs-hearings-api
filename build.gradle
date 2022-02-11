@@ -16,7 +16,6 @@ plugins {
   id 'org.springframework.boot' version '2.6.3'
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.42.0'
-  id 'net.serenity-bdd.serenity-gradle-plugin' version '3.1.20'
   id 'org.sonarqube' version '3.3'
   id 'info.solidsoft.pitest' version '1.5.2'
   id 'com.gorylenko.gradle-git-properties' version '2.3.1'
@@ -218,6 +217,7 @@ def versions =[
   logging: '5.1.7',
   serenity: '3.1.20',
   pitest: '1.5.2',
+  tomcat: '9.0.58',
   junit: '5.7.2'
 ]
 
@@ -226,7 +226,13 @@ ext {
 }
 
 dependencies {
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', {
+    exclude module: "spring-boot-starter-tomcat" // Because of CVE-2022-23181
+  }
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
+
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
@@ -262,6 +268,22 @@ dependencies {
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
+
+  constraints {
+    implementation(group: 'com.jhlabs', name: 'filters', version: '2.0.235-1') {
+      because 'CVE-2005-0406'
+    }
+    implementation(group: 'com.ibm.icu', name: 'icu4j', version: '70.1') {
+      because 'CVE-2020-21913'
+    }
+    implementation(group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.25') {
+      because 'CVE-2018-11797,CVE-2018-8036,CVE-2021-27807,CVE-2021-27906,CVE-2021-31811,CVE-2021-31812'
+    }
+    implementation(group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.25') {
+      because 'CVE-2018-11797, CVE-2018-8036, CVE-2021-27807, CVE-2021-27906, CVE-2021-31811, CVE-2021-31812'
+    }
+  }
+
 }
 
 mainClassName = 'uk.gov.hmcts.reform.sscs.Application'
