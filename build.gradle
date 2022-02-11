@@ -282,6 +282,9 @@ dependencies {
     implementation(group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.25') {
       because 'CVE-2018-11797, CVE-2018-8036, CVE-2021-27807, CVE-2021-27906, CVE-2021-31811, CVE-2021-31812'
     }
+    implementation(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64') {
+      because 'CVE-2020-15522'
+    }
   }
 
 }
