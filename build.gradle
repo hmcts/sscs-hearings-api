@@ -282,6 +282,9 @@ dependencies {
     implementation(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64') {
       because 'CVE-2020-15522'
     }
+    implementation(group: 'com.thoughtworks.xstream', name: 'xstream', version: ' 1.4.19') {
+      because 'CVE-2021-43859'
+    }
   }
 
 }
