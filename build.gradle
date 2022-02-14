@@ -1,9 +1,6 @@
 buildscript {
-  repositories {
-    jcenter()
-  }
   dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:2.4.34")
+    classpath("net.serenity-bdd:serenity-gradle-plugin:3.1.20")
   }
 }
 
@@ -159,7 +156,7 @@ sonarqube {
     property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
-    property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/Application.java" +
+    property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingApiApplication.java" +
       "src/main/java/uk/gov/hmcts/reform/sscs/config/**,"
   }
 }
@@ -168,7 +165,7 @@ pitest {
   targetClasses = ['uk.gov.hmcts.reform.sscs.*']
   excludedClasses = [
     'uk.gov.hmcts.reform.sscs.config.*',
-    'uk.gov.hmcts.reform.sscs.Application'
+    'uk.gov.hmcts.reform.sscs.HearingApiApplication'
   ]
   threads = 10
   outputFormats = ['XML', 'HTML']
@@ -249,7 +246,7 @@ dependencies {
   implementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
   implementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
 
-  //implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '4.0.0'
+  //implementation group: 'com.github.hmcts',  name: 'auth-checker-lib', version: '2.1.5'
 
   testImplementation(platform('org.junit:junit-bom:5.8.2'))
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -289,13 +286,13 @@ dependencies {
 
 }
 
-mainClassName = 'uk.gov.hmcts.reform.sscs.Application'
+mainClassName = 'uk.gov.hmcts.reform.sscs.HearingApiApplication'
 
 bootJar {
   archiveFileName = "sscs-hearings-api.jar"
 
   manifest {
-    attributes('Implementation-Version': project.version.toString())
+    attributes('Implementation-Title': project.name, 'Implementation-Version': project.version.toString())
   }
 }
 
