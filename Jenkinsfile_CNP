@@ -4,7 +4,7 @@
 
 def type = "java"
 def product = "sscs"
-def component = "sscs-hearings-api"
+def component = "hearings-api"
 
 def secrets = [
   'sscs-${env}' : [
