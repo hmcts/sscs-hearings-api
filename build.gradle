@@ -155,6 +155,7 @@ sonarqube {
       "src/main/java/uk/gov/hmcts/reform/sscs/config/**,"
   }
 }
+
 pitest {
   junit5PluginVersion = '0.12'
   targetClasses = ['uk.gov.hmcts.reform.sscs.*']
@@ -186,7 +187,7 @@ dependencyCheck {
   // Specifies if the build should be failed if a CVSS score above a specified level is identified.
   // range of 0-10 fails the build, anything greater and it doesn't fail the build
   failBuildOnCVSS = System.getProperty('dependencyCheck.failBuild') == 'true' ? 0 : 11
-  suppressionFile = 'config/owasp/suppressions.xml'
+  //suppressionFile = 'config/owasp/suppressions.xml'
 
   analyzers {
     // Disable scanning of .NET related binaries
@@ -234,35 +235,19 @@ ext.libraries = [
 ]
 
 dependencies {
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', {
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core' // Because of CVE-2022-23181
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-el' // Because of CVE-2022-23181
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-websocket' // Because of CVE-2022-23181
-  }
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
-
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
   annotationProcessor  group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-dependencies', version: '2021.0.0'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: versions.springCloud
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: versions.springCloud
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
-  implementation group: 'org.springframework.retry', name: 'spring-retry', version: '1.3.1'
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
 
-  implementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  implementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
-  implementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
-  implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
-  implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
-
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springdoc
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.logging
 
@@ -294,26 +279,26 @@ dependencies {
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
 
-  constraints {
-    implementation(group: 'com.jhlabs', name: 'filters', version: '2.0.235-1') {
-      because 'CVE-2005-0406'
-    }
-    implementation(group: 'com.ibm.icu', name: 'icu4j', version: '70.1') {
-      because 'CVE-2020-21913'
-    }
-    implementation(group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.25') {
-      because 'CVE-2018-11797,CVE-2018-8036,CVE-2021-27807,CVE-2021-27906,CVE-2021-31811,CVE-2021-31812'
-    }
-    implementation(group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.25') {
-      because 'CVE-2018-11797, CVE-2018-8036, CVE-2021-27807, CVE-2021-27906, CVE-2021-31811, CVE-2021-31812'
-    }
-    implementation(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64') {
-      because 'CVE-2020-15522'
-    }
-    implementation(group: 'com.thoughtworks.xstream', name: 'xstream', version: ' 1.4.19') {
-      because 'CVE-2021-43859'
-    }
-  }
+  // constraints {
+  //   implementation(group: 'com.jhlabs', name: 'filters', version: '2.0.235-1') {
+  //     because 'CVE-2005-0406'
+  //   }
+  //   implementation(group: 'com.ibm.icu', name: 'icu4j', version: '70.1') {
+  //     because 'CVE-2020-21913'
+  //   }
+  //   implementation(group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.25') {
+  //     because 'CVE-2018-11797,CVE-2018-8036,CVE-2021-27807,CVE-2021-27906,CVE-2021-31811,CVE-2021-31812'
+  //   }
+  //   implementation(group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.25') {
+  //     because 'CVE-2018-11797, CVE-2018-8036, CVE-2021-27807, CVE-2021-27906, CVE-2021-31811, CVE-2021-31812'
+  //   }
+  //   implementation(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64') {
+  //     because 'CVE-2020-15522'
+  //   }
+  //   implementation(group: 'com.thoughtworks.xstream', name: 'xstream', version: ' 1.4.19') {
+  //     because 'CVE-2021-43859'
+  //   }
+  // }
 
 }
 
