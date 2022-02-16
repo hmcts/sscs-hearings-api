@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
-public class HearingApiApplication {
+public class HearingsApiApplication {
 
     public static void main(final String[] args) {
-        SpringApplication.run(HearingApiApplication.class, args);
+        SpringApplication.run(HearingsApiApplication.class, args);
     }
 }
