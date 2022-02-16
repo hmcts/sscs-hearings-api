@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.controllers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -14,6 +15,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 class GetWelcomeTest {
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
     @Autowired
     private transient MockMvc mockMvc;
 
@@ -22,6 +26,8 @@ class GetWelcomeTest {
     void welcomeRootEndpoint() throws Exception {
         MvcResult response = mockMvc.perform(get("/")).andExpect(status().isOk()).andReturn();
 
-        assertThat(response.getResponse().getContentAsString()).startsWith("Welcome");
+        String test = String.format("Welcome to %1$s",applicationName);
+
+        assertThat(response.getResponse().getContentAsString()).contains(test);
     }
 }

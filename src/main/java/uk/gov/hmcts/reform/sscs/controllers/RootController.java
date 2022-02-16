@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.controllers;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,9 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 public class RootController {
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
     /**
      * Root GET endpoint.
      *
@@ -23,7 +27,8 @@ public class RootController {
      */
     @GetMapping("/")
     public ResponseEntity<String> welcome() {
-
-        return ok("Welcome to sscs-hearings-api");
+        String out = String.format("<div><h1>%1$s</h1><p>Welcome to %1$s</p><p>Health: <a "
+            + "href='/health'>/health</a></p><p>Swagger API Docs: <a href='/swagger-ui/index.html'>/swagger-ui/index.html</a></p></div>",applicationName);
+        return ok(out);
     }
 }
