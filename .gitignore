@@ -1,10 +1,3 @@
-# Intellij
-.idea/
-*.iml
-*.iws
-*.ipr
-*.class
-
 # Mac
 .DS_Store
 
@@ -16,6 +9,15 @@ out/
 # Gradle
 .gradle
 build
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+*.class
+/out
 
 # Eclipse
 .classpath
@@ -28,3 +30,7 @@ bin/
 
 # Auto-generated file at compile time, used to display git version on health endpoint
 /src/main/resources/uk/gov/hmcts/reform/sscs/git.properties
+
+# Other
+*.log
+tmp/
