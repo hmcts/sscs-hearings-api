@@ -76,6 +76,11 @@
     <cve>CVE-2021-29459</cve>
     <cve>CVE-2021-32730</cve>
     <cve>CVE-2021-32732</cve>
+    <cve>CVE-2022-23617</cve>
+    <cve>CVE-2022-23618</cve>
+    <cve>CVE-2022-23619</cve>
+    <cve>CVE-2022-23621</cve>
+    <cve>CVE-2022-23622</cve>
   </suppress>
   <suppress until="2022-08-01">
     <notes><![CDATA[
@@ -103,5 +108,12 @@
     <packageUrl regex="true">^pkg:maven/com\.thoughtworks\.xstream/xstream@.*$</packageUrl>
     <cve>CVE-2021-43859</cve>
   </suppress>
-
+  <suppress>
+    <notes><![CDATA[
+    Used by serenity for testing, not used in prod
+   file name: commons-io-2.6.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+    <cve>CVE-2021-29425</cve>
+  </suppress>
 </suppressions>
