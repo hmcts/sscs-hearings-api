@@ -20,6 +20,12 @@ management:
 
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
+  
+core_case_data:
+  api:
+    url: ${CORE_CASE_DATA_API_URL:http://localhost:4452}
+  jurisdictionId: SSCS
+  caseTypeId: Benefit
 
 anonymousPaths:
     - "/"
@@ -34,13 +40,31 @@ anonymousPaths:
     - "/webjars/springfox-swagger-ui/**"
 
 idam:
+  url: ${IDAM_URL:http://localhost:5000}
   s2s-auth:
-    url: ${S2S_URL:http://service-auth-provider-api}
+    url: ${IDAM_S2S_AUTH:http://localhost:4502}
     secret: ${S2S_SECRET_SSCS_HEARINGS_API:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
+    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
+    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
   s2s-authorised:
     #services: ${WA_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
     services: ${SSCS_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
+  oauth2:
+    user:
+      email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
+      password: ${IDAM_SSCS_SYSTEMUPDATE_PASSWORD:Pa55word11}
+    client:
+      id: ${IDAM_OAUTH2_CLIENT_ID:sscs}
+      secret: ${IDAM_OAUTH2_CLIENT_SECRET:QM5RQQ53LZFOSIXJ}
+    redirectUrl: ${IDAM_OAUTH2_REDIRECT_URL:https://localhost:3000/authenticated}
+    jwkUrl: ${IDAM_API_JWK_URL:http://localhost:5000/jwks}
+  api:
+    url: ${IDAM_URL:http://localhost:5000}
+  client:
+    id: ${IDAM_OAUTH2_CLIENT_ID:sscs}
+    secret: ${IDAM_OAUTH2_CLIENT_SECRET:QM5RQQ53LZFOSIXJ}
+    redirect_uri: ${IDAM_OAUTH2_REDIRECT_URL:https://localhost:3000/authenticated}
 
 #If you use a database then uncomment below lines and update db properties accordingly
 spring:
@@ -48,6 +72,9 @@ spring:
     import: "optional:configtree:/mnt/secrets/"
   application:
     name: SSCS Hearings API
+  main:
+    # https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.1-Release-Notes#bean-overriding
+    allow-bean-definition-overriding: true
 #  datasource:
 #    driver-class-name: org.postgresql.Driver
 #    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_OPTIONS:}
