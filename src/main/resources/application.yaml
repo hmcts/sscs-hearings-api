@@ -21,6 +21,18 @@ management:
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
 
+anonymousPaths:
+    - "/"
+    - "/health"
+    - "/health/liveness"
+    - "/health/readiness"
+    - "/loggers/**"
+    - "/swagger-resources/**"
+    - "/swagger-ui/**"
+    - "/swagger-ui/index.html"
+    - "/v3/api-docs"
+    - "/webjars/springfox-swagger-ui/**"
+
 idam:
   s2s-auth:
     url: ${S2S_URL:http://service-auth-provider-api}

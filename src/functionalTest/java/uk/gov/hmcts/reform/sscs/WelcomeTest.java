@@ -20,6 +20,9 @@ import static org.hamcrest.Matchers.containsString;
 @ActiveProfiles("functional")
 public class WelcomeTest {
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
     @Value("${targets.instance}")
     protected String testUrl;
 
@@ -36,9 +39,11 @@ public class WelcomeTest {
         Response result = given()
             .get("/");
 
+        String test = String.format("Welcome to %1$s",applicationName);
+
         result.then().assertThat()
             .statusCode(HttpStatus.OK.value())
             .and().contentType(MediaType.APPLICATION_JSON_VALUE)
-            .and().body(containsString("Welcome to sscs-hearings-api"));
+            .and().body(containsString(test));
     }
 }
