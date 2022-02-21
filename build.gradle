@@ -205,7 +205,7 @@ repositories {
 }
 
 def versions = [
-  junit           : '5.7.2',
+  junit           : '5.8.2',
   junitPlatform	  : '1.7.2',
   logging         : '5.1.7',
   pitest          : '1.5.2',
