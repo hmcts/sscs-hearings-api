@@ -21,54 +21,31 @@ management:
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
 
-anonymousPaths:
-    - "/"
-    - "/health"
-    - "/health/liveness"
-    - "/health/readiness"
-    - "/loggers/**"
-    - "/swagger-resources/**"
-    - "/swagger-ui/**"
-    - "/swagger-ui/index.html"
-    - "/v3/api-docs"
-    - "/webjars/springfox-swagger-ui/**"
-
 idam:
   s2s-auth:
     url: ${S2S_URL:http://service-auth-provider-api}
     secret: ${S2S_SECRET_SSCS_HEARINGS_API:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
+    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
+    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
   s2s-authorised:
-    #services: ${WA_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
-    services: ${SSCS_S2S_AUTHORIZED_SERVICES:ccd,ccd_data,ccd_gw,ccd_ps}
+    services: ${SSCS_S2S_AUTHORIZED_SERVICES:sscs,ccd,ccd_data,ccd_gw,ccd_ps}
 
-#If you use a database then uncomment below lines and update db properties accordingly
 spring:
+  main:
+    allow-bean-definition-overriding: true
   config:
     import: "optional:configtree:/mnt/secrets/"
   application:
     name: SSCS Hearings API
-#  datasource:
-#    driver-class-name: org.postgresql.Driver
-#    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_OPTIONS:}
-#    username: ${DB_USER_NAME}
-#    password: ${DB_PASSWORD}
-#    properties:
-#      charSet: UTF-8
-#    hikari:
-#      minimumIdle: 2
-#      maximumPoolSize: 10
-#      idleTimeout: 10000
-#      poolName: {to-be-defined}HikariCP
-#      maxLifetime: 7200000
-#      connectionTimeout: 30000
-#  jpa:
-#    properties:
-#      hibernate:
-#        jdbc:
-#          lob:
-#            # silence the 'wall-of-text' - unnecessary exception throw about blob types
-#            non_contextual_creation: true
+  security:
+    anonymousPaths:
+      - "/"
+      - "/health"
+      - "/swagger-ui.html"
+      - "/swagger-ui/index.html"
+      - "/v3/api-docs/**"
+      - "/favicon.ico"
 
 azure:
   application-insights:
