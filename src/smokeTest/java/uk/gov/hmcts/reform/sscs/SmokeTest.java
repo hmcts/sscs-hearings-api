@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.sscs;
 
-import static io.restassured.RestAssured.given;
-
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
@@ -11,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static io.restassured.RestAssured.given;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)

@@ -152,12 +152,15 @@ jacocoTestReport {
   reports {
     xml.required = true
     csv.required = false
-    xml.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
 }
 
 project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
-check.dependsOn integration, functional, smoke, test, contract
+check.dependsOn integration
+checkstyleMain.shouldRunAfter(compileJava)
+test.shouldRunAfter(checkstyleTest)
+integration.shouldRunAfter(checkstyleIntegrationTest)
+integration.shouldRunAfter(test)
 
 sonarqube {
   properties {
@@ -236,6 +239,8 @@ def versions =[
   serviceAuthProviderJavaClient: '4.0.3',
   gradlePiTestPlugin: '1.5.2',
   sonarPiTestPlugin: '0.5',
+  pactJunit: '4.3.5',
+  pactJava8: '4.1.34'
 ]
 
 dependencies {
@@ -276,6 +281,7 @@ dependencies {
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
 
+  testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
@@ -291,6 +297,10 @@ dependencies {
           version: versions.sonarPiTestPlugin
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
+
+  //pact contract testing
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pactJunit
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pactJava8
 }
 
 dependencyManagement {
