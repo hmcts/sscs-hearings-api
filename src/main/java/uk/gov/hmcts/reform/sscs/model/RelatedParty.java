@@ -2,23 +2,14 @@ package uk.gov.hmcts.reform.sscs.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
-import lombok.Data;
-import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import lombok.Getter;
 
 @Builder(toBuilder = true)
-@Data
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RelatedParty {
 
-    @NotEmpty(message = ValidationError.RELATED_PARTY_EMPTY)
-    @Size(max = 15, message = ValidationError.RELATED_PARTY_MAX_LENGTH)
     private String relatedPartyID;
-
-    @NotEmpty(message = ValidationError.RELATIONSHIP_TYPE_EMPTY)
-    @Size(max = 10, message = ValidationError.RELATIONSHIP_TYPE_MAX_LENGTH)
     private String relationshipType;
 
 }
