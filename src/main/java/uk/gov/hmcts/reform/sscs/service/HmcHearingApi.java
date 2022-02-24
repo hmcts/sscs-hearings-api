@@ -8,10 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.HearingResponse;
-
-import javax.validation.Valid;
+import uk.gov.hmcts.reform.sscs.model.HearingPayload;
+import uk.gov.hmcts.reform.sscs.model.HearingRequestDetail;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -29,10 +27,10 @@ public interface HmcHearingApi {
 
 
     @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse createHearingRequest(
+    HearingRequestDetail createHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestBody @Valid HearingRequestPayload hearingPayload
+        @RequestBody HearingPayload hearingPayload
     );
 
 }
