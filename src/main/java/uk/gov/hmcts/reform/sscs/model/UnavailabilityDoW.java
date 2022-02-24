@@ -8,12 +8,10 @@ import lombok.Getter;
 @Builder(toBuilder = true)
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrganisationDetails {
+public class UnavailabilityDoW {
 
-    @JsonProperty("name")
-    private String name;
-    @JsonProperty("organisationType")
-    private String organisationType;
-    @JsonProperty("cftOrganisationID")
-    private String cftOrganisationID;
+    @JsonProperty("DOW")
+    private String dow;
+    @JsonProperty("DOWUnavailabilityType")
+    private String dowUnavailabilityType;
 }
