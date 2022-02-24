@@ -1,8 +1,6 @@
 #!groovy
-
 @Library("Infrastructure")
-
-import uk.gov.hmcts.contino.AppPipelineDsl
+import java.lang.Object
 
 def type = "java"
 def product = "sscs"
@@ -36,17 +34,21 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 withPipeline(type, product, component) {
     overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
+
+    enableAksStagingDeployment()
+    disableLegacyDeployment()
+
     enableMutationTest()
     enableSlackNotifications('#sscs-build')
 
-
     syncBranchesWithMaster(branchesToSync)
 
-    env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
-
-      enablePactAs([
-              AppPipelineDsl.PactRoles.CONSUMER,
-              AppPipelineDsl.PactRoles.CONSUMER_DEPLOY_CHECK
-      ])
+// Disabled until tests are available
+//    env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
+//
+//      enablePactAs([
+//              AppPipelineDsl.PactRoles.CONSUMER,
+//              AppPipelineDsl.PactRoles.CONSUMER_DEPLOY_CHECK
+//      ])
 
 }
