@@ -1,4 +1,6 @@
 java:
-  # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
+  readinessDelay: 45
+  environment:
+    IDAM_S2S_AUTH: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"

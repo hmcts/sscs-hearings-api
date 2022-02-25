@@ -25,8 +25,8 @@ public class SecurityConfigurationTest {
     private String testUrl;
 
     @ParameterizedTest
-    @ValueSource(strings = {"/", "/health",
-        "/swagger-ui.html", "/swagger-ui/index.html"})
+    @ValueSource(strings = {"/", "/health", "/health/liveness",
+        "/health/readiness", "/swagger-ui.html", "/swagger-ui/index.html"})
     public void shouldReturnOkForAnonymousPaths(String path) {
         RequestSpecification requestSpecification = new RequestSpecBuilder()
             .setBaseUri(testUrl)

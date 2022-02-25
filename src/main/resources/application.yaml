@@ -11,6 +11,12 @@ logging:
 management:
   endpoint:
     health:
+      probes:
+        enabled: true
+      livenessState:
+        enabled: true
+      readinessState:
+        enabled: true
       show-details: "always"
   endpoints:
     web:
@@ -23,7 +29,7 @@ springdoc:
 
 idam:
   s2s-auth:
-    url: ${IDAM_S2S_URL:http://service-auth-provider-api}
+    url: ${IDAM_S2S_URL:http://localhost:4502}
     secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
     totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
@@ -42,6 +48,8 @@ spring:
     anonymousPaths:
       - "/"
       - "/health"
+      - "/health/liveness"
+      - "/health/readiness"
       - "/swagger-ui.html"
       - "/swagger-ui/index.html"
       - "/v3/api-docs/**"
