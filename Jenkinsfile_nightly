@@ -36,7 +36,8 @@ withNightlyPipeline(type, product, component) {
     enableFortifyScan()
     enableSecurityScan()
     enableFullFunctionalTest()
-    enableMutationTest()
+    //Disabling until mutation tests added.
+    //enableMutationTest()
 
     after('fortify-scan') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'

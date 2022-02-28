@@ -35,7 +35,8 @@ withPipeline(type, product, component) {
     overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
 
-    enableMutationTest()
+    //Disabling until mutation tests added.
+    //enableMutationTest()
 
     syncBranchesWithMaster(branchesToSync)
 
