@@ -1,9 +1,3 @@
-buildscript {
-  dependencies {
-    classpath("net.serenity-bdd:serenity-gradle-plugin:3.1.20")
-  }
-}
-
 plugins {
   id 'application'
   id 'checkstyle'
@@ -14,12 +8,11 @@ plugins {
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.3'
-  id 'info.solidsoft.pitest' version '1.5.2'
-  id 'com.gorylenko.gradle-git-properties' version '2.3.1'
-  id 'au.com.dius.pact' version '4.2.14'
+  id 'info.solidsoft.pitest' version '1.7.0'
+  id 'com.gorylenko.gradle-git-properties' version '2.4.0'
+  id 'au.com.dius.pact' version '4.3.5'
 }
 
-apply plugin: 'net.serenity-bdd.aggregator'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'info.solidsoft.pitest'
@@ -69,36 +62,70 @@ sourceSets {
     }
     resources.srcDir file('src/smokeTest/resources')
   }
+
+  contractTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/contractTest/java')
+    }
+    resources.srcDir file('src/contractTest/resources')
+  }
 }
 
 task integration(type: Test) {
+  description = "Runs integration tests"
+  group = "Verification"
   setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
   setClasspath(sourceSets.integrationTest.runtimeClasspath)
 }
 
 task functional(type: Test) {
-  useJUnitPlatform()
-  group = 'Functional Tests'
-  description = 'Executes non-destructive functional tests in AAT against a running CCD and notification service'
+  group = 'Verification'
+  description = 'Executes non-destructive functional tests in AAT against a running CCD and notification service.'
+  setTestClassesDirs(sourceSets.functionalTest.output.classesDirs)
+  setClasspath(sourceSets.functionalTest.runtimeClasspath)
+}
+
+task smoke(type: Test) {
+  group = 'Verification'
+  description = 'Executes non-destructive smoke tests against a running SSCS hearings API application.'
   setTestClassesDirs(sourceSets.smokeTest.output.classesDirs)
   setClasspath(sourceSets.smokeTest.runtimeClasspath)
-  include "uk/gov/hmcts/reform/sscs/functional/**"
-
 }
+
+task contract(type: Test) {
+  group = 'Verification'
+  description = 'Executes consumer Pact tests.'
+  setTestClassesDirs(sourceSets.contractTest.output.classesDirs)
+  setClasspath(sourceSets.contractTest.runtimeClasspath)
+}
+
+task runAndPublishConsumerPactTests(type: Test){
+  logger.lifecycle("Runs pact Tests")
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
+}
+
+runAndPublishConsumerPactTests.dependsOn contract
+runAndPublishConsumerPactTests.finalizedBy pactPublish
 
 configurations {
   functionalTestImplementation.extendsFrom testImplementation
-  functionalTestRuntimeOnly.extendsFrom runtimeOnly
+  functionalTestRuntimeOnly.extendsFrom testRuntimeOnly
 
   integrationTestImplementation.extendsFrom testImplementation
-  integrationTestRuntimeOnly.extendsFrom runtimeOnly
+  integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 
   smokeTestImplementation.extendsFrom testImplementation
-  smokeTestRuntimeOnly.extendsFrom runtimeOnly
+  smokeTestRuntimeOnly.extendsFrom testRuntimeOnly
+
+  contractTestImplementation.extendsFrom testImplementation
+  contractTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 tasks.withType(JavaCompile) {
-  options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+  options.compilerArgs << "-Xlint:unchecked" << "-Werror" << '-Xlint:deprecation'
 }
 
 // https://github.com/gradle/gradle/issues/16791
@@ -114,10 +141,6 @@ tasks.withType(Test) {
   }
 }
 
-test {
-  failFast = true
-}
-
 checkstyle {
   maxWarnings = 0
   toolVersion = '9.2.1'
@@ -125,7 +148,7 @@ checkstyle {
 }
 
 pmd {
-  toolVersion = "6.41.0"
+  toolVersion = "6.42.0"
   sourceSets = [sourceSets.main]
   reportsDir = file("$project.buildDir/reports/pmd")
   // https://github.com/pmd/pmd/issues/876
@@ -138,11 +161,16 @@ jacocoTestReport {
   reports {
     xml.required = true
     csv.required = false
-    xml.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
 }
 
 project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
+check.dependsOn integration
+checkstyleMain.shouldRunAfter(compileJava)
+test.shouldRunAfter(checkstyleTest)
+integration.shouldRunAfter(checkstyleIntegrationTest)
+integration.shouldRunAfter(test)
 
 sonarqube {
   properties {
@@ -151,12 +179,13 @@ sonarqube {
     property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
-    property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java" +
+    property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
       "src/main/java/uk/gov/hmcts/reform/sscs/config/**,"
   }
 }
+
 pitest {
-  junit5PluginVersion = '0.12'
+  junit5PluginVersion = '0.15'
   targetClasses = ['uk.gov.hmcts.reform.sscs.*']
   excludedClasses = [
     'uk.gov.hmcts.reform.sscs.config.*',
@@ -204,117 +233,91 @@ repositories {
   }
 }
 
-def versions = [
-  junit           : '5.7.2',
-  junitPlatform	  : '1.7.2',
-  logging         : '5.1.7',
-  pitest          : '1.5.2',
-  restAssured     : '4.3.3',
-  serenity        : '3.1.20',
-  springDoc       : '1.6.6',
-  springCloud     : '3.1.0',
-  springFoxSwagger: '3.0.0',
-  springHystrix   : '2.2.10.RELEASE',
-  tomcat          : '9.0.58'
-]
-
-ext {
-  log4JVersion = "2.17.1"
-}
-
-
-ext.libraries = [
-  junit5: [
-    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
-    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
-    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
-    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
-    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
-  ]
+def versions =[
+        assertJ: '3.22.0',
+        gradlePiTestPlugin: '1.5.2',
+        junitJupiter: '5.8.2',
+        log4J: '2.17.1',
+        logging: '5.1.7',
+        lombok: '1.18.22',
+        pactJava8: '4.1.34',
+        pactJunit: '4.3.5',
+        pitest: '1.7.3',
+        restAssured: '4.5.1',
+        serviceAuthProviderJavaClient: '4.0.3',
+        sonarPiTestPlugin: '0.5',
+        springCloud: '2021.0.1',
+        springDoc: '1.6.6',
+        springFoxSwagger: '3.0.0',
+        springRetry: '1.3.1',
+        tomcat: '9.0.58'
 ]
 
 dependencies {
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', {
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core' // Because of CVE-2022-23181
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-el' // Because of CVE-2022-23181
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-websocket' // Because of CVE-2022-23181
-  }
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
-  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
-
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
-  annotationProcessor  group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-dependencies', version: '2021.0.0'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: versions.springCloud
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: versions.springCloud
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
-  implementation group: 'org.springframework.retry', name: 'spring-retry', version: '1.3.1'
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server'
 
-  implementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
-  implementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
-  implementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter'
+
+  implementation group: 'org.springframework.retry', name: 'spring-retry', version: versions.springRetry
+
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
+  implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
+
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.logging
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client',
+          version: versions.serviceAuthProviderJavaClient
 
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4JVersion
+  implementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
+  annotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
 
-  implementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
-  implementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-  implementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
-  implementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
 
-  //implementation group: 'com.github.hmcts',  name: 'auth-checker-lib', version: '2.1.5'
+  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
+  testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
+  testImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
 
-  testImplementation(platform('org.junit:junit-bom:5.8.2'))
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
+
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  testImplementation "org.junit.vintage:junit-vintage-engine:${versions.junit}"
+
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junitJupiter
+  testRuntimeOnly  group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junitJupiter
 
   testImplementation group: 'org.pitest', name: 'pitest', version: versions.pitest
-  testImplementation 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.2'
-  testImplementation 'org.codehaus.sonar-plugins:sonar-pitest-plugin:0.5'
+  testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin',
+          version: versions.gradlePiTestPlugin
+  testImplementation group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin',
+          version: versions.sonarPiTestPlugin
 
-  functionalTestImplementation sourceSets.main.runtimeClasspath
-  functionalTestImplementation sourceSets.test.runtimeClasspath
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
 
-  smokeTestImplementation sourceSets.main.runtimeClasspath
-  smokeTestImplementation sourceSets.test.runtimeClasspath
+  //pact contract testing
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pactJunit
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pactJava8
+}
 
-  constraints {
-    implementation(group: 'com.jhlabs', name: 'filters', version: '2.0.235-1') {
-      because 'CVE-2005-0406'
-    }
-    implementation(group: 'com.ibm.icu', name: 'icu4j', version: '70.1') {
-      because 'CVE-2020-21913'
-    }
-    implementation(group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.25') {
-      because 'CVE-2018-11797,CVE-2018-8036,CVE-2021-27807,CVE-2021-27906,CVE-2021-31811,CVE-2021-31812'
-    }
-    implementation(group: 'org.apache.pdfbox', name: 'xmpbox', version: '2.0.25') {
-      because 'CVE-2018-11797, CVE-2018-8036, CVE-2021-27807, CVE-2021-27906, CVE-2021-31811, CVE-2021-31812'
-    }
-    implementation(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64') {
-      because 'CVE-2020-15522'
-    }
-    implementation(group: 'com.thoughtworks.xstream', name: 'xstream', version: ' 1.4.19') {
-      because 'CVE-2021-43859'
-    }
+dependencyManagement {
+  imports {
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}"
   }
-
 }
 
 mainClassName = 'uk.gov.hmcts.reform.sscs.HearingsApiApplication'
@@ -331,7 +334,16 @@ bootJar {
 rootProject.tasks.named("processSmokeTestResources") {
   duplicatesStrategy = 'include'
 }
+
 rootProject.tasks.named("processFunctionalTestResources") {
+  duplicatesStrategy = 'include'
+}
+
+rootProject.tasks.named("processContractTestResources") {
+  duplicatesStrategy = 'include'
+}
+
+rootProject.tasks.named("processIntegrationTestResources") {
   duplicatesStrategy = 'include'
 }
 

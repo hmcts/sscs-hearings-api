@@ -1,40 +1,50 @@
 #!groovy
-
 @Library("Infrastructure")
+import java.lang.Object
 
 def type = "java"
 def product = "sscs"
 def component = "hearings-api"
+def branchesToSync = ['demo', 'ithc', 'perftest']
+
+def vaultOverrides = [
+    'preview' : 'aat'
+]
 
 def secrets = [
   'sscs-${env}' : [
+      secret('idam-s2s-api', 'IDAM_S2S_URL'),
+      secret('sscs-s2s-secret', 'IDAM_S2S_AUTH_TOTP_SECRET'),
+      secret('s2s-micro', 'IDAM_S2S_AUTH_MICROSERVICE'),
+      secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY')
   ],
-  's2s-${env}' : [
-
-  ]
+  's2s-${env}' : []
 ]
 
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+    [ $class: 'AzureKeyVaultSecret',
+      secretType: 'Secret',
+      name: secretName,
+      version: '',
+      envVariable: envVar
+    ]
+}
+
+
 withPipeline(type, product, component) {
+    overrideVaultEnvironments(vaultOverrides)
+    loadVaultSecrets(secrets)
 
-  enableMutationTest()
-  enableSlackNotifications('#sscs-build')
+    enableMutationTest()
 
-  env.S2S_URL = "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
-  loadVaultSecrets(secrets)
+    syncBranchesWithMaster(branchesToSync)
 
-  after('test') {
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/**/*'
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/integration/**/*'
-  }
-
-  after('functionalTest:preview') {
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/functional/**/*'
-  }
-
-  after('functionalTest:aat') {
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/site/serenity/**/*'
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/reports/tests/functional/**/*'
-  }
+// Disabled until tests are available
+//    env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
+//
+//      enablePactAs([
+//              AppPipelineDsl.PactRoles.CONSUMER,
+//              AppPipelineDsl.PactRoles.CONSUMER_DEPLOY_CHECK
+//      ])
 
 }
