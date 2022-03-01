@@ -11,4 +11,9 @@ public class RequestDetails {
 
     private String requestTimeStamp;
     private Number versionNumber;
+
+    private String hearingRequestID;
+    private String status;
+    private boolean hearingGroupFlag;
+    private String partiesNotified;
 }
