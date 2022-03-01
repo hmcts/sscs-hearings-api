@@ -5,11 +5,12 @@ import feign.codec.StringDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.HearingPayload;
 import uk.gov.hmcts.reform.sscs.model.HearingRequestDetail;
+
+import java.util.Optional;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -31,6 +32,15 @@ public interface HmcHearingApi {
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestBody HearingPayload hearingPayload
+    );
+
+
+    @GetMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
+    HearingGetResponse getHearingRequest(
+        @RequestHeader(AUTHORIZATION) String authorisation,
+        @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestParam(name = "id") String id,
+        @RequestParam Optional<String> isValid
     );
 
 }
