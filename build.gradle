@@ -233,18 +233,21 @@ repositories {
   }
 }
 
-def versions =[
+def versions= [
         assertJ: '3.22.0',
+        fortify: '1.2.2',
         gradlePiTestPlugin: '1.5.2',
         junitJupiter: '5.8.2',
         log4J: '2.17.1',
-        logging: '5.1.7',
+        logback: '1.2.10',
+        reformLogging: '5.1.9',
         lombok: '1.18.22',
         pactJava8: '4.1.34',
         pactJunit: '4.3.5',
         pitest: '1.7.3',
         restAssured: '4.5.1',
         serviceAuthProviderJavaClient: '4.0.3',
+        slf4j: '1.7.36',
         sonarPiTestPlugin: '0.5',
         springCloud: '2021.0.1',
         springDoc: '1.6.6',
@@ -277,15 +280,22 @@ dependencies {
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
-  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.logging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
+
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client',
           version: versions.serviceAuthProviderJavaClient
 
   implementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
   annotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
 
+  implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
+
+  implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
@@ -308,6 +318,8 @@ dependencies {
           version: versions.sonarPiTestPlugin
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
+
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: versions.fortify
 
   //pact contract testing
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pactJunit
