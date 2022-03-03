@@ -16,4 +16,5 @@ public class HearingDaySchedule {
     private String hearingJudgeId;
     private String panelMemberId;
     private Attendees attendees;
+
 }
