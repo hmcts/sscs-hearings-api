@@ -250,7 +250,8 @@ def versions =[
         springDoc: '1.6.6',
         springFoxSwagger: '3.0.0',
         springRetry: '1.3.1',
-        tomcat: '9.0.58'
+        tomcat: '9.0.58',
+        sscsCommon: '4.6.42'
 ]
 
 dependencies {
@@ -267,6 +268,8 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter'
 
   implementation group: 'org.springframework.retry', name: 'spring-retry', version: versions.springRetry
+
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
