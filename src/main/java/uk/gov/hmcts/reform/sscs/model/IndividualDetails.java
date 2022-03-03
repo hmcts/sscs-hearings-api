@@ -15,9 +15,9 @@ public class IndividualDetails {
     private String preferredHearingChannel;
     private String interpreterLanguage;
     private String reasonableAdjustments;
-    private  boolean vulnerableFlag;
+    private boolean vulnerableFlag;
     private String vulnerabilityDetails;
-    private  String hearingChannelEmail;
+    private String hearingChannelEmail;
     private String hearingChannelPhone;
     private RelatedParty relatedParties;
 }
