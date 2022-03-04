@@ -21,6 +21,10 @@ management:
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
 
+jackson:
+  serialization:
+    WRITE_DATES_AS_TIMESTAMPS: false
+
 anonymousPaths:
     - "/"
     - "/health"
@@ -74,3 +78,7 @@ azure:
   application-insights:
     instrumentation-key: ${sscs.AppInsightsInstrumentationKey:azure.application-insights.instrumentation-key}
     s2s-secret-sscs-hearings-api: S2S_SECRET_SSCS_HEARINGS_API
+
+feign:
+  httpclient:
+    enabled: true

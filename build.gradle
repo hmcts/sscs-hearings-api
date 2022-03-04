@@ -215,7 +215,10 @@ def versions = [
   springCloud     : '3.1.0',
   springFoxSwagger: '3.0.0',
   springHystrix   : '2.2.10.RELEASE',
-  tomcat          : '9.0.58'
+  tomcat          : '9.0.58',
+  lombok          : '1.18.22',
+  gson            : '2.8.9',
+  json            :'1.1.1'
 ]
 
 ext {
@@ -275,6 +278,12 @@ dependencies {
   implementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
 
   //implementation group: 'com.github.hmcts',  name: 'auth-checker-lib', version: '2.1.5'
+
+  implementation group: 'com.google.code.gson', name: 'gson', version: versions.gson
+  implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: versions.json
+
+  compileOnly "org.projectlombok:lombok:$versions.lombok"
+  annotationProcessor "org.projectlombok:lombok:$versions.lombok"
 
   testImplementation(platform('org.junit:junit-bom:5.8.2'))
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
