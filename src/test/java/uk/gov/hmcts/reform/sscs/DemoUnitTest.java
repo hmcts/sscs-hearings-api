@@ -2,12 +2,12 @@ package uk.gov.hmcts.reform.sscs;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DemoUnitTest {
 
     @Test
     void exampleOfTest() {
-        assertTrue(System.currentTimeMillis() > 0, "Example of Unit Test");
+        assertThat(System.currentTimeMillis()).as("Here for setup, delete me.").isPositive();
     }
 }

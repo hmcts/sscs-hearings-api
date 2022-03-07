@@ -9,6 +9,37 @@ properties([
 
 def type = "java"
 def product = "sscs"
-def component = "hearing-api"
+def component = "hearings-api"
 
-withNightlyPipeline(type, product, component) {}
+def secrets = [
+        'sscs-${env}' : [
+                secret('idam-s2s-api', 'IDAM_S2S_URL'),
+                secret('sscs-s2s-secret', 'IDAM_S2S_AUTH_TOTP_SECRET'),
+                secret('s2s-micro', 'IDAM_S2S_AUTH_MICROSERVICE'),
+                secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY')
+        ],
+        's2s-${env}' : []
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+    [ $class: 'AzureKeyVaultSecret',
+      secretType: 'Secret',
+      name: secretName,
+      version: '',
+      envVariable: envVar
+    ]
+}
+
+withNightlyPipeline(type, product, component) {
+    loadVaultSecrets(secrets)
+    enableSlackNotifications('#sscs-tech')
+    enableFortifyScan()
+    enableSecurityScan()
+    enableFullFunctionalTest()
+    //Disabling until mutation tests added.
+    //enableMutationTest()
+
+    after('fortify-scan') {
+        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
+    }
+}

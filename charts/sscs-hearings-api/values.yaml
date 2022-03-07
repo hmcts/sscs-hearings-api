@@ -1,12 +1,24 @@
 java:
-  applicationPort: 8083
   image: 'hmctspublic.azurecr.io/sscs/sscs-hearings-api:latest'
-  ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+  applicationPort: 8083
+  readinessPath: '/health/readiness'
   aadIdentityName: sscs
+  ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
 #  Uncomment once the vault containing the app insights key has been set up
   keyVaults:
     sscs:
       secrets:
         - name: AppInsightsInstrumentationKey
           alias: s2s-secret-sscs-hearings-api
+        - s2s-micro
+        - sscs-s2s-secret
   environment:
+    SERVER_PORT: 8083
+    REFORM_TEAM: sscs
+    REFORM_SERVICE_NAME: sscs-hearings-api
+    REFORM_SERVICE_TYPE: java
+    REFORM_ENVIRONMENT: preview
+    ROOT_LOGGING_LEVEL: INFO
+    LOG_OUTPUT: single
+    CREATE_CCD_ENDPOINT: false
+    IDAM_S2S_URL: "http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
