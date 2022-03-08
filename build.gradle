@@ -256,7 +256,7 @@ def versions= [
         tomcat: '9.0.58',
         lombok : '1.18.22',
         gson : '2.8.9',
-        json :'1.1.1'
+        json :'1.1.1',
         feignJsckson: '9.3.1',
         wiremock: '2.32.0'
 ]
