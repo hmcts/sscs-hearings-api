@@ -10,4 +10,12 @@ import lombok.Getter;
 public class Attendees {
     private String partyID;
     private String hearingSubChannel;
+
+    @Override
+    public String toString() {
+        return "Attendees{" +
+            "partyID='" + partyID + '\'' +
+            ", hearingSubChannel='" + hearingSubChannel + '\'' +
+            '}';
+    }
 }

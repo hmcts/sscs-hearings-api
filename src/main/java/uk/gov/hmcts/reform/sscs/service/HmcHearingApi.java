@@ -1,11 +1,15 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.codec.Decoder;
 import feign.codec.StringDecoder;
+import feign.jackson.JacksonDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.sscs.model.Attendees;
 import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.HearingPayload;
 import uk.gov.hmcts.reform.sscs.model.HearingRequestDetail;
@@ -21,8 +25,9 @@ public interface HmcHearingApi {
 
     class Config {
         @Bean
-        Decoder stringDecoder() {
-            return new StringDecoder();
+        @Primary
+        Decoder feignDecoder(ObjectMapper objectMapper) {
+            return new JacksonDecoder(objectMapper);
         }
     }
 
@@ -42,5 +47,11 @@ public interface HmcHearingApi {
         @RequestParam(name = "id") String id,
         @RequestParam Optional<String> isValid
     );
+
+    @GetMapping(value = "/test2", consumes = MediaType.APPLICATION_JSON_VALUE)
+    Attendees test(
+        @RequestParam(name = "id") String id
+    );
+
 
 }
