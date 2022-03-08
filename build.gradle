@@ -257,6 +257,8 @@ def versions= [
         lombok : '1.18.22',
         gson : '2.8.9',
         json :'1.1.1'
+        feignJsckson: '9.3.1',
+        wiremock: '2.32.0'
 ]
 
 dependencies {
@@ -280,6 +282,7 @@ dependencies {
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: versions.feignJsckson
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
@@ -300,6 +303,7 @@ dependencies {
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
+  testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wiremock
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
