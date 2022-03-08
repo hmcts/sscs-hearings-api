@@ -58,3 +58,7 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+
+location_ref:
+  api:
+    url: ${LOCATION_REF_API_URL:http://localhost:8081}

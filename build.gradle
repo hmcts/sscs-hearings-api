@@ -285,6 +285,7 @@ dependencies {
           version: versions.serviceAuthProviderJavaClient
 
   implementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   annotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
 
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
