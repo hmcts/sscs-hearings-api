@@ -14,6 +14,7 @@ def vaultOverrides = [
 def secrets = [
   'sscs-${env}' : [
       secret('idam-s2s-api', 'IDAM_S2S_URL'),
+      secret('common-ref-data-api', 'COMMON_REF_API_URL'),
       secret('sscs-s2s-secret', 'IDAM_S2S_AUTH_TOTP_SECRET'),
       secret('s2s-micro', 'IDAM_S2S_AUTH_MICROSERVICE'),
       secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY')

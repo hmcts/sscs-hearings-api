@@ -4,3 +4,4 @@ java:
   readinessDelay: 45
   environment:
     IDAM_S2S_AUTH: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
+    COMMON_REF_API_URL: "http://rd-commondata-api-aat.service.core-compute-aat.internal"

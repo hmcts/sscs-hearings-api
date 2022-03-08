@@ -15,8 +15,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
 @FeignClient(
-    name = "location-ref-data-api",
-    url = "${location_ref.api.url}"
+    name = "common-ref-data-api",
+    url = "${common-ref.api.url}"
 )
 public interface CommonReferenceDataApi {
     String SERVICE_AUTHORIZATION = "serviceAuthorization";
