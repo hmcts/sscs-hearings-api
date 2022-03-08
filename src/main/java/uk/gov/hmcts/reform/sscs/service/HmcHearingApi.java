@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.codec.Decoder;
-import feign.codec.StringDecoder;
 import feign.jackson.JacksonDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
@@ -11,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.sscs.model.Attendees;
 import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.HearingPayload;
-import uk.gov.hmcts.reform.sscs.model.HearingRequestDetail;
 
 import java.util.Optional;
 

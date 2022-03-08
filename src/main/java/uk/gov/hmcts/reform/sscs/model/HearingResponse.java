@@ -1,20 +1,33 @@
 package uk.gov.hmcts.reform.sscs.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Builder(toBuilder = true)
-@Getter
+import java.time.LocalDateTime;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+
+@Data
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingResponse {
 
+    @JsonProperty("hearingRequestID")
+    @Size(max = 30)
+    @NotNull
+    private Long hearingRequestId;
 
-    private String listAssistTransactionID;
-    private String receivedDateTime;
-    private Number responseVersion;
-    private String laCaseStatus;
-    private String listingStatus;
-    private String hearingCancellationReason;
-    private HearingDaySchedule hearingDaySchedule;
+    @Size(max = 100)
+    @NotNull
+    private String status;
+
+    @NotNull
+    private LocalDateTime timeStamp;
+
+    @NotNull
+    @Size(max = 100)
+    private String versionNumber;
 }
