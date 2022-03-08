@@ -31,15 +31,16 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 withNightlyPipeline(type, product, component) {
-    loadVaultSecrets(secrets)
-    enableSlackNotifications('#sscs-tech')
-    enableFortifyScan()
-    enableSecurityScan()
-    enableFullFunctionalTest()
-    //Disabling until mutation tests added.
-    //enableMutationTest()
+    //Disabling until AAT environment set up.
+//    loadVaultSecrets(secrets)
+//    enableSlackNotifications('#sscs-tech')
+//    enableFortifyScan()
+//    enableSecurityScan()
+//    enableFullFunctionalTest()
+//    Disabling until mutation tests added.
+//     enableMutationTest()
 
-    after('fortify-scan') {
-        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
-    }
+//    after('fortify-scan') {
+//        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
+//    }
 }
