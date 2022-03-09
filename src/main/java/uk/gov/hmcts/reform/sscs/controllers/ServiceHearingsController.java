@@ -9,13 +9,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
-import uk.gov.hmcts.reform.sscs.idam.IdamService;
-import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 
 import static org.springframework.http.ResponseEntity.status;
 import static uk.gov.hmcts.reform.sscs.service.AuthorisationService.SERVICE_AUTHORISATION_HEADER;
@@ -25,17 +23,14 @@ import static uk.gov.hmcts.reform.sscs.service.AuthorisationService.SERVICE_AUTH
 public class ServiceHearingsController {
 
     private final AuthorisationService authorisationService;
-    private final CcdService ccdService;
-    private final IdamService idamService;
+    private final CcdCaseService ccdCaseService;
 
     @Autowired
     public ServiceHearingsController(
         AuthorisationService authorisationService,
-        CcdService ccdService,
-        IdamService idamService) {
+        CcdCaseService ccdCaseService) {
         this.authorisationService = authorisationService;
-        this.ccdService = ccdService;
-        this.idamService = idamService;
+        this.ccdCaseService = ccdCaseService;
     }
 
     @PostMapping("/serviceHearingValues")
@@ -47,17 +42,7 @@ public class ServiceHearingsController {
 
             long caseId = Long.parseLong(caseReference);
 
-            log.info("Retrieving case details using Case id : {}, for use in generating Service Hearing Values",
-                    caseId);
-
-            IdamTokens idamTokens = idamService.getIdamTokens();
-
-            SscsCaseDetails caseDetails = ccdService.getByCaseId(caseId, idamTokens);
-
-            if (caseDetails == null) {
-                String cause = String.format("The case data for Case id: %s could not be found", caseId);
-                throw new GetCaseException(cause);
-            }
+            SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(caseId);
 
             return status(HttpStatus.OK).body(caseDetails.getData().getCaseCreated());
 
