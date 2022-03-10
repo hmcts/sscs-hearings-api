@@ -49,7 +49,10 @@
       <property name="allowByTailComment" value="true"/>
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
-    <module name="AvoidStarImport"/>
+    <module name="AvoidStarImport">
+      <property name="excludes" value="uk.gov.hmcts.reform.sscs.ccd.domain"/>
+      <property name="excludes" value="uk.gov.hmcts.reform.sscs.helper.HearingsMapping"/>
+    </module>
     <module name="OneTopLevelClass"/>
     <module name="NoLineWrap"/>
     <module name="EmptyBlock">
