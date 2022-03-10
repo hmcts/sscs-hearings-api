@@ -111,6 +111,22 @@ public final class ValidationError {
     public static final String PARTY_TYPE_EMPTY = "Party type must be present";
     public static final String PARTY_ROLE_EMPTY = "Party role must be present";
 
+    public static final String HEARING_REQUEST_ID_NULL_EMPTY = "Hearing Request Id cannot be null or empty";
+    public static final String HEARING_REQUEST_ID_MAX_LENGTH = "Hearing Request Id length cannot be greater than 30 " + CHARACTERS_LONG;
+    public static final String STATUS_NULL_EMPTY = "Status cannot be null or empty";
+    public static final String STATUS_MAX_LENGTH = "Status length cannot be greater than 30 " + CHARACTERS_LONG;
+    public static final String HEARING_REQUEST_RECEIVED_DATETIME_NULL_EMPTY = "Timestamp cannot be null or empty";
+    public static final String HEARING_GROUP_REQUEST_ID_MAX_LENGTH = "Hearing Group Request Id length cannot be greater than 30" + CHARACTERS_LONG;
+
+    public static final String LIST_ASSIST_TRANSACTION_ID_NULL_EMPTY = "List Assist Transaction ID cannot be null or empty";
+    public static final String LIST_ASSIST_TRANSACTION_ID_MAX_LENGTH = "List Assist Transaction ID length cannot be greater than 40" + CHARACTERS_LONG;
+    public static final String RECEIVED_DATE_TIME_NULL_EMPTY = "Received Date Time cannot be null or empty";
+    public static final String RESPONSE_VERSION_NULL_EMPTY = "Response Version cannot be null or empty";
+    public static final String LA_CASE_STATUS_NULL_EMPTY = "La Case Status cannot be null or empty";
+    public static final String HEARING_CANCELLATION_REASON_MAX_LENGTH = "Hearing Cancellation Reason length cannot be greater than 40" + CHARACTERS_LONG;
+    public static final String HEARING_DAY_SCHEDULE_NULL_EMPTY = "Hearing Cancellation Reason cannot be null or empty";
+
+
     private ValidationError() {
     }
 
