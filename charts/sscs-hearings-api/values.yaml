@@ -12,6 +12,9 @@ java:
           alias: s2s-secret-sscs-hearings-api
         - s2s-micro
         - sscs-s2s-secret
+        - idam-sscs-systemupdate-user
+        - idam-sscs-systemupdate-password
+        - s2s-micro
   environment:
     SERVER_PORT: 8083
     REFORM_TEAM: sscs
@@ -22,3 +25,5 @@ java:
     LOG_OUTPUT: single
     CREATE_CCD_ENDPOINT: false
     IDAM_S2S_URL: "http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+    IDAM_API_URL: https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net
+    CORE_CASE_DATA_API_URL: "http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
