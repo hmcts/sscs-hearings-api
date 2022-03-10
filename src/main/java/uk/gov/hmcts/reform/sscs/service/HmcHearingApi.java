@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.HearingResponse;
 
 import javax.validation.Valid;
-import java.util.Optional;
+
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -44,14 +44,14 @@ public interface HmcHearingApi {
     HearingGetResponse getHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam(name = "id") String id,
-        @RequestParam Optional<String> isValid
+        @RequestParam(value = "id") String id
     );
 
-    @GetMapping(value = "/test2", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/test", consumes = MediaType.APPLICATION_JSON_VALUE)
     Attendees test(
+        @RequestHeader(AUTHORIZATION) String authorisation,
+        @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam(name = "id") String id
     );
-
 
 }
