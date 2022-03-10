@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.sscs.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 
 import java.util.List;
@@ -10,8 +10,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Data
-@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@NoArgsConstructor
 public class HearingRequestPayload {
 
     @Valid

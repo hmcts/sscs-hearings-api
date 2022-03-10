@@ -29,5 +29,5 @@ public class HearingResponse {
 
     @NotNull
     @Size(max = 100)
-    private String versionNumber;
+    private Integer versionNumber;
 }

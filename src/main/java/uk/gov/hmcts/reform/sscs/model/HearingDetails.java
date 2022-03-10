@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.sscs.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import static uk.gov.hmcts.reform.sscs.exceptions.ValidationError.FACILITIES_REQ
 import static uk.gov.hmcts.reform.sscs.exceptions.ValidationError.NON_STANDARD_HEARING_DURATION_REASONS_MAX_LENGTH_MSG;
 
 @Data
-@Builder(toBuilder = true)
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.TooManyFields")
 public class HearingDetails {
