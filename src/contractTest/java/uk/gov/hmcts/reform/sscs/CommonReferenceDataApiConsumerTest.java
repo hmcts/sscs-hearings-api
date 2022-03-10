@@ -40,7 +40,8 @@ public class CommonReferenceDataApiConsumerTest {
             .given("category id is provided to retrieve list of categories")
             .uponReceiving("a request to GET list of categories")
             .path("refdata/commondata/lov/categories")
-            .path("refdata/commondata/lov/categories/1")
+            // second pact, test
+            //.path("refdata/commondata/lov/categories/1")
             .method("GET")
             .willRespondWith()
             .status(HttpStatus.SC_OK)
@@ -65,7 +66,7 @@ public class CommonReferenceDataApiConsumerTest {
     }
 
     @Test
-    @PactTestFor(pactMethod = "generatePactFragment")
+    @PactTestFor(pactMethod = "retrieveListOfValuesByCategoryIdPact")
     public void verifyPactResponse() {
         var categories = commonReferenceDataApi.retrieveListOfValuesByCategoryId(HttpHeaders.AUTHORIZATION, AUTH_TOKEN, categoryId, categoryRequest);
         Assertions.assertEquals(1, categories.getBody().getListOfCategory().size());
