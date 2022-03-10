@@ -61,4 +61,4 @@ azure:
 
 common-ref:
   api:
-    url: ${COMMON_REF_API_URL:http://localhost:8081}
+    url: ${COMMON_REF_API_URL:http://localhost:4550}
