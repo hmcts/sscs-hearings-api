@@ -8,9 +8,9 @@ import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 
 @Data
 @NoArgsConstructor
@@ -54,6 +54,6 @@ public class HearingResponse {
     private String hearingCancellationReason;
 
     @NotNull(message = ValidationError.HEARING_DAY_SCHEDULE_NULL_EMPTY)
-    private HearingDaySchedule hearingDaySchedule;
+    private List<HearingDaySchedule> hearingDaySchedule;
 
 }

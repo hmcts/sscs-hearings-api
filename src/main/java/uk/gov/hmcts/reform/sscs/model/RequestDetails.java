@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 
 import java.time.LocalDateTime;
@@ -10,8 +11,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@NoArgsConstructor
 @Data
-@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestDetails {
 
@@ -30,6 +31,4 @@ public class RequestDetails {
     @Size(max = 30, message = ValidationError.HEARING_GROUP_REQUEST_ID_MAX_LENGTH)
     private String hearingGroupRequestId;
     private LocalDateTime partiesNotified;
-
-
 }

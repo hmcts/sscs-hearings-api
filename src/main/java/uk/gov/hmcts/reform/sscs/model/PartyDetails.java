@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
@@ -12,7 +13,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-@Builder(toBuilder = true)
+@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PartyDetails {
@@ -41,5 +42,4 @@ public class PartyDetails {
 
     @Valid
     private List<UnavailabilityRange> unavailabilityRanges;
-
 }

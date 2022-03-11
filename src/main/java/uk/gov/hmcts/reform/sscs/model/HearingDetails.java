@@ -3,20 +3,21 @@ package uk.gov.hmcts.reform.sscs.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 
-import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 import static uk.gov.hmcts.reform.sscs.exceptions.ValidationError.FACILITIES_REQUIRED_MAX_LENGTH_MSG;
 import static uk.gov.hmcts.reform.sscs.exceptions.ValidationError.NON_STANDARD_HEARING_DURATION_REASONS_MAX_LENGTH_MSG;
 
+@NoArgsConstructor
 @Data
-@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.TooManyFields")
 public class HearingDetails {

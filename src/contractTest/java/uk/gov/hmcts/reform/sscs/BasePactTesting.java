@@ -1,8 +1,17 @@
 package uk.gov.hmcts.reform.sscs;
 
+import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import uk.gov.hmcts.reform.sscs.model.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class BasePactTesting {
@@ -23,4 +32,8 @@ public class BasePactTesting {
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
+
+
+
+
 }

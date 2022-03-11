@@ -1,5 +1,13 @@
 package uk.gov.hmcts.reform.sscs.exceptions;
 
+import uk.gov.hmcts.reform.sscs.model.CaseDetails;
+import uk.gov.hmcts.reform.sscs.model.HearingDetails;
+import uk.gov.hmcts.reform.sscs.model.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.RequestDetails;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
 public final class ValidationError {
 
     private static final String CHARACTERS_LONG = "characters long";
@@ -126,7 +134,21 @@ public final class ValidationError {
     public static final String HEARING_CANCELLATION_REASON_MAX_LENGTH = "Hearing Cancellation Reason length cannot be greater than 40" + CHARACTERS_LONG;
     public static final String HEARING_DAY_SCHEDULE_NULL_EMPTY = "Hearing Cancellation Reason cannot be null or empty";
 
+    public static final String LIST_ASSIST_SESSION_ID_MAX_LENGTH = "List Assist Session Id length cannot be greater than 60" + CHARACTERS_LONG;
+    public static final String HEARING_VENUE_ID_MAX_LENGTH = "Hearing Venue Id length cannot be greater than 60" + CHARACTERS_LONG;
+    public static final String HEARING_ROOM_ID_MAX_LENGTH = "Hearing Room Id length cannot be greater than 60" + CHARACTERS_LONG;
+    public static final String HEARING_JUDGE_ID_MAX_LENGTH = "Hearing Judge Id length cannot be greater than 60" + CHARACTERS_LONG;
+    public static final String PANEL_MEMBER_ID_MAX_LENGTH = "Panel Member Id length cannot be greater than 60" + CHARACTERS_LONG;
 
+    public static final String PARTY_ID_LENGTH = "Party Id length cannot be greater than 40" + CHARACTERS_LONG;
+    public static final String HEARING_SUB_CHANNEL_MAX_LENGTH = "Hearing Sub Channel length cannot be greater than 60" + CHARACTERS_LONG;
+
+
+    public static final String REQUEST_DETAILS_NULL_EMPTY = "Request Details cannot be null or empty";
+    public static final String HEARING_DETAILS_NULL_EMPTY = "Hearing Details cannot be null or empty";
+    public static final String CASE_DETAILS_NULL_EMPTY = "Case Details cannot be null or empty";
+    public static final String PARTY_DETAILS_LIST_NULL_EMPTY = "Party Details cannot be null or empty";
+    public static final String HEARING_RESPONSE_NULL_EMPTY = "Hearing Response cannot be null or empty";
     private ValidationError() {
     }
 
