@@ -74,3 +74,7 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+
+caseworker-ref:
+  api:
+    url: ${CASEWORKER_REF_API_URL:http://localhost:8095}
