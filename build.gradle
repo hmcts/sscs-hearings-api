@@ -181,7 +181,8 @@ sonarqube {
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
-      "src/main/java/uk/gov/hmcts/reform/sscs/config/**,"
+            "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
+            "src/main/java/uk/gov/hmcts/reform/sscs/model/**"
   }
 }
 
@@ -259,7 +260,7 @@ def versions= [
         springDoc: '1.6.6',
         springFoxSwagger: '3.0.0',
         springRetry: '1.3.1',
-	      sscsCommon: '4.6.45',
+	    sscsCommon: '4.6.45',
         tomcat: '9.0.58'
 ]
 
@@ -299,7 +300,6 @@ dependencies {
           version: versions.serviceAuthProviderJavaClient
 
   implementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   annotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
 
   implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
