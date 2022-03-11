@@ -74,3 +74,7 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+
+common-ref:
+  api:
+    url: ${COMMON_REF_API_URL:http://localhost:4550}
