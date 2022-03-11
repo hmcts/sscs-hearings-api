@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("functional")
-public class SecurityConfigurationTest {
+class SecurityConfigurationTest {
 
     @Value("${server.url}")
     private String testUrl;

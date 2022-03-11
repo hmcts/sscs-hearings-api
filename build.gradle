@@ -5,6 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.6.3'
+  id 'uk.gov.hmcts.java' version '0.12.18'
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.3'
@@ -180,7 +181,8 @@ sonarqube {
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
-      "src/main/java/uk/gov/hmcts/reform/sscs/config/**,"
+            "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
+            "src/main/java/uk/gov/hmcts/reform/sscs/model/**"
   }
 }
 
@@ -235,13 +237,18 @@ repositories {
 
 def versions= [
         assertJ: '3.22.0',
+        commonsIo: '2.11.0',
+        elasticsearch: '7.16.3',
         fortify: '1.2.2',
+        feign: '11.7',
         gradlePiTestPlugin: '1.5.2',
+        hmctsProperties: '0.1.0',
         junitJupiter: '5.8.2',
         log4J: '2.17.1',
         logback: '1.2.10',
         reformLogging: '5.1.9',
         lombok: '1.18.22',
+        okhttp: '4.9.2',
         pactJava8: '4.1.34',
         pactJunit: '4.3.5',
         pitest: '1.7.3',
@@ -254,10 +261,11 @@ def versions= [
         springFoxSwagger: '3.0.0',
         springRetry: '1.3.1',
         tomcat: '9.0.58',
-        lombok : '1.18.22',
         gson : '2.8.9',
         json :'1.1.1',
-        pact : '4.1.28'
+        pact : '4.1.28',
+       sscsCommon: '4.6.45'
+
 ]
 
 dependencies {
@@ -279,8 +287,13 @@ dependencies {
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
 
+  implementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
+
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
+
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feign
+  implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: versions.okhttp
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
@@ -296,6 +309,11 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
 
+  implementation group: 'org.elasticsearch', name: 'elasticsearch', version: versions.elasticsearch
+
+  implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: versions.hmctsProperties
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
+
   implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
 
@@ -305,6 +323,7 @@ dependencies {
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
 
+  testImplementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
   testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
 
 
@@ -332,8 +351,7 @@ dependencies {
           version: versions.sonarPiTestPlugin
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
-
-  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: versions.fortify, classifier: 'all'
+  testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
 
   testImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact

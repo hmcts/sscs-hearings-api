@@ -27,11 +27,20 @@ management:
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
 
+
 jackson:
   serialization:
     WRITE_DATES_AS_TIMESTAMPS: false
+    
+core_case_data:
+  api:
+    url: ${CORE_CASE_DATA_API_URL:http://localhost:4452}
+  jurisdictionId: SSCS
+  caseTypeId: Benefit
 
 idam:
+  api:
+    url: ${IDAM_API_URL:http://localhost:5000}
   s2s-auth:
     url: ${IDAM_S2S_URL:http://localhost:4502}
     secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAA}
@@ -40,6 +49,10 @@ idam:
     microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
   s2s-authorised:
     services: ${SSCS_S2S_AUTHORIZED_SERVICES:sscs,ccd,ccd_data,ccd_gw,ccd_ps}
+  oauth2:
+    user:
+      email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
+      password: ${IDAM_SSCS_SYSTEMUPDATE_PASSWORD:Pa55word11}
 
 spring:
   main:
@@ -56,8 +69,12 @@ spring:
       - "/health/readiness"
       - "/swagger-ui.html"
       - "/swagger-ui/index.html"
+      - "/swagger-ui/swagger-ui-bundle.js"
+      - "/swagger-ui/swagger-ui-standalone-preset.js"
+      - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
+      - "/serviceHearingValues"
 
 azure:
   application-insights:

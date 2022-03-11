@@ -41,5 +41,4 @@ public class PartyDetails {
 
     @Valid
     private List<UnavailabilityRange> unavailabilityRanges;
-
 }
