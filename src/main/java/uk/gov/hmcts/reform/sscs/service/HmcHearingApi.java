@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.codec.Decoder;
 import feign.jackson.JacksonDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -29,6 +30,7 @@ public interface HmcHearingApi {
         Decoder feignDecoder(ObjectMapper objectMapper) {
             return new JacksonDecoder(objectMapper);
         }
+
     }
 
 

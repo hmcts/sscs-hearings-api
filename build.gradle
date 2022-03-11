@@ -258,7 +258,8 @@ def versions= [
         lombok : '1.18.22',
         gson : '2.8.9',
         json :'1.1.1',
-        feignJsckson: '9.3.1'
+        feignJsckson: '11.8',
+        jscksonDataType: '2.13.2'
 ]
 
 dependencies {
@@ -283,6 +284,7 @@ dependencies {
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: versions.feignJsckson
+
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: versions.springDoc
 
@@ -343,6 +345,8 @@ dependencies {
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact
   contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
   contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'java8',  version: versions.pact
+
+
 
 
 }

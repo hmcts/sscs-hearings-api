@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.sscs.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exceptions.ValidationError;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 
 import static uk.gov.hmcts.reform.sscs.exceptions.ValidationError.REASONABLE_ADJUSTMENTS_MAX_LENGTH_MSG;
 
-@Builder(toBuilder = true)
+@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IndividualDetails {
