@@ -40,12 +40,11 @@ class AuthorisationServiceTest {
     }
 
     @Test
-    void shouldAuthorise() throws AuthorisationException, InvalidHeaderException {
+    void shouldAuthorise() {
         given(serviceAuthorisationApi.getServiceName(eq(AUTHORIZATION))).willReturn("test");
 
-        authorisationService.authorise(AUTHORIZATION);
-
-        assertThatNoException();
+        assertThatNoException().isThrownBy(
+                () -> authorisationService.authorise(AUTHORIZATION));
     }
 
     @Test
