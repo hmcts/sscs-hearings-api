@@ -1,4 +1,4 @@
-package uk.gov.hmtcs.reform.sscs;
+package uk.gov.hmcts.reform.sscs;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;

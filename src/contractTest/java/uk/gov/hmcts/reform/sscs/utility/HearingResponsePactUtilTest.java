@@ -1,4 +1,4 @@
-package uk.gov.hmtcs.reform.sscs.utility;
+package uk.gov.hmcts.reform.sscs.utility;
 
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import org.junit.jupiter.api.Test;

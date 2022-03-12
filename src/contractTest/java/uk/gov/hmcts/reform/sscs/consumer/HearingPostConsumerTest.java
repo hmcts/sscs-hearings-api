@@ -1,4 +1,4 @@
-package uk.gov.hmtcs.reform.sscs.consumer;
+package uk.gov.hmcts.reform.sscs.consumer;
 
 import au.com.dius.pact.consumer.MockServer;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import uk.gov.hmcts.reform.sscs.BasePactTesting;
 import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
-import uk.gov.hmtcs.reform.sscs.BasePactTesting;
-import uk.gov.hmtcs.reform.sscs.utility.HearingResponsePactUtil;
+import uk.gov.hmcts.reform.sscs.utility.HearingResponsePactUtil;
 
 import java.util.Map;
 
