@@ -38,6 +38,10 @@ core_case_data:
   jurisdictionId: SSCS
   caseTypeId: Benefit
 
+judicial-ref:
+  api:
+    url: ${JUDICIAL_REF_API_URL:http://localhost:8093}
+
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
