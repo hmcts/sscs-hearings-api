@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +11,6 @@ import uk.gov.hmcts.reform.sscs.model.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.OrganisationDetails;
@@ -28,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class BasePactTesting {
 
@@ -43,13 +40,14 @@ public class BasePactTesting {
     public static final String MSG_200_POST_HEARING = "Success (with content)";
     public static final String MSG_400_POST_HEARING = "Invalid request";
 
+    protected static final String CONTENT_TYPE = "Content-Type";
+    protected static final String APPLICATION_JSON = "application/json";
 
     protected static final Map<String, String> headers = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
-        SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN
+        SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
+        CONTENT_TYPE, APPLICATION_JSON
     );
-
-    private final Random random = new Random();
 
     /**
      * generate Hearing Request.
@@ -58,10 +56,11 @@ public class BasePactTesting {
      */
     protected HearingRequestPayload generateHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
+        request.setRequestDetails(requestDetails());
         request.setHearingDetails(hearingDetails());
         request.setCaseDetails(caseDetails());
         request.setPartyDetails(partyDetails1());
-        request.setRequestDetails(requestDetails());
+
         return request;
     }
 
@@ -76,24 +75,6 @@ public class BasePactTesting {
         request.setPartyDetails(partyDetails2());
         request.setRequestDetails(requestDetails());
         return request;
-    }
-
-    /**
-     * get JSON String from hearing Request.
-     *
-     * @return String JSON string of hearing Request
-     */
-    protected String jsonCreatedHearingResponse(HearingResponse hearingRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        String jsonString = "";
-        try {
-            jsonString = objectMapper.writeValueAsString(hearingRequest);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        logger.debug("hearingRequest to JSON: {}", jsonString);
-        return jsonString;
     }
 
     /**
@@ -121,8 +102,8 @@ public class BasePactTesting {
      */
     protected RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setRequestTimeStamp("2030-08-20T12:40:00.000Z");
-        requestDetails.setVersionNumber(12);
+        requestDetails.setRequestTimeStamp("030-08-20T12:40:00.000Z");
+        requestDetails.setVersionNumber(123);
         return requestDetails;
     }
 
@@ -149,35 +130,12 @@ public class BasePactTesting {
         return hearingDetails;
     }
 
-    /**
-     * is random number ODD?.
-     *
-     * @return boolean true if odd
-     */
-    private boolean isRandomlyOdd() {
-        int x = random.nextInt();
-        if (x < 0) {
-            x *= -1;
-        }
-        x = x % 2;
-        return (x > 0);
-    }
 
-    /**
-     * Create Hearing Window test data.
-     *
-     * @return hearingWindow hearing Window
-     */
     protected HearingWindow hearingWindow() {
         HearingWindow hearingWindow = new HearingWindow();
-        if (isRandomlyOdd()) {
-            logger.info("using hearing window first date");
-            hearingWindow.setFirstDateTimeMustBe("01/02/2020");
-        } else {
-            logger.info("using hearing window date range");
-            hearingWindow.setDateRangeStart("01/02/2020");
-            hearingWindow.setDateRangeEnd("12/02/2020");
-        }
+        hearingWindow.setDateRangeStart("01/02/2020");
+        hearingWindow.setDateRangeEnd("12/02/2020");
+
         return hearingWindow;
     }
 
@@ -266,7 +224,8 @@ public class BasePactTesting {
         partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
         partyDetailsArrayList.add(createPartyDetails("P2", "IND", "DEF2", createIndividualDetails(), null));
         partyDetailsArrayList.add(createPartyDetails("P3", "IND", "DEF3", createIndividualDetails(),
-                                                     createOrganisationDetails()));
+                                                     createOrganisationDetails()
+        ));
         return partyDetailsArrayList;
     }
 
@@ -281,12 +240,14 @@ public class BasePactTesting {
         partyDetailsArrayList.add(createPartyDetails("P2", "IND2", "DEF2", createIndividualDetails(), null));
         partyDetailsArrayList.add(createPartyDetails("P3", "IND3", "DEF3", null, createOrganisationDetails()));
         partyDetailsArrayList.add(createPartyDetails("P4", "IND4", "DEF4", createIndividualDetails(),
-                                                     createOrganisationDetails()));
+                                                     createOrganisationDetails()
+        ));
         return partyDetailsArrayList;
     }
 
     /**
      * create Organisation Details.
+     *
      * @return OrganisationDetails organisation Details
      */
     private OrganisationDetails createOrganisationDetails() {
@@ -299,6 +260,7 @@ public class BasePactTesting {
 
     /**
      * create Individual Details.
+     *
      * @return IndividualDetails individual Details
      */
     private IndividualDetails createIndividualDetails() {
@@ -318,6 +280,7 @@ public class BasePactTesting {
 
     /**
      * create Related Parties.
+     *
      * @return List>RelatedParties>
      */
     private List<RelatedParty> createRelatedParties() {
@@ -336,9 +299,10 @@ public class BasePactTesting {
 
     /**
      * create Party Details.
-     * @param partyID party Id
-     * @param partyType party Type
-     * @param partyRole party Role
+     *
+     * @param partyID             party Id
+     * @param partyType           party Type
+     * @param partyRole           party Role
      * @param organisationDetails organisation Details
      * @return PartyDetails party details
      */
@@ -362,6 +326,7 @@ public class BasePactTesting {
 
     /**
      * create Reasonable Adjustments.
+     *
      * @return List of String
      */
     private List<String> createReasonableAdjustments() {
@@ -374,6 +339,7 @@ public class BasePactTesting {
 
     /**
      * create Unavailability Dow.
+     *
      * @return List of String
      */
     private List<UnavailabilityDoW> createUnavailabilityDows() {
@@ -391,6 +357,7 @@ public class BasePactTesting {
 
     /**
      * create Unavailability Date Ranges.
+     *
      * @return List of UnavailabilityDow
      */
     private List<UnavailabilityRange> createUnavailableDateRanges() {

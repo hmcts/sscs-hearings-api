@@ -263,7 +263,7 @@ def versions= [
         tomcat: '9.0.58',
         gson : '2.8.9',
         json :'1.1.1',
-        pact : '4.1.28',
+        pact : '4.1.7',
        sscsCommon: '4.6.45'
 
 ]
@@ -330,6 +330,7 @@ dependencies {
   implementation group: 'com.google.code.gson', name: 'gson', version: versions.gson
   implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: versions.json
 
+
   compileOnly "org.projectlombok:lombok:$versions.lombok"
   annotationProcessor "org.projectlombok:lombok:$versions.lombok"
 
@@ -354,11 +355,11 @@ dependencies {
   testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
 
-  testImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
-
   //pact contract testing
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pactJunit
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pactJava8
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact
+  contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
+  contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'java8',  version: versions.pact
 }
 
 dependencyManagement {
