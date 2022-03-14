@@ -1,13 +1,5 @@
 package uk.gov.hmcts.reform.sscs.exceptions;
 
-import uk.gov.hmcts.reform.sscs.model.CaseDetails;
-import uk.gov.hmcts.reform.sscs.model.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.PartyDetails;
-import uk.gov.hmcts.reform.sscs.model.RequestDetails;
-
-import javax.validation.constraints.NotNull;
-import java.util.List;
-
 public final class ValidationError {
 
     private static final String CHARACTERS_LONG = "characters long";

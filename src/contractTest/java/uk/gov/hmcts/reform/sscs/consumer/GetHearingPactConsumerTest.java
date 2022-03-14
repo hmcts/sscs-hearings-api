@@ -22,7 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.sscs.BasePactTesting;
-import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 
 import java.time.LocalDateTime;

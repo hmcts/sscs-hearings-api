@@ -23,7 +23,7 @@ import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.model.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.hmc.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 
 import static org.mockito.ArgumentMatchers.any;

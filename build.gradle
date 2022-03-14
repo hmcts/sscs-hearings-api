@@ -288,7 +288,6 @@ dependencies {
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
-
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feign
   implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: versions.okhttp
 
@@ -307,7 +306,6 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
 
   implementation group: 'org.elasticsearch', name: 'elasticsearch', version: versions.elasticsearch
-
   implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: versions.hmctsProperties
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 

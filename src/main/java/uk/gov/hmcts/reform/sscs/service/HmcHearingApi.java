@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingResponse;
 
 import javax.validation.Valid;
 
