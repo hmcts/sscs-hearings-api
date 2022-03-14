@@ -22,11 +22,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.sscs.BasePactTesting;
+
 import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
+
 
 @ExtendWith(SpringExtension.class)
 @ExtendWith(PactConsumerTestExt.class)
@@ -34,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
-
 public class GetHearingPactConsumerTest extends BasePactTesting {
 
     private static final String PATH_HEARING = "/hearing";
@@ -42,10 +43,12 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     private static final String VALID_CASE_ID = "123";
     private static final String OPTION_FIELD_IS_VALID = "?isValid";
     private static final String VALID_NO_CONTENT_CASE_ID = "0";
+
     private static final String BAD_REQUEST_CASE_ID = "400";
     private static final String UNAUTHORISED_CASE_ID = "401";
     private static final String FORBIDDEN_CASE_ID = "403";
     private static final String NOT_FOUND_CASE_ID = "404";
+
     private static final LocalDateTime date = LocalDateTime.now();
 
     @Autowired

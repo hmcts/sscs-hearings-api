@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.codec.Decoder;
 import feign.jackson.JacksonDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -13,13 +15,13 @@ import uk.gov.hmcts.reform.sscs.model.hmc.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.hmc.HearingResponse;
 
 import javax.validation.Valid;
-
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = HmcHearingApi.Config.class)
 public interface HmcHearingApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
+
 
     @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse createHearingRequest(
@@ -43,5 +45,6 @@ public interface HmcHearingApi {
         }
 
     }
+
 
 }

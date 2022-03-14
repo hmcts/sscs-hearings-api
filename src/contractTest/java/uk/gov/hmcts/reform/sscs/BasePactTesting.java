@@ -1,16 +1,19 @@
 package uk.gov.hmcts.reform.sscs;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-
 import java.util.Map;
 
 public class BasePactTesting {
 
+
+    protected static final Logger logger = LoggerFactory.getLogger(BasePactTesting.class);
+
     public static final String PROVIDER_NAME = "sscsHearingApiProvider";
     public static final String CONSUMER_NAME = "sscsHearingApiConsumer";
-    protected static final Logger logger = LoggerFactory.getLogger(BasePactTesting.class);
+
     protected static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     protected static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";
     protected static final String SERVICE_AUTHORIZATION_TOKEN = "pact-test-s2s-token";
@@ -22,6 +25,7 @@ public class BasePactTesting {
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
+
 
 
 }
