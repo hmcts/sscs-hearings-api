@@ -78,3 +78,7 @@ azure:
 caseworker-ref:
   api:
     url: ${CASEWORKER_REF_API_URL:http://localhost:8095}
+
+common-ref:
+  api:
+    url: ${COMMON_REF_API_URL:http://localhost:4550}

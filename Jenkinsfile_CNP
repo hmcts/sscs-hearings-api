@@ -21,7 +21,8 @@ def secrets = [
       secret('idam-sscs-systemupdate-password', 'IDAM_SSCS_SYSTEMUPDATE_PASSWORD'),
       secret('sscs-s2s-secret', 'IDAM_S2S_AUTH_TOTP_SECRET'),
       secret('s2s-micro', 'IDAM_S2S_AUTH_MICROSERVICE'),
-      secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY')
+      secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY'),
+      secret('common-ref-data-api', 'COMMON_REF_API_URL')
   ],
   's2s-${env}' : []
 ]
