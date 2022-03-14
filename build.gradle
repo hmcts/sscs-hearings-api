@@ -311,6 +311,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: versions.hmctsProperties
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
@@ -321,7 +322,6 @@ dependencies {
 
   testImplementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
   testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
-
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
@@ -339,7 +339,6 @@ dependencies {
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
   testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
-
 
   //pact contract testing
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
