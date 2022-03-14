@@ -1,2 +1,4 @@
 server:
   url: ${TEST_URL:http://localhost:8083}
+hmc:
+  url: 'http://127.0.0.1:10000'

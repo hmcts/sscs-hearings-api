@@ -7,10 +7,10 @@ import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
-import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import feign.FeignException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 @ExtendWith(SpringExtension.class)
 @ExtendWith(PactConsumerTestExt.class)
@@ -33,7 +34,7 @@ import java.time.LocalDateTime;
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
-@PactFolder("build/pacts")
+
 public class GetHearingPactConsumerTest extends BasePactTesting {
 
     private static final String PATH_HEARING = "/hearing";
@@ -41,6 +42,10 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     private static final String VALID_CASE_ID = "123";
     private static final String OPTION_FIELD_IS_VALID = "?isValid";
     private static final String VALID_NO_CONTENT_CASE_ID = "0";
+    private static final String BAD_REQUEST_CASE_ID = "400";
+    private static final String UNAUTHORISED_CASE_ID = "401";
+    private static final String FORBIDDEN_CASE_ID = "403";
+    private static final String NOT_FOUND_CASE_ID = "404";
     private static final LocalDateTime date = LocalDateTime.now();
 
     @Autowired
@@ -82,6 +87,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
         );
 
         Assertions.assertEquals(expected, result);
+
+        TimeUnit.SECONDS.sleep(2);
     }
 
 
@@ -93,7 +100,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
             .uponReceiving("Request to GET hearing for given valid case ref only")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID+OPTION_FIELD_IS_VALID)
+            .query(FIELD_ID + "=" + VALID_CASE_ID + OPTION_FIELD_IS_VALID)
             .headers(headers)
             .willRespondWith()
             .status(HttpStatus.OK.value())
@@ -109,7 +116,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
-            VALID_CASE_ID+OPTION_FIELD_IS_VALID
+            VALID_CASE_ID + OPTION_FIELD_IS_VALID
         );
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -121,6 +128,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
         );
 
         Assertions.assertEquals(expected, result);
+
+        TimeUnit.SECONDS.sleep(2);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
@@ -131,7 +140,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
             .uponReceiving("Request to GET hearing for given valid case ref only")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID+OPTION_FIELD_IS_VALID)
+            .query(FIELD_ID + "=" + VALID_NO_CONTENT_CASE_ID)
             .headers(headers)
             .willRespondWith()
             .status(HttpStatus.NO_CONTENT.value())
@@ -147,9 +156,152 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
-            VALID_CASE_ID+OPTION_FIELD_IS_VALID
+            VALID_NO_CONTENT_CASE_ID
         );
+        TimeUnit.SECONDS.sleep(2);
+    }
 
+
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    public RequestResponsePact getHearingWithBadRequest(PactDslWithProvider builder) throws Exception {
+
+        return builder
+            .given("sscs haaring api successfully returns case")
+            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .path(PATH_HEARING)
+            .method(HttpMethod.GET.toString())
+            .query(FIELD_ID + "=" + BAD_REQUEST_CASE_ID)
+            .headers(headers)
+            .willRespondWith()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .body("")
+            .toPact();
+    }
+
+
+    @Test
+    @PactTestFor(pactMethod = "getHearingWithBadRequest")
+    public void shouldFailGetHearingWithBadRequest(MockServer mockServer) throws Exception {
+
+        try {
+            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                BAD_REQUEST_CASE_ID
+            );
+
+        } catch (FeignException e) {
+            Assertions.assertEquals(e.status(), HttpStatus.BAD_REQUEST.value());
+        }
+
+        TimeUnit.SECONDS.sleep(2);
+    }
+
+
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    public RequestResponsePact getHearingWithUnauthorized(PactDslWithProvider builder) throws Exception {
+
+        return builder
+            .given("sscs haaring api successfully returns case")
+            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .path(PATH_HEARING)
+            .method(HttpMethod.GET.toString())
+            .query(FIELD_ID + "=" + UNAUTHORISED_CASE_ID)
+            .headers(headers)
+            .willRespondWith()
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .body("")
+            .toPact();
+    }
+
+
+    @Test
+    @PactTestFor(pactMethod = "getHearingWithUnauthorized")
+    public void shouldFailGetHearingWithUnauthorized(MockServer mockServer) throws Exception {
+
+        try {
+            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                UNAUTHORISED_CASE_ID
+            );
+
+        } catch (FeignException e) {
+            Assertions.assertEquals(e.status(), HttpStatus.UNAUTHORIZED.value());
+        }
+
+        TimeUnit.SECONDS.sleep(2);
+    }
+
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    public RequestResponsePact getHearingWithForbidden(PactDslWithProvider builder) throws Exception {
+
+        return builder
+            .given("sscs haaring api successfully returns case")
+            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .path(PATH_HEARING)
+            .method(HttpMethod.GET.toString())
+            .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
+            .headers(headers)
+            .willRespondWith()
+            .status(HttpStatus.FORBIDDEN.value())
+            .body("")
+            .toPact();
+    }
+
+
+    @Test
+    @PactTestFor(pactMethod = "getHearingWithForbidden")
+    public void shouldFailGetHearingWithForbidden(MockServer mockServer) throws Exception {
+
+        try {
+            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                FORBIDDEN_CASE_ID
+            );
+
+        } catch (FeignException e) {
+            Assertions.assertEquals(e.status(), HttpStatus.FORBIDDEN.value());
+        }
+
+        TimeUnit.SECONDS.sleep(2);
+    }
+
+
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    public RequestResponsePact getHearingWithNotFound(PactDslWithProvider builder) throws Exception {
+
+        return builder
+            .given("sscs haaring api successfully returns case")
+            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .path(PATH_HEARING)
+            .method(HttpMethod.GET.toString())
+            .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
+            .headers(headers)
+            .willRespondWith()
+            .status(HttpStatus.NOT_FOUND.value())
+            .body("")
+            .toPact();
+    }
+
+
+    @Test
+    @PactTestFor(pactMethod = "getHearingWithNotFound")
+    public void shouldFailGetHearingWithNotFound(MockServer mockServer) throws Exception {
+
+        try {
+            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                NOT_FOUND_CASE_ID
+            );
+
+        } catch (FeignException e) {
+            Assertions.assertEquals(e.status(), HttpStatus.NOT_FOUND.value());
+        }
+
+        TimeUnit.SECONDS.sleep(2);
     }
 
 
