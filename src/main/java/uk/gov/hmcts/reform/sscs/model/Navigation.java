@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class Navigation {
 
-    private String word1;
+    private String conditionOperator;
+    private String conditionValue;
+    private String resultValue;
 }

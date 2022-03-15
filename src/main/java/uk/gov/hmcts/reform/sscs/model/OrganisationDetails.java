@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class OrganisationDetails {
 
-    private String word1;
+    private String name;
+    private String organisationType;
+    private String cftOrganisationID;
 }

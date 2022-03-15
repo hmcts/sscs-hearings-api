@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class UnavailabilityRange {
 
-    private String word1;
+    private String unavailableFromDate;
+    private String unavailableToDate;
 }

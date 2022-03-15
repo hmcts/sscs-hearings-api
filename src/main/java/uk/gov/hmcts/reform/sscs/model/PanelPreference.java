@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class PanelPreference {
 
-    private String word1;
+    private String memberID;
+    private MemberType memberType;
+    private RequirementType requirementType;
 }

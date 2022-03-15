@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class UnavailabilityDOW {
 
-    private String word1;
+    private DOW DOW;
+    private DOWUnavailabilityType DOWUnavailabilityType;
 }

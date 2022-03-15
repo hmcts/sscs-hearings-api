@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class PanelComposition {
 
-    private String word1;
+    private String memberType;
+    private Integer count;
 }

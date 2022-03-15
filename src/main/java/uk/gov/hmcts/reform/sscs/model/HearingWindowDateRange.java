@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vocabulary {
+public class HearingWindowDateRange {
 
-    private String word1;
+    private String hearingWindowStartDateRange;
+    private String hearingWindowEndDateRange;
 }

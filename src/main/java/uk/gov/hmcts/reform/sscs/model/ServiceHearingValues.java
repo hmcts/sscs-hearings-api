@@ -1,35 +1,45 @@
 package uk.gov.hmcts.reform.sscs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @SuppressWarnings("PMD.TooManyFields")
 @Data
-@Builder
+@Builder(toBuilder = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class ServiceHearingValues {
 
-    //This is just a skeleton to be expanded on further along with wrapper objects
     private String caseName;
     private boolean autoListFlag;
     private String hearingType;
     private String caseType;
-    private String[] caseSubTypes;
+    private List<String> caseSubTypes;
     private HearingWindow hearingWindow;
-    private Number duration;
+    private Integer duration;
     private String hearingPriorityType;
-    private Number numberOfPhysicalAttendees;
+    private Integer numberOfPhysicalAttendees;
     private boolean hearingInWelshFlag;
-    private HearingLocation[] hearingLocations;
-    private boolean caseAdditionalSecurityFlag;
-    private String[] facilitiesRequired;
+    private List<HearingLocation> hearingLocations;
+    private Boolean caseAdditionalSecurityFlag;
+    private List<String> facilitiesRequired;
     private String listingComments;
     private String hearingRequester;
     private boolean privateHearingRequiredFlag;
+    private PanelRequirements panelRequirements;
     private String leadJudgeContractType;
     private Judiciary judiciary;
     private boolean hearingIsLinkedFlag;
-    private PartyDetails[] parties;
+    private List<PartyDetails> parties;
     private CaseFlags caseFlags;
-    private ScreenNavigation[] screenFlow;
-    private Vocabulary[] vocabulary;
+    private List<ScreenNavigation> screenFlow;
+    private List<Vocabulary> vocabulary;
 }
