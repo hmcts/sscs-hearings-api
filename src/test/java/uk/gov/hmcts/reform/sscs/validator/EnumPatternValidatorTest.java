@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.sscs.model.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.CaseCategoryType;
-import uk.gov.hmcts.reform.sscs.model.Dow;
-import uk.gov.hmcts.reform.sscs.model.DowUnavailabilityType;
+import uk.gov.hmcts.reform.sscs.model.DayOfWeek;
+import uk.gov.hmcts.reform.sscs.model.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.LocationType;
 import uk.gov.hmcts.reform.sscs.model.PanelPreference;
@@ -60,12 +60,6 @@ public class EnumPatternValidatorTest {
         List<String> validationErrors = new ArrayList<>();
         violations.forEach(e -> validationErrors.add(e.getMessage()));
         assertEquals("Unsupported type for locationId", validationErrors.get(0));
-    }
-
-    private HearingLocations getHearingLocation() {
-        HearingLocations location = new HearingLocations();
-        location.setLocationType("LocType");
-        return location;
     }
 
     @Test
@@ -133,12 +127,6 @@ public class EnumPatternValidatorTest {
         assertTrue(validationErrors.contains(CATEGORY_TYPE_EMPTY));
     }
 
-    private CaseCategory getCaseCategory() {
-        CaseCategory category = new CaseCategory();
-        category.setCategoryValue("categoryValue");
-        return category;
-    }
-
     @Test
     void whenInvalidCaseCategory() {
         CaseCategory category = new CaseCategory();
@@ -173,12 +161,6 @@ public class EnumPatternValidatorTest {
         assertEquals("Unsupported type for requirementType", validationErrors.get(0));
     }
 
-    private PanelPreference getPanelPreference() {
-        PanelPreference panelPreference = new PanelPreference();
-        panelPreference.setMemberID("id");
-        panelPreference.setMemberType("memType");
-        return panelPreference;
-    }
 
     @Test
     void whenInvalidRequirementTypeIsEmpty() {
@@ -235,12 +217,6 @@ public class EnumPatternValidatorTest {
         assertTrue(validationErrors.contains(PARTY_TYPE_EMPTY));
     }
 
-    private PartyDetails getPartyDetails() {
-        PartyDetails partyDetails = new PartyDetails();
-        partyDetails.setPartyID("id");
-        return partyDetails;
-    }
-
     @Test
     void whenInvalidPartyDetailsIsNull() {
         PartyDetails partyDetails = new PartyDetails();
@@ -286,7 +262,7 @@ public class EnumPatternValidatorTest {
     @Test
     void whenInValidUnavailabilityDowIsNull() {
         UnavailabilityDoW unavailabilityDow = getUnavailabilityDow();
-        unavailabilityDow.setDow(null);
+        unavailabilityDow.setDayOfWeek(null);
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
@@ -295,17 +271,11 @@ public class EnumPatternValidatorTest {
         assertEquals("Unsupported type for dow", validationErrors.get(0));
     }
 
-    private UnavailabilityDoW getUnavailabilityDow() {
-        UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
-        unavailabilityDow.setDowUnavailabilityType(DowUnavailabilityType.ALLDAY.toString());
-        return unavailabilityDow;
-    }
-
     @Test
     void whenInValidUnavailabilityDowIsEmpty() {
         UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
-        unavailabilityDow.setDowUnavailabilityType(DowUnavailabilityType.ALLDAY.toString());
-        unavailabilityDow.setDow("");
+        unavailabilityDow.setDowUnavailabilityType(DayOfWeekUnavailabilityType.ALLDAY.toString());
+        unavailabilityDow.setDayOfWeek("");
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
@@ -317,8 +287,8 @@ public class EnumPatternValidatorTest {
     @Test
     void whenValidUnavailabilityDow() {
         UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
-        unavailabilityDow.setDowUnavailabilityType(DowUnavailabilityType.ALLDAY.toString());
-        unavailabilityDow.setDow(Dow.FRIDAY.toString());
+        unavailabilityDow.setDowUnavailabilityType(DayOfWeekUnavailabilityType.ALLDAY.toString());
+        unavailabilityDow.setDayOfWeek(DayOfWeek.FRIDAY.toString());
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertTrue(violations.isEmpty());
     }
@@ -326,8 +296,8 @@ public class EnumPatternValidatorTest {
     @Test
     void whenInValidUnavailabilityDow() {
         UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
-        unavailabilityDow.setDowUnavailabilityType(DowUnavailabilityType.ALLDAY.toString());
-        unavailabilityDow.setDow("January");
+        unavailabilityDow.setDowUnavailabilityType(DayOfWeekUnavailabilityType.ALLDAY.toString());
+        unavailabilityDow.setDayOfWeek("January");
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
@@ -338,7 +308,7 @@ public class EnumPatternValidatorTest {
 
     @Test
     void whenInValidDowUnavailabilityType() {
-        UnavailabilityDoW unavailabilityDow = getDow();
+        UnavailabilityDoW unavailabilityDow = getDaysOfWeek();
         unavailabilityDow.setDowUnavailabilityType("dow");
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
@@ -348,17 +318,11 @@ public class EnumPatternValidatorTest {
         assertEquals("Unsupported type for dowUnavailabilityType", validationErrors.get(0));
     }
 
-    private UnavailabilityDoW getDow() {
-        UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
-        unavailabilityDow.setDow(Dow.MONDAY.toString());
-        return unavailabilityDow;
-    }
-
     @Test
     void whenInValidDowUnavailabilityTypeIsNull() {
         UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
         unavailabilityDow.setDowUnavailabilityType(null);
-        unavailabilityDow.setDow(Dow.MONDAY.toString());
+        unavailabilityDow.setDayOfWeek(DayOfWeek.MONDAY.toString());
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
@@ -371,7 +335,7 @@ public class EnumPatternValidatorTest {
     void whenInValidDowUnavailabilityTypeIsEmpty() {
         UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
         unavailabilityDow.setDowUnavailabilityType("");
-        unavailabilityDow.setDow(Dow.MONDAY.toString());
+        unavailabilityDow.setDayOfWeek(DayOfWeek.MONDAY.toString());
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
@@ -384,9 +348,48 @@ public class EnumPatternValidatorTest {
     @Test
     void whenValidUnavailabilityDowUnavailabilityType() {
         UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
-        unavailabilityDow.setDowUnavailabilityType(DowUnavailabilityType.ALLDAY.toString());
-        unavailabilityDow.setDow(Dow.FRIDAY.toString());
+        unavailabilityDow.setDowUnavailabilityType(DayOfWeekUnavailabilityType.ALLDAY.toString());
+        unavailabilityDow.setDayOfWeek(DayOfWeek.FRIDAY.toString());
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertTrue(violations.isEmpty());
     }
+
+    private HearingLocations getHearingLocation() {
+        HearingLocations location = new HearingLocations();
+        location.setLocationType("LocType");
+        return location;
+    }
+
+    private UnavailabilityDoW getDaysOfWeek() {
+        UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
+        unavailabilityDow.setDayOfWeek(DayOfWeek.MONDAY.toString());
+        return unavailabilityDow;
+    }
+
+    private UnavailabilityDoW getUnavailabilityDow() {
+        UnavailabilityDoW unavailabilityDow = new UnavailabilityDoW();
+        unavailabilityDow.setDowUnavailabilityType(DayOfWeekUnavailabilityType.ALLDAY.toString());
+        return unavailabilityDow;
+    }
+
+    private PartyDetails getPartyDetails() {
+        PartyDetails partyDetails = new PartyDetails();
+        partyDetails.setPartyID("id");
+        return partyDetails;
+    }
+
+    private PanelPreference getPanelPreference() {
+        PanelPreference panelPreference = new PanelPreference();
+        panelPreference.setMemberID("id");
+        panelPreference.setMemberType("memType");
+        return panelPreference;
+    }
+
+    private CaseCategory getCaseCategory() {
+        CaseCategory category = new CaseCategory();
+        category.setCategoryValue("categoryValue");
+        return category;
+    }
+
+
 }

@@ -49,11 +49,6 @@ public class BasePactTesting {
         CONTENT_TYPE, APPLICATION_JSON
     );
 
-    /**
-     * generate Hearing Request.
-     *
-     * @return HearingRequest hearing request
-     */
     protected HearingRequestPayload generateHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setRequestDetails(requestDetails());
@@ -64,11 +59,6 @@ public class BasePactTesting {
         return request;
     }
 
-    /**
-     * generate Invalid Hearing Request - omit caseDetails.
-     *
-     * @return HearingRequest hearing request
-     */
     protected HearingRequestPayload generateInvalidHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
@@ -77,11 +67,6 @@ public class BasePactTesting {
         return request;
     }
 
-    /**
-     * get JSON String from hearing Request.
-     *
-     * @return String JSON string of hearing Request
-     */
     protected String toJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -95,11 +80,6 @@ public class BasePactTesting {
         return jsonString;
     }
 
-    /**
-     * Create Request Details test data.
-     *
-     * @return requestDetails Request Details
-     */
     protected RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
         requestDetails.setRequestTimeStamp("030-08-20T12:40:00.000Z");
@@ -107,11 +87,6 @@ public class BasePactTesting {
         return requestDetails;
     }
 
-    /**
-     * create HearingDetails test data.
-     *
-     * @return hearingDetails Hearing Details
-     */
     protected HearingDetails hearingDetails() {
         HearingDetails hearingDetails = new HearingDetails();
         hearingDetails.setAutolistFlag(true);
@@ -139,11 +114,6 @@ public class BasePactTesting {
         return hearingWindow;
     }
 
-    /**
-     * Create Case Details test data.
-     *
-     * @return caseDetails Case Details
-     */
     protected CaseDetails caseDetails() {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
@@ -164,11 +134,6 @@ public class BasePactTesting {
         return caseDetails;
     }
 
-    /**
-     * Create party details data.
-     *
-     * @return partyDetails Party Details
-     */
     protected PanelRequirements panelRequirements1() {
         List<String> roleType = new ArrayList<>();
         roleType.add("role 1");
@@ -214,11 +179,6 @@ public class BasePactTesting {
         return panelRequirements;
     }
 
-    /**
-     * Create party details data.
-     *
-     * @return partyDetails Party Details
-     */
     protected List<PartyDetails> partyDetails1() {
         ArrayList<PartyDetails> partyDetailsArrayList = new ArrayList<>();
         partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
@@ -229,11 +189,6 @@ public class BasePactTesting {
         return partyDetailsArrayList;
     }
 
-    /**
-     * Create party details data.
-     *
-     * @return partyDetails Party Details
-     */
     private List<PartyDetails> partyDetails2() {
         ArrayList<PartyDetails> partyDetailsArrayList = new ArrayList<>();
         partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
@@ -245,11 +200,6 @@ public class BasePactTesting {
         return partyDetailsArrayList;
     }
 
-    /**
-     * create Organisation Details.
-     *
-     * @return OrganisationDetails organisation Details
-     */
     private OrganisationDetails createOrganisationDetails() {
         OrganisationDetails organisationDetails = new OrganisationDetails();
         organisationDetails.setName("name");
@@ -258,11 +208,6 @@ public class BasePactTesting {
         return organisationDetails;
     }
 
-    /**
-     * create Individual Details.
-     *
-     * @return IndividualDetails individual Details
-     */
     private IndividualDetails createIndividualDetails() {
         IndividualDetails individualDetails = new IndividualDetails();
         individualDetails.setTitle("Master");
@@ -278,11 +223,6 @@ public class BasePactTesting {
         return individualDetails;
     }
 
-    /**
-     * create Related Parties.
-     *
-     * @return List>RelatedParties>
-     */
     private List<RelatedParty> createRelatedParties() {
         RelatedParty relatedParty1 = new RelatedParty();
         relatedParty1.setRelatedPartyID("relatedParty1111");
@@ -297,15 +237,6 @@ public class BasePactTesting {
         return relatedParties;
     }
 
-    /**
-     * create Party Details.
-     *
-     * @param partyID             party Id
-     * @param partyType           party Type
-     * @param partyRole           party Role
-     * @param organisationDetails organisation Details
-     * @return PartyDetails party details
-     */
     private PartyDetails createPartyDetails(String partyID, String partyType, String partyRole,
                                             IndividualDetails individualDetails,
                                             OrganisationDetails organisationDetails) {
@@ -324,11 +255,6 @@ public class BasePactTesting {
         return partyDetails;
     }
 
-    /**
-     * create Reasonable Adjustments.
-     *
-     * @return List of String
-     */
     private List<String> createReasonableAdjustments() {
         List<String> reasonableAdjustments = new ArrayList<>();
         reasonableAdjustments.add("adjust 1");
@@ -337,29 +263,19 @@ public class BasePactTesting {
         return reasonableAdjustments;
     }
 
-    /**
-     * create Unavailability Dow.
-     *
-     * @return List of String
-     */
     private List<UnavailabilityDoW> createUnavailabilityDows() {
         List<UnavailabilityDoW> unavailabilityDows = new ArrayList<>();
         UnavailabilityDoW unavailabilityDow1 = new UnavailabilityDoW();
-        unavailabilityDow1.setDow("DOW1");
+        unavailabilityDow1.setDayOfWeek("DOW1");
         unavailabilityDow1.setDowUnavailabilityType("TYPE1");
         unavailabilityDows.add(unavailabilityDow1);
         UnavailabilityDoW unavailabilityDow2 = new UnavailabilityDoW();
-        unavailabilityDow2.setDow("DOW1");
+        unavailabilityDow2.setDayOfWeek("DOW1");
         unavailabilityDow2.setDowUnavailabilityType("TYPE1");
         unavailabilityDows.add(unavailabilityDow2);
         return unavailabilityDows;
     }
 
-    /**
-     * create Unavailability Date Ranges.
-     *
-     * @return List of UnavailabilityDow
-     */
     private List<UnavailabilityRange> createUnavailableDateRanges() {
         UnavailabilityRange unavailabilityRanges1 = new UnavailabilityRange();
         unavailabilityRanges1.setUnavailableFromDate("2021-01-01");

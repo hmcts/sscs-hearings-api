@@ -1,26 +1,15 @@
 package uk.gov.hmcts.reform.sscs.model;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.Locale;
-
+@RequiredArgsConstructor
 @Getter
 public enum LocationType {
 
     COURT("court"),
     CLUSTER("cluster"),
-    RESION("region");
+    REGION("region");
 
     private final String locationLabel;
-
-    LocationType(String locationLabel) {
-        this.locationLabel = locationLabel;
-    }
-
-    public static LocationType getByLabel(String label) {
-        return Arrays.stream(LocationType.values())
-            .filter(eachLocation -> eachLocation.toString().toLowerCase(Locale.ROOT)
-                .equals(label.toLowerCase(Locale.ROOT))).findAny().orElse(null);
-    }
 }

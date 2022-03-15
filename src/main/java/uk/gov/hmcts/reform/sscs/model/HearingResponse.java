@@ -15,12 +15,14 @@ import javax.validation.constraints.Size;
 public class HearingResponse {
 
     @JsonProperty("hearingRequestID")
-    @Size(max = 30)
+
     @NotNull
+    @Size(max = 30)
     private Long hearingRequestId;
 
-    @Size(max = 100)
+
     @NotNull
+    @Size(max = 100)
     private String status;
 
     @NotNull

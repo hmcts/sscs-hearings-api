@@ -14,6 +14,7 @@ public class RequestDetails {
 
     @NotNull(message = ValidationError.REQUEST_TIMESTAMP_NULL_EMPTY)
     private String requestTimeStamp;
+
     @NotNull(message =  ValidationError.REQUEST_VERSION_NUMBER_NULL_EMPTY)
     private Integer versionNumber;
 

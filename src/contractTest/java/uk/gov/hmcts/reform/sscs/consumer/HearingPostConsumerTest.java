@@ -40,6 +40,7 @@ public class HearingPostConsumerTest extends BasePactTesting {
     private static final String BAD_REQUEST = "BAD_REQUEST";
     private static final String FIELD_MESSAGE = "message";
     private static final String FIELD_ERRORS = "errors";
+    private static final int ZERO_LENGTH = 0;
 
     @Autowired
     private HmcHearingApi hmcHearingApi;
@@ -85,9 +86,9 @@ public class HearingPostConsumerTest extends BasePactTesting {
             generateHearingRequest()
         );
 
-        Assertions.assertTrue(hearingResponse.getHearingRequestId() > 0);
+        Assertions.assertTrue(hearingResponse.getHearingRequestId() > ZERO_LENGTH);
         Assertions.assertFalse(hearingResponse.getStatus().isEmpty());
-        Assertions.assertTrue(hearingResponse.getVersionNumber() > 0);
+        Assertions.assertTrue(hearingResponse.getVersionNumber() > ZERO_LENGTH);
         Assertions.assertFalse(hearingResponse.getTimeStamp().isEmpty());
     }
 
