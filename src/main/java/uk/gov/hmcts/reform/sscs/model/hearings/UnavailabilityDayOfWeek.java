@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UnavailabilityDoW {
+public class UnavailabilityDayOfWeek {
 
     @JsonProperty("DOW")
     private String dayOfWeek;
 
     @JsonProperty("DOWUnavailabilityType")
-    private String dowUnavailabilityType;
+    private String dayOfWeekUnavailabilityType;
 }

@@ -19,7 +19,7 @@ import uk.gov.hmcts.reform.sscs.model.hearings.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.model.hearings.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.hearings.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.hearings.RequestDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.UnavailabilityDoW;
+import uk.gov.hmcts.reform.sscs.model.hearings.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.hearings.UnavailabilityRange;
 
 import java.util.ArrayList;
@@ -263,15 +263,15 @@ public class BasePactTesting {
         return reasonableAdjustments;
     }
 
-    private List<UnavailabilityDoW> createUnavailabilityDows() {
-        List<UnavailabilityDoW> unavailabilityDows = new ArrayList<>();
-        UnavailabilityDoW unavailabilityDow1 = new UnavailabilityDoW();
+    private List<UnavailabilityDayOfWeek> createUnavailabilityDows() {
+        List<UnavailabilityDayOfWeek> unavailabilityDows = new ArrayList<>();
+        UnavailabilityDayOfWeek unavailabilityDow1 = new UnavailabilityDayOfWeek();
         unavailabilityDow1.setDayOfWeek("DOW1");
-        unavailabilityDow1.setDowUnavailabilityType("TYPE1");
+        unavailabilityDow1.setDayOfWeekUnavailabilityType("TYPE1");
         unavailabilityDows.add(unavailabilityDow1);
-        UnavailabilityDoW unavailabilityDow2 = new UnavailabilityDoW();
+        UnavailabilityDayOfWeek unavailabilityDow2 = new UnavailabilityDayOfWeek();
         unavailabilityDow2.setDayOfWeek("DOW1");
-        unavailabilityDow2.setDowUnavailabilityType("TYPE1");
+        unavailabilityDow2.setDayOfWeekUnavailabilityType("TYPE1");
         unavailabilityDows.add(unavailabilityDow2);
         return unavailabilityDows;
     }
