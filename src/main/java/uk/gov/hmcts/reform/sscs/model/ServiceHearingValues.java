@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.sscs.model;
 
 import lombok.Builder;
 import lombok.Data;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.hearings.PartyDetails;
 
 @SuppressWarnings("PMD.TooManyFields")
 @Data

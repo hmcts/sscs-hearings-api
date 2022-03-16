@@ -2,31 +2,27 @@ package uk.gov.hmcts.reform.sscs.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.gov.hmcts.reform.sscs.model.CaseCategory;
-import uk.gov.hmcts.reform.sscs.model.CaseCategoryType;
-import uk.gov.hmcts.reform.sscs.model.DayOfWeek;
-import uk.gov.hmcts.reform.sscs.model.DayOfWeekUnavailabilityType;
-import uk.gov.hmcts.reform.sscs.model.HearingLocations;
-import uk.gov.hmcts.reform.sscs.model.LocationType;
-import uk.gov.hmcts.reform.sscs.model.PanelPreference;
-import uk.gov.hmcts.reform.sscs.model.PartyDetails;
-import uk.gov.hmcts.reform.sscs.model.PartyType;
-import uk.gov.hmcts.reform.sscs.model.RequirementType;
-import uk.gov.hmcts.reform.sscs.model.UnavailabilityDoW;
+import uk.gov.hmcts.reform.sscs.model.hearings.CaseCategory;
+import uk.gov.hmcts.reform.sscs.model.hearings.CaseCategoryType;
+import uk.gov.hmcts.reform.sscs.model.hearings.DayOfWeek;
+import uk.gov.hmcts.reform.sscs.model.hearings.DayOfWeekUnavailabilityType;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.hearings.LocationType;
+import uk.gov.hmcts.reform.sscs.model.hearings.PanelPreference;
+import uk.gov.hmcts.reform.sscs.model.hearings.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.hearings.PartyType;
+import uk.gov.hmcts.reform.sscs.model.hearings.RequirementType;
+import uk.gov.hmcts.reform.sscs.model.hearings.UnavailabilityDoW;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import javax.validation.ConstraintValidatorContext;
+import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,11 +33,6 @@ import static uk.gov.hmcts.reform.sscs.exceptions.ValidationError.PARTY_TYPE_EMP
 public class EnumPatternValidatorTest {
 
     static Validator validator;
-
-    private static final Logger logger = LoggerFactory.getLogger(EnumPatternValidatorTest.class);
-
-    @Mock
-    private ConstraintValidatorContext constraintValidatorContext;
 
     @BeforeEach
     public void setUp() {
@@ -57,9 +48,10 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for locationId", validationErrors.get(0));
+        assertEquals(
+            "Unsupported type for locationId",
+            violations.stream().collect(Collectors.toList()).get(0).getMessage()
+        );
     }
 
     @Test
@@ -70,9 +62,10 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for locationId", validationErrors.get(0));
+        assertEquals(
+            "Unsupported type for locationId",
+            violations.stream().collect(Collectors.toList()).get(0).getMessage()
+        );
     }
 
     @Test
@@ -83,9 +76,7 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for locationId", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains("Unsupported type for locationId");
     }
 
     @Test
@@ -104,14 +95,11 @@ public class EnumPatternValidatorTest {
         category.setCategoryType(null);
         Set<ConstraintViolation<CaseCategory>> violations = validator.validate(category);
         assertFalse(violations.isEmpty());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> {
-            validationErrors.add(e.getMessage());
-            logger.info(e.getMessage());
-        });
         assertEquals(2, violations.size());
-        assertTrue(validationErrors.contains("Unsupported type for categoryType"));
-        assertTrue(validationErrors.contains(CATEGORY_TYPE_EMPTY));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for categoryType");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains(CATEGORY_TYPE_EMPTY);
     }
 
     @Test
@@ -121,10 +109,10 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<CaseCategory>> violations = validator.validate(category);
         assertFalse(violations.isEmpty());
         assertEquals(2, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertTrue(validationErrors.contains("Unsupported type for categoryType"));
-        assertTrue(validationErrors.contains(CATEGORY_TYPE_EMPTY));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for categoryType");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains(CATEGORY_TYPE_EMPTY);
     }
 
     @Test
@@ -135,9 +123,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<CaseCategory>> violations = validator.validate(category);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for categoryType", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for categoryType");
     }
 
     @Test
@@ -156,9 +143,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<PanelPreference>> violations = validator.validate(panelPreference);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for requirementType", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(
+            "Unsupported type for requirementType");
     }
 
 
@@ -171,9 +157,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<PanelPreference>> violations = validator.validate(panelPreference);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for requirementType", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(
+            "Unsupported type for requirementType");
     }
 
     @Test
@@ -185,9 +170,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<PanelPreference>> violations = validator.validate(panelPreference);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for requirementType", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(
+            "Unsupported type for requirementType");
     }
 
     @Test
@@ -207,14 +191,9 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<PartyDetails>> violations = validator.validate(partyDetails);
         assertFalse(violations.isEmpty());
         assertEquals(3, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> {
-            validationErrors.add(e.getMessage());
-            logger.info(e.getMessage());
-        });
-        assertTrue(validationErrors.contains("Unsupported type for partyType"));
-        assertTrue(validationErrors.contains(PARTY_ROLE_EMPTY));
-        assertTrue(validationErrors.contains(PARTY_TYPE_EMPTY));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains("Unsupported type for partyType");
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(PARTY_ROLE_EMPTY);
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(PARTY_TYPE_EMPTY);
     }
 
     @Test
@@ -225,11 +204,12 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<PartyDetails>> violations = validator.validate(partyDetails);
         assertFalse(violations.isEmpty());
         assertEquals(3, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertTrue(validationErrors.contains("Unsupported type for partyType"));
-        assertTrue(validationErrors.contains(PARTY_TYPE_EMPTY));
-        assertTrue(validationErrors.contains(PARTY_ROLE_EMPTY));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for partyType");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains(PARTY_TYPE_EMPTY);
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains(PARTY_TYPE_EMPTY);
     }
 
     @Test
@@ -241,12 +221,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<PartyDetails>> violations = validator.validate(partyDetails);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> {
-            validationErrors.add(e.getMessage());
-            logger.info(e.getMessage());
-        });
-        assertTrue(validationErrors.contains("Unsupported type for partyType"));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for partyType");
     }
 
     @Test
@@ -266,9 +242,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for dow", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for dow");
     }
 
     @Test
@@ -279,9 +254,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for dow", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+            .contains("Unsupported type for dow");
     }
 
     @Test
@@ -301,9 +275,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for dow", validationErrors.get(0));
+        assertEquals("Unsupported type for dow", violations.stream()
+            .collect(Collectors.toList()).get(0).getMessage());
     }
 
     @Test
@@ -313,9 +286,12 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for dowUnavailabilityType", validationErrors.get(0));
+        assertEquals(
+            "Unsupported type for dowUnavailabilityType",
+            violations.stream().collect(Collectors.toList()).get(0).getMessage()
+        );
+
+
     }
 
     @Test
@@ -326,9 +302,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for dowUnavailabilityType", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(
+            "Unsupported type for dowUnavailabilityType");
     }
 
     @Test
@@ -339,9 +314,8 @@ public class EnumPatternValidatorTest {
         Set<ConstraintViolation<UnavailabilityDoW>> violations = validator.validate(unavailabilityDow);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
-        List<String> validationErrors = new ArrayList<>();
-        violations.forEach(e -> validationErrors.add(e.getMessage()));
-        assertEquals("Unsupported type for dowUnavailabilityType", validationErrors.get(0));
+        assertThat(violations).extracting(ConstraintViolation::getMessage).contains(
+            "Unsupported type for dowUnavailabilityType");
     }
 
 

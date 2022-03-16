@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
-import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingResponse;
 
 import javax.validation.Valid;
 
