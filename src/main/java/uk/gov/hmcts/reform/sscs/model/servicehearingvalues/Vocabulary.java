@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,9 +13,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Navigation {
+public class Vocabulary {
 
-    private String conditionOperator;
-    private String conditionValue;
-    private String resultValue;
+    private String word1;
 }

@@ -1,7 +1,8 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class PartyDetails {
     private String partyRole;
     private IndividualDetails individualDetails;
     private OrganisationDetails organisationDetails;
-    private List<UnavailabilityDOW> unavailabilityDOW;
+    @JsonProperty("unavailabilityDOW")
+    private List<UnavailabilityDOW> unavailabilityDow;
     private List<UnavailabilityRange> unavailabilityRanges;
 }

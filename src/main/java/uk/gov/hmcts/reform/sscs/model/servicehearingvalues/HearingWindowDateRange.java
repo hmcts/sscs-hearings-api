@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,9 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrganisationDetails {
+public class HearingWindowDateRange {
 
-    private String name;
-    private String organisationType;
-    private String cftOrganisationID;
+    private String hearingWindowStartDateRange;
+    private String hearingWindowEndDateRange;
 }

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,10 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class HearingLocation {
+public class UnavailabilityRange {
 
-    private String locationId;
-    private String locationName;
-    private String locationType;
-    private String region;
+    private String unavailableFromDate;
+    private String unavailableToDate;
 }

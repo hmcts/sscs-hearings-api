@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class UnavailabilityDOW {
+public class RelatedParties {
 
-    private DOW DOW;
-    private DOWUnavailabilityType DOWUnavailabilityType;
+    private String relatedPartyID;
+    private String relationshipType;
 }
