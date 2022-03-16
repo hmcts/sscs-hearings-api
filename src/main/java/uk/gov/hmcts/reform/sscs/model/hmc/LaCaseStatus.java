@@ -3,9 +3,6 @@ package uk.gov.hmcts.reform.sscs.model.hmc;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.Locale;
-
 @Getter
 @RequiredArgsConstructor
 public enum LaCaseStatus {

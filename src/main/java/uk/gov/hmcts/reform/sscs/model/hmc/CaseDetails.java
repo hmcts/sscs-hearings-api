@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 import uk.gov.hmcts.reform.sscs.exception.ValidationError;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Data
@@ -69,7 +69,6 @@ public class CaseDetails {
     @JsonProperty("caseSLAStartDate")
     @NotNull(message = ValidationError.CASE_SLA_START_DATE_EMPTY)
     private LocalDate caseSlaStartDate;
-
 
 
 }

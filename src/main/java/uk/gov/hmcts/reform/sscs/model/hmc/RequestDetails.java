@@ -1,15 +1,14 @@
 package uk.gov.hmcts.reform.sscs.model.hmc;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exception.ValidationError;
 
 import java.time.LocalDateTime;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 
 @Data
 @NoArgsConstructor
@@ -19,7 +18,7 @@ public class RequestDetails {
     @NotNull(message = ValidationError.REQUEST_TIMESTAMP_NULL_EMPTY)
     private LocalDateTime requestTimeStamp;
 
-    @NotNull(message =  ValidationError.REQUEST_VERSION_NUMBER_NULL_EMPTY)
+    @NotNull(message = ValidationError.REQUEST_VERSION_NUMBER_NULL_EMPTY)
     private Integer versionNumber;
 
     @NotNull(message = ValidationError.HEARING_REQUEST_ID_NULL_EMPTY)

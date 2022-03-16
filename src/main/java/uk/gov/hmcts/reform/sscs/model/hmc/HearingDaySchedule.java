@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.sscs.model.hmc;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exception.ValidationError;
 
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.validation.constraints.Size;
+
 
 @Data
 @NoArgsConstructor
