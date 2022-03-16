@@ -1,22 +1,17 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import feign.codec.Decoder;
-import feign.jackson.JacksonDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.HearingResponse;
+import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingResponse;
 
 import javax.validation.Valid;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = HmcHearingApi.Config.class)
+@FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = FeignClientConfig.class)
 public interface HmcHearingApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
