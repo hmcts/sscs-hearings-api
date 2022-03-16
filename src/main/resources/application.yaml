@@ -78,6 +78,9 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+  dead-letter-queue:
+    connectionString: ${AZURE_SERVICEBUS_DL_CONNECTION_STRING}
+    queueName: ${AZURE_SERVICEBUS_DL_QUEUE_NAME}
 
 caseworker-ref:
   api:
