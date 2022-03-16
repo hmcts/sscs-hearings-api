@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.exception.ValidationError;
 
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
 
 import static uk.gov.hmcts.reform.sscs.exception.ValidationError.FACILITIES_REQUIRED_MAX_LENGTH_MSG;
 import static uk.gov.hmcts.reform.sscs.exception.ValidationError.NON_STANDARD_HEARING_DURATION_REASONS_MAX_LENGTH_MSG;
