@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum LaCaseStatus {
+public enum ListingCaseStatus {
     CASE_CREATED("Case Created"),
     AWAITING_LISTING("Awaiting Listing"),
     LISTED("Listed"),

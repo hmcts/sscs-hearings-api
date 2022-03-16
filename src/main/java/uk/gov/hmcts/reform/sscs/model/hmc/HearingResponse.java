@@ -43,9 +43,10 @@ public class HearingResponse {
     @NotNull(message = ValidationError.RESPONSE_VERSION_NULL_EMPTY)
     private Integer responseVersion;
 
+    @JsonProperty("laCaseStatus")
     @NotNull(message = ValidationError.LA_CASE_STATUS_NULL_EMPTY)
-    @EnumPattern(enumClass = LaCaseStatus.class, fieldName = "laCaseStatus")
-    private String laCaseStatus;
+    @EnumPattern(enumClass = ListingCaseStatus.class, fieldName = "listingCaseStatus")
+    private String listingCaseStatus;
 
     @EnumPattern(enumClass = ListingStatus.class, fieldName = "listingStatus")
     private String listingStatus;
