@@ -4,15 +4,19 @@ import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.model.DeadLetter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 
 @Slf4j
 @Service
-public class DeadLetterService {
+public final class DeadLetterService {
+
+    private DeadLetterService() {
+        // Gradle styleCheck
+    }
 
     private static final String connectionString = System.getenv("AZURE_SERVICEBUS_DL_CONNECTION_STRING");
     private static final String queueName = System.getenv("AZURE_SERVICEBUS_DL_QUEUE_NAME");

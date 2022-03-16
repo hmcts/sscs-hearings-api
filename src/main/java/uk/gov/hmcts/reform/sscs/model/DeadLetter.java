@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.model;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
