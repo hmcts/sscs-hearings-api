@@ -25,7 +25,6 @@ public class IndividualDetails {
 
     private Boolean vulnerableFlag;
 
-
     private String vulnerabilityDetails;
 
     private String hearingChannelEmail;

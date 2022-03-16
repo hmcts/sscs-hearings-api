@@ -19,45 +19,30 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import uk.gov.hmcts.reform.sscs.BasePactTesting;
-import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
-import uk.gov.hmcts.reform.sscs.utility.HearingResponsePactUtil;
+import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
-@ExtendWith(SpringExtension.class)
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
 @PactFolder("build/pacts")
-public class HearingPostConsumerTest extends BasePactTesting {
-
-    private static final String PATH_HEARING = "/hearing";
-    private static final String FIELD_STATUS = "status";
-    private static final String BAD_REQUEST = "BAD_REQUEST";
-    private static final String FIELD_MESSAGE = "message";
-    private static final String FIELD_ERRORS = "errors";
-    private static final int ZERO_LENGTH = 0;
+public class HearingPostConsumerTest extends ContractTestDataProvider {
 
     @Autowired
     private HmcHearingApi hmcHearingApi;
-
-    HearingRequestPayload validRequest = generateHearingRequest();
-    String jsonValidRequest = toJsonString(validRequest);
-    HearingRequestPayload invalidRequest = generateInvalidHearingRequest();
-    String jsonInvalidRequest = toJsonString(invalidRequest);
 
     @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully creating hearing request ").uponReceiving(
             "Request to create hearing request to save details")
             .path(PATH_HEARING).method(HttpMethod.POST.toString()).body(
-            jsonValidRequest).headers(headers).willRespondWith()
+                toJsonString(generateHearingRequest())).headers(headers).willRespondWith()
             .status(HttpStatus.OK.value()).body(
-            HearingResponsePactUtil
+                BasePactTest
                 .generatePostHearingsJsonBody(MSG_200_POST_HEARING))
             .toPact();
     }
@@ -68,7 +53,7 @@ public class HearingPostConsumerTest extends BasePactTesting {
                                  + " throws validation error while trying to create hearing")
                 .uponReceiving("Request to CREATE hearing for invalid hearing request")
                     .path(PATH_HEARING).method(HttpMethod.POST.toString())
-            .body(jsonInvalidRequest).headers(headers)
+            .body(toJsonString(generateInvalidHearingRequest())).headers(headers)
             .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
             .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_400_POST_HEARING)
                       .stringValue(FIELD_STATUS, BAD_REQUEST)
@@ -97,7 +82,7 @@ public class HearingPostConsumerTest extends BasePactTesting {
     public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
         RestAssured.given().headers(headers)
             .contentType(io.restassured.http.ContentType.JSON)
-                .body(jsonInvalidRequest).when()
+                .body(toJsonString(generateInvalidHearingRequest())).when()
                 .post(mockServer.getUrl() + PATH_HEARING)
                     .then().statusCode(HttpStatus.BAD_REQUEST.value())
                 .and().extract()

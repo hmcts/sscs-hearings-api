@@ -23,7 +23,7 @@ public class PartyDetails {
     private OrganisationDetails organisationDetails;
 
     @JsonProperty("unavailabilityDOW")
-    private List<UnavailabilityDayOfWeek> unavailabilityDoW;
+    private List<UnavailabilityDayOfWeek> unavailabilityDayOfWeek;
 
     private List<UnavailabilityRange> unavailabilityRanges;
 }

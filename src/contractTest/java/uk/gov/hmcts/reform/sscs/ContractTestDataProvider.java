@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.sscs;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.hearings.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.hearings.CaseDetails;
@@ -27,9 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class BasePactTesting {
-
-    protected static final Logger logger = LoggerFactory.getLogger(BasePactTesting.class);
+public class ContractTestDataProvider {
 
     public static final String CONSUMER_NAME = "hmcHearingServiceConsumer";
 
@@ -42,6 +38,13 @@ public class BasePactTesting {
 
     protected static final String CONTENT_TYPE = "Content-Type";
     protected static final String APPLICATION_JSON = "application/json";
+
+    protected static final String PATH_HEARING = "/hearing";
+    protected static final String FIELD_STATUS = "status";
+    protected static final String BAD_REQUEST = "BAD_REQUEST";
+    protected static final String FIELD_MESSAGE = "message";
+    protected static final String FIELD_ERRORS = "errors";
+    protected static final int ZERO_LENGTH = 0;
 
     protected static final Map<String, String> headers = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
@@ -62,7 +65,7 @@ public class BasePactTesting {
     protected HearingRequestPayload generateInvalidHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
-        request.setPartyDetails(partyDetails2());
+        request.setPartyDetails(partyDetails1());
         request.setRequestDetails(requestDetails());
         return request;
     }
@@ -76,7 +79,6 @@ public class BasePactTesting {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        logger.info("toJsonString: {}", jsonString);
         return jsonString;
     }
 
@@ -104,7 +106,6 @@ public class BasePactTesting {
         hearingDetails.setPanelRequirements(panelRequirements1());
         return hearingDetails;
     }
-
 
     protected HearingWindow hearingWindow() {
         HearingWindow hearingWindow = new HearingWindow();
@@ -189,17 +190,6 @@ public class BasePactTesting {
         return partyDetailsArrayList;
     }
 
-    private List<PartyDetails> partyDetails2() {
-        ArrayList<PartyDetails> partyDetailsArrayList = new ArrayList<>();
-        partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
-        partyDetailsArrayList.add(createPartyDetails("P2", "IND2", "DEF2", createIndividualDetails(), null));
-        partyDetailsArrayList.add(createPartyDetails("P3", "IND3", "DEF3", null, createOrganisationDetails()));
-        partyDetailsArrayList.add(createPartyDetails("P4", "IND4", "DEF4", createIndividualDetails(),
-                                                     createOrganisationDetails()
-        ));
-        return partyDetailsArrayList;
-    }
-
     private OrganisationDetails createOrganisationDetails() {
         OrganisationDetails organisationDetails = new OrganisationDetails();
         organisationDetails.setName("name");
@@ -244,14 +234,10 @@ public class BasePactTesting {
         partyDetails.setPartyID(partyID);
         partyDetails.setPartyType(partyType);
         partyDetails.setPartyRole(partyRole);
-        if (null != individualDetails) {
-            partyDetails.setIndividualDetails(individualDetails);
-        }
-        if (null != organisationDetails) {
-            partyDetails.setOrganisationDetails(organisationDetails);
-        }
+        partyDetails.setIndividualDetails(individualDetails);
+        partyDetails.setOrganisationDetails(organisationDetails);
         partyDetails.setUnavailabilityRanges(createUnavailableDateRanges());
-        partyDetails.setUnavailabilityDoW(createUnavailabilityDows());
+        partyDetails.setUnavailabilityDayOfWeek(createUnavailabilityDows());
         return partyDetails;
     }
 
