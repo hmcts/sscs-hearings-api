@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.consumer;
 
-import au.com.dius.pact.consumer.MockServer;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
@@ -11,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.FeignException;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,21 +20,17 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.sscs.BasePactTesting;
-
-import uk.gov.hmcts.reform.sscs.model.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
-
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
-@SpringBootTest
 @PactTestFor(port = "10000")
 public class GetHearingPactConsumerTest extends BasePactTesting {
 
@@ -59,8 +55,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearing(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api successfully returns case")
+            .uponReceiving("Request to GET hearing for given valid case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_CASE_ID)
@@ -73,7 +69,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearing")
-    public void shouldSuccessfullyGetHearing(MockServer mockServer) throws Exception {
+    public void shouldSuccessfullyGetHearing() throws Exception {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
@@ -99,8 +95,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearingWithRefCheck(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api successfully returns case and with ref check")
+            .uponReceiving("Request to GET hearing for given valid case id and with ?isValid")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_CASE_ID + OPTION_FIELD_IS_VALID)
@@ -114,7 +110,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithRefCheck")
-    public void shouldSuccessfullyGetHearingWithRefCheck(MockServer mockServer) throws Exception {
+    public void shouldSuccessfullyGetHearingWithRefCheck() throws Exception {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
@@ -139,8 +135,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearingWithNoContent(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api successfully returns no case")
+            .uponReceiving("Request to GET hearing and get nothing")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_NO_CONTENT_CASE_ID)
@@ -154,13 +150,16 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithNoContent")
-    public void shouldSuccessfullyGetHearingWithNoContent(MockServer mockServer) throws Exception {
+    public void shouldSuccessfullyGetHearingWithNoContent() throws Exception {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
             VALID_NO_CONTENT_CASE_ID
         );
+
+        Assert.assertNull(result);
+
         TimeUnit.SECONDS.sleep(2);
     }
 
@@ -169,8 +168,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearingWithBadRequest(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api fail return with bad request status")
+            .uponReceiving("Request to GET hearing for with bad request case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + BAD_REQUEST_CASE_ID)
@@ -184,18 +183,18 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithBadRequest")
-    public void shouldFailGetHearingWithBadRequest(MockServer mockServer) throws Exception {
+    public void shouldFailGetHearingWithBadRequest() throws Exception {
 
-        try {
+        FeignException thrown = Assertions.assertThrows(FeignException.class, () -> {
             HearingGetResponse result = hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 BAD_REQUEST_CASE_ID
             );
+        }, "FeignException was expected");
 
-        } catch (FeignException e) {
-            Assertions.assertEquals(e.status(), HttpStatus.BAD_REQUEST.value());
-        }
+        Assertions.assertEquals(thrown.status(), HttpStatus.BAD_REQUEST.value());
+
 
         TimeUnit.SECONDS.sleep(2);
     }
@@ -205,8 +204,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearingWithUnauthorized(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api successfully returns case")
+            .uponReceiving("Request to GET hearing for with unauthorized case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + UNAUTHORISED_CASE_ID)
@@ -220,18 +219,17 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithUnauthorized")
-    public void shouldFailGetHearingWithUnauthorized(MockServer mockServer) throws Exception {
+    public void shouldFailGetHearingWithUnauthorized() throws Exception {
 
-        try {
+        FeignException thrown = Assertions.assertThrows(FeignException.class, () -> {
             HearingGetResponse result = hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 UNAUTHORISED_CASE_ID
             );
+        }, "FeignException was expected");
 
-        } catch (FeignException e) {
-            Assertions.assertEquals(e.status(), HttpStatus.UNAUTHORIZED.value());
-        }
+        Assertions.assertEquals(thrown.status(), HttpStatus.UNAUTHORIZED.value());
 
         TimeUnit.SECONDS.sleep(2);
     }
@@ -240,8 +238,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearingWithForbidden(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api successfully returns case")
+            .uponReceiving("Request to GET hearing for with forbidden case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
@@ -255,18 +253,17 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithForbidden")
-    public void shouldFailGetHearingWithForbidden(MockServer mockServer) throws Exception {
+    public void shouldFailGetHearingWithForbidden() throws Exception {
 
-        try {
+        FeignException thrown = Assertions.assertThrows(FeignException.class, () -> {
             HearingGetResponse result = hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 FORBIDDEN_CASE_ID
             );
+        }, "FeignException was expected");
 
-        } catch (FeignException e) {
-            Assertions.assertEquals(e.status(), HttpStatus.FORBIDDEN.value());
-        }
+        Assertions.assertEquals(thrown.status(), HttpStatus.FORBIDDEN.value());
 
         TimeUnit.SECONDS.sleep(2);
     }
@@ -276,8 +273,8 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     public RequestResponsePact getHearingWithNotFound(PactDslWithProvider builder) throws Exception {
 
         return builder
-            .given("sscs haaring api successfully returns case")
-            .uponReceiving("Request to GET hearing for given valid case ref only")
+            .given("sscs hearing api successfully returns case")
+            .uponReceiving("Request to GET hearing for with not found case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
@@ -291,18 +288,17 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithNotFound")
-    public void shouldFailGetHearingWithNotFound(MockServer mockServer) throws Exception {
+    public void shouldFailGetHearingWithNotFound() throws Exception {
 
-        try {
+        FeignException thrown = Assertions.assertThrows(FeignException.class, () -> {
             HearingGetResponse result = hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 NOT_FOUND_CASE_ID
             );
+        }, "FeignException was expected");
 
-        } catch (FeignException e) {
-            Assertions.assertEquals(e.status(), HttpStatus.NOT_FOUND.value());
-        }
+        Assertions.assertEquals(thrown.status(), HttpStatus.NOT_FOUND.value());
 
         TimeUnit.SECONDS.sleep(2);
     }
