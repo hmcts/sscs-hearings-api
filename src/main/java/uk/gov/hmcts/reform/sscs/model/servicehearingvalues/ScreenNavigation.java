@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,8 +15,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class CaseFlags {
-
-    private List<PartyFlags> flags;
-    private String flagAmendURL;
+public class ScreenNavigation {
+    private String screenName;
+    private String conditionKey;
+    private List<Navigation> navigation;
 }

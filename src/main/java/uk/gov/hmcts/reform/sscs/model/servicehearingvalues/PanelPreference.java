@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,11 +13,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartyFlags {
+public class PanelPreference {
 
-    private String partyName;
-    private String flagParentId;
-    private String flagId;
-    private String flagDescription;
-    private String flagStatus;
+    private String memberID;
+    private MemberType memberType;
+    private RequirementType requirementType;
 }

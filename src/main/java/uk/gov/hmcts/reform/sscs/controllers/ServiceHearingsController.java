@@ -21,6 +21,9 @@ import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 
 import java.util.List;

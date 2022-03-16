@@ -327,6 +327,8 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
 
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
+
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured

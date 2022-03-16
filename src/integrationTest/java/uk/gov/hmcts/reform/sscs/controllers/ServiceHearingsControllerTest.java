@@ -26,6 +26,8 @@ import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 
 import java.util.ArrayList;
 import java.util.List;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
