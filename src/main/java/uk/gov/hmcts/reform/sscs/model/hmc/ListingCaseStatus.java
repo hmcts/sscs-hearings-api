@@ -13,6 +13,6 @@ public enum ListingCaseStatus {
     HEARING_COMPLETED("Hearing Completed"),
     CASE_CLOSED("Case Closed");
 
-    private final String laCaseStatusLabel;
+    private final String listingCaseStatusLabel;
 
 }
