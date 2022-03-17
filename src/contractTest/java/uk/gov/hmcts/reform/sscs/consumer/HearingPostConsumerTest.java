@@ -73,8 +73,7 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
 
         Assertions.assertTrue(hearingResponse.getHearingRequestId() > ZERO_LENGTH);
         Assertions.assertFalse(hearingResponse.getStatus().isEmpty());
-        /*Assertions.assertTrue(hearingResponse.getVersionNumber() > ZERO_LENGTH);
-        Assertions.assertFalse(hearingResponse.getTimeStamp().isEmpty());*/
+        Assertions.assertTrue(hearingResponse.getVersionNumber() != ZERO_NUMBER_LENGTH);
     }
 
     @Test

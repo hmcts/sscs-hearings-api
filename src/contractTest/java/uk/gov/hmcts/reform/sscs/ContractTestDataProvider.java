@@ -49,6 +49,7 @@ public class ContractTestDataProvider {
     protected static final String FIELD_MESSAGE = "message";
     protected static final String FIELD_ERRORS = "errors";
     protected static final int ZERO_LENGTH = 0;
+    protected static final Number ZERO_NUMBER_LENGTH = 0;
 
     protected static final Map<String, String> headers = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,

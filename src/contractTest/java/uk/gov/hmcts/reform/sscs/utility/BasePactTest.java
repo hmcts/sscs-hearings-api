@@ -1,18 +1,16 @@
 package uk.gov.hmcts.reform.sscs.utility;
 
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
+import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-public class BasePactTest {
+public class BasePactTest extends ContractTestDataProvider {
 
     private static final String FORMATYYYYMMDDHHMMSSSSSSZ = "yyyy-MM-dd'T'HH:mm:SS";
     private static final String STATUS_OPTIONS_STRING = "HEARING_REQUESTED|UPDATE_REQUESTED|"
          + "UPDATE_SUBMITTED|AWAITING_LISTING|LISTED|CANCELLATION_REQUESTED|EXCEPTION";
-
-    private BasePactTest() {
-    }
 
     public static PactDslJsonBody generatePostHearingsJsonBody(String statusMessage) {
 

@@ -10,5 +10,5 @@ public enum CaseCategoryType {
     CASETYPE("caseType"),
     CASESUBTYPE("caseSubType");
 
-    private final String catagoryLabel;
+    private final String categoryLabel;
 }
