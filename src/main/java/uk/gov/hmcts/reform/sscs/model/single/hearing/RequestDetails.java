@@ -1,16 +1,18 @@
-package uk.gov.hmcts.reform.sscs.model.hearings;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestDetails {
 
-    private String requestTimeStamp;
+    private LocalDateTime requestTimeStamp;
 
-    private Integer versionNumber;
+    private Number versionNumber;
 
 }

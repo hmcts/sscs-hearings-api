@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.hearings;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class IndividualDetails {
 
     private List<String> reasonableAdjustments;
 
-    private Boolean vulnerableFlag;
+    private boolean vulnerableFlag;
 
     private String vulnerabilityDetails;
 

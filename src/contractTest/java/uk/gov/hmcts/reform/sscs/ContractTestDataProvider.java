@@ -3,23 +3,27 @@ package uk.gov.hmcts.reform.sscs;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
-import uk.gov.hmcts.reform.sscs.model.hearings.CaseCategory;
-import uk.gov.hmcts.reform.sscs.model.hearings.CaseDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.HearingLocations;
-import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.hearings.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.hearings.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.PanelPreference;
-import uk.gov.hmcts.reform.sscs.model.hearings.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.model.hearings.PartyDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.RelatedParty;
-import uk.gov.hmcts.reform.sscs.model.hearings.RequestDetails;
-import uk.gov.hmcts.reform.sscs.model.hearings.UnavailabilityDayOfWeek;
-import uk.gov.hmcts.reform.sscs.model.hearings.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,6 +76,8 @@ public class ContractTestDataProvider {
 
     protected String toJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String jsonString = "";
         try {
@@ -84,7 +90,7 @@ public class ContractTestDataProvider {
 
     protected RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setRequestTimeStamp("030-08-20T12:40:00.000Z");
+        requestDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         requestDetails.setVersionNumber(123);
         return requestDetails;
     }
@@ -109,8 +115,8 @@ public class ContractTestDataProvider {
 
     protected HearingWindow hearingWindow() {
         HearingWindow hearingWindow = new HearingWindow();
-        hearingWindow.setDateRangeStart("01/02/2020");
-        hearingWindow.setDateRangeEnd("12/02/2020");
+        hearingWindow.setDateRangeStart(LocalDate.parse("2020-02-01"));
+        hearingWindow.setDateRangeEnd(LocalDate.parse("2020-02-12"));
 
         return hearingWindow;
     }
@@ -119,7 +125,7 @@ public class ContractTestDataProvider {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
         caseDetails.setCaseRef("ba12");
-        caseDetails.setRequestTimeStamp("2030-08-20T12:40:00.000Z");
+        caseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         caseDetails.setCaseDeepLink("https://www.google.com");
         caseDetails.setHmctsInternalCaseName("Internal case name");
         caseDetails.setPublicCaseName("Public case name");
@@ -264,11 +270,11 @@ public class ContractTestDataProvider {
 
     private List<UnavailabilityRange> createUnavailableDateRanges() {
         UnavailabilityRange unavailabilityRanges1 = new UnavailabilityRange();
-        unavailabilityRanges1.setUnavailableFromDate("2021-01-01");
-        unavailabilityRanges1.setUnavailableToDate("2021-01-15");
+        unavailabilityRanges1.setUnavailableFromDate(LocalDate.parse("2021-01-01"));
+        unavailabilityRanges1.setUnavailableToDate(LocalDate.parse("2021-01-15"));
         UnavailabilityRange unavailabilityRanges2 = new UnavailabilityRange();
-        unavailabilityRanges2.setUnavailableFromDate("2021-06-01");
-        unavailabilityRanges2.setUnavailableToDate("2021-06-21");
+        unavailabilityRanges2.setUnavailableFromDate(LocalDate.parse("2021-06-01"));
+        unavailabilityRanges2.setUnavailableToDate(LocalDate.parse("2021-06-21"));
 
         List<UnavailabilityRange> listUnavailabilityRanges = new ArrayList<>();
         listUnavailabilityRanges.add(unavailabilityRanges1);

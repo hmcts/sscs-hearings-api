@@ -1,9 +1,11 @@
-package uk.gov.hmcts.reform.sscs.model.hearings;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 
 @Data
@@ -16,7 +18,7 @@ public class HearingResponse {
 
     private String status;
 
-    private String timeStamp;
+    private LocalDateTime timeStamp;
 
-    private Integer versionNumber;
+    private Number versionNumber;
 }

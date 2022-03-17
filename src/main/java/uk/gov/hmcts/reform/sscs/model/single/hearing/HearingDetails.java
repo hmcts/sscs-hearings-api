@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.hearings;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -18,13 +18,13 @@ public class HearingDetails {
 
     private HearingWindow hearingWindow;
 
-    private Integer duration;
+    private Number duration;
 
     private List<String> nonStandardHearingDurationReasons;
 
     private String hearingPriorityType;
 
-    private Integer numberOfPhysicalAttendees;
+    private Number numberOfPhysicalAttendees;
 
     private boolean hearingInWelshFlag;
 

@@ -1,10 +1,11 @@
-package uk.gov.hmcts.reform.sscs.model.hearings;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -16,7 +17,7 @@ public class CaseDetails {
 
     private String caseRef;
 
-    private String requestTimeStamp;
+    private LocalDateTime requestTimeStamp;
 
     private String externalCaseReference;
 
@@ -26,16 +27,16 @@ public class CaseDetails {
 
     private String publicCaseName;
 
-    private Boolean caseAdditionalSecurityFlag;
+    private boolean caseAdditionalSecurityFlag;
 
-    private Boolean caseInterpreterRequiredFlag;
+    private boolean caseInterpreterRequiredFlag;
 
     private List<CaseCategory> caseCategories;
 
     private String caseManagementLocationCode;
 
     @JsonProperty("caserestrictedFlag")
-    private Boolean caseRestrictedFlag;
+    private boolean caseRestrictedFlag;
 
     @JsonProperty("caseSLAStartDate")
     private String caseSlaStartDate;
