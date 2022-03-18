@@ -3,11 +3,9 @@ package uk.gov.hmcts.reform.sscs.utility;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 public class BasePactTest {
 
-    private static final String FORMATYYYYMMDDHHMMSSSSSSZ = "yyyy-MM-dd'T'HH:mm:SS";
     private static final String STATUS_OPTIONS_STRING = "HEARING_REQUESTED|UPDATE_REQUESTED|"
          + "UPDATE_SUBMITTED|AWAITING_LISTING|LISTED|CANCELLATION_REQUESTED|EXCEPTION";
 
@@ -30,7 +28,7 @@ public class BasePactTest {
             .integerType("versionNumber", "022")
             .integerType("hearingRequestID", "^[a-zA-Z0-9]{1,30}$", "1880163574")
             .stringMatcher("status", STATUS_OPTIONS_STRING, "HEARING_REQUESTED")
-            .datetime("timeStamp", FORMATYYYYMMDDHHMMSSSSSSZ, timeStamp.atZone(ZoneId.systemDefault()).toInstant())
+            .stringMatcher("timeStamp", "2030-08-20T12:40:00")
             .asBody();
 
         return pactDslJsonBody;
