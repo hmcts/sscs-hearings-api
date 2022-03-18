@@ -7,6 +7,7 @@ import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Assertions;
@@ -28,6 +29,7 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
+@PactFolder("pacts")
 public class HearingPostConsumerTest extends ContractTestDataProvider {
 
     @Autowired
