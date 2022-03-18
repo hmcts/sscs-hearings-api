@@ -260,7 +260,7 @@ def versions= [
         springDoc: '1.6.6',
         springFoxSwagger: '3.0.0',
         springRetry: '1.3.1',
-	    sscsCommon: '4.6.45',
+	    sscsCommon: '4.6.46-RC-SSCS-10056-3',
         tomcat: '9.0.58'
 ]
 
@@ -310,7 +310,6 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: versions.hmctsProperties
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
