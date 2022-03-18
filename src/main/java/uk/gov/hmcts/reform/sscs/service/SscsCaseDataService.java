@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 
-@Data
+@Getter
 @Builder
 public class SscsCaseDataService {
     private SscsCaseData sscsCaseData;
