@@ -42,6 +42,9 @@ judicial-ref:
   api:
     url: ${JUDICIAL_REF_API_URL:http://localhost:8093}
 
+exui:
+  url: ${EXUI_API_URL:http://localhost:3455}
+
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
