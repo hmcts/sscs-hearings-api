@@ -2,8 +2,10 @@ package uk.gov.hmcts.reform.sscs.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.LocationType;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +17,7 @@ import javax.validation.ValidatorFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EnumPatternValidatorTest {
 
@@ -22,15 +25,15 @@ public class EnumPatternValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
 
-    @Test
-    void whenLocationIdIsNullThenGiveUnsupportedErrorMessage() {
+    @ParameterizedTest
+    @NullAndEmptySource
+    void given_LocationIdIsNullOrEmpty_thenGiveUnsupportedErrorMessage(String locationId) {
         HearingLocations location = getHearingLocation();
-        location.setLocationId(null);
+        location.setLocationId(locationId);
         Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
@@ -41,21 +44,7 @@ public class EnumPatternValidatorTest {
     }
 
     @Test
-    void whenLocationIdIsEmptyThenGiveUnsupportedErrorMessage() {
-        HearingLocations location = new HearingLocations();
-        location.setLocationId("");
-        location.setLocationType("LocType");
-        Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
-        assertFalse(violations.isEmpty());
-        assertEquals(1, violations.size());
-        assertEquals(
-            "Unsupported type for locationId",
-            violations.stream().collect(Collectors.toList()).get(0).getMessage()
-        );
-    }
-
-    @Test
-    void whenLocationIdIsInvalidThenGiveUnsupportedErrorMessage() {
+    void given_LocationIdIsInvalid_ThenGiveUnsupportedErrorMessage() {
         HearingLocations location = new HearingLocations();
         location.setLocationId("Loc");
         location.setLocationType("LocType");
@@ -63,6 +52,15 @@ public class EnumPatternValidatorTest {
         assertFalse(violations.isEmpty());
         assertEquals(1, violations.size());
         assertThat(violations).extracting(ConstraintViolation::getMessage).contains("Unsupported type for locationId");
+    }
+
+    @Test
+    void given_LocationIdIsValid_ThenSetEnumValue() {
+        HearingLocations location = new HearingLocations();
+        location.setLocationId(LocationType.COURT.toString());
+        location.setLocationType("LocType");
+        Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
+        assertTrue(violations.isEmpty());
     }
 
     private HearingLocations getHearingLocation() {
