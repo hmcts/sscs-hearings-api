@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
 @SpringBootTest
-@PactTestFor(port = "10003")
+@PactTestFor(port = "10000")
 @PactFolder("pacts")
 public class HearingPutConsumerTest extends BasePactTest {
 
