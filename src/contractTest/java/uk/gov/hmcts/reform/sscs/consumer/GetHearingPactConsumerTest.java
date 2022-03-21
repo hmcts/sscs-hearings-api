@@ -20,8 +20,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.sscs.BasePactTesting;
-import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 
 import java.time.LocalDateTime;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
 @PactTestFor(port = "10000")
-public class GetHearingPactConsumerTest extends BasePactTesting {
+public class GetHearingPactConsumerTest extends ContractTestDataProvider {
 
     private static final String PATH_HEARING = "/hearing";
     private static final String FIELD_ID = "id";
@@ -56,7 +56,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     }
 
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearing(PactDslWithProvider builder) {
 
         return builder
@@ -96,7 +96,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     }
 
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithRefCheck(PactDslWithProvider builder) {
 
         return builder
@@ -136,7 +136,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     }
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithNoContent(PactDslWithProvider builder) {
 
         return builder
@@ -169,7 +169,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     }
 
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithBadRequest(PactDslWithProvider builder) {
 
         return builder
@@ -201,11 +201,10 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
         Assertions.assertEquals(thrown.status(), HttpStatus.BAD_REQUEST.value());
 
 
-
     }
 
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithUnauthorized(PactDslWithProvider builder) {
 
         return builder
@@ -239,7 +238,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
 
     }
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithForbidden(PactDslWithProvider builder) {
 
         return builder
@@ -274,7 +273,7 @@ public class GetHearingPactConsumerTest extends BasePactTesting {
     }
 
 
-    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
+    @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithNotFound(PactDslWithProvider builder) {
 
         return builder

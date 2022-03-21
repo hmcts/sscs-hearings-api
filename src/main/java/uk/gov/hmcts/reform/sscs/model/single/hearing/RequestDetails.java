@@ -15,4 +15,14 @@ public class RequestDetails {
 
     private Number versionNumber;
 
+    private String hearingRequestID;
+
+    private String status;
+
+    private LocalDateTime timeStamp;
+
+    private String hearingGroupRequestId;
+
+    private LocalDateTime partiesNotified;
+
 }

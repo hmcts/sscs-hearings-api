@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.hmc;
+package uk.gov.hmcts.reform.sscs.model;
 
 import lombok.Data;
 

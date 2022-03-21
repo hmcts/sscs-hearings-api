@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
-import uk.gov.hmcts.reform.sscs.model.hmc.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
-import uk.gov.hmcts.reform.sscs.model.hmc.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.hmc.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.hmc.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import javax.validation.Valid;
 
@@ -20,7 +20,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public interface HmcHearingApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
-
 
     @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse createHearingRequest(
