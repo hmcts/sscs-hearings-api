@@ -43,7 +43,7 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
                 toJsonString(generateHearingRequest())).headers(headers).willRespondWith()
             .status(HttpStatus.OK.value()).body(
                 BasePactTest
-                .generatePostHearingsJsonBody(MSG_200_POST_HEARING))
+                .generateHearingsJsonBody(MSG_200_HEARING))
             .toPact();
     }
 
@@ -55,7 +55,7 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
                     .path(PATH_HEARING).method(HttpMethod.POST.toString())
             .body(toJsonString(generateInvalidHearingRequest())).headers(headers)
             .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
-            .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_400_POST_HEARING)
+            .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_400_HEARING)
                       .stringValue(FIELD_STATUS, BAD_REQUEST)
                           .eachLike(FIELD_ERRORS, 1)
                       .closeArray())

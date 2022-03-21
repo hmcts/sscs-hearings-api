@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +36,15 @@ public class ContractTestDataProvider {
 
     protected static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     protected static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";
+    protected static final String UNAUTHORISED_IDAM_OAUTH2_TOKEN = "unauthorised-pact-test-idam-token";
     protected static final String SERVICE_AUTHORIZATION_TOKEN = "pact-test-s2s-token";
+    protected static final String UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN = "unauthorised-pact-test-s2s-token";
 
-    public static final String MSG_200_POST_HEARING = "Success (with content)";
-    public static final String MSG_400_POST_HEARING = "Invalid request";
+    public static final String MSG_200_HEARING = "Success (with content)";
+    public static final String MSG_400_HEARING = "Invalid hearing state for DELETE";
+    public static final String MSG_401_HEARING = "Unauthorised request";
+    public static final String MSG_403_HEARING = "Forbidden request";
+    public static final String MSG_404_HEARING = "Not Found request";
 
     protected static final String CONTENT_TYPE = "Content-Type";
     protected static final String APPLICATION_JSON = "application/json";
@@ -57,6 +63,12 @@ public class ContractTestDataProvider {
         CONTENT_TYPE, APPLICATION_JSON
     );
 
+    protected static final Map<String, String> unauthorisedHeaders = Map.of(
+        HttpHeaders.AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+        SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
+        CONTENT_TYPE, APPLICATION_JSON
+    );
+
     protected HearingRequestPayload generateHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setRequestDetails(requestDetails());
@@ -72,6 +84,18 @@ public class ContractTestDataProvider {
         request.setHearingDetails(hearingDetails());
         request.setPartyDetails(partyDetails1());
         request.setRequestDetails(requestDetails());
+        return request;
+    }
+
+    protected String generateHearingDeleteRequest() {
+        Map<String, String> params = new HashMap<>();
+        params.put("cancellationReasonCode", "Cancel reason");
+        String request = "";
+        try {
+            request = new ObjectMapper().writeValueAsString(params);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         return request;
     }
 

@@ -12,11 +12,8 @@ public class BasePactTest {
     private BasePactTest() {
     }
 
-    public static PactDslJsonBody generatePostHearingsJsonBody(String statusMessage) {
-
-        PactDslJsonBody pactDslJsonBody = genericCreateHearingJsonBody(statusMessage, LocalDateTime.now());
-
-        return pactDslJsonBody;
+    public static PactDslJsonBody generateHearingsJsonBody(String statusMessage) {
+        return genericCreateHearingJsonBody(statusMessage, LocalDateTime.now());
     }
 
     public static PactDslJsonBody genericCreateHearingJsonBody(String statusMessage, LocalDateTime timeStamp) {
