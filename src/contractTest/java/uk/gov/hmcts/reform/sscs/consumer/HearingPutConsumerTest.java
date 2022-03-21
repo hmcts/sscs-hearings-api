@@ -30,47 +30,47 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
 @SpringBootTest
-@PactTestFor(port = "10000")
+@PactTestFor(port = "10003")
 @PactFolder("pacts")
-public class HearingPostConsumerTest extends BasePactTest {
+public class HearingPutConsumerTest extends BasePactTest {
 
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
     @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
-    public RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
-        return builder.given(ContractTestDataProvider.CONSUMER_NAME + " successfully creating hearing request ")
-            .uponReceiving("Request to create hearing request to save details")
-            .path(ContractTestDataProvider.PATH_HEARING)
-            .method(HttpMethod.POST.toString()).body(
+    public RequestResponsePact updateHearingRequestForValidRequest(PactDslWithProvider builder) {
+        return builder.given(ContractTestDataProvider.CONSUMER_NAME + " successfully updating hearing request ")
+            .uponReceiving("Request to update hearing request to save details")
+            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.PUT.toString()).body(
                 ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.headers).willRespondWith()
             .status(HttpStatus.OK.value())
-            .body(generatePostHearingsJsonBody(ContractTestDataProvider.MSG_200_POST_HEARING))
+            .body(generatePostHearingsJsonBody(ContractTestDataProvider.MSG_200_PUT_HEARING))
             .toPact();
     }
 
     @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
-    public RequestResponsePact validationErrorFromPostHearing(PactDslWithProvider builder) {
+    public RequestResponsePact validationErrorFromPutHearing(PactDslWithProvider builder) {
         return builder.given(ContractTestDataProvider.CONSUMER_NAME
-                                 + " throws validation error while trying to create hearing")
-                .uponReceiving("Request to CREATE hearing for invalid hearing request")
-                    .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.POST.toString())
+                                 + " throws validation error while trying to update hearing")
+            .uponReceiving("Request to UPDATE hearing for invalid hearing request")
+            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.PUT.toString())
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
             .headers(ContractTestDataProvider.headers)
-            .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
+            .willRespondWith()
+             .status(HttpStatus.BAD_REQUEST.value())
             .body(new PactDslJsonBody()
-                      .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_400_POST_HEARING)
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_400_PUT_HEARING)
                       .stringValue(ContractTestDataProvider.FIELD_STATUS, ContractTestDataProvider.BAD_REQUEST)
-                          .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
     }
 
     @Test
-    @PactTestFor(pactMethod = "createHearingRequestForValidRequest")
-    public void shouldSuccessfullyPostHearingRequest() throws JsonProcessingException {
-        HearingResponse hearingResponse = hmcHearingApi.createHearingRequest(
+    @PactTestFor(pactMethod = "updateHearingRequestForValidRequest")
+    public void shouldSuccessfullyPutHearingRequest() throws JsonProcessingException {
+        HearingResponse hearingResponse = hmcHearingApi.updateHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             ContractTestDataProvider.generateHearingRequest()
@@ -83,16 +83,16 @@ public class HearingPostConsumerTest extends BasePactTest {
     }
 
     @Test
-    @PactTestFor(pactMethod = "validationErrorFromPostHearing")
+    @PactTestFor(pactMethod = "validationErrorFromPutHearing")
     public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
         RestAssured.given().headers(ContractTestDataProvider.headers)
             .contentType(io.restassured.http.ContentType.JSON)
-                .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
-                .when()
-                .post(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
-                    .then().statusCode(HttpStatus.BAD_REQUEST.value())
-                .and().extract()
-                .body()
-                    .jsonPath();
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
+            .when()
+            .put(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
+            .then().statusCode(HttpStatus.BAD_REQUEST.value())
+            .and().extract()
+            .body()
+            .jsonPath();
     }
 }

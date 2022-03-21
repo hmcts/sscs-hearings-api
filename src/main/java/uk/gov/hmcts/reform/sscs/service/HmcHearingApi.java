@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.service;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
@@ -20,6 +21,13 @@ public interface HmcHearingApi {
 
     @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse createHearingRequest(
+        @RequestHeader(AUTHORIZATION) String authorisation,
+        @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestBody @Valid HearingRequestPayload hearingPayload
+    );
+
+    @PutMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
+    HearingResponse updateHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestBody @Valid HearingRequestPayload hearingPayload
