@@ -32,6 +32,8 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 @PactFolder("pacts")
 public class HearingPostConsumerTest extends ContractTestDataProvider {
 
+    private static final String RESPONSE_STATUS = "HEARING_REQUESTED";
+
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
@@ -39,11 +41,11 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
     public RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully creating hearing request ").uponReceiving(
             "Request to create hearing request to save details")
-            .path(PATH_HEARING).method(HttpMethod.POST.toString()).body(
-                toJsonString(generateHearingRequest())).headers(headers).willRespondWith()
+            .path(HEARING_PATH).method(HttpMethod.POST.toString()).body(
+                toJsonString(generateHearingRequest())).headers(authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value()).body(
                 BasePactTest
-                .generateHearingsJsonBody(MSG_200_HEARING))
+                .generateHearingsJsonBody(MSG_200_HEARING, RESPONSE_STATUS))
             .toPact();
     }
 
@@ -52,8 +54,8 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
         return builder.given(CONSUMER_NAME
                                  + " throws validation error while trying to create hearing")
                 .uponReceiving("Request to CREATE hearing for invalid hearing request")
-                    .path(PATH_HEARING).method(HttpMethod.POST.toString())
-            .body(toJsonString(generateInvalidHearingRequest())).headers(headers)
+                    .path(HEARING_PATH).method(HttpMethod.POST.toString())
+            .body(toJsonString(generateInvalidHearingRequest())).headers(authorisedHeaders)
             .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
             .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_400_HEARING)
                       .stringValue(FIELD_STATUS, BAD_REQUEST)
@@ -80,10 +82,10 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
     @Test
     @PactTestFor(pactMethod = "validationErrorFromPostHearing")
     public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
-        RestAssured.given().headers(headers)
+        RestAssured.given().headers(authorisedHeaders)
             .contentType(io.restassured.http.ContentType.JSON)
                 .body(toJsonString(generateInvalidHearingRequest())).when()
-                .post(mockServer.getUrl() + PATH_HEARING)
+                .post(mockServer.getUrl() + HEARING_PATH)
                     .then().statusCode(HttpStatus.BAD_REQUEST.value())
                 .and().extract()
                 .body()

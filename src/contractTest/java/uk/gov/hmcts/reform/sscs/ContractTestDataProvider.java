@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
@@ -26,7 +27,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public class ContractTestDataProvider {
     protected static final String CONTENT_TYPE = "Content-Type";
     protected static final String APPLICATION_JSON = "application/json";
 
-    protected static final String PATH_HEARING = "/hearing";
+    protected static final String HEARING_PATH = "/hearing";
     protected static final String FIELD_STATUS = "status";
     protected static final String BAD_REQUEST = "BAD_REQUEST";
     protected static final String FIELD_MESSAGE = "message";
@@ -57,7 +57,7 @@ public class ContractTestDataProvider {
     protected static final int ZERO_LENGTH = 0;
     protected static final Number ZERO_NUMBER_LENGTH = 0;
 
-    protected static final Map<String, String> headers = Map.of(
+    protected static final Map<String, String> authorisedHeaders = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
@@ -87,15 +87,15 @@ public class ContractTestDataProvider {
         return request;
     }
 
-    protected String generateHearingDeleteRequest() {
-        Map<String, String> params = new HashMap<>();
-        params.put("cancellationReasonCode", "Cancel reason");
-        String request = "";
-        try {
-            request = new ObjectMapper().writeValueAsString(params);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    protected HearingDeleteRequestPayload generateHearingDeleteRequest() {
+        HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
+        request.setCancellationReasonCode("Cancel reason");
+        return request;
+    }
+
+    protected HearingDeleteRequestPayload generateInvalidHearingDeleteRequest() {
+        HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
+        request.setCancellationReasonCode("");
         return request;
     }
 
