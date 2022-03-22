@@ -10,6 +10,7 @@ import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,12 +40,19 @@ public class HearingPutConsumerTest extends BasePactTest {
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
+    @BeforeEach
+    public void timeGapBetweenEachTest() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(2);
+    }
+
     @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
     public RequestResponsePact updateHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(ContractTestDataProvider.CONSUMER_NAME + " successfully updating hearing request ")
             .uponReceiving("Request to update hearing request to save details")
-            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.PUT.toString()).body(
-                ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .path(ContractTestDataProvider.PATH_HEARING)
+            .method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.VALID_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.headers).willRespondWith()
             .status(HttpStatus.OK.value())
             .body(generatePostHearingsJsonBody(ContractTestDataProvider.MSG_200_PUT_HEARING))
@@ -73,6 +83,7 @@ public class HearingPutConsumerTest extends BasePactTest {
         HearingResponse hearingResponse = hmcHearingApi.updateHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
+            ContractTestDataProvider.VALID_CASE_ID,
             ContractTestDataProvider.generateHearingRequest()
         );
 

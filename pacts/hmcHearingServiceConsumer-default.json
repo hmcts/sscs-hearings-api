@@ -382,8 +382,13 @@
         "path": "/hearing",
         "headers": {
           "Authorization": "pact-test-idam-token",
-          "ServiceAuthorization": "pact-test-s2s-token",
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "ServiceAuthorization": "pact-test-s2s-token"
+        },
+        "query": {
+          "id": [
+            "123"
+          ]
         },
         "body": {
           "requestDetails": {
@@ -747,7 +752,7 @@
     {
       "description": "Request to CREATE hearing for invalid hearing request",
       "request": {
-        "method": "PUT",
+        "method": "POST",
         "path": "/hearing",
         "headers": {
           "Authorization": "pact-test-idam-token",
@@ -1008,6 +1013,273 @@
       "providerStates": [
         {
           "name": "hmcHearingServiceConsumer throws validation error while trying to create hearing"
+        }
+      ]
+    },
+    {
+      "description": "Request to UPDATE hearing for invalid hearing request",
+      "request": {
+        "method": "PUT",
+        "path": "/hearing",
+        "headers": {
+          "Authorization": "pact-test-idam-token",
+          "Content-Type": "application/json",
+          "ServiceAuthorization": "pact-test-s2s-token"
+        },
+        "body": {
+          "requestDetails": {
+            "requestTimeStamp": "2022-03-17T14:08:41",
+            "versionNumber": 123
+          },
+          "hearingDetails": {
+            "autolistFlag": true,
+            "hearingType": "Some hearing type",
+            "hearingWindow": {
+              "dateRangeStart": "2020-02-01",
+              "dateRangeEnd": "2020-02-12"
+            },
+            "duration": 1,
+            "nonStandardHearingDurationReasons": [
+              "First reason",
+              "Second reason"
+            ],
+            "hearingPriorityType": "Priority type",
+            "hearingInWelshFlag": false,
+            "hearingLocations": [
+              {
+                "locationType": "Location type",
+                "locationId": "court"
+              }
+            ],
+            "privateHearingRequiredFlag": false,
+            "panelRequirements": {
+              "roleType": [
+                "role 1",
+                "role 2"
+              ],
+              "authorisationSubType": [
+                "authorisation sub 1",
+                "authorisation sub 2",
+                "authorisation sub 3",
+                "authorisation sub 4"
+              ],
+              "panelPreferences": [
+                {
+                  "memberID": "Member 1",
+                  "memberType": "Member Type 1",
+                  "requirementType": "MUSTINC"
+                },
+                {
+                  "memberID": "Member 2",
+                  "memberType": "Member Type 2",
+                  "requirementType": "OPTINC"
+                },
+                {
+                  "memberID": "Member 3",
+                  "memberType": "Member Type 3",
+                  "requirementType": "EXCLUDE"
+                }
+              ],
+              "panelSpecialisms": [
+                "Specialism 1",
+                "Specialism 2",
+                "Specialism 3",
+                "Specialism 4",
+                "Specialism 5"
+              ]
+            },
+            "hearingIsLinkedFlag": false,
+            "amendReasonCode": "amend Reason Code "
+          },
+          "partyDetails": [
+            {
+              "partyID": "P1",
+              "partyType": "IND",
+              "partyRole": "DEF",
+              "organisationDetails": {
+                "name": "name",
+                "organisationType": "organisationType",
+                "cftOrganisationID": "cftOrganisationId01001"
+              },
+              "unavailabilityRanges": [
+                {
+                  "unavailableFromDate": "2021-01-01",
+                  "unavailableToDate": "2021-01-15"
+                },
+                {
+                  "unavailableFromDate": "2021-06-01",
+                  "unavailableToDate": "2021-06-21"
+                }
+              ],
+              "unavailabilityDOW": [
+                {
+                  "DOW": "DOW1",
+                  "DOWUnavailabilityType": "TYPE1"
+                },
+                {
+                  "DOW": "DOW1",
+                  "DOWUnavailabilityType": "TYPE1"
+                }
+              ]
+            },
+            {
+              "partyID": "P2",
+              "partyType": "IND",
+              "partyRole": "DEF2",
+              "individualDetails": {
+                "title": "Master",
+                "firstName": "Harry",
+                "lastName": "Styles",
+                "preferredHearingChannel": "CBeebies",
+                "interpreterLanguage": "German",
+                "reasonableAdjustments": [
+                  "adjust 1",
+                  "adjust 2",
+                  "adjust 3"
+                ],
+                "vulnerableFlag": false,
+                "vulnerabilityDetails": "Vulnerability details 1",
+                "hearingChannelEmail": "harry.styles.neveragin@gmailsss.com",
+                "relatedParties": [
+                  {
+                    "relatedPartyID": "relatedParty1111",
+                    "relationshipType": "Family"
+                  },
+                  {
+                    "relatedPartyID": "relatedParty3333",
+                    "relationshipType": "Blood Brother"
+                  }
+                ]
+              },
+              "unavailabilityRanges": [
+                {
+                  "unavailableFromDate": "2021-01-01",
+                  "unavailableToDate": "2021-01-15"
+                },
+                {
+                  "unavailableFromDate": "2021-06-01",
+                  "unavailableToDate": "2021-06-21"
+                }
+              ],
+              "unavailabilityDOW": [
+                {
+                  "DOW": "DOW1",
+                  "DOWUnavailabilityType": "TYPE1"
+                },
+                {
+                  "DOW": "DOW1",
+                  "DOWUnavailabilityType": "TYPE1"
+                }
+              ]
+            },
+            {
+              "partyID": "P3",
+              "partyType": "IND",
+              "partyRole": "DEF3",
+              "individualDetails": {
+                "title": "Master",
+                "firstName": "Harry",
+                "lastName": "Styles",
+                "preferredHearingChannel": "CBeebies",
+                "interpreterLanguage": "German",
+                "reasonableAdjustments": [
+                  "adjust 1",
+                  "adjust 2",
+                  "adjust 3"
+                ],
+                "vulnerableFlag": false,
+                "vulnerabilityDetails": "Vulnerability details 1",
+                "hearingChannelEmail": "harry.styles.neveragin@gmailsss.com",
+                "relatedParties": [
+                  {
+                    "relatedPartyID": "relatedParty1111",
+                    "relationshipType": "Family"
+                  },
+                  {
+                    "relatedPartyID": "relatedParty3333",
+                    "relationshipType": "Blood Brother"
+                  }
+                ]
+              },
+              "organisationDetails": {
+                "name": "name",
+                "organisationType": "organisationType",
+                "cftOrganisationID": "cftOrganisationId01001"
+              },
+              "unavailabilityRanges": [
+                {
+                  "unavailableFromDate": "2021-01-01",
+                  "unavailableToDate": "2021-01-15"
+                },
+                {
+                  "unavailableFromDate": "2021-06-01",
+                  "unavailableToDate": "2021-06-21"
+                }
+              ],
+              "unavailabilityDOW": [
+                {
+                  "DOW": "DOW1",
+                  "DOWUnavailabilityType": "TYPE1"
+                },
+                {
+                  "DOW": "DOW1",
+                  "DOWUnavailabilityType": "TYPE1"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        "body": {
+          "message": "Invalid request",
+          "errors": [
+            {
+
+            }
+          ],
+          "status": "BAD_REQUEST"
+        },
+        "matchingRules": {
+          "body": {
+            "$.message": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.errors": {
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 0
+                }
+              ],
+              "combine": "AND"
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "hmcHearingServiceConsumer throws validation error while trying to update hearing"
         }
       ]
     }
