@@ -64,7 +64,9 @@ public class HearingPutConsumerTest extends BasePactTest {
         return builder.given(ContractTestDataProvider.CONSUMER_NAME
                                  + " throws validation error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for invalid hearing request")
-            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.PUT.toString())
+            .path(ContractTestDataProvider.PATH_HEARING)
+            .method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
             .headers(ContractTestDataProvider.headers)
             .willRespondWith()
@@ -72,6 +74,63 @@ public class HearingPutConsumerTest extends BasePactTest {
             .body(new PactDslJsonBody()
                       .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_400_PUT_HEARING)
                       .stringValue(ContractTestDataProvider.FIELD_STATUS, ContractTestDataProvider.BAD_REQUEST)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
+                      .closeArray())
+            .toPact();
+    }
+
+    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    public RequestResponsePact unauthorisedRequestErrorFromPutHearing(PactDslWithProvider builder) {
+        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+                                 + " throws unauthorised error while trying to update hearing")
+            .uponReceiving("Request to UPDATE hearing for unauthorised hearing request")
+            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.DELETE.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.VALID_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .headers(ContractTestDataProvider.unauthorisedHeaders)
+            .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE,ContractTestDataProvider.MSG_401_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.UNAUTHORIZED.value()
+                          + " " + HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
+                      .closeArray())
+            .toPact();
+    }
+
+    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    public RequestResponsePact forbiddenRequestErrorFromPutHearing(PactDslWithProvider builder) {
+        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+                                 + " throws forbidden error while trying to updating hearing")
+            .uponReceiving("Request to UPDATE hearing for forbidden hearing request")
+            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.DELETE.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.FORBIDDEN_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .headers(ContractTestDataProvider.headers)
+            .willRespondWith().status(HttpStatus.FORBIDDEN.value())
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE,ContractTestDataProvider.MSG_403_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.FORBIDDEN.value()
+                          + " " + HttpStatus.FORBIDDEN.getReasonPhrase())
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
+                      .closeArray())
+            .toPact();
+    }
+
+    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    public RequestResponsePact notFoundRequestErrorFromPutHearing(PactDslWithProvider builder) {
+        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+                                 + " throws not found request error while trying to update hearing")
+            .uponReceiving("Request to UPDATE hearing for not found hearing request")
+            .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.DELETE.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.NOT_FOUND_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .headers(ContractTestDataProvider.headers)
+            .willRespondWith().status(HttpStatus.NOT_FOUND.value())
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE,ContractTestDataProvider.MSG_404_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.NOT_FOUND.value()
+                          + " " + HttpStatus.NOT_FOUND.getReasonPhrase())
                       .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
@@ -98,10 +157,55 @@ public class HearingPutConsumerTest extends BasePactTest {
     public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
         RestAssured.given().headers(ContractTestDataProvider.headers)
             .contentType(io.restassured.http.ContentType.JSON)
+            .queryParam(ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
             .when()
             .put(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
             .then().statusCode(HttpStatus.BAD_REQUEST.value())
+            .and().extract()
+            .body()
+            .jsonPath();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "unauthorisedRequestErrorFromPutHearing")
+    public void shouldReturn401UnauthorisedRequestForDeleteHearing(MockServer mockServer) {
+        RestAssured.given().headers(ContractTestDataProvider.unauthorisedHeaders)
+            .contentType(io.restassured.http.ContentType.JSON)
+            .queryParam(ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.VALID_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .when()
+            .delete(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
+            .then().statusCode(HttpStatus.UNAUTHORIZED.value())
+            .and().extract()
+            .body()
+            .jsonPath();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "forbiddenRequestErrorFromPutHearing")
+    public void shouldReturn403ForbiddenRequestForDeleteHearing(MockServer mockServer) {
+        RestAssured.given().headers(ContractTestDataProvider.headers)
+            .contentType(io.restassured.http.ContentType.JSON)
+            .queryParam(ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.FORBIDDEN_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest())).when()
+            .delete(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
+            .then().statusCode(HttpStatus.FORBIDDEN.value())
+            .and().extract()
+            .body()
+            .jsonPath();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "notFoundRequestErrorFromPutHearing")
+    public void shouldReturn404NotFoundRequestForDeleteHearing(MockServer mockServer) {
+        RestAssured.given().headers(ContractTestDataProvider.headers)
+            .contentType(io.restassured.http.ContentType.JSON)
+            .queryParam(ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.NOT_FOUND_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .when()
+            .delete(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
+            .then().statusCode(HttpStatus.NOT_FOUND.value())
             .and().extract()
             .body()
             .jsonPath();

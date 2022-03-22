@@ -35,12 +35,17 @@ public class ContractTestDataProvider {
 
     public static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     public static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";
+    public static final String UNAUTHORISED_IDAM_OAUTH2_TOKEN = "unauthorised-pact-test-idam-token";
     public static final String SERVICE_AUTHORIZATION_TOKEN = "pact-test-s2s-token";
+    public static final String UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN = "unauthorised-pact-test-s2s-token";
 
     public static final String MSG_200_POST_HEARING = "Success (with content)";
     public static final String MSG_400_POST_HEARING = "Invalid request";
     public static final String MSG_200_PUT_HEARING = "Success (with content)";
     public static final String MSG_400_PUT_HEARING = "Invalid request";
+    public static final String MSG_401_HEARING = "Unauthorised request";
+    public static final String MSG_403_HEARING = "Forbidden request";
+    public static final String MSG_404_HEARING = "Not Found request";
 
 
 
@@ -56,6 +61,8 @@ public class ContractTestDataProvider {
     public static final Number ZERO_NUMBER_LENGTH = 0;
     public static final String FIELD_ID = "id";
     public static final String VALID_CASE_ID = "123";
+    public static final String FORBIDDEN_CASE_ID = "456";
+    public static final String NOT_FOUND_CASE_ID = "789";
 
     private ContractTestDataProvider() {
 
@@ -64,6 +71,12 @@ public class ContractTestDataProvider {
     public static final Map<String, String> headers = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
+        CONTENT_TYPE, APPLICATION_JSON
+    );
+
+    public static final Map<String, String> unauthorisedHeaders = Map.of(
+        HttpHeaders.AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+        SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
 
