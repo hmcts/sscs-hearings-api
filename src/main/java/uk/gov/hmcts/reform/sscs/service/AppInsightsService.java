@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 @Service
 public final class AppInsightsService {
 
-    static final TelemetryClient telemetryClient = new TelemetryClient();
+    private static final TelemetryClient CLIENT = new TelemetryClient();
 
     private AppInsightsService() {
         // Gradle style check
@@ -22,7 +22,7 @@ public final class AppInsightsService {
     public static void sendAppInsightsEvent(HmcFailureMessage hmcFailureMessage) throws JsonProcessingException {
         String message = messageToJson(hmcFailureMessage);
 
-        telemetryClient.trackEvent(new EventTelemetry(message));
+        CLIENT.trackEvent(new EventTelemetry(message));
         log.info(message);
     }
 
