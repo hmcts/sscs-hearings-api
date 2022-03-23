@@ -7,7 +7,7 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.EventTelemetry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
+import uk.gov.hmcts.reform.sscs.model.Message;
 
 @Slf4j
 @Service
@@ -19,20 +19,20 @@ public final class AppInsightsService {
         // Gradle style check
     }
 
-    public static void sendAppInsightsEvent(HmcFailureMessage hmcFailureMessage) throws JsonProcessingException {
-        String message = messageToJson(hmcFailureMessage);
+    public static void sendAppInsightsEvent(Message message) throws JsonProcessingException {
+        String serialisedMessage = messageToJson(message);
 
-        CLIENT.trackEvent(new EventTelemetry(message));
-        log.info(message);
+        CLIENT.trackEvent(new EventTelemetry(serialisedMessage));
+        log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID());
     }
 
-    private static String messageToJson(HmcFailureMessage hmcFailureMessage) throws JsonProcessingException {
+    private static String messageToJson(Message message) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
         try {
-            return ow.writeValueAsString(hmcFailureMessage);
+            return ow.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
-            log.error("HMC failure message JsonProcessingException for Case ID: {}", hmcFailureMessage.getCaseID());
+            log.error("HMC failure message JsonProcessingException for Case ID: {}", message.getCaseID());
             throw jpe;
         }
     }
