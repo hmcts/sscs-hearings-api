@@ -317,6 +317,7 @@ dependencies {
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured

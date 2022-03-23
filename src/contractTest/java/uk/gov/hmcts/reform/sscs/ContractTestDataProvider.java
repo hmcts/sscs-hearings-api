@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
@@ -35,15 +36,20 @@ public class ContractTestDataProvider {
 
     protected static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     protected static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";
+    protected static final String UNAUTHORISED_IDAM_OAUTH2_TOKEN = "unauthorised-pact-test-idam-token";
     protected static final String SERVICE_AUTHORIZATION_TOKEN = "pact-test-s2s-token";
+    protected static final String UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN = "unauthorised-pact-test-s2s-token";
 
-    public static final String MSG_200_POST_HEARING = "Success (with content)";
-    public static final String MSG_400_POST_HEARING = "Invalid request";
+    public static final String MSG_200_HEARING = "Success (with content)";
+    public static final String MSG_400_HEARING = "Invalid hearing state for DELETE";
+    public static final String MSG_401_HEARING = "Unauthorised request";
+    public static final String MSG_403_HEARING = "Forbidden request";
+    public static final String MSG_404_HEARING = "Not Found request";
 
     protected static final String CONTENT_TYPE = "Content-Type";
     protected static final String APPLICATION_JSON = "application/json";
 
-    protected static final String PATH_HEARING = "/hearing";
+    protected static final String HEARING_PATH = "/hearing";
     protected static final String FIELD_STATUS = "status";
     protected static final String BAD_REQUEST = "BAD_REQUEST";
     protected static final String FIELD_MESSAGE = "message";
@@ -51,9 +57,15 @@ public class ContractTestDataProvider {
     protected static final int ZERO_LENGTH = 0;
     protected static final Number ZERO_NUMBER_LENGTH = 0;
 
-    protected static final Map<String, String> headers = Map.of(
+    protected static final Map<String, String> authorisedHeaders = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
+        CONTENT_TYPE, APPLICATION_JSON
+    );
+
+    protected static final Map<String, String> unauthorisedHeaders = Map.of(
+        HttpHeaders.AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+        SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
 
@@ -72,6 +84,18 @@ public class ContractTestDataProvider {
         request.setHearingDetails(hearingDetails());
         request.setPartyDetails(partyDetails1());
         request.setRequestDetails(requestDetails());
+        return request;
+    }
+
+    protected HearingDeleteRequestPayload generateHearingDeleteRequest() {
+        HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
+        request.setCancellationReasonCode("Cancel reason");
+        return request;
+    }
+
+    protected HearingDeleteRequestPayload generateInvalidHearingDeleteRequest() {
+        HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
+        request.setCancellationReasonCode("");
         return request;
     }
 
