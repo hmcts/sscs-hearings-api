@@ -23,8 +23,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
@@ -37,30 +42,30 @@ public class HearingPostConsumerTest extends BasePactTest {
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(ContractTestDataProvider.CONSUMER_NAME + " successfully creating hearing request ")
             .uponReceiving("Request to create hearing request to save details")
-            .path(ContractTestDataProvider.PATH_HEARING)
+            .path(ContractTestDataProvider.HEARING_PATH)
             .method(HttpMethod.POST.toString()).body(
                 ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
-            .headers(ContractTestDataProvider.headers).willRespondWith()
+            .headers(ContractTestDataProvider.authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value())
-            .body(generatePostHearingsJsonBody(ContractTestDataProvider.MSG_200_POST_HEARING))
+            .body(generatePostHearingsJsonBody(ContractTestDataProvider.MSG_200_HEARING))
             .toPact();
     }
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact validationErrorFromPostHearing(PactDslWithProvider builder) {
         return builder.given(ContractTestDataProvider.CONSUMER_NAME
                                  + " throws validation error while trying to create hearing")
                 .uponReceiving("Request to CREATE hearing for invalid hearing request")
-                    .path(ContractTestDataProvider.PATH_HEARING).method(HttpMethod.POST.toString())
+                    .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.POST.toString())
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
-            .headers(ContractTestDataProvider.headers)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
             .body(new PactDslJsonBody()
-                      .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_400_POST_HEARING)
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_400_HEARING)
                       .stringValue(ContractTestDataProvider.FIELD_STATUS, ContractTestDataProvider.BAD_REQUEST)
                           .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
@@ -76,20 +81,22 @@ public class HearingPostConsumerTest extends BasePactTest {
             ContractTestDataProvider.generateHearingRequest()
         );
 
-        assertTrue(hearingResponse.getHearingRequestId() > ContractTestDataProvider.ZERO_LENGTH);
-        assertFalse(hearingResponse.getStatus().isEmpty());
-        assertTrue(hearingResponse.getVersionNumber() != ContractTestDataProvider.ZERO_NUMBER_LENGTH);
-        assertTrue(hearingResponse.getTimeStamp() != null);
+        assertNotNull(hearingResponse.getHearingRequestId());
+        assertTrue(hearingResponse.getStatus().equalsIgnoreCase(ContractTestDataProvider.HEARING_RESPONSE_STATUS));
+        assertNotNull(hearingResponse.getVersionNumber());
+        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
+        assertNotNull(hearingResponse.getTimeStamp()
+                          .compareTo(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE)));
     }
 
     @Test
     @PactTestFor(pactMethod = "validationErrorFromPostHearing")
     public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
-        RestAssured.given().headers(ContractTestDataProvider.headers)
+        RestAssured.given().headers(ContractTestDataProvider.authorisedHeaders)
             .contentType(io.restassured.http.ContentType.JSON)
                 .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
                 .when()
-                .post(mockServer.getUrl() + ContractTestDataProvider.PATH_HEARING)
+                .post(mockServer.getUrl() + ContractTestDataProvider.HEARING_PATH)
                     .then().statusCode(HttpStatus.BAD_REQUEST.value())
                 .and().extract()
                 .body()
