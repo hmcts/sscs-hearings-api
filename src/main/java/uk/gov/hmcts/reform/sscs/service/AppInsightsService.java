@@ -5,23 +5,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.model.AppInsights;
+import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 
 @Slf4j
 @Service
-public class AppInsightsService {
+public final class AppInsightsService {
 
-    public void sendAppInsights(AppInsights appInsights) throws JsonProcessingException {
-        log.info(appInsightsToJson(appInsights));
+    private AppInsightsService() {
+        // Gradle style check
     }
 
-    private String appInsightsToJson(AppInsights appInsights) throws JsonProcessingException {
+    public static void sendAppInsightsLog(HmcFailureMessage hmcFailureMessage) throws JsonProcessingException {
+        log.info(messageToJson(hmcFailureMessage));
+    }
+
+    private static String messageToJson(HmcFailureMessage hmcFailureMessage) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
         try {
-            return ow.writeValueAsString(appInsights);
+            return ow.writeValueAsString(hmcFailureMessage);
         } catch (JsonProcessingException jpe) {
-            log.error("App Insights JsonProcessingException for Case ID: {}", appInsights.getCaseID());
+            log.error("HMC failure message JsonProcessingException for Case ID: {}", hmcFailureMessage.getCaseID());
             throw jpe;
         }
     }

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Data
-public class AppInsights {
+public class HmcFailureMessage {
 
     private String requestType;
     private String caseID;
