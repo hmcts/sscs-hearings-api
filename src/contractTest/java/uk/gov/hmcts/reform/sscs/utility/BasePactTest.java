@@ -12,14 +12,12 @@ public class BasePactTest {
     private BasePactTest() {
     }
 
-    public static PactDslJsonBody generatePostHearingsJsonBody(String statusMessage) {
-
-        PactDslJsonBody pactDslJsonBody = genericCreateHearingJsonBody(statusMessage, LocalDateTime.now());
-
-        return pactDslJsonBody;
+    public static PactDslJsonBody generateHearingsJsonBody(String statusMessage, String responseStatus) {
+        return genericHearingJsonBody(statusMessage, LocalDateTime.now(), responseStatus);
     }
 
-    public static PactDslJsonBody genericCreateHearingJsonBody(String statusMessage, LocalDateTime timeStamp) {
+    private static PactDslJsonBody genericHearingJsonBody(String statusMessage,
+                                                          LocalDateTime timeStamp, String responseStatus) {
         PactDslJsonBody pactDslJsonBody = new PactDslJsonBody();
 
         addStatusMessage(pactDslJsonBody, statusMessage);
@@ -27,7 +25,7 @@ public class BasePactTest {
         pactDslJsonBody
             .integerType("versionNumber", "022")
             .integerType("hearingRequestID", "^[a-zA-Z0-9]{1,30}$", "1880163574")
-            .stringMatcher("status", STATUS_OPTIONS_STRING, "HEARING_REQUESTED")
+            .stringMatcher("status", STATUS_OPTIONS_STRING, responseStatus)
             .stringMatcher("timeStamp", "2030-08-20T12:40:00")
             .asBody();
 
