@@ -29,6 +29,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
@@ -48,9 +50,9 @@ public class HearingDeleteConsumerTest extends BasePactTest {
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
-        return builder.given(ContractTestDataProvider.CONSUMER_NAME + " successfully deleting a hearing request ")
+        return builder.given(CONSUMER_NAME + " successfully deleting a hearing request ")
             .uponReceiving("Request to delete hearing request")
             .path(ContractTestDataProvider.HEARING_PATH)
             .method(HttpMethod.DELETE.toString())
@@ -63,9 +65,9 @@ public class HearingDeleteConsumerTest extends BasePactTest {
             .toPact();
     }
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact badRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
-        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+        return builder.given(CONSUMER_NAME
                                  + " throws bad request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for bad hearing request")
             .path(ContractTestDataProvider.HEARING_PATH)
@@ -83,9 +85,9 @@ public class HearingDeleteConsumerTest extends BasePactTest {
             .toPact();
     }
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact unauthorisedRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
-        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+        return builder.given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for unauthorised hearing request")
             .path(ContractTestDataProvider.HEARING_PATH)
@@ -103,9 +105,9 @@ public class HearingDeleteConsumerTest extends BasePactTest {
             .toPact();
     }
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact forbiddenRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
-        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+        return builder.given(CONSUMER_NAME
                                  + " throws forbidden error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for forbidden hearing request")
             .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.DELETE.toString())
@@ -122,9 +124,9 @@ public class HearingDeleteConsumerTest extends BasePactTest {
             .toPact();
     }
 
-    @Pact(consumer = ContractTestDataProvider.CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact notFoundRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
-        return builder.given(ContractTestDataProvider.CONSUMER_NAME
+        return builder.given(CONSUMER_NAME
                                  + " throws not found request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for not found hearing request")
             .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.DELETE.toString())
