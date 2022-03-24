@@ -34,6 +34,7 @@ import java.util.Map;
 public class ContractTestDataProvider {
 
     public static final String CONSUMER_NAME = "hmcHearingServiceConsumer";
+    public static final String PROVIDER_NAME = "hmcHearingServiceProvider";
 
     protected static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     protected static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";

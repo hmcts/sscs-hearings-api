@@ -58,7 +58,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     }
 
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearing(PactDslWithProvider builder) {
 
         return builder
@@ -96,7 +96,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     }
 
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithRefCheck(PactDslWithProvider builder) {
 
         return builder
@@ -134,7 +134,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
         assertEquals(expected, result);
     }
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithNoContent(PactDslWithProvider builder) {
 
         return builder
@@ -165,7 +165,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     }
 
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithBadRequest(PactDslWithProvider builder) {
 
         return builder
@@ -195,7 +195,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     }
 
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithUnauthorized(PactDslWithProvider builder) {
 
         return builder
@@ -224,7 +224,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             )).extracting("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithForbidden(PactDslWithProvider builder) {
 
         return builder
@@ -254,7 +254,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     }
 
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithNotFound(PactDslWithProvider builder) {
 
         return builder
