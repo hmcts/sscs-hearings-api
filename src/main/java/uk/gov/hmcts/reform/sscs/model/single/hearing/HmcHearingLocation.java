@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HearingLocations {
+public class HmcHearingLocation {
 
     private String locationType;
 

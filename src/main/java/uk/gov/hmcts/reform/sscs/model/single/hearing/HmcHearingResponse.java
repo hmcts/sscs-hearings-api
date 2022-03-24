@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HearingResponse {
+public class HmcHearingResponse {
 
     @JsonProperty("hearingRequestID")
     private Long hearingRequestId;
