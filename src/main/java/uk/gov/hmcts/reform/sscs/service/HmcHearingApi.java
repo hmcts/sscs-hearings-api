@@ -20,7 +20,7 @@ public interface HmcHearingApi {
 
     @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse createHearingRequest(
-        @RequestHeader(AUTHORIZATION) String authorisation,
+        @RequestHeader(AUTHORIZATION) String authorization,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestBody @Valid HearingRequestPayload hearingPayload
     );

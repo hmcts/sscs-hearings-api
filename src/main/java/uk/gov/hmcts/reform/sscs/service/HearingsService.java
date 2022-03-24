@@ -1,12 +1,16 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
 import java.util.ArrayList;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
@@ -17,7 +21,7 @@ import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 @Service
 public class HearingsService {
 
-    public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
+    public void processHearingRequest(HearingWrapper wrapper, SscsCaseDetails sscsCaseDetails) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
             log.info("The Event: {}, cannot be handled for the case with the id: {}",
                     wrapper.getEvent(), wrapper.getOriginalCaseData().getCcdCaseId());
@@ -33,6 +37,20 @@ public class HearingsService {
         switch (wrapper.getState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
+                HearingRequestPayload hearingRequestPayload = new HearingRequestPayload();
+                HearingResponse response =
+                    hearingApi.createHearingRequest("authorisation",
+                                                    "serviceAuthorization",
+                                                    hearingRequestPayload);
+                //Fake payload for now. Ask Lucas about differences in mapping objects.
+                //check which case data to use Ask Lucas
+                wrapper.getUpdatedCaseData().setHearingID(String.valueOf(response.getHearingRequestId()));
+                //update case data method which goes to tribunals check if it's the correct method or use updateCase in UpdateCcdCaseService
+                try {
+                    ccdCaseService.updateCaseDetails(wrapper.getUpdatedCaseData(),EventType.CASE_UPDATED,"HearingID in Case Data","Update HearingID in Case Data");
+                } catch (UpdateCaseException e) {
+                    e.printStackTrace();
+                }
                 // TODO Call hearingPost method
                 break;
             case UPDATE_HEARING:
