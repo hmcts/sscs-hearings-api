@@ -25,9 +25,9 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ExtendWith(PactConsumerTestExt.class)
@@ -67,7 +67,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_CASE_ID)
-            .headers(headers)
+            .headers(authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(generateValidHearingGetResponsePactDslJsonBody(date))
@@ -105,7 +105,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_CASE_ID + OPTION_FIELD_IS_VALID)
-            .headers(headers)
+            .headers(authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(generateValidHearingGetResponsePactDslJsonBody(date))
@@ -143,7 +143,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_NO_CONTENT_CASE_ID)
-            .headers(headers)
+            .headers(authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.NO_CONTENT.value())
             .body("")
@@ -174,7 +174,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + BAD_REQUEST_CASE_ID)
-            .headers(headers)
+            .headers(authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.BAD_REQUEST.value())
             .body("")
@@ -186,15 +186,12 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     @PactTestFor(pactMethod = "getHearingWithBadRequest")
     public void shouldFailGetHearingWithBadRequest() {
 
-        FeignException thrown = assertThrows(FeignException.class, () -> {
-            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+        assertThatExceptionOfType(FeignException.class).isThrownBy(
+            () -> hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 BAD_REQUEST_CASE_ID
-            );
-        }, "FeignException was expected");
-
-        assertEquals(thrown.status(), HttpStatus.BAD_REQUEST.value());
+            )).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
 
@@ -207,7 +204,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + UNAUTHORISED_CASE_ID)
-            .headers(headers)
+            .headers(unauthorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.UNAUTHORIZED.value())
             .body("")
@@ -219,17 +216,12 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     @PactTestFor(pactMethod = "getHearingWithUnauthorized")
     public void shouldFailGetHearingWithUnauthorized() {
 
-        FeignException thrown = assertThrows(FeignException.class, () -> {
-            HearingGetResponse result = hmcHearingApi.getHearingRequest(
-                IDAM_OAUTH2_TOKEN,
-                SERVICE_AUTHORIZATION_TOKEN,
+        assertThatExceptionOfType(FeignException.class).isThrownBy(
+            () -> hmcHearingApi.getHearingRequest(
+                UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+                UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
                 UNAUTHORISED_CASE_ID
-            );
-        }, "FeignException was expected");
-
-        assertEquals(thrown.status(), HttpStatus.UNAUTHORIZED.value());
-
-
+            )).extracting("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Pact(consumer = CONSUMER_NAME)
@@ -241,7 +233,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
-            .headers(headers)
+            .headers(authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.FORBIDDEN.value())
             .body("")
@@ -253,15 +245,12 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     @PactTestFor(pactMethod = "getHearingWithForbidden")
     public void shouldFailGetHearingWithForbidden() {
 
-        FeignException thrown = assertThrows(FeignException.class, () -> {
-            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+        assertThatExceptionOfType(FeignException.class).isThrownBy(
+            () -> hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 FORBIDDEN_CASE_ID
-            );
-        }, "FeignException was expected");
-
-        assertEquals(thrown.status(), HttpStatus.FORBIDDEN.value());
+            )).extracting("status").isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
 
@@ -274,7 +263,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
-            .headers(headers)
+            .headers(authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.NOT_FOUND.value())
             .body("")
@@ -286,14 +275,11 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     @PactTestFor(pactMethod = "getHearingWithNotFound")
     public void shouldFailGetHearingWithNotFound() {
 
-        FeignException thrown = assertThrows(FeignException.class, () -> {
-            HearingGetResponse result = hmcHearingApi.getHearingRequest(
+        assertThatExceptionOfType(FeignException.class).isThrownBy(
+            () -> hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
                 NOT_FOUND_CASE_ID
-            );
-        }, "FeignException was expected");
-
-        assertEquals(thrown.status(), HttpStatus.NOT_FOUND.value());
+            )).extracting("status").isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 }
