@@ -9,5 +9,5 @@ import java.util.Map;
 @Builder (builderMethodName = "DescendantCaseDataBuilder")
 public class DescendantCaseData extends uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData {
 
-    private Map<String, Object> caseFlags;
+    private Map<String, String> caseFlags;
 }

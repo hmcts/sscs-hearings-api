@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.DescendantCaseData;
+import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,6 @@ import java.util.Map;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class CaseFlagMappingServiceTest {
-
-    private static final String SIGN_LANGUAGE_TYPE = "Sign Language type";
 
     @Autowired
     private CaseFlagMappingService service;
@@ -30,8 +29,8 @@ public class CaseFlagMappingServiceTest {
 
         @Test
         void shouldAddTheMappingsGivenTheValuesAreNotNull() {
-            var actual = service.updateHmcCaseData(
-                SscsCaseDataService.builder().sscsCaseData(getSscsCaseData()).build()
+            var actual = service.getCaseFlagMapping(
+                HearingWrapper.builder().originalCaseData(getSscsCaseData()).build()
             );
             var expected = getSscsExpectedMappingCaseData();
             Assertions.assertEquals(expected, actual);
@@ -46,7 +45,7 @@ public class CaseFlagMappingServiceTest {
                 .isConfidentialCase(YesNo.YES)
                 .appeal(Appeal.builder().hearingOptions(
                     HearingOptions.builder()
-                        .signLanguageType(SIGN_LANGUAGE_TYPE)
+                        .signLanguageType("signLanguageType")
                         .arrangements(
                             List.of("disabledAccess", "hearingLoop"))
                         .build()).build())
@@ -54,15 +53,15 @@ public class CaseFlagMappingServiceTest {
         }
 
         private DescendantCaseData getSscsExpectedMappingCaseData() {
-            Map<String, Object> caseFlags = Map.of(
-                "RA0019", "disabledAccess",
-                "RA0043", "hearingLoop",
-                "RA0042", "signLanguageType",
-                "PF0004", "isConfidentialCase",
-                "PF0007", "dwpUCB",
-                "CF0003", "dwpPHME",
-                "CF0007", "urgentCase",
-                "PF0015", "adjournCaseInterpreterLanguage"
+            Map<String, String> caseFlags = Map.of(
+                "DISABLED_ACCESS", "RA0019",
+                "HEARING_LOOP", "RA0043",
+                "SIGN_LANGUAGE_TYPE", "RA0042",
+                "IS_CONFIDENTIAL_CASE", "PF0004",
+                "DWP_UCB", "PF0007",
+                "DWP_PHME", "CF0003",
+                "URGENT_CASE", "CF0007",
+                "AD_JOURN_CASE_INTERPRETER_LANGUAGE", "PF0015"
             );
             return
                 DescendantCaseData
