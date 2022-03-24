@@ -262,7 +262,7 @@ def versions= [
   springRetry: '1.3.1',
   tomcat: '9.0.58',
   pact : '4.1.7',
-  sscsCommon: '4.6.46-RC-SSCS-10056-3'
+  sscsCommon: '5.2.1'
 ]
 
 dependencies {
