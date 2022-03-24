@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helpers;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 public enum FlagCode {

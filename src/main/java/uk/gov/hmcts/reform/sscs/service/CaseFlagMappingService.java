@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("PMD.LawOfDemeter")
 public class CaseFlagMappingService {
 
     private final Map<String, String> caseFlags;
@@ -31,14 +32,14 @@ public class CaseFlagMappingService {
         dwp(caseData);
         urgentCase(caseData);
         adjournCaseInterpreterLanguage(caseData);
-        return caseFlags;
+        return this.caseFlags;
     }
 
     private void mapSignLanguageType(SscsCaseData caseData) {
         var signLanguageType = caseData.getAppeal().getHearingOptions().getSignLanguageType();
         if (signLanguageType != null) {
-            caseFlags.putAll(
-                Map.of(FlagCode.SIGN_LANGUAGE_TYPE.name(), FlagCode.SIGN_LANGUAGE_TYPE.getFlagCode())
+            this.caseFlags.put(
+                FlagCode.SIGN_LANGUAGE_TYPE.name(), FlagCode.SIGN_LANGUAGE_TYPE.getFlagCode()
             );
         }
     }
@@ -46,15 +47,15 @@ public class CaseFlagMappingService {
     private void mapArrangements(SscsCaseData caseData) {
         var arrangements = caseData.getAppeal().getHearingOptions().getArrangements();
 
-        if (arrangements.size() > 0) {
+        if (!arrangements.isEmpty()) {
             if (arrangements.contains("disabledAccess")) {
-                caseFlags.putAll(
-                    Map.of(FlagCode.DISABLED_ACCESS.name(), FlagCode.DISABLED_ACCESS.getFlagCode())
+                this.caseFlags.put(
+                    FlagCode.DISABLED_ACCESS.name(), FlagCode.DISABLED_ACCESS.getFlagCode()
                 );
             }
             if (arrangements.contains("hearingLoop")) {
-                caseFlags.putAll(
-                    Map.of(FlagCode.HEARING_LOOP.name(), FlagCode.HEARING_LOOP.getFlagCode())
+                this.caseFlags.put(
+                    FlagCode.HEARING_LOOP.name(), FlagCode.HEARING_LOOP.getFlagCode()
                 );
             }
         }
@@ -63,8 +64,8 @@ public class CaseFlagMappingService {
     private void confidentialCase(SscsCaseData caseData) {
         var isConfidentialCase = caseData.getIsConfidentialCase();
         if (isConfidentialCase != null) {
-            caseFlags.putAll(
-                Map.of(FlagCode.IS_CONFIDENTIAL_CASE.name(), FlagCode.IS_CONFIDENTIAL_CASE.getFlagCode())
+            this.caseFlags.put(
+                FlagCode.IS_CONFIDENTIAL_CASE.name(), FlagCode.IS_CONFIDENTIAL_CASE.getFlagCode()
             );
         }
     }
@@ -74,13 +75,13 @@ public class CaseFlagMappingService {
         var dwpPhme = caseData.getDwpPhme();
 
         if (dwpUcb != null) {
-            caseFlags.putAll(
-                Map.of(FlagCode.DWP_UCB.name(), FlagCode.DWP_UCB.getFlagCode())
+            this.caseFlags.put(
+                FlagCode.DWP_UCB.name(), FlagCode.DWP_UCB.getFlagCode()
             );
         }
         if (dwpPhme != null) {
-            caseFlags.putAll(
-                Map.of(FlagCode.DWP_PHME.name(), FlagCode.DWP_PHME.getFlagCode())
+            this.caseFlags.put(
+                FlagCode.DWP_PHME.name(), FlagCode.DWP_PHME.getFlagCode()
             );
         }
     }
@@ -88,8 +89,8 @@ public class CaseFlagMappingService {
     private void urgentCase(SscsCaseData caseData) {
         var urgentCase = caseData.getUrgentCase();
         if (urgentCase != null) {
-            caseFlags.putAll(
-                Map.of(FlagCode.URGENT_CASE.name(), FlagCode.URGENT_CASE.getFlagCode())
+            this.caseFlags.put(
+                FlagCode.URGENT_CASE.name(), FlagCode.URGENT_CASE.getFlagCode()
             );
         }
     }
@@ -97,9 +98,9 @@ public class CaseFlagMappingService {
     private void adjournCaseInterpreterLanguage(SscsCaseData caseData) {
         var adjournCaseInterpreterLanguage = caseData.getAdjournCaseInterpreterLanguage();
         if (adjournCaseInterpreterLanguage != null) {
-            caseFlags.putAll(
-                Map.of(FlagCode.AD_JOURN_CASE_INTERPRETER_LANGUAGE.name(),
-                       FlagCode.AD_JOURN_CASE_INTERPRETER_LANGUAGE.getFlagCode())
+            this.caseFlags.put(
+                FlagCode.AD_JOURN_CASE_INTERPRETER_LANGUAGE.name(),
+                FlagCode.AD_JOURN_CASE_INTERPRETER_LANGUAGE.getFlagCode()
             );
         }
     }
