@@ -2,22 +2,23 @@ package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CaseDetails {
+public class HmcHearingRequestCaseDetails {
 
     private String hmctsServiceCode;
 
     private String caseRef;
-
-    private LocalDateTime requestTimeStamp;
 
     private String externalCaseReference;
 

@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,9 +10,11 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.TooManyFields")
-public class HearingDetails {
+@Builder(toBuilder = true)
+public class HmcHearingRequestDetails {
 
     private boolean autolistFlag;
 
@@ -28,7 +32,7 @@ public class HearingDetails {
 
     private boolean hearingInWelshFlag;
 
-    private List<HearingLocations> hearingLocations;
+    private List<HmcHearingLocation> hmcHearingLocations;
 
     private List<String> facilitiesRequired;
 

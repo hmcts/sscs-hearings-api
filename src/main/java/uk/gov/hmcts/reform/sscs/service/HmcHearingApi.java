@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
 
 import javax.validation.Valid;
 
@@ -22,14 +22,14 @@ public interface HmcHearingApi {
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
 
     @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse createHearingRequest(
+    HmcHearingResponse createHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestBody @Valid HearingRequestPayload hearingPayload
+        @RequestBody @Valid HmcHearingRequestPayload hearingPayload
     );
 
     @DeleteMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse deleteHearingRequest(
+    HmcHearingResponse deleteHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam("id") String id,

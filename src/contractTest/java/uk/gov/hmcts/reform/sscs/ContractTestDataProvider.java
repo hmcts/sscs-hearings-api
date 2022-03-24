@@ -7,19 +7,19 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingLocation;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestCaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcRequestDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
@@ -69,21 +69,21 @@ public class ContractTestDataProvider {
         CONTENT_TYPE, APPLICATION_JSON
     );
 
-    protected HearingRequestPayload generateHearingRequest() {
-        HearingRequestPayload request = new HearingRequestPayload();
-        request.setRequestDetails(requestDetails());
-        request.setHearingDetails(hearingDetails());
-        request.setCaseDetails(caseDetails());
+    protected HmcHearingRequestPayload generateHearingRequest() {
+        HmcHearingRequestPayload request = new HmcHearingRequestPayload();
+        request.setHmcRequestDetails(requestDetails());
+        request.setHmcHearingRequestDetails(hearingDetails());
+        request.setHmcHearingRequestCaseDetails(caseDetails());
         request.setPartyDetails(partyDetails1());
 
         return request;
     }
 
-    protected HearingRequestPayload generateInvalidHearingRequest() {
-        HearingRequestPayload request = new HearingRequestPayload();
-        request.setHearingDetails(hearingDetails());
+    protected HmcHearingRequestPayload generateInvalidHearingRequest() {
+        HmcHearingRequestPayload request = new HmcHearingRequestPayload();
+        request.setHmcHearingRequestDetails(hearingDetails());
         request.setPartyDetails(partyDetails1());
-        request.setRequestDetails(requestDetails());
+        request.setHmcRequestDetails(requestDetails());
         return request;
     }
 
@@ -113,29 +113,29 @@ public class ContractTestDataProvider {
         return jsonString;
     }
 
-    protected RequestDetails requestDetails() {
-        RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
-        requestDetails.setVersionNumber(123);
-        return requestDetails;
+    protected HmcRequestDetails requestDetails() {
+        HmcRequestDetails hmcRequestDetails = new HmcRequestDetails();
+        hmcRequestDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
+        hmcRequestDetails.setVersionNumber(123);
+        return hmcRequestDetails;
     }
 
-    protected HearingDetails hearingDetails() {
-        HearingDetails hearingDetails = new HearingDetails();
-        hearingDetails.setAutolistFlag(true);
-        hearingDetails.setHearingType("Some hearing type");
-        hearingDetails.setHearingWindow(hearingWindow());
-        hearingDetails.setDuration(1);
-        hearingDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
-        hearingDetails.setHearingPriorityType("Priority type");
-        HearingLocations location1 = new HearingLocations();
+    protected HmcHearingRequestDetails hearingDetails() {
+        HmcHearingRequestDetails hmcHearingRequestDetails = new HmcHearingRequestDetails();
+        hmcHearingRequestDetails.setAutolistFlag(true);
+        hmcHearingRequestDetails.setHearingType("Some hearing type");
+        hmcHearingRequestDetails.setHearingWindow(hearingWindow());
+        hmcHearingRequestDetails.setDuration(1);
+        hmcHearingRequestDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
+        hmcHearingRequestDetails.setHearingPriorityType("Priority type");
+        HmcHearingLocation location1 = new HmcHearingLocation();
         location1.setLocationId("court");
         location1.setLocationType("Location type");
-        List<HearingLocations> hearingLocations = new ArrayList<>();
-        hearingLocations.add(location1);
-        hearingDetails.setHearingLocations(hearingLocations);
-        hearingDetails.setPanelRequirements(panelRequirements1());
-        return hearingDetails;
+        List<HmcHearingLocation> hmcHearingLocations = new ArrayList<>();
+        hmcHearingLocations.add(location1);
+        hmcHearingRequestDetails.setHmcHearingLocations(hmcHearingLocations);
+        hmcHearingRequestDetails.setPanelRequirements(panelRequirements1());
+        return hmcHearingRequestDetails;
     }
 
     protected HearingWindow hearingWindow() {
@@ -146,24 +146,24 @@ public class ContractTestDataProvider {
         return hearingWindow;
     }
 
-    protected CaseDetails caseDetails() {
-        CaseDetails caseDetails = new CaseDetails();
-        caseDetails.setHmctsServiceCode("ABBA1");
-        caseDetails.setCaseRef("ba12");
-        caseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
-        caseDetails.setCaseDeepLink("https://www.google.com");
-        caseDetails.setHmctsInternalCaseName("Internal case name");
-        caseDetails.setPublicCaseName("Public case name");
-        caseDetails.setCaseManagementLocationCode("CMLC123");
-        caseDetails.setCaseRestrictedFlag(false);
-        caseDetails.setCaseSlaStartDate("2030-08-20");
+    protected HmcHearingRequestCaseDetails caseDetails() {
+        HmcHearingRequestCaseDetails hmcHearingRequestCaseDetails = new HmcHearingRequestCaseDetails();
+        hmcHearingRequestCaseDetails.setHmctsServiceCode("ABBA1");
+        hmcHearingRequestCaseDetails.setCaseRef("ba12");
+        hmcHearingRequestCaseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
+        hmcHearingRequestCaseDetails.setCaseDeepLink("https://www.google.com");
+        hmcHearingRequestCaseDetails.setHmctsInternalCaseName("Internal case name");
+        hmcHearingRequestCaseDetails.setPublicCaseName("Public case name");
+        hmcHearingRequestCaseDetails.setCaseManagementLocationCode("CMLC123");
+        hmcHearingRequestCaseDetails.setCaseRestrictedFlag(false);
+        hmcHearingRequestCaseDetails.setCaseSlaStartDate("2030-08-20");
         CaseCategory category = new CaseCategory();
         category.setCategoryType("caseType");
         category.setCategoryValue("PROBATE");
         List<CaseCategory> caseCategories = new ArrayList<>();
         caseCategories.add(category);
-        caseDetails.setCaseCategories(caseCategories);
-        return caseDetails;
+        hmcHearingRequestCaseDetails.setCaseCategories(caseCategories);
+        return hmcHearingRequestCaseDetails;
     }
 
     protected PanelRequirements panelRequirements1() {

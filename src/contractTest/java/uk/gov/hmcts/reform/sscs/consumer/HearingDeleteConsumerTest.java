@@ -20,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
@@ -132,18 +132,18 @@ public class HearingDeleteConsumerTest extends ContractTestDataProvider {
     @Test
     @PactTestFor(pactMethod = "deleteHearingRequestForValidRequest")
     public void shouldSuccessfullyDeleteHearingRequest() {
-        HearingResponse hearingResponse = hmcHearingApi.deleteHearingRequest(
+        HmcHearingResponse hmcHearingResponse = hmcHearingApi.deleteHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID,
             generateHearingDeleteRequest()
         );
 
-        assertNotNull(hearingResponse.getHearingRequestId());
-        assertFalse(hearingResponse.getStatus().isEmpty());
-        assertNotNull(hearingResponse.getVersionNumber());
-        assertNotSame(ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
-        assertNotNull(hearingResponse.getTimeStamp());
+        assertNotNull(hmcHearingResponse.getHearingRequestId());
+        assertFalse(hmcHearingResponse.getStatus().isEmpty());
+        assertNotNull(hmcHearingResponse.getVersionNumber());
+        assertNotSame(ZERO_NUMBER_LENGTH, hmcHearingResponse.getVersionNumber());
+        assertNotNull(hmcHearingResponse.getTimeStamp());
     }
 
     @Test

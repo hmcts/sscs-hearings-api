@@ -98,3 +98,7 @@ caseworker-ref:
 common-ref:
   api:
     url: ${COMMON_REF_API_URL:http://localhost:4550}
+
+hearings:
+  sscs:
+    serviceCode: ${SSCS_SERVICE_CODE:BBA3}

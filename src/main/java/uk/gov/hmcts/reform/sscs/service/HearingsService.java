@@ -2,20 +2,37 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-
-import java.util.ArrayList;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcRequestDetails;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
 public class HearingsService {
+
+    private final HmcHearingApi hmcHearingApi;
+
+    private final CcdCaseService ccdCaseService;
+
+    private final IdamService idamService;
+
+    public HearingsService(HmcHearingApi hmcHearingApi, CcdCaseService ccdCaseService,
+                           IdamService idamService) {
+        this.hmcHearingApi = hmcHearingApi;
+        this.ccdCaseService = ccdCaseService;
+        this.idamService = idamService;
+    }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
@@ -32,8 +49,8 @@ public class HearingsService {
 
         switch (wrapper.getState()) {
             case CREATE_HEARING:
-                createHearing(wrapper);
-                // TODO Call hearingPost method
+                HmcHearingResponse response = sendCreateHearingRequest(wrapper);
+                updateCaseHearingId(wrapper, response.getHearingRequestId());
                 break;
             case UPDATE_HEARING:
                 updateHearing(wrapper);
@@ -58,18 +75,46 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) {
-        updateFlags(wrapper);
-
-        HmcHearing hmcHearing = HmcHearing.builder().value(HmcHearingDetails.builder()
-                .hmcCaseDetails(createHmcCaseDetails(wrapper))
-                .hearingRequest(createHearingRequest(wrapper))
-                .build()).build();
-        if (isNull(wrapper.getUpdatedCaseData().getHmcHearings())) {
-            wrapper.getUpdatedCaseData().setHmcHearings(new ArrayList<>());
+    private void updateCaseHearingId(HearingWrapper wrapper, Long hearingId) {
+        SscsCaseData caseData = wrapper.getOriginalCaseData();
+        caseData.getSchedulingAndListingFields().setActiveHearingId(hearingId);
+        try {
+            ccdCaseService.updateCaseDetails(caseData, EventType.HEARING_BOOKED,
+                "Case Updated", "Active hearing ID set");
+        } catch (UpdateCaseException e) {
+            //Error handling? Should we do anything here?
+            e.printStackTrace();
         }
-        wrapper.getUpdatedCaseData().getHmcHearings().add(hmcHearing);
     }
+
+    private HmcHearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+        HmcHearingRequestPayload payload = buildCreateHearingPayload(wrapper);
+
+        return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(), payload);
+    }
+
+    private HmcHearingRequestPayload buildCreateHearingPayload(HearingWrapper wrapper) {
+        //Party details required-----------
+        return HmcHearingRequestPayload.builder()
+            .hmcRequestDetails(HmcRequestDetails.builder().versionNumber(1).build())
+            .hmcHearingRequestDetails(HearingsMapping.createHmcHearingRequestDetails(wrapper))
+            .hmcHearingRequestCaseDetails(HearingsMapping.createHmcHearingRequestCaseDetails(wrapper))
+            .build();
+    }
+
+//    private void createHearing(HearingWrapper wrapper) {
+//        updateFlags(wrapper);
+//
+//        HmcHearing hmcHearing = HmcHearing.builder().value(HmcHearingDetails.builder()
+//                .hmcCaseDetails(createHmcCaseDetails(wrapper))
+//                .hearingRequest(createHearingRequest(wrapper))
+//                .build()).build();
+//        if (isNull(wrapper.getUpdatedCaseData().getHmcHearings())) {
+//            wrapper.getUpdatedCaseData().setHmcHearings(new ArrayList<>());
+//        }
+//        wrapper.getUpdatedCaseData().getHmcHearings().add(hmcHearing);
+//    }
 
 
     private void updateHearing(HearingWrapper wrapper) {
@@ -91,30 +136,30 @@ public class HearingsService {
 
 
     public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
-        // To be called by hearing POST response
-        HearingResponse hearingResponse = HearingResponse.builder().build();
-
-        hearingResponse.setHearingRequestId(hearingRequestId);
-        hearingResponse.setHmcStatus(hmcStatus);
-        hearingResponse.setVersion(version);
-
-        wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingResponse(hearingResponse);
+//        // To be called by hearing POST response
+//        HearingResponse hearingResponse = HearingResponse.builder().build();
+//
+//        hearingResponse.setHearingRequestId(hearingRequestId);
+//        hearingResponse.setHmcStatus(hmcStatus);
+//        hearingResponse.setVersion(version);
+//
+//        wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingResponse(hearingResponse);
     }
 
     public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version) {
-        // To be called by hearing PUT response
-        HearingResponse hearingResponse = wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse();
-
-        hearingResponse.setHmcStatus(hmcStatus);
-        hearingResponse.setVersion(version);
+//        // To be called by hearing PUT response
+//        HearingResponse hearingResponse = wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse();
+//
+//        hearingResponse.setHmcStatus(hmcStatus);
+//        hearingResponse.setVersion(version);
     }
 
     public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version,
                                       String cancellationReasonCode) {
         // To be called after hearing Delete response
         updateHearingResponse(wrapper, hmcStatus, version);
-        wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse()
-                .setHearingCancellationReason(cancellationReasonCode);
+//        wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse()
+//                .setHearingCancellationReason(cancellationReasonCode);
     }
 
 

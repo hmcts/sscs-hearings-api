@@ -2,10 +2,26 @@ package uk.gov.hmcts.reform.sscs.helper;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRequest.HearingRequestBuilder;
-import uk.gov.hmcts.reform.sscs.ccd.domain.PanelRequirements.PanelRequirementsBuilder;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingPriorityType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindowRange;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HmcCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsHearingType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingLocation;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestCaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,8 +38,13 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 // TODO Unsuppress in future
 public final class HearingsMapping {
 
+    public static final String CASE_TYPE = "caseType";
+    public static final String CASE_SUB_TYPE = "caseSubType";
     @Value("${exui.url}")
     private static String exUiUrl;
+
+    @Value("${exui.url}")
+    private static String sscsServiceCode;
 
     private HearingsMapping() {
 
@@ -46,32 +67,92 @@ public final class HearingsMapping {
                 .build();
     }
 
-    public static HearingRequest createHearingRequest(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getUpdatedCaseData();
+    //Lots todo in this mapping below -------------
+    //Check whether some of these fields need further mapping - SSCS-10273
+    public static HmcHearingRequestDetails createHmcHearingRequestDetails(HearingWrapper wrapper) {
+        SscsCaseData caseData = wrapper.getOriginalCaseData();
 
-        HearingRequestBuilder request = HearingRequest.builder();
+        //Sensitivity flag? Removed from prev implementation
+        var requestDetailsBuilder = HmcHearingRequestDetails.builder();
 
-        request.initialRequestTimestamp(LocalDateTime.now());
-        request.autoListFlag(caseData.getAutoListFlag());
-        request.inWelshFlag(caseData.getHearingsInWelshFlag());
-        request.isLinkedFlag(isCaseLinked(caseData));
-        request.additionalSecurityFlag(caseData.getAdditionalSecurityFlag());
-        request.sensitiveFlag(caseData.getSensitiveFlag());
-        request.interpreterRequiredFlag(isInterpreterRequired(caseData.getAdjournCaseInterpreterRequired()));
-        request.hearingType(getHearingType(caseData));
-        request.firstDateTimeMustBe(getFirstDateTimeMustBe(caseData));
-        request.hearingWindowRange(getHearingWindowRange(caseData));
-        request.duration(getHearingDuration(caseData));
-        request.hearingPriorityType(getHearingPriority(caseData.getAdjournCaseCanCaseBeListedRightAway(),
-                caseData.getUrgentCase()));
-        request.hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
-        request.facilitiesRequired(getFacilitiesRequired(caseData));
-        request.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
-        request.leadJudgeContractType(getLeadJudgeContractType(caseData));
-        request.panelRequirements(getPanelRequirements(caseData));
+        requestDetailsBuilder.autolistFlag(caseData.getAutoListFlag().toBoolean());
+        requestDetailsBuilder.hearingInWelshFlag(caseData.getHearingsInWelshFlag().toBoolean());
+        requestDetailsBuilder.hearingIsLinkedFlag(isCaseLinked(caseData).toBoolean());
+        requestDetailsBuilder.hearingType(getHearingType(caseData).getKey());  // Assuming key is what is required.
+        requestDetailsBuilder.hearingWindow(buildHearingWindow(caseData));
+        requestDetailsBuilder.duration(getHearingDuration(caseData));
+        requestDetailsBuilder.hearingPriorityType(getHearingPriority(caseData.getAdjournCaseCanCaseBeListedRightAway(), //Confirm this
+            caseData.getUrgentCase()).getType());
+        requestDetailsBuilder.hmcHearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
+        requestDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
+        requestDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
+        requestDetailsBuilder.leadJudgeContractType(getLeadJudgeContractType(caseData));
+        requestDetailsBuilder.panelRequirements(getPanelRequirements(caseData));
+        //requestDetailsBuilder.numberOfPhysicalAttendees(); ----Get from Gorkem's PR
+        //requestDetailsBuilder.hearingRequester(); ----Get from Gorkem's PR. Optional?
+        //requestDetailsBuilder.leadJudgeContractType(); ----Get from Gorkem's PR
 
-        return request.build();
+        return requestDetailsBuilder.build();
     }
+
+    public static HmcHearingRequestCaseDetails createHmcHearingRequestCaseDetails(HearingWrapper wrapper) {
+        SscsCaseData caseData = wrapper.getOriginalCaseData();
+        String caseId = caseData.getCcdCaseId();
+        var requestCaseDetailsBuilder = HmcHearingRequestCaseDetails.builder();
+
+        requestCaseDetailsBuilder.hmctsServiceCode(sscsServiceCode);
+        requestCaseDetailsBuilder.caseRef(caseId);
+        requestCaseDetailsBuilder.caseDeepLink(getCaseDeepLink(caseId));
+        requestCaseDetailsBuilder.hmctsInternalCaseName(caseData.getWorkAllocationFields().getCaseNameHmctsInternal()); //Check these - should they be tied to WA?
+        requestCaseDetailsBuilder.publicCaseName(caseData.getWorkAllocationFields().getCaseNamePublic());
+        requestCaseDetailsBuilder.caseAdditionalSecurityFlag(caseData.getAdditionalSecurityFlag().toBoolean());
+        requestCaseDetailsBuilder.caseInterpreterRequiredFlag(isInterpreterRequired(
+            caseData.getAdjournCaseInterpreterRequired()).toBoolean());
+        requestCaseDetailsBuilder.caseCategories(buildCaseCategories(caseData));
+        requestCaseDetailsBuilder.caseManagementLocationCode(getCaseManagementLocationCode(caseData.getCaseManagementLocation()));
+        requestCaseDetailsBuilder.caseRestrictedFlag(caseData.getSensitiveFlag().toBoolean()); //Spreadsheet seems to say this should go here. Check
+        requestCaseDetailsBuilder.caseSlaStartDate(caseData.getCaseCreated());
+
+        return requestCaseDetailsBuilder.build();
+    }
+
+    private static List<CaseCategory> buildCaseCategories(SscsCaseData caseData) {
+        List<CaseCategory> categories = new ArrayList<>();
+
+        categories.add(CaseCategory.builder()
+            .categoryType(CASE_TYPE)
+            .categoryValue(caseData.getBenefitCode())
+            .build());
+
+        categories.add(CaseCategory.builder()
+            .categoryType(CASE_SUB_TYPE)
+            .categoryValue(caseData.getIssueCode())
+            .build());
+
+        return categories;
+    }
+
+    private static HearingWindow buildHearingWindow(SscsCaseData caseData) {  // TODO check this is correct and if any additional logic is needed
+        LocalDate dateRangeStart = null;
+        LocalDate dateRangeEnd;
+
+        if (YesNo.isYes(caseData.getAutoListFlag()) && nonNull(caseData.getEvents())) {
+            Event dwpResponded = caseData.getEvents().stream()
+                .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
+                .findFirst().orElse(null);
+            if (nonNull(dwpResponded) && nonNull(dwpResponded.getValue())) {
+                dateRangeStart = dwpResponded.getValue().getDateTime().plusMonths(1).toLocalDate();
+            }
+        }
+
+        return HearingWindow.builder()
+            .firstDateTimeMustBe(getFirstDateTimeMustBe(caseData))
+            .dateRangeStart(dateRangeStart)
+            .build();
+
+    }
+
+
 
     public static YesNo shouldBeAutoListed(YesNo autoListFlag) {
         boolean isYes = YesNo.isYes(autoListFlag);
@@ -109,8 +190,8 @@ public final class HearingsMapping {
         return null;
     }
 
-    public static List<CcdValue<String>> getFacilitiesRequired(SscsCaseData caseData) {
-        List<CcdValue<String>> facilitiesRequired = new ArrayList<>();
+    public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
+        List<String> facilitiesRequired = new ArrayList<>();
         // TODO find out how to work this out and implement
         return facilitiesRequired;
     }
@@ -138,30 +219,30 @@ public final class HearingsMapping {
     }
 
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData) {
-        PanelRequirementsBuilder panelRequirements = PanelRequirements.builder();
+        var panelRequirementsBuilder = PanelRequirements.builder();
 
-        List<CcdValue<String>> roleTypes = new ArrayList<>();
+        List<String> roleTypes = new ArrayList<>();
         // TODO Will be linked to Session Category Reference Data,
         //      find out what role types there are and how these are determined
 
-        panelRequirements.roleTypes(roleTypes);
+        panelRequirementsBuilder.roleTypes(roleTypes);
 
-        List<CcdValue<String>> authorisationSubType = new ArrayList<>();
+        List<String> authorisationSubType = new ArrayList<>();
         // TODO Will be linked to Session Category Reference Data,
         //      find out what subtypes there are and how these are determined
-        panelRequirements.authorisationSubType(authorisationSubType);
+        panelRequirementsBuilder.authorisationSubTypes(authorisationSubType);
 
-        panelRequirements.panelPreferences(getPanelPreferences(caseData));
+        panelRequirementsBuilder.panelPreferences(getPanelPreferences(caseData));
 
-        List<CcdValue<String>> panelSpecialisms = new ArrayList<>();
+        List<String> panelSpecialisms = new ArrayList<>();
         // TODO find out what specialisms there are and how these are determined
-        panelRequirements.panelSpecialisms(panelSpecialisms);
+        panelRequirementsBuilder.panelSpecialisms(panelSpecialisms);
 
-        return panelRequirements.build();
+        return panelRequirementsBuilder.build();
     }
 
-    public static List<CcdValue<PanelPreference>> getPanelPreferences(SscsCaseData caseData) {
-        List<CcdValue<PanelPreference>> panelPreferences = new ArrayList<>();
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
+        List<PanelPreference> panelPreferences = new ArrayList<>();
         // TODO loop to go through Judicial members that are need to be included or excluded
         //      Will need Judicial Staff Reference Data
         return panelPreferences;
@@ -188,7 +269,7 @@ public final class HearingsMapping {
         return listingComments.isEmpty() ? null : String.join("\n", listingComments);
     }
 
-    public static List<CcdValue<HearingLocation>> getHearingLocations(CaseManagementLocation caseManagementLocation) {
+    public static List<HmcHearingLocation> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         // locationType - from reference data - processing venue to venue type/epims
         // locationId - epims
         // manual over-ride e.g. if a judge wants to change venue
