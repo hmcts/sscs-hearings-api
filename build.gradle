@@ -317,6 +317,9 @@ dependencies {
 
   implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
 
+  implementation group: 'com.azure', name: 'azure-core', version: '1.26.0'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.7.0'
+
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'json-path', version: versions.restAssured
