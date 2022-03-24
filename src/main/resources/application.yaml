@@ -90,6 +90,17 @@ azure:
 feign:
   httpclient:
     enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+        loggerLevel: full
+    retryer:
+      period: 500
+      maxPeriod: 2000
+      maxAttempts: 3
+
 
 caseworker-ref:
   api:
