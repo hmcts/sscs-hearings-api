@@ -15,6 +15,11 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Data
+@SuppressWarnings({
+    "PMD.LawOfDemeter",
+    "PMD.CompareObjectsWithEquals",
+    "PMD.CloseResource"
+})
 public final class HmcHearingsEventTopicListener {
 
     private final HmcHearingsTopicListenerProperties properties;
