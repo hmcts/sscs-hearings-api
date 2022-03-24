@@ -79,7 +79,7 @@ class CcdCaseServiceTest {
                 any(SscsCaseData.class), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
                 .willReturn(expectedCaseDetails);
 
-        SscsCaseDetails caseDetails = ccdCaseService.updateCaseDetails(
+        SscsCaseDetails caseDetails = ccdCaseService.updateCaseData(
                 expectedCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION);
 
         assertThat(expectedCaseDetails).isEqualTo(caseDetails);
@@ -101,7 +101,7 @@ class CcdCaseServiceTest {
                                 .ccdCaseId(String.valueOf(CASE_ID)).build()).build();
 
         assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
-                () -> ccdCaseService.updateCaseDetails(
+                () -> ccdCaseService.updateCaseData(
                         testCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION));
     }
 }

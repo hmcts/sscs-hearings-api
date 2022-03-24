@@ -20,7 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
@@ -65,16 +65,16 @@ public class HearingPostConsumerTest extends ContractTestDataProvider {
     @Test
     @PactTestFor(pactMethod = "createHearingRequestForValidRequest")
     public void shouldSuccessfullyPostHearingRequest() throws JsonProcessingException {
-        HearingResponse hearingResponse = hmcHearingApi.createHearingRequest(
+        HmcHearingResponse hmcHearingResponse = hmcHearingApi.createHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
             generateHearingRequest()
         );
 
-        Assertions.assertTrue(hearingResponse.getHearingRequestId() > ZERO_LENGTH);
-        Assertions.assertFalse(hearingResponse.getStatus().isEmpty());
-        Assertions.assertTrue(hearingResponse.getVersionNumber() != ZERO_NUMBER_LENGTH);
-        Assertions.assertTrue(hearingResponse.getTimeStamp() != null);
+        Assertions.assertTrue(hmcHearingResponse.getHearingRequestId() > ZERO_LENGTH);
+        Assertions.assertFalse(hmcHearingResponse.getStatus().isEmpty());
+        Assertions.assertTrue(hmcHearingResponse.getVersionNumber() != ZERO_NUMBER_LENGTH);
+        Assertions.assertTrue(hmcHearingResponse.getTimeStamp() != null);
     }
 
     @Test
