@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
+import uk.gov.hmcts.reform.sscs.mappers.ServiceHearingValuesMapper;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
@@ -36,9 +37,11 @@ import static org.springframework.http.ResponseEntity.status;
 public class ServiceHearingsController {
 
     private final CcdCaseService ccdCaseService;
+    private final ServiceHearingValuesMapper serviceHearingValuesMapper;
 
     public ServiceHearingsController(CcdCaseService ccdCaseService) {
         this.ccdCaseService = ccdCaseService;
+        this.serviceHearingValuesMapper = serviceHearingValuesMapper;
     }
 
     @PostMapping("/serviceHearingValues")
@@ -63,9 +66,7 @@ public class ServiceHearingsController {
 
             SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
-            ServiceHearingValues model = ServiceHearingValues.builder()
-                    .caseName(caseDetails.getData().getWorkAllocationFields().getCaseNamePublic())
-                    .build();
+            ServiceHearingValues model = serviceHearingValuesMapper.mapServiceHearingValues(caseDetails);
 
             return status(HttpStatus.OK).body(model);
             // TODO the following errors are temporary and will need to be implemented fully along with this endpoint
