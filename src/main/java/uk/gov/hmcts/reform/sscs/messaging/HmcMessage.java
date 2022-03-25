@@ -6,9 +6,10 @@ import lombok.Data;
 @Data
 @Builder
 public class HmcMessage {
+
     //TODO json object may need to change at a later stage when we get HMC data
     private String hmctsServiceID;
     private String caseRef;
     private String hearingID;
-    private String hearingUpdate;
+    private HearingUpdate hearingUpdate;
 }
