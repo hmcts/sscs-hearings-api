@@ -2,14 +2,11 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
-import java.util.ArrayList;
-
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -59,16 +56,7 @@ public class HearingsService {
     }
 
     private void createHearing(HearingWrapper wrapper) {
-        updateFlags(wrapper);
-
-        HmcHearing hmcHearing = HmcHearing.builder().value(HmcHearingDetails.builder()
-                .hmcCaseDetails(createHmcCaseDetails(wrapper))
-                .hearingRequest(createHearingRequest(wrapper))
-                .build()).build();
-        if (isNull(wrapper.getUpdatedCaseData().getHmcHearings())) {
-            wrapper.getUpdatedCaseData().setHmcHearings(new ArrayList<>());
-        }
-        wrapper.getUpdatedCaseData().getHmcHearings().add(hmcHearing);
+        //TODO Will be replaced when SSCS-10321 is merged
     }
 
 
@@ -88,33 +76,17 @@ public class HearingsService {
         // TODO implement mapping for the event when a party has been notified, might not be needed
     }
 
-
-
     public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
         // To be called by hearing POST response
-        HearingResponse hearingResponse = HearingResponse.builder().build();
-
-        hearingResponse.setHearingRequestId(hearingRequestId);
-        hearingResponse.setHmcStatus(hmcStatus);
-        hearingResponse.setVersion(version);
-
-        wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingResponse(hearingResponse);
     }
 
     public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version) {
         // To be called by hearing PUT response
-        HearingResponse hearingResponse = wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse();
-
-        hearingResponse.setHmcStatus(hmcStatus);
-        hearingResponse.setVersion(version);
     }
 
     public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version,
                                       String cancellationReasonCode) {
         // To be called after hearing Delete response
-        updateHearingResponse(wrapper, hmcStatus, version);
-        wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse()
-                .setHearingCancellationReason(cancellationReasonCode);
     }
 
 
