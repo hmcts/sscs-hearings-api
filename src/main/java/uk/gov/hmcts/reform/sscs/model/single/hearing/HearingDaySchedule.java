@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class HearingDaySchedule {
     private LocalDateTime hearingStartDateTime;
+    
     private LocalDateTime hearingEndDateTime;
 
     private String listAssistSessionID;
