@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
+import uk.gov.hmcts.reform.sscs.mappers.ServiceHearingValuesMapper;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
@@ -25,13 +26,15 @@ public class ServiceHearingsController {
 
     private final AuthorisationService authorisationService;
     private final CcdCaseService ccdCaseService;
+    private final ServiceHearingValuesMapper serviceHearingValuesMapper;
 
     @Autowired
     public ServiceHearingsController(
         AuthorisationService authorisationService,
-        CcdCaseService ccdCaseService) {
+        CcdCaseService ccdCaseService, ServiceHearingValuesMapper serviceHearingValuesMapper) {
         this.authorisationService = authorisationService;
         this.ccdCaseService = ccdCaseService;
+        this.serviceHearingValuesMapper = serviceHearingValuesMapper;
     }
 
     @PostMapping("/serviceHearingValues")
@@ -51,9 +54,7 @@ public class ServiceHearingsController {
 
             SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(caseId);
 
-            ServiceHearingValues model = ServiceHearingValues.builder()
-                    .caseName(caseDetails.getData().getWorkAllocationFields().getCaseNamePublic())
-                    .build();
+            ServiceHearingValues model = serviceHearingValuesMapper.mapServiceHearingValues(caseDetails);
 
             return status(HttpStatus.OK).body(model);
             // the following errors are temporary and will need to be implemented fully along with this endpoint
@@ -71,7 +72,4 @@ public class ServiceHearingsController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-
-
 }
