@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.time.LocalDateTime;
