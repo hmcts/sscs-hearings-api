@@ -24,6 +24,7 @@ public final class HmcHearingsEventTopicListener {
 
     private final HmcHearingsTopicListenerProperties properties;
 
+    @SuppressWarnings("unused")
     public void receiveMessages() {
         CountDownLatch countdownLatch = new CountDownLatch(1);
 
@@ -47,6 +48,13 @@ public final class HmcHearingsEventTopicListener {
 
     private static void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
+        HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
+        String hmctsServiceID = hmcMessage.getHmctsServiceID();
+
+        if (hmctsServiceID.contains("BBA3")) {
+            //TODO process all messages with BBA3
+        }
+
         log.info("Processing message. Session: {}, Sequence #: {}. Contents: {}%n", message.getMessageId(),
                  message.getSequenceNumber(), message.getBody());
     }
