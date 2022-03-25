@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 
@@ -13,6 +15,8 @@ import static java.util.Objects.isNull;
 @Slf4j
 @Service
 public class HearingsService {
+
+    private HmcHearingApi hearingApi;
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
@@ -42,6 +46,8 @@ public class HearingsService {
                 break;
             case CANCEL_HEARING:
                 canelHearing(wrapper);
+                HearingDeleteRequestPayload hearingDeleteRequestPayload = new HearingDeleteRequestPayload();
+                deleteHearing("authorisation", "service-authorisation", "2343", hearingDeleteRequestPayload);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
@@ -53,6 +59,10 @@ public class HearingsService {
                 log.error(err.getMessage(),err);
                 throw err;
         }
+    }
+
+    private HearingResponse deleteHearing(String authorisation, String serviceAuthorisation, String hearingID, HearingDeleteRequestPayload hearingDeleteRequestPayload){
+        return hearingApi.deleteHearingRequest(authorisation, serviceAuthorisation, hearingID, hearingDeleteRequestPayload);
     }
 
     private void createHearing(HearingWrapper wrapper) {
