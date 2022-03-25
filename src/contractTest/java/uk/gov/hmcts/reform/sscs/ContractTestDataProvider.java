@@ -129,7 +129,6 @@ public class ContractTestDataProvider {
 
     protected static RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         requestDetails.setVersionNumber(123);
         return requestDetails;
     }
