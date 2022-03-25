@@ -46,6 +46,7 @@ public final class HmcHearingsEventTopicListener {
         processorClient.close();
     }
 
+    @SuppressWarnings({"PMD.EmptyIfStmt", "checkstyle:EmptyBlock"})
     private static void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
         HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
