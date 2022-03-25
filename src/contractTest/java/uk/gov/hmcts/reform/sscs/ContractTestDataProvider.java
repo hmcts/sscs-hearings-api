@@ -443,10 +443,8 @@ public class ContractTestDataProvider {
             .stringType("hearingJudgeId", "hearingJudgeId123")
             .stringType("panelMemberId", "panelMemberId123")
             .minArrayLike("attendees", 0, 1)
-            .object("value")
             .stringType("partyID", "partyID123")
             .stringType("hearingSubChannel", "hearingSubChannel123")
-            .closeObject()
             .closeObject().closeArray()
             .closeObject().closeArray()
             .closeObject();
