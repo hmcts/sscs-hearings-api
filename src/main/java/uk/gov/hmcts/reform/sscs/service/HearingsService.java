@@ -45,9 +45,7 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                canelHearing(wrapper);
-                HearingDeleteRequestPayload hearingDeleteRequestPayload = new HearingDeleteRequestPayload();
-                deleteHearing("authorisation", "service-authorisation", "2343", hearingDeleteRequestPayload);
+                cancelHearing(wrapper);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
@@ -78,8 +76,10 @@ public class HearingsService {
         // TODO implement mapping for the event when a case is updated
     }
 
-    private void canelHearing(HearingWrapper wrapper) {
+    private void cancelHearing(HearingWrapper wrapper) {
         // TODO implement mapping for the event when the hearing is cancelled, might not be needed
+        HearingDeleteRequestPayload hearingDeleteRequestPayload = new HearingDeleteRequestPayload();
+        deleteHearing("authorisation", "service-authorisation", "2343", hearingDeleteRequestPayload);
     }
 
     private void partyNotified(HearingWrapper wrapper) {
