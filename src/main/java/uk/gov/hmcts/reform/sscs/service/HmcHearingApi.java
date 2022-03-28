@@ -15,42 +15,42 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
-import javax.validation.Valid;
-
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = FeignClientConfig.class)
 public interface HmcHearingApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
+    String HEARING_ENDPOINT = "/hearing";
+    String ID = "id";
 
-    @PostMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse createHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestBody @Valid HearingRequestPayload hearingPayload
+        @RequestBody HearingRequestPayload hearingPayload
     );
 
-    @PutMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse updateHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam("id") String id,
-        @RequestBody @Valid HearingRequestPayload hearingPayload
+        @RequestParam(ID) String id,
+        @RequestBody HearingRequestPayload hearingPayload
     );
 
-    @GetMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingGetResponse getHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam("id") String id
+        @RequestParam(ID) String id
     );
 
-    @DeleteMapping(value = "/hearing", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     HearingResponse deleteHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam("id") String id,
+        @RequestParam(ID) String id,
         @RequestBody HearingDeleteRequestPayload hearingDeletePayload
     );
 

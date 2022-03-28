@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class ContractTestDataProvider {
 
-    public static final String CONSUMER_NAME = "hmcHearingServiceConsumer";
+    public static final String CONSUMER_NAME = "sscs_hearingsApi";
     public static final String PROVIDER_NAME = "hmcHearingServiceProvider";
 
     public static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
@@ -323,7 +323,7 @@ public class ContractTestDataProvider {
     }
 
 
-    protected PactDslJsonBody generateValidHearingGetResponsePactDslJsonBody(LocalDateTime date) {
+    public static PactDslJsonBody generateValidHearingGetResponsePactDslJsonBody(LocalDateTime date) {
         PactDslJsonBody result = new PactDslJsonBody();
 
         result
