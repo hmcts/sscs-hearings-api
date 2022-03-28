@@ -328,7 +328,6 @@ public class ContractTestDataProvider {
 
         result
             .object("requestDetails")
-            .stringType("requestTimeStamp", date.toString())
             .integerType("versionNumber", 123)
             .stringType("hearingRequestID", "hearingRequestID123")
             .stringType("status", "status123")
