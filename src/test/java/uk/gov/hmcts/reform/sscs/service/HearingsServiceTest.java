@@ -34,6 +34,7 @@ class HearingsServiceTest {
         "READY_TO_LIST,UPDATED_CASE",
         "READY_TO_LIST,CANCEL_HEARING",
         "READY_TO_LIST,PARTY_NOTIFIED",
+        "READY_TO_LIST,PARTY_HEARING",
     }, nullValues = {"null"})
     void processHearingRequest(EventType event, HearingState state) {
         // TODO Finish Test when method done

@@ -11,7 +11,8 @@ public enum HearingState {
     UPDATED_CASE("updatedCase", "Case Updated"),
     UPDATE_HEARING("updateHearing", "Update Hearing"),
     CANCEL_HEARING("cancelHearing", "Cancel Hearing"),
-    PARTY_NOTIFIED("partyNotified", "Parties Notified");
+    PARTY_NOTIFIED("partyNotified", "Parties Notified"),
+    PARTY_HEARING("partyHearing", "Parties Hearings");
 
     private final String state;
     private final String description;

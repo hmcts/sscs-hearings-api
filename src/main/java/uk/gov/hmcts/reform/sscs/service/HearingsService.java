@@ -44,12 +44,16 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                canelHearing(wrapper);
+                cancelHearing(wrapper);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
                 partyNotified(wrapper);
                 // TODO Call partiesNotifiedPost method
+                break;
+            case PARTY_HEARING:
+                partyHearing(wrapper);
+                // TODO Call partiesNotifiedPut method
                 break;
             default:
                 UnhandleableHearingState err = new UnhandleableHearingState(wrapper.getState());
@@ -80,12 +84,18 @@ public class HearingsService {
         // TODO implement mapping for the event when a case is updated
     }
 
-    private void canelHearing(HearingWrapper wrapper) {
+    private void cancelHearing(HearingWrapper wrapper) {
         // TODO implement mapping for the event when the hearing is cancelled, might not be needed
     }
 
     private void partyNotified(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a party has been notified, might not be needed
+    }
+
+    private void partyHearing(HearingWrapper wrapper) {
+        // TODO implement mapping for the event when a party details are updated
+
+
     }
 
 
