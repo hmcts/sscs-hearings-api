@@ -33,21 +33,21 @@ public class ServiceHearingValuesMapper {
             .hearingType(getHearingType(caseData))
             .caseType(caseData.getBenefitCode())
             .caseSubTypes(getIssueCode(caseData))
-            .hearingWindow(getHearingWindow(caseData)) // TODO can't get from hearingRequest find from the screens
+            .hearingWindow(getHearingWindow(caseData)) // TODO can't get mappings from hearingRequest find from the screens
             .duration(getHearingDuration(caseData)) // TODO wait for the file
             .hearingPriorityType(getHearingPriority(
                 caseData.getAdjournCaseCanCaseBeListedRightAway(),
                 caseData.getUrgentCase()
             ).getType())
-            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData)) // TODO wait for info for some of the fields
+            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData)) // TODO wait for info from Andrew
             .hearingInWelshFlag(YesNo.isYes(caseData.getHearingsInWelshFlag()))
-            .hearingLocations(getHearingLocations(caseData))  // TODO can't get from hearing request
+            .hearingLocations(getHearingLocations(caseData))  // TODO wea re no get mappings from hearing request
             .caseAdditionalSecurityFlag(YesNo.isYes(caseData.getAdditionalSecurityFlag()))
             .facilitiesRequired(getFacilitiesRequired(caseData))
             .listingComments(getListingComments(caseData))
             .hearingRequester(null)
             .privateHearingRequiredFlag(false)
-            .leadJudgeContractType(getLeadJudgeContractType(caseData)) // TODO wait for info
+            .leadJudgeContractType(getLeadJudgeContractType(caseData)) // TODO wait for info from Andrew
             .judiciary(getJudiciary(caseData)) // TODO hard coded values that will come from the session information file
             .hearingIsLinkedFlag(YesNo.isYes(caseData.getLinkedCasesBoolean()))
             .parties(getParties(caseData))  // TODO  missing mapping
@@ -178,7 +178,7 @@ public class ServiceHearingValuesMapper {
     // TODO if(face to face) appalents + dwp atendee (1) + judge (1) + panel members + representitive (1)
     private static Integer getNumberOfPhysicalAttendees(SscsCaseData sscsCaseData) {
         int numberOfAttendees = 0;
-        // get if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
+        // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
         if (Objects.nonNull(sscsCaseData.getAppeal()) &&
             Objects.nonNull(sscsCaseData.getAppeal().getHearingSubtype()) &&
             Objects.nonNull(sscsCaseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())) {
@@ -202,7 +202,7 @@ public class ServiceHearingValuesMapper {
         /*
         if (sscsCaseData.getHmcHearings().size() > 0) {
             HmcHearing hmcHearing = sscsCaseData.getHmcHearings().get(0);   // TODO is this is the right way to retrieve the hmc hearings (we get the first one)
-                                                                            // TODO we get if from hearing respose -> hearing day schedule -> number of attendees
+                                                                            // TODO we get if from hearing respnose -> hearing day schedule -> number of attendees
 
             HearingDaySchedule hearingDaySchedule = Optional.ofNullable(hmcHearing.getValue())
                 .map(HmcHearingDetails::getHearingResponse)
@@ -365,16 +365,17 @@ public class ServiceHearingValuesMapper {
     }
 
     private static List<PartyDetails> getParties(SscsCaseData sscsCaseData) {
-        if(sscsCaseData.getOtherParties()!= null) {
+        if(Objects.nonNull(sscsCaseData.getOtherParties())) {
             return sscsCaseData.getOtherParties().stream()
                 .map(CcdValue::getValue)
                 .map(party -> PartyDetails.builder()
                     .partyID(party.getId())
                     .partyType(getPartyType(party)) // TODO check
-                    .partyChannel(getPartyChannel(party)) //TODO check
-                    .partyName(party.getName().toString())
+                    .partyChannel(getPartyChannel(party.getHearingSubtype())) //TODO check
+                    .partyName(party.getName()== null ? null : party.getName().getFullName())
                     .partyRole(null) //TODO
-                    .individualDetails(getAppellantDetails(sscsCaseData.getAppeal().getAppellant(), party))
+                    //.individualDetails(getAppellantDetails(sscsCaseData.getAppeal())) // TODO do we set appelant for each party?
+                    .individualDetails(getIndividualDetails(party))
                     .organisationDetails(getOrganisationDetails(party)) //TODO missing fields
                     .unavailabilityDow(null)
                     .unavailabilityRanges(party.getHearingOptions().getExcludeDates().stream()
@@ -388,21 +389,23 @@ public class ServiceHearingValuesMapper {
         return new ArrayList<>();
     }
 
-
-    private static IndividualDetails getAppellantDetails(Appellant appellant, OtherParty party) {
-        IndividualDetails.builder()
-                .title(appellant.getName().getTitle())
-                .firstName(appellant.getName().getFirstName())
-                .lastName(appellant.getName().getLastName())
-                .preferredHearingChannel(getPartyChannel(party))
-                .interpreterLanguage(party.getHearingOptions().getLanguageInterpreter())
-                .reasonableAdjustments(getReasonableAdjustments(party))
-                .vulnerableFlag(YesNo.isYes(party.getVulnerableFlag()))
-                .vulnerabilityDetails(party.getVulnerabilityDetails())
-                .hearingChannelEmail(party.getHearingSubtype().getHearingVideoEmail())
-                .hearingChannelPhone(party.getHearingSubtype().getWantsHearingTypeTelephone())
-                .relatedParties(getRelatedParties(party))
+    private static IndividualDetails getAppellantDetails(Appeal appeal) {
+        if(Objects.nonNull(appeal) &&
+            Objects.nonNull(appeal.getAppellant())) {
+            return IndividualDetails.builder()
+                .title(appeal.getAppellant().getName().getTitle())
+                .firstName(appeal.getAppellant().getName().getFirstName())
+                .lastName(appeal.getAppellant().getName().getLastName())
+                .preferredHearingChannel(getPartyChannel(appeal.getHearingSubtype()))
+                .interpreterLanguage((appeal.getHearingOptions().getLanguageInterpreter()))
+                .reasonableAdjustments(getReasonableAdjustments(appeal.getAppellant()))
+                .vulnerableFlag(YesNo.isYes(appeal.getAppellant().getVulnerableFlag()))
+                .vulnerabilityDetails(appeal.getAppellant().getVulnerabilityDetails())
+                .hearingChannelEmail(appeal.getHearingSubtype().getHearingVideoEmail())
+                .hearingChannelPhone(appeal.getHearingSubtype().getWantsHearingTypeTelephone())
+                .relatedParties(getRelatedParties(appeal.getAppellant()))
                 .build();
+        }
         return null;
     }
 
@@ -413,44 +416,94 @@ public class ServiceHearingValuesMapper {
         return PartyType.IND;
     }
 
-    private static String getPartyChannel(OtherParty party) {
-        if(party.getHearingSubtype().isWantsHearingTypeFaceToFace()){
-            return FACE_TO_FACE;
+    private static String getPartyChannel(HearingSubtype hearingSubtype) {
+        if(Objects.nonNull(hearingSubtype)) {
+            if (hearingSubtype.isWantsHearingTypeFaceToFace()) {
+                return FACE_TO_FACE;
+            } else if (hearingSubtype.isWantsHearingTypeTelephone()) {
+                return TELEPHONE;
+            } else if (hearingSubtype.isWantsHearingTypeVideo()) {
+                return VIDEO;
+            } else {
+                return PAPER;
+            }
         }
-        else if(party.getHearingSubtype().isWantsHearingTypeTelephone()){
-            return TELEPHONE;
-        }
-        else if(party.getHearingSubtype().isWantsHearingTypeVideo()){
-            return VIDEO;
-        }
-        else {
-            return PAPER;
-        }
+        return null;
     }
 
-    private static List<String> getReasonableAdjustments(OtherParty party){
+    private static List<String> getReasonableAdjustments(Appellant appellant){
         List<String> reasonableAdjustments = new ArrayList<>();
-        if(YesNo.isYes(party.getReasonableAdjustment().getWantsReasonableAdjustment())) {
+        if(Objects.nonNull(appellant.getReasonableAdjustment()) &&
+            YesNo.isYes(appellant.getReasonableAdjustment().getWantsReasonableAdjustment())) {
+            reasonableAdjustments.add(appellant.getReasonableAdjustment().getReasonableAdjustmentRequirements());
+        }
+        return reasonableAdjustments;
+    }
+
+    private static List<String> getReasonableAdjustments(Party party){
+        List<String> reasonableAdjustments = new ArrayList<>();
+        if(Objects.nonNull(party.getReasonableAdjustment()) &&
+            YesNo.isYes(party.getReasonableAdjustment().getWantsReasonableAdjustment())) {
             reasonableAdjustments.add(party.getReasonableAdjustment().getReasonableAdjustmentRequirements());
         }
-        return  reasonableAdjustments;
+        return reasonableAdjustments;
     }
 
-    private static List<RelatedParties> getRelatedParties(OtherParty party){
-        return party.getRelatedParties().stream()
-                .map(rp-> RelatedParties.builder()
+    private static List<RelatedParties> getRelatedParties(Appellant appellant){
+        if(Objects.nonNull(appellant) && Objects.nonNull(appellant.getRelatedParties())) {
+            return appellant.getRelatedParties().stream()
+                .map(rp -> RelatedParties.builder()
                     .relatedPartyID(rp.getRelatedPartyId())
                     .relationshipType(rp.getRelationshipType())
                     .build()).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+    private static List<RelatedParties> getRelatedParties(Party party){
+        if(Objects.nonNull(party) && Objects.nonNull(party.getRelatedParties())) {
+            return party.getRelatedParties().stream()
+                .map(rp -> RelatedParties.builder()
+                    .relatedPartyID(rp.getRelatedPartyId())
+                    .relationshipType(rp.getRelationshipType())
+                    .build()).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
     private static OrganisationDetails getOrganisationDetails(OtherParty party){
+        if(getPartyType(party).equals(PartyType.ORG)) {
+            return OrganisationDetails.builder()
+                .name(party.getOrganisation())
+                .cftOrganisationID("")
+                .organisationType("")
+                .build();
+        }
         return OrganisationDetails.builder()
-                    .name(party.getOrganisation())
-                    .cftOrganisationID("")
-                    .organisationType("")
-                    .build();
+            .build();
     }
+
+
+    private static IndividualDetails getIndividualDetails(OtherParty party) {
+        if(getPartyType(party).equals(PartyType.IND)) {
+            return IndividualDetails.builder()
+                .title(party.getName().getTitle())
+                .firstName(party.getName().getFirstName())
+                .lastName(party.getName().getLastName())
+                .preferredHearingChannel(getPartyChannel(party.getHearingSubtype()))
+                .interpreterLanguage(party.getHearingOptions().getLanguages())
+                .reasonableAdjustments(getReasonableAdjustments(party))
+                .vulnerableFlag(YesNo.isYes(party.getVulnerableFlag()))
+                .vulnerabilityDetails(party.getVulnerabilityDetails())
+                .hearingChannelEmail(party.getHearingSubtype().getHearingVideoEmail())
+                .hearingChannelPhone(party.getHearingSubtype().getHearingTelephoneNumber())
+                .relatedParties(getRelatedParties(party))
+                .build();
+        }
+        return IndividualDetails.builder()
+            .build();
+    }
+
 
     private static CaseFlags getCaseFlags(SscsCaseData sscsCaseData){
         return CaseFlags.builder()
