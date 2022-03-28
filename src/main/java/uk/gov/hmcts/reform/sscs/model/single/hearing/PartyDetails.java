@@ -1,16 +1,16 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.util.List;
 
-@NoArgsConstructor
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@RequiredArgsConstructor
+@Builder
 public class PartyDetails {
 
     private String partyID;

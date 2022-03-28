@@ -14,6 +14,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcRequestDetails;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildCreateHearingPayload;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.updateIds;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -49,6 +51,7 @@ public class HearingsService {
 
         switch (wrapper.getState()) {
             case CREATE_HEARING:
+                updateIds(wrapper);
                 HmcHearingResponse response = sendCreateHearingRequest(wrapper);
                 updateCaseHearingId(wrapper, response.getHearingRequestId());
                 break;
@@ -92,15 +95,6 @@ public class HearingsService {
 
         return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(), payload);
-    }
-
-    private HmcHearingRequestPayload buildCreateHearingPayload(HearingWrapper wrapper) {
-        //Party details required-----------
-        return HmcHearingRequestPayload.builder()
-            .hmcRequestDetails(HmcRequestDetails.builder().versionNumber(1).build())
-            .hmcHearingRequestDetails(HearingsMapping.createHmcHearingRequestDetails(wrapper))
-            .hmcHearingRequestCaseDetails(HearingsMapping.createHmcHearingRequestCaseDetails(wrapper))
-            .build();
     }
 
 //    private void createHearing(HearingWrapper wrapper) {

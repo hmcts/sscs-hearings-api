@@ -1,20 +1,16 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@RequiredArgsConstructor
+@Builder
 @SuppressWarnings("PMD.TooManyFields")
-@Builder(toBuilder = true)
-public class HmcHearingRequestDetails {
+public class HmcHearingDetails {
 
     private boolean autolistFlag;
 

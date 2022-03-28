@@ -1,20 +1,16 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
+@RequiredArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class HmcHearingRequestCaseDetails {
+public class HmcHearingCaseDetails {
 
     private String hmctsServiceCode;
 

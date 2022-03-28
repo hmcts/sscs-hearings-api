@@ -10,8 +10,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingLocation;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestCaseDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingCaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcRequestDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
@@ -72,17 +72,17 @@ public class ContractTestDataProvider {
     protected HmcHearingRequestPayload generateHearingRequest() {
         HmcHearingRequestPayload request = new HmcHearingRequestPayload();
         request.setHmcRequestDetails(requestDetails());
-        request.setHmcHearingRequestDetails(hearingDetails());
-        request.setHmcHearingRequestCaseDetails(caseDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setHmcHearingDetails(hearingDetails());
+        request.setHmcHearingCaseDetails(caseDetails());
+        request.setPartiesDetails(partyDetails1());
 
         return request;
     }
 
     protected HmcHearingRequestPayload generateInvalidHearingRequest() {
         HmcHearingRequestPayload request = new HmcHearingRequestPayload();
-        request.setHmcHearingRequestDetails(hearingDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setHmcHearingDetails(hearingDetails());
+        request.setPartiesDetails(partyDetails1());
         request.setHmcRequestDetails(requestDetails());
         return request;
     }
@@ -120,22 +120,22 @@ public class ContractTestDataProvider {
         return hmcRequestDetails;
     }
 
-    protected HmcHearingRequestDetails hearingDetails() {
-        HmcHearingRequestDetails hmcHearingRequestDetails = new HmcHearingRequestDetails();
-        hmcHearingRequestDetails.setAutolistFlag(true);
-        hmcHearingRequestDetails.setHearingType("Some hearing type");
-        hmcHearingRequestDetails.setHearingWindow(hearingWindow());
-        hmcHearingRequestDetails.setDuration(1);
-        hmcHearingRequestDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
-        hmcHearingRequestDetails.setHearingPriorityType("Priority type");
+    protected HmcHearingDetails hearingDetails() {
+        HmcHearingDetails hmcHearingDetails = new HmcHearingDetails();
+        hmcHearingDetails.setAutolistFlag(true);
+        hmcHearingDetails.setHearingType("Some hearing type");
+        hmcHearingDetails.setHearingWindow(hearingWindow());
+        hmcHearingDetails.setDuration(1);
+        hmcHearingDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
+        hmcHearingDetails.setHearingPriorityType("Priority type");
         HmcHearingLocation location1 = new HmcHearingLocation();
         location1.setLocationId("court");
         location1.setLocationType("Location type");
         List<HmcHearingLocation> hmcHearingLocations = new ArrayList<>();
         hmcHearingLocations.add(location1);
-        hmcHearingRequestDetails.setHmcHearingLocations(hmcHearingLocations);
-        hmcHearingRequestDetails.setPanelRequirements(panelRequirements1());
-        return hmcHearingRequestDetails;
+        hmcHearingDetails.setHmcHearingLocations(hmcHearingLocations);
+        hmcHearingDetails.setPanelRequirements(panelRequirements1());
+        return hmcHearingDetails;
     }
 
     protected HearingWindow hearingWindow() {
@@ -146,24 +146,24 @@ public class ContractTestDataProvider {
         return hearingWindow;
     }
 
-    protected HmcHearingRequestCaseDetails caseDetails() {
-        HmcHearingRequestCaseDetails hmcHearingRequestCaseDetails = new HmcHearingRequestCaseDetails();
-        hmcHearingRequestCaseDetails.setHmctsServiceCode("ABBA1");
-        hmcHearingRequestCaseDetails.setCaseRef("ba12");
-        hmcHearingRequestCaseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
-        hmcHearingRequestCaseDetails.setCaseDeepLink("https://www.google.com");
-        hmcHearingRequestCaseDetails.setHmctsInternalCaseName("Internal case name");
-        hmcHearingRequestCaseDetails.setPublicCaseName("Public case name");
-        hmcHearingRequestCaseDetails.setCaseManagementLocationCode("CMLC123");
-        hmcHearingRequestCaseDetails.setCaseRestrictedFlag(false);
-        hmcHearingRequestCaseDetails.setCaseSlaStartDate("2030-08-20");
+    protected HmcHearingCaseDetails caseDetails() {
+        HmcHearingCaseDetails hmcHearingCaseDetails = new HmcHearingCaseDetails();
+        hmcHearingCaseDetails.setHmctsServiceCode("ABBA1");
+        hmcHearingCaseDetails.setCaseRef("ba12");
+        hmcHearingCaseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
+        hmcHearingCaseDetails.setCaseDeepLink("https://www.google.com");
+        hmcHearingCaseDetails.setHmctsInternalCaseName("Internal case name");
+        hmcHearingCaseDetails.setPublicCaseName("Public case name");
+        hmcHearingCaseDetails.setCaseManagementLocationCode("CMLC123");
+        hmcHearingCaseDetails.setCaseRestrictedFlag(false);
+        hmcHearingCaseDetails.setCaseSlaStartDate("2030-08-20");
         CaseCategory category = new CaseCategory();
         category.setCategoryType("caseType");
         category.setCategoryValue("PROBATE");
         List<CaseCategory> caseCategories = new ArrayList<>();
         caseCategories.add(category);
-        hmcHearingRequestCaseDetails.setCaseCategories(caseCategories);
-        return hmcHearingRequestCaseDetails;
+        hmcHearingCaseDetails.setCaseCategories(caseCategories);
+        return hmcHearingCaseDetails;
     }
 
     protected PanelRequirements panelRequirements1() {

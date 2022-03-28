@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@RequiredArgsConstructor
+@Builder
 public class OrganisationDetails {
 
     private String name;
