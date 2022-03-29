@@ -3,7 +3,9 @@ package uk.gov.hmcts.reform.sscs.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -16,7 +18,9 @@ import static java.util.Objects.isNull;
 @Service
 public class HearingsService {
 
-    private HmcHearingApi hearingApi;
+    private HmcHearingApi hmcHearingApi;
+
+    private IdamService idamService;
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
@@ -45,7 +49,7 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                cancelHearing(wrapper);
+                sendDeleteHearingRequest(wrapper);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
@@ -59,8 +63,16 @@ public class HearingsService {
         }
     }
 
-    private HearingResponse deleteHearing(String authorisation, String serviceAuthorisation, String hearingID, HearingDeleteRequestPayload hearingDeleteRequestPayload){
-        return hearingApi.deleteHearingRequest(authorisation, serviceAuthorisation, hearingID, hearingDeleteRequestPayload);
+    private HearingDeleteRequestPayload buildDeleteHearingPayload(HearingWrapper wrapper){
+        HearingDeleteRequestPayload payload = new HearingDeleteRequestPayload();
+        payload.setCancellationReasonCode("Reason"); // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode();
+        return payload;
+    }
+
+    private HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper){
+        HearingDeleteRequestPayload payload = buildDeleteHearingPayload(wrapper);
+        return hmcHearingApi.deleteHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
+                                                  idamService.getIdamTokens().getServiceAuthorization(), idamService.getIdamTokens().getUserId() ,payload);
     }
 
     private void createHearing(HearingWrapper wrapper) {
@@ -74,12 +86,6 @@ public class HearingsService {
 
     private void updatedCase(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a case is updated
-    }
-
-    private void cancelHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing is cancelled, might not be needed
-        HearingDeleteRequestPayload hearingDeleteRequestPayload = new HearingDeleteRequestPayload();
-        deleteHearing("authorisation", "service-authorisation", "2343", hearingDeleteRequestPayload);
     }
 
     private void partyNotified(HearingWrapper wrapper) {
