@@ -11,22 +11,18 @@ import uk.gov.hmcts.reform.sscs.model.Message;
 
 @Slf4j
 @Service
-public final class AppInsightsService {
+public class AppInsightsService {
 
-    private static final TelemetryClient CLIENT = new TelemetryClient();
+    private final TelemetryClient client = new TelemetryClient();
 
-    private AppInsightsService() {
-        // Gradle style check
-    }
-
-    public static void sendAppInsightsEvent(Message message) throws JsonProcessingException {
+    public void sendAppInsightsEvent(Message message) throws JsonProcessingException {
         String serialisedMessage = messageToJson(message);
 
-        CLIENT.trackEvent(new EventTelemetry(serialisedMessage));
+        client.trackEvent(new EventTelemetry(serialisedMessage));
         log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID());
     }
 
-    private static String messageToJson(Message message) throws JsonProcessingException {
+    private String messageToJson(Message message) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
         try {
