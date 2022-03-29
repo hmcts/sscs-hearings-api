@@ -19,7 +19,7 @@ public class AppInsightsService {
         String serialisedMessage = messageToJson(message);
 
         client.trackEvent(new EventTelemetry(serialisedMessage));
-        log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID());
+        log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID().toString());
     }
 
     private String messageToJson(Message message) throws JsonProcessingException {
@@ -28,7 +28,7 @@ public class AppInsightsService {
         try {
             return ow.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
-            log.error("HMC failure message JsonProcessingException for Case ID: {}", message.getCaseID());
+            log.error("HMC failure message JsonProcessingException for Case ID: {}", message.getCaseID().toString());
             throw jpe;
         }
     }

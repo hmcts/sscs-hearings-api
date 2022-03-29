@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class HmcFailureMessage implements Message {
 
     private String requestType;
-    private String caseID;
+    private Long caseID;
     private LocalDateTime timeStamp;
     private String errorCode;
     private String errorMessage;
