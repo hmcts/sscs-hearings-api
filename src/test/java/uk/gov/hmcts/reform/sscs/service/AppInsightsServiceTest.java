@@ -28,7 +28,7 @@ public class AppInsightsServiceTest {
     }
 
     @Test
-    public void testAppInsightsServiceDoesNotThrowJPE() {
+    public void testAppInsightsServiceDoesNotThrowJpe() {
         Message message = messageInit();
 
         assertThatNoException().isThrownBy(() -> appInsightsService.sendAppInsightsEvent(message));
