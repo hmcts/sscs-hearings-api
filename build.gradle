@@ -264,7 +264,8 @@ def versions= [
   tomcat: '9.0.58',
   pact : '4.1.7',
   sscsCommon: '4.6.48' ,
-  jacksonDatabind: '2.13.2.1'
+  jacksonDatabind: '2.13.2.1' ,
+  jacksonBom: '2.13.2.20220324'
 ]
 
 dependencies {
@@ -321,7 +322,7 @@ dependencies {
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
 
-  implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.13.2.20220324', ext: 'pom'
+  implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
