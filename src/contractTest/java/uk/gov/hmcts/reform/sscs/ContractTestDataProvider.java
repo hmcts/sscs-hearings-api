@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
@@ -92,6 +93,12 @@ public class ContractTestDataProvider {
     protected HearingDeleteRequestPayload generateHearingDeleteRequest() {
         HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
         request.setCancellationReasonCode("Cancel reason");
+        return request;
+    }
+
+    protected PartiesNotified generatePartiesPutRequest() {
+        PartiesNotified request = new PartiesNotified();
+        request.setRequestVersion("123");
         return request;
     }
 
