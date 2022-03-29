@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.EventTelemetry;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +22,11 @@ public class AppInsightsService {
     }
 
     private String messageToJson(Message message) throws JsonProcessingException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectMapper om = new ObjectMapper();
+        om.findAndRegisterModules();
 
         try {
-            return ow.writeValueAsString(message);
+            return om.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
             log.error("HMC failure message JsonProcessingException for Case ID: {}", message.getCaseID().toString());
             throw jpe;

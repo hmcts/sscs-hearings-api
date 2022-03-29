@@ -245,6 +245,7 @@ def versions= [
   gradlePiTestPlugin: '1.5.2',
   hmctsProperties: '0.1.0',
   jackson: '2.13.2',
+  jacksonDatatype: '2.13.2',
   junitJupiter: '5.8.2',
   log4J: '2.17.1',
   logback: '1.2.10',
@@ -318,6 +319,8 @@ dependencies {
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
+
 
   implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
 
