@@ -182,7 +182,8 @@ sonarqube {
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
             "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
-            "src/main/java/uk/gov/hmcts/reform/sscs/model/**"
+            "src/main/java/uk/gov/hmcts/reform/sscs/model/**," +
+            "src/main/java/uk/gov/hmcts/reform/sscs/service/HearingsService.java" //Will be removed in SSCS-10321
   }
 }
 
@@ -263,7 +264,7 @@ def versions= [
   springRetry: '1.3.1',
   tomcat: '9.0.58',
   pact : '4.1.7',
-  sscsCommon: '4.6.46-RC-SSCS-10056-3'
+  sscsCommon: '4.6.48'
 ]
 
 dependencies {
