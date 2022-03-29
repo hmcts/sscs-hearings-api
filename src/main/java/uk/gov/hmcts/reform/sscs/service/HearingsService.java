@@ -22,6 +22,8 @@ public class HearingsService {
 
     private IdamService idamService;
 
+    private String CANCEL_REASON_TEMP = "AWAITING_LISTING";
+
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
             log.info("The Event: {}, cannot be handled for the case with the id: {}",
@@ -65,7 +67,7 @@ public class HearingsService {
 
     private HearingDeleteRequestPayload buildDeleteHearingPayload(HearingWrapper wrapper){
         HearingDeleteRequestPayload payload = new HearingDeleteRequestPayload();
-        payload.setCancellationReasonCode("Reason"); // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode();
+        payload.setCancellationReasonCode(CANCEL_REASON_TEMP); // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode();
         return payload;
     }
 
