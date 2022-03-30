@@ -155,8 +155,8 @@ public class HearingDeleteConsumerTest extends BasePactTest {
 
         assertNotNull(hearingResponse.getHearingRequestId());
         assertFalse(hearingResponse.getStatus().isEmpty());
-        assertNotNull(hearingResponse.getVersionNumber());
-        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
+        assertNotNull(hearingResponse.getVersion());
+        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersion());
         assertNotNull(hearingResponse.getTimeStamp());
     }
 
