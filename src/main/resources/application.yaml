@@ -27,22 +27,6 @@ management:
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.sscs.controllers
 
-idam:
-  api:
-    url: ${IDAM_API_URL:http://localhost:5000}
-  s2s-auth:
-    url: ${IDAM_S2S_URL:http://localhost:4502}
-    secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAA}
-    name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
-    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
-    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
-  s2s-authorised:
-    services: ${SSCS_S2S_AUTHORIZED_SERVICES:sscs,ccd,ccd_data,ccd_gw,ccd_ps}
-  oauth2:
-    user:
-      email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
-      password: ${IDAM_SSCS_SYSTEMUPDATE_PASSWORD:Pa55word11}
-
 spring:
   main:
     allow-bean-definition-overriding: true
@@ -65,6 +49,20 @@ spring:
       - "/favicon.ico"
       - "/serviceHearingValues"
 
+feign:
+  httpclient:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+        loggerLevel: full
+    retryer:
+      period: 500
+      maxPeriod: 2000
+      maxAttempts: 3
+
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
@@ -82,24 +80,25 @@ azure:
       retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
       maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
       retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
+      
+idam:
+  api:
+    url: ${IDAM_API_URL:http://localhost:5000}
+  s2s-auth:
+    url: ${IDAM_S2S_URL:http://localhost:4502}
+    secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAA}
+    name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
+    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
+    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
+  s2s-authorised:
+    services: ${SSCS_S2S_AUTHORIZED_SERVICES:sscs,ccd,ccd_data,ccd_gw,ccd_ps}
+  oauth2:
+    user:
+      email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
+      password: ${IDAM_SSCS_SYSTEMUPDATE_PASSWORD:Pa55word11}
 
 sscs:
   serviceCode: ${SSCS_SERVICE_CODE:BBA3}
-
-feign:
-  httpclient:
-    enabled: true
-  client:
-    config:
-      default:
-        connectTimeout: 10000
-        readTimeout: 10000
-        loggerLevel: full
-    retryer:
-      period: 500
-      maxPeriod: 2000
-      maxAttempts: 3
-
 
 caseworker-ref:
   api:
@@ -121,6 +120,9 @@ judicial-ref:
 
 exui:
   url: ${EXUI_API_URL:http://localhost:3455}
+
+hmc:
+  url: ${HMC_API_URL:http://localhost:10000}
 
 flags:
   hmc-to-hearings-api:

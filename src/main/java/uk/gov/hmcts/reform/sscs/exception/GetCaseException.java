@@ -6,4 +6,8 @@ public class GetCaseException extends CaseException  {
     public GetCaseException(String message) {
         super(message);
     }
+
+    public GetCaseException(String message, NumberFormatException err) {
+        super(String.format("%s: %s",message,err.getMessage()));
+    }
 }

@@ -25,12 +25,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 @ExtendWith(MockitoExtension.class)
 class CcdCaseServiceTest {
 
     private static final long CASE_ID = 1625080769409918L;
     private static final long MISSING_CASE_ID = 99250807409918L;
+    private static final String INVALID_CASE_ID = "pq7409918";
     private static final String SUMMARY = "Update Summary";
     private static final String DESCRIPTION = "Update Description";
 
@@ -44,12 +46,13 @@ class CcdCaseServiceTest {
 
     @BeforeEach
     void setUp() {
-        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        openMocks(this);
         ccdCaseService = new CcdCaseService(ccdService, idamService);
     }
 
     @Test
     void getByCaseId_shouldReturnCaseDetails() throws GetCaseException {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
 
         SscsCaseDetails expectedCaseDetails =
                 SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build();
@@ -61,8 +64,21 @@ class CcdCaseServiceTest {
     }
 
     @Test
-    void getByCaseId_shouldThrowGetCaseExceptionWhenNoCaseFound() {
+    void getByCaseId_shouldReturnCaseDetailsWithString() throws GetCaseException {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
 
+        SscsCaseDetails expectedCaseDetails =
+                SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build();
+        given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(expectedCaseDetails);
+
+        SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(String.valueOf(CASE_ID));
+
+        assertThat(expectedCaseDetails).isEqualTo(caseDetails);
+    }
+
+    @Test
+    void getByCaseId_shouldThrowGetCaseExceptionWhenNoCaseFound() {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         given(ccdService.getByCaseId(eq(MISSING_CASE_ID), any(IdamTokens.class))).willReturn(null);
 
         assertThatExceptionOfType(GetCaseException.class).isThrownBy(
@@ -70,7 +86,14 @@ class CcdCaseServiceTest {
     }
 
     @Test
+    void getByCaseId_shouldThrowGetCaseExceptionWhenStringNotLong() {
+        assertThatExceptionOfType(GetCaseException.class).isThrownBy(
+                () -> ccdCaseService.getCaseDetails(INVALID_CASE_ID));
+    }
+
+    @Test
     void updateCase_shouldUpdateCaseDetails() throws UpdateCaseException {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         SscsCaseDetails expectedCaseDetails =
                 SscsCaseDetails.builder()
                         .data(SscsCaseData.builder()
@@ -87,6 +110,7 @@ class CcdCaseServiceTest {
 
     @Test
     void updateCase_shouldThrowUpdateCaseExceptionWhenCaseUpdateFails() {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         Request request = Request.create(Request.HttpMethod.GET, "url",
                 new HashMap<>(), null, new RequestTemplate());
 

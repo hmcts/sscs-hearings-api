@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.sscs.model.single.hearing;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
@@ -12,7 +14,9 @@ import java.util.List;
 
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingResponse {
 
@@ -23,13 +27,11 @@ public class HearingResponse {
 
     private LocalDateTime timeStamp;
 
-    private Number versionNumber;
+    private Long versionNumber;
 
     private String listAssistTransactionID;
 
     private LocalDateTime receivedDateTime;
-
-    private Integer responseVersion;
 
     @JsonProperty("laCaseStatus")
     @EnumPattern(enumClass = ListingCaseStatus.class, fieldName = "listingCaseStatus")

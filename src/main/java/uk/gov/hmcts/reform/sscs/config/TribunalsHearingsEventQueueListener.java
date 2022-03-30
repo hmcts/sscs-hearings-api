@@ -15,7 +15,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
 import java.time.Duration;
@@ -27,6 +30,8 @@ import java.time.Duration;
 public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
+
+    private final CcdCaseService caseService;
 
     @Value("${azure.service-bus.tribunals-to-hearings-api.connectionString}")
     private String connectionString;
@@ -41,8 +46,9 @@ public class TribunalsHearingsEventQueueListener {
     private Integer maxRetries;
 
     @Autowired
-    public TribunalsHearingsEventQueueListener(HearingsService hearingsService) {
+    public TribunalsHearingsEventQueueListener(HearingsService hearingsService, CcdCaseService caseService) {
         this.hearingsService = hearingsService;
+        this.caseService = caseService;
     }
 
     @Bean
@@ -76,7 +82,7 @@ public class TribunalsHearingsEventQueueListener {
             log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                 event, caseId);
 
-            hearingsService.processHearingRequest(hearingRequest);
+            hearingsService.processHearingRequest(createWrapper(hearingRequest));
 
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
             context.complete();
@@ -85,6 +91,14 @@ public class TribunalsHearingsEventQueueListener {
                     + "Abandoning message", caseId, event, ex);
             context.abandon();
         }
+    }
+
+    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException {
+
+        return HearingWrapper.builder()
+                .caseData(caseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
+                .state(hearingRequest.getHearingState())
+                .build();
     }
 
     private AmqpRetryOptions retryOptions() {
