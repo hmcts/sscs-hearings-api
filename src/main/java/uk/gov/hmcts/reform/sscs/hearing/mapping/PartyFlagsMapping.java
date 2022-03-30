@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("PMD.LawOfDemeter")
 public class PartyFlagsMapping {
 
     public List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
