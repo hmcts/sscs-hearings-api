@@ -10,7 +10,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 @Component
 public class TraceLogger {
 
-    public void createHearingRequestLogger(HearingRequestPayload hearingRequestPayload, HearingResponse hearingResponse) {
+    public void createHearingRequestLogger(HearingRequestPayload hearingRequestPayload,
+                                           HearingResponse hearingResponse) {
         log.trace(
             "Create Hearing Request payload: {}, Create Hearing Response payload: {} ",
             hearingRequestPayload,
@@ -19,7 +20,9 @@ public class TraceLogger {
 
     }
 
-    public void updateHearingRequestLogger(String hearingId, HearingRequestPayload hearingRequestPayload, HearingResponse hearingResponse) {
+    public void updateHearingRequestLogger(String hearingId,
+                                           HearingRequestPayload hearingRequestPayload,
+                                           HearingResponse hearingResponse) {
         log.trace(
             "Update Hearing Details for Hearing Id: {}, Request payload: {}, Update Hearing Response payload: {} ",
             hearingId,
@@ -28,7 +31,8 @@ public class TraceLogger {
         );
     }
 
-    public void getHearingRequestDetailsLogger(String hearingId, HearingResponse hearingResponse) {
+    public void hearingRequestGetDetailsLogger(String hearingId,
+                                               HearingResponse hearingResponse) {
         log.trace(
             "Get Hearing Details for Hearing Id : {}, Get Hearing Request Details Response payload: {} ",
             hearingId,
@@ -36,20 +40,26 @@ public class TraceLogger {
         );
     }
 
-    public void cancelHearingRequestLogger(String hearingId, HearingDeleteRequestPayload RequestPayload, HearingResponse hearingResponse) {
+    public void cancelHearingRequestLogger(String hearingId,
+                                           HearingDeleteRequestPayload requestPayload,
+                                           HearingResponse hearingResponse) {
         log.trace(
-            " Cancel Hearing Request for Hearing Id : {}, and cancellation ReasonCode for Hearing: {}, Hearing request cancellation response : {} ",
+            " Cancel Hearing Request for Hearing Id : {}, and cancellation ReasonCode for Hearing: {},"
+                + " Hearing request cancellation response : {} ",
             hearingId,
-            RequestPayload,
+            requestPayload,
             hearingResponse
         );
     }
 
-    public void updatePartyNotifiedRequestLogger(String hearingId, HearingRequestPayload RequestPayload, HearingResponse hearingResponse) {
+    public void updatePartyNotifiedRequestLogger(String hearingId,
+                                                 HearingRequestPayload requestPayload,
+                                                 HearingResponse hearingResponse) {
         log.trace(
-            "Update PartyNotified Request details for Hearing Id: {}, Request payload: {}, Update PartyNotified Response payload: {} ",
+            "Update PartyNotified Request details for Hearing Id: {}, Request payload: {}, "
+                + "Update PartyNotified Response payload: {} ",
             hearingId,
-            RequestPayload,
+            requestPayload,
             hearingResponse
         );
     }
