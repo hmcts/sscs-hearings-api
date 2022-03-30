@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -47,11 +47,11 @@ public interface HmcHearingApi {
     );
 
     @DeleteMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse deleteHearingRequest(
+    HearingResponse cancelHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam(ID) String id,
-        @RequestBody HearingDeleteRequestPayload hearingDeletePayload
+        @RequestBody HearingCancelRequestPayload hearingDeletePayload
     );
 
 }

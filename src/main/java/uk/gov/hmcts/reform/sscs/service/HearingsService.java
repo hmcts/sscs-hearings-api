@@ -15,6 +15,8 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter"})
 // TODO Unsuppress in future
@@ -22,18 +24,17 @@ import static java.util.Objects.isNull;
 @Service
 @RequiredArgsConstructor
 public class HearingsService {
-
     private final HmcHearingApi hmcHearingApi;
 
     private final CcdCaseService ccdCaseService;
 
     private final IdamService idamService;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException {
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
-    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException {
+    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException, UpdateCaseException {
         switch (wrapper.getState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
@@ -57,73 +58,58 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) {
-        //TODO Will be replaced when SSCS-10321 is merged
-//        updateFlags(wrapper);
-//
-//        HmcHearing hmcHearing = HmcHearing.builder().value(HmcHearingDetails.builder()
-//                .hmcCaseDetails(createHmcCaseDetails(wrapper))
-//                .hearingRequest(createHearingRequest(wrapper))
-//                .build()).build();
-//        if (isNull(wrapper.getUpdatedCaseData().getHmcHearings())) {
-//            wrapper.getUpdatedCaseData().setHmcHearings(new ArrayList<>());
-//        }
-//        wrapper.getUpdatedCaseData().getHmcHearings().add(hmcHearing);
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException {
+        updateIds(wrapper);
+        HearingResponse response = sendCreateHearingRequest(wrapper);
+        hearingResponseUpdate(wrapper, response);
     }
 
 
-    private void updateHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing's details are updated
+    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException {
+        updateIds(wrapper);
+        HearingResponse response = sendUpdateHearingRequest(wrapper);
+        hearingResponseUpdate(wrapper, response);
     }
 
     private void updatedCase(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a case is updated
     }
 
-    public HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper) {
-        return hmcHearingApi.deleteHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
-                String.valueOf(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingId()),
-                HearingsRequestMapping.buildDeleteHearingPayload(null) // TODO: Get Reason in Ticket: SSCS-10366
-        );
-    }
-
     private void cancelHearing(HearingWrapper wrapper) {
-        sendDeleteHearingRequest(wrapper);
+        sendCancelHearingRequest(wrapper); // TODO: Get Reason in Ticket: SSCS-10366
     }
 
     private void partyNotified(HearingWrapper wrapper) {
         // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
-    public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
-        // To be called by hearing POST response
-        // HearingResponse hearingResponse = HearingResponse.builder().build();
-        //
-        // hearingResponse.setHearingRequestId(hearingRequestId);
-        // hearingResponse.setHmcStatus(hmcStatus);
-        // hearingResponse.setVersion(version);
-        //
-        // wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingResponse(hearingResponse);
+    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+        return hmcHearingApi.createHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                buildHearingPayload(wrapper)
+        );
     }
 
-    public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version) {
-        // To be called by hearing PUT response
-        // HearingResponse hearingResponse = wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse();
-        // hearingResponse.setHmcStatus(hmcStatus);
-        // hearingResponse.setVersion(version);
+    private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) {
+        return hmcHearingApi.updateHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                getHearingId(wrapper),
+                buildHearingPayload(wrapper)
+        );
     }
 
-    public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version,
-                                      String cancellationReasonCode) {
-        // To be called after hearing Delete response
-        updateHearingResponse(wrapper, hmcStatus, version);
-        // wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse()
-        // wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingCancellationReason(cancellationReasonCode);
+    public HearingResponse sendCancelHearingRequest(HearingWrapper wrapper) {
+        return hmcHearingApi.cancelHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                String.valueOf(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingId()),
+                HearingsRequestMapping.buildCancelHearingPayload(null) // TODO: Get Reason in Ticket: SSCS-10366
+        );
     }
-	
-	public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response) throws UpdateCaseException {
+
+    public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response) throws UpdateCaseException {
         HearingsServiceHelper.updateHearingId(wrapper, response);
         HearingsServiceHelper.updateVersionNumber(wrapper, response);
         HearingsServiceHelper.addEvent(wrapper);
@@ -134,8 +120,7 @@ public class HearingsService {
                 event.getEventType(),
                 event.getSummary(),
                 event.getDescription());
-	}
-
+    }
 
     private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
         if (isNull(hearingRequest.getHearingState())) {

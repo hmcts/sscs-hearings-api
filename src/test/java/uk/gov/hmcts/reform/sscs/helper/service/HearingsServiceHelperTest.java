@@ -118,4 +118,40 @@ class HearingsServiceHelperTest {
         assertThat(eventDetails.getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
         assertThat(eventDetails.getDescription()).isEqualTo(HearingEvent.CREATE_HEARING.getDescription());
     }
+
+    @Test
+    void shouldReturnHearingId_givenValidWrapper() {
+        HearingWrapper wrapper = activeHearingIdFixture(12345L);
+
+        final String actualHearingId = getHearingId(wrapper);
+
+        assertThat(actualHearingId, is("12345"));
+    }
+
+    @Test
+    void shouldReturnNull_givenInvalidWrapper() {
+        final String actualHearingId = getHearingId(new HearingWrapper());
+
+        assertNull(actualHearingId);
+    }
+
+    @Test
+    void shouldReturnNullHearingId_givenNullValue() {
+        HearingWrapper wrapper = activeHearingIdFixture(null);
+
+        final String actualHearingId = getHearingId(wrapper);
+
+        assertNull(actualHearingId);
+    }
+
+
+    private HearingWrapper activeHearingIdFixture(final Long hearingId) {
+        return HearingWrapper.builder()
+            .caseData(SscsCaseData.builder()
+                    .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                            .activeHearingId(hearingId)
+                            .build())
+                    .build())
+            .build();
+    }
 }

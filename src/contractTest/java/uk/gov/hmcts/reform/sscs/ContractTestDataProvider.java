@@ -9,7 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
@@ -102,14 +102,14 @@ public class ContractTestDataProvider {
         return request;
     }
 
-    public static HearingDeleteRequestPayload generateHearingDeleteRequest() {
-        HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
+    public static HearingCancelRequestPayload generateHearingDeleteRequest() {
+        HearingCancelRequestPayload request = new HearingCancelRequestPayload();
         request.setCancellationReasonCode("Cancel reason");
         return request;
     }
 
-    public static HearingDeleteRequestPayload generateInvalidHearingDeleteRequest() {
-        HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
+    public static HearingCancelRequestPayload generateInvalidHearingDeleteRequest() {
+        HearingCancelRequestPayload request = new HearingCancelRequestPayload();
         request.setCancellationReasonCode("");
         return request;
     }

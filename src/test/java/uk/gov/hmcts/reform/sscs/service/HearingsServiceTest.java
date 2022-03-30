@@ -17,7 +17,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +34,7 @@ import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
@@ -68,7 +69,17 @@ class HearingsServiceTest {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .ccdCaseId(String.valueOf(CASE_ID))
-            .appeal(Appeal.builder().build())
+                .caseManagementLocation(CaseManagementLocation.builder()
+                        .build())
+            .appeal(Appeal.builder()
+                    .hearingOptions(HearingOptions.builder()
+                            .build())
+                    .appellant(Appellant.builder()
+                            .name(Name.builder()
+                                    .build())
+                            .build())
+                    .build())
+
             .build();
 
         wrapper = HearingWrapper.builder()
@@ -95,8 +106,6 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
     @ParameterizedTest
     @CsvSource(value = {
-        "CREATE_HEARING",
-        "UPDATE_HEARING",
         "UPDATED_CASE",
         "PARTY_NOTIFIED",
     }, nullValues = {"null"})
@@ -123,16 +132,52 @@ class HearingsServiceTest {
         assertThat(thrown.getMessage()).isNotEmpty();
     }
 
-    @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
+    @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
-    void processHearingWrapper() {
+    void processHearingWrapperCreate() {
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
                         .idamOauth2Token(IDAM_OAUTH2_TOKEN)
                         .serviceAuthorization(SERVICE_AUTHORIZATION)
                         .build());
 
-        given(hmcHearingApi.deleteHearingRequest(any(), any(), any(), any()))
+        given(hmcHearingApi.createHearingRequest(any(), any(), any()))
+                .willReturn(HearingResponse.builder().build());
+
+        wrapper.setState(CREATE_HEARING);
+
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
+    @Test
+    void processHearingWrapperUpdate() {
+        given(idamService.getIdamTokens())
+                .willReturn(IdamTokens.builder()
+                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                        .serviceAuthorization(SERVICE_AUTHORIZATION)
+                        .build());
+
+        given(hmcHearingApi.updateHearingRequest(any(), any(), any(), any()))
+                .willReturn(HearingResponse.builder().build());
+
+        wrapper.setState(UPDATE_HEARING);
+
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
+    @Test
+    void processHearingWrapperCancel() {
+        given(idamService.getIdamTokens())
+                .willReturn(IdamTokens.builder()
+                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                        .serviceAuthorization(SERVICE_AUTHORIZATION)
+                        .build());
+
+        given(hmcHearingApi.cancelHearingRequest(any(), any(), any(), any()))
                 .willReturn(HearingResponse.builder().build());
 
         wrapper.setState(CANCEL_HEARING);
@@ -205,7 +250,7 @@ class HearingsServiceTest {
                         .serviceAuthorization(SERVICE_AUTHORIZATION)
                         .build());
 
-        HearingDeleteRequestPayload payload = HearingDeleteRequestPayload.builder()
+        HearingCancelRequestPayload payload = HearingCancelRequestPayload.builder()
                 // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
                 .build();
 
@@ -215,13 +260,13 @@ class HearingsServiceTest {
                 .versionNumber(VERSION)
                 .build();
 
-        given(hmcHearingApi.deleteHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
+        given(hmcHearingApi.cancelHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
 
         // wrapper.getCaseData().getSchedulingAndListingFields().setCancellationCode(CANCEL_REASON_TEMP); // TODO: Uncomment when implemented
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingVersionNumber(VERSION);
 
-        HearingResponse result = hearingsService.sendDeleteHearingRequest(wrapper);
+        HearingResponse result = hearingsService.sendCancelHearingRequest(wrapper);
 
         assertThat(result).isNotNull();
         // assertThat(result.getHearingCancellationReason()).isEqualTo(CANCEL_REASON_TEMP);  // TODO: Uncomment when implemented

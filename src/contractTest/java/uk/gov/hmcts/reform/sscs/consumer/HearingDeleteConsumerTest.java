@@ -19,7 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
@@ -146,7 +146,7 @@ class HearingDeleteConsumerTest extends BasePactTest {
     @Test
     @PactTestFor(pactMethod = "deleteHearingRequestForValidRequest")
     void shouldSuccessfullyDeleteHearingRequest() {
-        HearingResponse hearingResponse = hmcHearingApi.deleteHearingRequest(
+        HearingResponse hearingResponse = hmcHearingApi.cancelHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID,
@@ -193,7 +193,7 @@ class HearingDeleteConsumerTest extends BasePactTest {
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers, String caseId,
-                             HearingDeleteRequestPayload payload, HttpStatus status) {
+                             HearingCancelRequestPayload payload, HttpStatus status) {
         RestAssured.given().headers(headers)
             .contentType(ContentType.JSON)
             .queryParam(ID, caseId)

@@ -13,6 +13,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_HEARING_TYPE;
 @Getter
 public enum HearingEvent {
     CREATE_HEARING(ADD_HEARING, "SSCS - Case sent to HMC", "Case with sent to HMC for Scheduling and Listing"),
+    UPDATE_HEARING(UPDATE_HEARING_TYPE, "SSCS - Updates to case sent to HMC", "Case updates sent to HMC"),
     UPDATED_CASE(UPDATE_HEARING_TYPE, "SSCS - Updates to case sent to HMC", "Case updates sent to HMC");
 
     private final EventType eventType;

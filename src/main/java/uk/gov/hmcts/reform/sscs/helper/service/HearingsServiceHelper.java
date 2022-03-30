@@ -45,4 +45,12 @@ public final class HearingsServiceHelper {
 
         return hearingEvent;
     }
+
+    public static String getHearingId(HearingWrapper wrapper) {
+        return Optional.of(wrapper)
+            .map(HearingWrapper::getCaseData)
+            .map(SscsCaseData::getSchedulingAndListingFields)
+            .map(SchedulingAndListingFields::getActiveHearingId)
+            .map(Object::toString).orElse(null);
+    }
 }
