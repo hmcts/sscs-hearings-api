@@ -1,19 +1,19 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 
 @Data
-@NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class HearingResponse {
+@RequiredArgsConstructor
+@Builder
+public class HmcHearingResponse {
 
     @JsonProperty("hearingRequestID")
     private Long hearingRequestId;
@@ -22,7 +22,7 @@ public class HearingResponse {
 
     private LocalDateTime timeStamp;
 
-    private Number versionNumber;
+    private long versionNumber;
 
     private String listAssistTransactionID;
 
@@ -40,5 +40,5 @@ public class HearingResponse {
     private String hearingCancellationReason;
 
     private List<HearingDaySchedule> hearingDaySchedule;
-
+	
 }
