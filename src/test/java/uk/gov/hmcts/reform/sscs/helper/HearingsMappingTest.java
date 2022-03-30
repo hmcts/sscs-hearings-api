@@ -15,13 +15,17 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 class HearingsMappingTest {
 
@@ -53,27 +57,41 @@ class HearingsMappingTest {
         assertFalse(result);
     }
 
+    @Disabled
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "true,[true,true],true",
-        "true,[false,true],true",
-        "true,[true,false],true",
-        "true,[false,false],true",
-        "true,[false],true",
-        "true,[true],true",
+        "true,true|true,true",
+        "true,false|true,true",
+        "true,true|false,true",
+        "true,false|false,true",
+        "true,false,true",
+        "true,true,true",
         "true,null,true",
-        "false,[true,true],true",
-        "false,[false,true],true",
-        "false,[true,false],true",
-        "false,[false,false],false",
-        "false,[true],true",
-        "false,[false],false",
+        "false,true|true,true",
+        "false,false,true,true",
+        "false,true|false,true",
+        "false,false,false,false",
+        "false,true,true",
+        "false,false,false",
         "false,null,false",
     }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityFlag(boolean appellant, boolean[] otherParties, boolean expected) {
+    void shouldBeAdditionalSecurityFlag(boolean appellantFlag, String otherPartiesFlags, boolean expected) {
         // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
+        List<CcdValue<OtherParty>> otherParties = null;
+        if (nonNull(otherPartiesFlags)) {
+            otherParties = new ArrayList<>();
+            for (boolean flag : Arrays.stream(otherPartiesFlags.split("\\s*\\|\\s*")).map(Boolean::parseBoolean).collect(Collectors.toList())) {
+                otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().unacceptableCustomerBehaviour(flag ? YES : NO).build()).build());
+            }
+        }
+
+        SscsCaseData caseData = SscsCaseData.builder()
+                .appeal(Appeal.builder()
+                        .appellant(Appellant.builder().unacceptableCustomerBehaviour(appellantFlag ? YES : NO).build())
+                        .build())
+                .otherParties(otherParties)
+                .build();
         boolean result = HearingsMapping.shouldBeAdditionalSecurityFlag(caseData);
 
         assertEquals(expected, result);
@@ -124,13 +142,12 @@ class HearingsMappingTest {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given "
-            + "getHearingWindowRange returns a window starting within 1 month of the event's date")
+    @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
         "DWP_RESPOND,true",
     }, nullValues = {"null"})
-    void getHearingWindowRange(EventType eventType, boolean autoListFlag) {
+    void buildHearingWindow(EventType eventType, boolean autoListFlag) {
         // TODO Finish Test when method done
         List<Event> events = new ArrayList<>();
         LocalDateTime testDateTime = LocalDateTime.now();
@@ -151,16 +168,14 @@ class HearingsMappingTest {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When case with no valid event or is negative auto-listable is given "
-            + "getHearingWindowRange returns a null value")
+    @DisplayName("When case with no valid event or is negative auto-listable is given buildHearingWindow returns a null value")
     @ParameterizedTest
     @CsvSource(value = {
         "WITHDRAWN,true",
         "null,true",
         "DWP_RESPOND,false",
-        "DWP_RESPOND,null",
     }, nullValues = {"null"})
-    void getHearingWindowRangeNullReturn(EventType eventType, boolean autoListFlag) {
+    void buildHearingWindowNullReturn(EventType eventType, boolean autoListFlag) {
         // TODO Finish Test when method done
         List<Event> events = new ArrayList<>();
         LocalDateTime testDateTime = LocalDateTime.now();
