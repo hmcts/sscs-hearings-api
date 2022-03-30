@@ -8,7 +8,6 @@ import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,13 +39,13 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 @SpringBootTest
 @PactTestFor(port = "10000")
 @PactFolder("pacts")
-public class HearingPostConsumerTest extends BasePactTest {
+class HearingPostConsumerTest extends BasePactTest {
 
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
+    RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully creating hearing request ")
             .uponReceiving("Request to create hearing request to save details")
             .path(ContractTestDataProvider.HEARING_PATH)
@@ -58,7 +58,7 @@ public class HearingPostConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact validationErrorFromPostHearing(PactDslWithProvider builder) {
+    RequestResponsePact validationErrorFromPostHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws validation error while trying to create hearing")
                 .uponReceiving("Request to CREATE hearing for invalid hearing request")
@@ -131,7 +131,7 @@ public class HearingPostConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "createHearingRequestForValidRequest")
-    public void shouldSuccessfullyPostHearingRequest() throws JsonProcessingException {
+    void shouldSuccessfullyPostHearingRequest() {
         HearingResponse hearingResponse = hmcHearingApi.createHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
@@ -142,58 +142,57 @@ public class HearingPostConsumerTest extends BasePactTest {
         assertTrue(hearingResponse.getStatus().equalsIgnoreCase(ContractTestDataProvider.HEARING_RESPONSE_STATUS));
         assertNotNull(hearingResponse.getVersionNumber());
         assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
-        assertNotNull(hearingResponse.getTimeStamp()
-                          .compareTo(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE)));
+        assertThat(hearingResponse.getTimeStamp()).isEqualToIgnoringSeconds(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE));
     }
 
 
     @Test
     @PactTestFor(pactMethod = "validationErrorFromPostHearing")
-    public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
+    void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
 
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders,
                     ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.BAD_REQUEST.value()
+                HttpStatus.BAD_REQUEST.value()
         );
     }
 
     @Test
     @PactTestFor(pactMethod = "unauthorisedRequestErrorFromPostHearing")
-    public void shouldReturn401UnauthorisedRequestForPostHearing(MockServer mockServer) {
+    void shouldReturn401UnauthorisedRequestForPostHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.unauthorisedHeaders,
                     ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.UNAUTHORIZED.value()
+                HttpStatus.UNAUTHORIZED.value()
         );
     }
 
     @Test
     @PactTestFor(pactMethod = "forbiddenRequestErrorFromPostHearing")
-    public void shouldReturn403ForbiddenRequestForPostHearing(MockServer mockServer) {
+    void shouldReturn403ForbiddenRequestForPostHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders,
                     ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.FORBIDDEN.value()
+                HttpStatus.FORBIDDEN.value()
         );
     }
 
     @Test
     @PactTestFor(pactMethod = "notFoundRequestErrorFromPostHearing")
-    public void shouldReturn404NotFoundRequestForPostHearing(MockServer mockServer) {
+    void shouldReturn404NotFoundRequestForPostHearing(MockServer mockServer) {
 
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders,
                     ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.NOT_FOUND.value()
+                HttpStatus.NOT_FOUND.value()
         );
 
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers,
                              String hearingRequest,
-                             String path, int httpStatus) {
+                             int httpStatus) {
         RestAssured.given().headers(headers)
             .contentType(io.restassured.http.ContentType.JSON)
             .body(hearingRequest)
             .when()
-            .post(mockServer.getUrl() + path)
+            .post(mockServer.getUrl() + ContractTestDataProvider.HEARING_PATH)
             .then().statusCode(httpStatus)
             .and().extract()
             .body();

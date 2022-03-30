@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.sscs.utility;
 
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 
-import java.time.LocalDateTime;
-
 public class BasePactTest {
 
     private static final String STATUS_OPTIONS_STRING = "HEARING_REQUESTED|UPDATE_REQUESTED|"
@@ -11,11 +9,10 @@ public class BasePactTest {
 
 
     public  PactDslJsonBody generateHearingsJsonBody(String statusMessage, String responseStatus) {
-        return genericHearingJsonBody(statusMessage, LocalDateTime.now(), responseStatus);
+        return genericHearingJsonBody(statusMessage, responseStatus);
     }
 
-    private  PactDslJsonBody genericHearingJsonBody(String statusMessage,
-                                                          LocalDateTime timeStamp, String responseStatus) {
+    private  PactDslJsonBody genericHearingJsonBody(String statusMessage, String responseStatus) {
         PactDslJsonBody pactDslJsonBody = new PactDslJsonBody();
 
         addStatusMessage(pactDslJsonBody, statusMessage);
