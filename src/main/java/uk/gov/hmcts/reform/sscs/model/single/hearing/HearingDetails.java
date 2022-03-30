@@ -43,4 +43,6 @@ public class HearingDetails {
     private PanelRequirements panelRequirements;
 
     private boolean hearingIsLinkedFlag;
+
+    private String amendReasonCode;
 }

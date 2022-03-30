@@ -9,21 +9,19 @@ public class BasePactTest {
     private static final String STATUS_OPTIONS_STRING = "HEARING_REQUESTED|UPDATE_REQUESTED|"
          + "UPDATE_SUBMITTED|AWAITING_LISTING|LISTED|CANCELLATION_REQUESTED|EXCEPTION";
 
-    private BasePactTest() {
-    }
 
-    public static PactDslJsonBody generateHearingsJsonBody(String statusMessage, String responseStatus) {
+    public  PactDslJsonBody generateHearingsJsonBody(String statusMessage, String responseStatus) {
         return genericHearingJsonBody(statusMessage, LocalDateTime.now(), responseStatus);
     }
 
-    private static PactDslJsonBody genericHearingJsonBody(String statusMessage,
+    private  PactDslJsonBody genericHearingJsonBody(String statusMessage,
                                                           LocalDateTime timeStamp, String responseStatus) {
         PactDslJsonBody pactDslJsonBody = new PactDslJsonBody();
 
         addStatusMessage(pactDslJsonBody, statusMessage);
 
         pactDslJsonBody
-            .integerType("versionNumber", "022")
+            .integerType("versionNumber", "123")
             .integerType("hearingRequestID", "^[a-zA-Z0-9]{1,30}$", "1880163574")
             .stringMatcher("status", STATUS_OPTIONS_STRING, responseStatus)
             .stringMatcher("timeStamp", "2030-08-20T12:40:00")
@@ -32,7 +30,7 @@ public class BasePactTest {
         return pactDslJsonBody;
     }
 
-    private static void addStatusMessage(PactDslJsonBody pactDslJsonBody, String statusMessage) {
+    protected  void addStatusMessage(PactDslJsonBody pactDslJsonBody, String statusMessage) {
         pactDslJsonBody
             .stringType("status_message", statusMessage);
     }
