@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestDetails {
 
-    private LocalDateTime requestTimeStamp;
-
     private Number versionNumber;
 
     private String hearingRequestID;
