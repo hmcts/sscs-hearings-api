@@ -10,7 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("PMD.LawOfDemeter")
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.DISABLED_ACCESS;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.DWP_PHME;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.DWP_UCB;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
+import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.URGENT_CASE;
+
 public class PartyFlagsMapping {
 
     public List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
@@ -34,9 +42,9 @@ public class PartyFlagsMapping {
         PartyFlags partyFlagsSignLanguage = null;
         if (signLanguageType.isPresent()) {
             partyFlagsSignLanguage = PartyFlags.builder()
-                .flagId(PartyFlagsMap.SIGN_LANGUAGE_TYPE.getFlagId())
-                .flagDescription(PartyFlagsMap.SIGN_LANGUAGE_TYPE.getFlagDescription())
-                .flagParentId(PartyFlagsMap.SIGN_LANGUAGE_TYPE.getParentId())
+                .flagId(SIGN_LANGUAGE_TYPE.getFlagId())
+                .flagDescription(SIGN_LANGUAGE_TYPE.getFlagDescription())
+                .flagParentId(SIGN_LANGUAGE_TYPE.getParentId())
                 .build();
         }
         return partyFlagsSignLanguage;
@@ -50,9 +58,10 @@ public class PartyFlagsMapping {
         PartyFlags partyFlagsDisabledAccess = null;
         if (arrangements.isPresent() && arrangements.get().contains("disabledAccess")) {
             partyFlagsDisabledAccess = PartyFlags.builder()
-                .flagId(PartyFlagsMap.DISABLED_ACCESS.getFlagId())
-                .flagDescription(PartyFlagsMap.DISABLED_ACCESS.getFlagDescription())
-                .flagParentId(PartyFlagsMap.DISABLED_ACCESS.getParentId()).build();
+                .flagId(DISABLED_ACCESS.getFlagId())
+                .flagDescription(DISABLED_ACCESS.getFlagDescription())
+                .flagParentId(DISABLED_ACCESS.getParentId())
+                .build();
         }
         return partyFlagsDisabledAccess;
     }
@@ -65,9 +74,10 @@ public class PartyFlagsMapping {
         PartyFlags hearingLoop = null;
         if (arrangements.isPresent() && arrangements.get().contains("hearingLoop")) {
             hearingLoop = PartyFlags.builder()
-                .flagId(PartyFlagsMap.HEARING_LOOP.getFlagId())
-                .flagDescription(PartyFlagsMap.HEARING_LOOP.getFlagDescription())
-                .flagParentId(PartyFlagsMap.HEARING_LOOP.getParentId()).build();
+                .flagId(HEARING_LOOP.getFlagId())
+                .flagDescription(HEARING_LOOP.getFlagDescription())
+                .flagParentId(HEARING_LOOP.getParentId())
+                .build();
         }
         return hearingLoop;
     }
@@ -77,9 +87,10 @@ public class PartyFlagsMapping {
         PartyFlags confidentialCase = null;
         if (isConfidentialCase == YesNo.YES) {
             confidentialCase = PartyFlags.builder()
-                .flagId(PartyFlagsMap.IS_CONFIDENTIAL_CASE.getFlagId())
-                .flagDescription(PartyFlagsMap.IS_CONFIDENTIAL_CASE.getFlagDescription())
-                .flagParentId(PartyFlagsMap.IS_CONFIDENTIAL_CASE.getParentId()).build();
+                .flagId(IS_CONFIDENTIAL_CASE.getFlagId())
+                .flagDescription(IS_CONFIDENTIAL_CASE.getFlagDescription())
+                .flagParentId(IS_CONFIDENTIAL_CASE.getParentId())
+                .build();
         }
         return confidentialCase;
     }
@@ -89,9 +100,9 @@ public class PartyFlagsMapping {
         PartyFlags dwpUcbPartyFlag = null;
         if (dwpUcb != null) {
             dwpUcbPartyFlag = PartyFlags.builder()
-                .flagId(PartyFlagsMap.DWP_UCB.getFlagId())
-                .flagDescription(PartyFlagsMap.DWP_UCB.getFlagDescription())
-                .flagParentId(PartyFlagsMap.DWP_UCB.getParentId()).build();
+                .flagId(DWP_UCB.getFlagId())
+                .flagDescription(DWP_UCB.getFlagDescription())
+                .flagParentId(DWP_UCB.getParentId()).build();
         }
         return  dwpUcbPartyFlag;
     }
@@ -101,9 +112,9 @@ public class PartyFlagsMapping {
         PartyFlags dwpPhmePartyFlag = null;
         if (dwpPhme != null) {
             dwpPhmePartyFlag = PartyFlags.builder()
-                .flagId(PartyFlagsMap.DWP_PHME.getFlagId())
-                .flagDescription(PartyFlagsMap.DWP_PHME.getFlagDescription())
-                .flagParentId(PartyFlagsMap.DWP_PHME.getParentId()).build();
+                .flagId(DWP_PHME.getFlagId())
+                .flagDescription(DWP_PHME.getFlagDescription())
+                .flagParentId(DWP_PHME.getParentId()).build();
         }
         return dwpPhmePartyFlag;
     }
@@ -113,22 +124,22 @@ public class PartyFlagsMapping {
         PartyFlags urgentCasePartyFlag = null;
         if (urgentCase != null) {
             urgentCasePartyFlag = PartyFlags.builder()
-                .flagId(PartyFlagsMap.URGENT_CASE.getFlagId())
-                .flagDescription(PartyFlagsMap.URGENT_CASE.getFlagDescription())
-                .flagParentId(PartyFlagsMap.URGENT_CASE.getParentId()).build();
+                .flagId(URGENT_CASE.getFlagId())
+                .flagDescription(URGENT_CASE.getFlagDescription())
+                .flagParentId(URGENT_CASE.getParentId()).build();
         }
         return urgentCasePartyFlag;
     }
 
     private PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
         var adjournCaseInterpreterLanguage = caseData.getAdjournCaseInterpreterLanguage();
-        PartyFlags adjourncaseilpartyflag = null;
+        PartyFlags adjournCasePartyFlag = null;
         if (adjournCaseInterpreterLanguage != null) {
-            adjourncaseilpartyflag = PartyFlags.builder()
-                .flagId(PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
-                .flagDescription(PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
-                .flagParentId(PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();
+            adjournCasePartyFlag = PartyFlags.builder()
+                .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
+                .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
+                .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();
         }
-        return adjourncaseilpartyflag;
+        return adjournCasePartyFlag;
     }
 }

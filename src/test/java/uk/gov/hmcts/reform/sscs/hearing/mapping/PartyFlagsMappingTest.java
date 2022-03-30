@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.service;
+package uk.gov.hmcts.reform.sscs.hearing.mapping;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -6,10 +6,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMapping;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlags;
 
-import java.util.ArrayList;
 import java.util.List;
 
 class PartyFlagsMappingTest {
@@ -67,24 +65,22 @@ class PartyFlagsMappingTest {
     }
 
     private List<PartyFlags> getPartyFlags() {
-        List<PartyFlags> partyFlagsList = new ArrayList<>();
-        partyFlagsList.add(PartyFlags.builder().flagId("44").flagParentId("10")
-                               .flagDescription("Sign Language Interpreter").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("21").flagParentId("6")
-                               .flagDescription("Step free / wheelchair access").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("45").flagParentId("11")
-                               .flagDescription("Hearing loop (hearing enhancement system)").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("53").flagParentId("2")
-                               .flagDescription("Confidential address").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("56").flagParentId("2")
-                               .flagDescription("Unacceptable customer behaviour").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("63").flagParentId("1")
-                               .flagDescription("Potentially harmful medical evidence").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("67").flagParentId("1")
-                               .flagDescription("Urgent flag").build());
-        partyFlagsList.add(PartyFlags.builder().flagId("70").flagParentId("2")
-                               .flagDescription("Language Interpreter").build());
-
-        return partyFlagsList;
+        return List.of(
+            PartyFlags.builder().flagId("44").flagParentId("10")
+                .flagDescription("Sign Language Interpreter").build(),
+            PartyFlags.builder().flagId("21").flagParentId("6")
+                .flagDescription("Step free / wheelchair access").build(),
+            PartyFlags.builder().flagId("45").flagParentId("11")
+                .flagDescription("Hearing loop (hearing enhancement system)").build(),
+            PartyFlags.builder().flagId("53").flagParentId("2")
+                .flagDescription("Confidential address").build(),
+            PartyFlags.builder().flagId("56").flagParentId("2")
+                .flagDescription("Unacceptable customer behaviour").build(),
+            PartyFlags.builder().flagId("63").flagParentId("1")
+                .flagDescription("Potentially harmful medical evidence").build(),
+            PartyFlags.builder().flagId("67").flagParentId("1")
+                .flagDescription("Urgent flag").build(),
+            PartyFlags.builder().flagId("70").flagParentId("2")
+                .flagDescription("Language Interpreter").build());
     }
 }
