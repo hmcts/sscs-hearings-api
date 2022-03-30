@@ -3,14 +3,18 @@ package uk.gov.hmcts.reform.sscs.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildHearingPayload;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildRelatedParties;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.updateIds;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -20,11 +24,14 @@ public class HearingsService {
 
     private final HmcHearingApi hmcHearingApi;
 
+    private final CcdCaseService ccdCaseService;
+
     private final IdamService idamService;
 
-    public HearingsService(HmcHearingApi hmcHearingApi,
+    public HearingsService(HmcHearingApi hmcHearingApi, CcdCaseService ccdCaseService,
                            IdamService idamService) {
         this.hmcHearingApi = hmcHearingApi;
+        this.ccdCaseService = ccdCaseService;
         this.idamService = idamService;
     }
 
@@ -43,11 +50,12 @@ public class HearingsService {
 
         switch (wrapper.getState()) {
             case CREATE_HEARING:
-                createHearing(wrapper);
+                updateIds(wrapper);
+                HmcHearingResponse response = sendCreateHearingRequest(wrapper);
+                updateCaseHearingId(wrapper, response.getHearingRequestId());
                 break;
             case UPDATE_HEARING:
-                updateHearing(wrapper);
-                // TODO Call hearingPut method
+                sendUpdateHearingRequest(wrapper);
                 break;
             case UPDATED_CASE:
                 updatedCase(wrapper);
@@ -68,11 +76,31 @@ public class HearingsService {
         }
     }
 
-    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+    private void updateCaseHearingId(HearingWrapper wrapper, Long hearingId) {
+        SscsCaseData caseData = wrapper.getOriginalCaseData();
+        caseData.getSchedulingAndListingFields().setActiveHearingId(hearingId);
+        try {
+            ccdCaseService.updateCaseDetails(caseData, EventType.HEARING_BOOKED,
+                                             "Case Updated", "Active hearing ID set");
+        } catch (UpdateCaseException e) {
+            //Error handling? Should we do anything here?
+            e.printStackTrace();
+        }
+    }
+
+    private HmcHearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
         HearingRequestPayload payload = buildHearingPayload(wrapper);
 
         return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(), payload);
+    }
+
+    private void sendUpdateHearingRequest(HearingWrapper wrapper) {
+        hmcHearingApi.updateHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingId().toString(),
+            buildHearingPayload(wrapper));
     }
 
     private void createHearing(HearingWrapper wrapper) {
@@ -80,11 +108,6 @@ public class HearingsService {
         buildRelatedParties(wrapper);
         sendCreateHearingRequest(wrapper);
         // TODO Store response with SSCS-10274
-    }
-
-
-    private void updateHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing's details are updated
     }
 
     private void updatedCase(HearingWrapper wrapper) {
