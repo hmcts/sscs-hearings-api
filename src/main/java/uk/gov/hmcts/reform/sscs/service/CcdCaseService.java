@@ -45,12 +45,11 @@ public class CcdCaseService {
 
     }
 
-    public SscsCaseDetails updateCaseDetails(
-            SscsCaseData caseData, EventType event, String summary, String description) throws UpdateCaseException {
+    public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description) throws UpdateCaseException {
 
         long caseId = Long.parseLong(caseData.getCcdCaseId());
 
-        log.info("Updating case details using Case id : {}", caseId);
+        log.info("Updating case data using Case id : {}", caseId);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
 
