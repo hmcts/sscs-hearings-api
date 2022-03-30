@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload.HearingRequestPayloadBuilder;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails.IndividualDetailsBuilder;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails.PartyDetailsBuilder;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails.RequestDetailsBuilder;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange.UnavailabilityRangeBuilder;
 
 import java.time.LocalDate;
@@ -24,8 +25,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.*;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails.*;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 
 @SuppressWarnings({"PMD.LinguisticNaming","PMD.UnnecessaryLocalBeforeReturn"})
 // TODO Unsuppress in future
@@ -55,20 +55,22 @@ public final class HearingsMapping {
         Appellant appellant = appeal.getAppellant();
         Integer maxId = getMaxId(caseData.getOtherParties(), appellant);
         updateEntityId(appellant, maxId);
-        if (nonNull(appellant.getAppointee())){
+        if (nonNull(appellant.getAppointee())) {
             updateEntityId(appellant.getAppointee(), maxId);
         }
-        if (nonNull(appeal.getRep())){
+        if (nonNull(appeal.getRep())) {
             updateEntityId(appellant.getRep(), maxId);
         }
-        for (CcdValue<OtherParty> otherPartyCcdValue: caseData.getOtherParties()) {
-            OtherParty otherParty = otherPartyCcdValue.getValue();
-            updateEntityId(otherParty, maxId);
-            if (nonNull(otherParty.getAppointee())){
-                updateEntityId(otherParty.getAppointee(), maxId);
-            }
-            if (nonNull(otherParty.getRep())){
-                updateEntityId(otherParty.getRep(), maxId);
+        if (nonNull(caseData.getOtherParties())) {
+            for (CcdValue<OtherParty> otherPartyCcdValue : caseData.getOtherParties()) {
+                OtherParty otherParty = otherPartyCcdValue.getValue();
+                updateEntityId(otherParty, maxId);
+                if (nonNull(otherParty.getAppointee())) {
+                    updateEntityId(otherParty.getAppointee(), maxId);
+                }
+                if (nonNull(otherParty.getRep())) {
+                    updateEntityId(otherParty.getRep(), maxId);
+                }
             }
         }
     }
@@ -83,10 +85,12 @@ public final class HearingsMapping {
 
     public static int getMaxId(List<CcdValue<OtherParty>> otherParties, Party appellant) {
         List<Integer> currentIds = new ArrayList<>();
-
-        for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
-            currentIds.addAll(getMaxId(ccdOtherParty.getValue()));
+        if (nonNull(otherParties)) {
+            for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
+                currentIds.addAll(getMaxId(ccdOtherParty.getValue()));
+            }
         }
+
         currentIds.addAll(getMaxId(appellant));
 
         return currentIds.stream().max(Comparator.naturalOrder()).orElse(0);
@@ -112,27 +116,33 @@ public final class HearingsMapping {
         SscsCaseData caseData = wrapper.getUpdatedCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
-        List<String> allPartiesIds = caseData.getOtherParties().stream()
-                .map(o -> o.getValue().getId())
-                .collect(Collectors.toList());
+        List<String> allPartiesIds = new ArrayList<>();
+        if (nonNull(caseData.getOtherParties())) {
+            allPartiesIds.addAll(caseData.getOtherParties().stream()
+                    .map(o -> o.getValue().getId())
+                    .collect(Collectors.toList()));
+        }
+
         allPartiesIds.add(appellant.getId());
         updateEntityRelatedParties(appellant, APPELLANT, allPartiesIds);
-        if (isYes(appellant.getIsAppointee()) && nonNull(appellant.getAppointee())){
+        if (isYes(appellant.getIsAppointee()) && nonNull(appellant.getAppointee())) {
             updateEntityRelatedParties(appellant.getAppointee(), APPOINTEE, List.of(appellant.getId()));
         }
         Representative rep = appeal.getRep();
-        if (nonNull(rep) && isYes(rep.getHasRepresentative())){
+        if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
             updateEntityRelatedParties(appellant.getRep(), REPRESENTATIVE, List.of(appellant.getId()));
         }
 
-        for (CcdValue<OtherParty> otherPartyCcdValue: caseData.getOtherParties()) {
-            OtherParty otherParty = otherPartyCcdValue.getValue();
-            updateEntityRelatedParties(otherParty, OTHER_PARTY, allPartiesIds);
-            if (otherParty.hasAppointee() && nonNull(otherParty.getAppointee())){
-                updateEntityRelatedParties(otherParty.getAppointee(), APPOINTEE, List.of(otherParty.getId()));
-            }
-            if (otherParty.hasRepresentative() && nonNull(otherParty.getRep())){
-                updateEntityRelatedParties(otherParty.getRep(), REPRESENTATIVE, List.of(otherParty.getId()));
+        if (nonNull(caseData.getOtherParties())) {
+            for (CcdValue<OtherParty> otherPartyCcdValue: caseData.getOtherParties()) {
+                OtherParty otherParty = otherPartyCcdValue.getValue();
+                updateEntityRelatedParties(otherParty, OTHER_PARTY, allPartiesIds);
+                if (otherParty.hasAppointee() && nonNull(otherParty.getAppointee())) {
+                    updateEntityRelatedParties(otherParty.getAppointee(), APPOINTEE, List.of(otherParty.getId()));
+                }
+                if (otherParty.hasRepresentative() && nonNull(otherParty.getRep())) {
+                    updateEntityRelatedParties(otherParty.getRep(), REPRESENTATIVE, List.of(otherParty.getId()));
+                }
             }
         }
     }
@@ -163,7 +173,7 @@ public final class HearingsMapping {
     }
 
     public static RequestDetails createHmcRequestDetails(HearingWrapper wrapper) {
-        RequestDetailsBuilder hmcRequestDetailsBuilder = builder();
+        RequestDetailsBuilder hmcRequestDetailsBuilder = RequestDetails.builder();
         hmcRequestDetailsBuilder.versionNumber(wrapper.getUpdatedCaseData().getSchedulingAndListingFields().getActiveHearingVersionNumber());
         return hmcRequestDetailsBuilder.build();
     }
@@ -171,7 +181,6 @@ public final class HearingsMapping {
     public static List<PartyDetails> createHearingPartiesDetails(HearingWrapper wrapper) {
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        List<CcdValue<OtherParty>> otherParties = wrapper.getUpdatedCaseData().getOtherParties();
         Appeal appeal = wrapper.getUpdatedCaseData().getAppeal();
         Appellant appellant = appeal.getAppellant();
 
@@ -183,32 +192,32 @@ public final class HearingsMapping {
             partiesDetails.add(createHearingPartyDetails(appellant.getRep(),appeal.getHearingOptions(), appeal.getHearingType(), appeal.getHearingSubtype()));
         }
 
-        for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
-            OtherParty otherParty = ccdOtherParty.getValue();
-            partiesDetails.add(createHearingPartyDetails(otherParty, otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
-            if (otherParty.hasAppointee() && nonNull(otherParty.getAppointee())) {
-                partiesDetails.add(createHearingPartyDetails(otherParty.getAppointee(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
-            }
-            if (otherParty.hasRepresentative() && nonNull(otherParty.getRep())) {
-                partiesDetails.add(createHearingPartyDetails(otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
+        List<CcdValue<OtherParty>> otherParties = wrapper.getUpdatedCaseData().getOtherParties();
+
+        if (nonNull(otherParties)) {
+            for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
+                OtherParty otherParty = ccdOtherParty.getValue();
+                partiesDetails.add(createHearingPartyDetails(otherParty, otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
+                if (otherParty.hasAppointee() && nonNull(otherParty.getAppointee())) {
+                    partiesDetails.add(createHearingPartyDetails(otherParty.getAppointee(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
+                }
+                if (otherParty.hasRepresentative() && nonNull(otherParty.getRep())) {
+                    partiesDetails.add(createHearingPartyDetails(otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
+                }
             }
         }
+
         return partiesDetails;
     }
 
     public static PartyDetails createHearingPartyDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype) {
         PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
-        PartyType partyType = getPartyType(entity);
-
         partyDetails.partyID(getPartyId(entity));
-        partyDetails.partyType(partyType.getPartyLabel());
+        partyDetails.partyType(getPartyType(entity));
         partyDetails.partyRole(getPartyRole(entity));
-        if (PartyType.IND.equals(partyType)) {
-            partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype));
-        } else if (PartyType.ORG.equals(partyType)) {
-            partyDetails.organisationDetails(getPartyOrganisationDetails(entity));
-        }
+        partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype));
+        partyDetails.organisationDetails(getPartyOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
 
@@ -239,10 +248,8 @@ public final class HearingsMapping {
         return role;
     }
 
-    public static PartyType getPartyType(Entity entity) {
-        // TODO Lucas - Talk to Andrew about this
-        //      ORG or IND
-        return null;
+    public static String getPartyType(Entity entity) {
+        return isNotBlank(entity.getOrganisation()) ? PartyType.ORG.name() : PartyType.IND.name();
     }
 
     public static List<UnavailabilityRange> getPartyUnavailabilityRange(HearingOptions hearingOptions) {
@@ -276,8 +283,8 @@ public final class HearingsMapping {
         individualDetails.preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype));
         individualDetails.interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions));
         individualDetails.reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions));
-        individualDetails.vulnerableFlag(getIndividualVulnerableFlag(entity));
-        individualDetails.vulnerabilityDetails(getIndividualVulnerabilityDetails(entity));
+        individualDetails.vulnerableFlag(getIndividualVulnerableFlag());
+        individualDetails.vulnerabilityDetails(getIndividualVulnerabilityDetails());
         individualDetails.hearingChannelEmail(getIndividualHearingChannelEmail(entity));
         individualDetails.hearingChannelPhone(getIndividualHearingChannelPhone(entity));
         individualDetails.relatedParties(getIndividualRelatedParties(entity));
@@ -320,14 +327,12 @@ public final class HearingsMapping {
         return hmcArrangements;
     }
 
-    public static boolean getIndividualVulnerableFlag(Entity entity) {
-        // TODO To be done by SSCS-10227
-        return isYes(entity.getVulnerableFlag());
+    public static boolean getIndividualVulnerableFlag() {
+        return false;
     }
 
-    public static String getIndividualVulnerabilityDetails(Entity entity) {
-        // TODO To be done by SSCS-10227?
-        return entity.getVulnerabilityDetails();
+    public static String getIndividualVulnerabilityDetails() {
+        return null;
     }
 
     public static String getIndividualHearingChannelEmail(Entity entity) {
@@ -347,6 +352,7 @@ public final class HearingsMapping {
         }
         return isNotBlank(phoneNumber) ? phoneNumber : null;
     }
+
     public static List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> getIndividualRelatedParties(Entity entity) {
         return entity.getRelatedParties().stream()
                 .map(o -> uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty.builder()
@@ -357,24 +363,22 @@ public final class HearingsMapping {
 
     }
 
-    public static OrganisationDetails getPartyOrganisationDetails(Entity entity) {
-        // TODO Lucas - Talking to Andrew
+    public static OrganisationDetails getPartyOrganisationDetails() {
+        // TODO Future Work
         return null;
     }
 
-    // TODO Check whether some of these fields need further mapping - SSCS-10273
     public static HearingDetails createHearingRequestDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getOriginalCaseData();
 
         var requestDetailsBuilder = HearingDetails.builder();
 
-        boolean caseLinked = isCaseLinked(caseData);
-        boolean autoListed = shouldBeAutoListed(caseData, caseLinked);
+        boolean autoListed = shouldBeAutoListed();
 
         requestDetailsBuilder.autolistFlag(autoListed);
-        requestDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag(caseData));
+        requestDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag());
 
-        requestDetailsBuilder.hearingIsLinkedFlag(caseLinked);
+        requestDetailsBuilder.hearingIsLinkedFlag(isCaseLinked());
         requestDetailsBuilder.hearingType(getHearingType(caseData));  // Assuming key is what is required.
         requestDetailsBuilder.hearingWindow(buildHearingWindow(caseData, autoListed));
         requestDetailsBuilder.duration(getHearingDuration(caseData));
@@ -383,7 +387,7 @@ public final class HearingsMapping {
         requestDetailsBuilder.hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
         requestDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
         requestDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
-        requestDetailsBuilder.leadJudgeContractType(getLeadJudgeContractType(caseData));
+        requestDetailsBuilder.leadJudgeContractType(getLeadJudgeContractType());
         requestDetailsBuilder.panelRequirements(getPanelRequirements(caseData));
         //requestDetailsBuilder.numberOfPhysicalAttendees(); ---- TODO Implementation to be done by SSCS-10260
         //requestDetailsBuilder.hearingRequester(); ---- TODO Implementation to be done by SSCS-10260. Optional?
@@ -406,7 +410,7 @@ public final class HearingsMapping {
         caseDetailsBuilder.caseInterpreterRequiredFlag(isInterpreterRequired(caseData.getAdjournCaseInterpreterRequired()));
         caseDetailsBuilder.caseCategories(buildCaseCategories(caseData));
         caseDetailsBuilder.caseManagementLocationCode(getCaseManagementLocationCode(caseData.getCaseManagementLocation()));
-        caseDetailsBuilder.caseRestrictedFlag(shouldBeSensitiveFlag(caseData));
+        caseDetailsBuilder.caseRestrictedFlag(shouldBeSensitiveFlag());
         caseDetailsBuilder.caseSlaStartDate(caseData.getCaseCreated());
 
         return caseDetailsBuilder.build();
@@ -429,9 +433,9 @@ public final class HearingsMapping {
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
-        // TODO Lucas - check this is correct and if any additional logic is needed
+        // TODO Del - check this is correct and if any additional logic is needed
         LocalDate dateRangeStart = null;
-        LocalDate dateRangeEnd = null;;
+        LocalDate dateRangeEnd = null;
 
         if (autoListed && nonNull(caseData.getEvents())) {
             Event dwpResponded = caseData.getEvents().stream()
@@ -443,46 +447,42 @@ public final class HearingsMapping {
         }
 
         return HearingWindow.builder()
-            .firstDateTimeMustBe(getFirstDateTimeMustBe(caseData))
+            .firstDateTimeMustBe(getFirstDateTimeMustBe())
             .dateRangeStart(dateRangeStart)
             .dateRangeEnd(dateRangeEnd)
             .build();
     }
 
-    public static LocalDateTime getFirstDateTimeMustBe(SscsCaseData caseData) {
-        LocalDateTime firstDateTimeMustBe = null;
+    public static LocalDateTime getFirstDateTimeMustBe() {
         // TODO Adjournments - Find out how to use adjournCase data to work this out, possibly related variables:
         //      adjournCaseNextHearingDateType, adjournCaseNextHearingDateOrPeriod, adjournCaseNextHearingDateOrTime,
         //      adjournCaseNextHearingFirstAvailableDateAfterDate, adjournCaseNextHearingFirstAvailableDateAfterPeriod
-        // TODO Lucas - Needs manual override for judge
-        return firstDateTimeMustBe;
+        // TODO Future Work for override
+        return null;
     }
 
-    public static boolean shouldBeAutoListed(SscsCaseData caseData, boolean caseLinked) {
-        boolean isYes = caseLinked;
-        // TODO To be done by SSCS-10227
-        return isYes;
+    public static boolean shouldBeAutoListed() {
+        // TODO Future Work
+        return true;
     }
 
-    public static boolean shouldBeHearingsInWelshFlag(SscsCaseData caseData) {
-        boolean isYes = false;
-        // TODO To be done by SSCS-10227
-        return isYes;
+    public static boolean shouldBeHearingsInWelshFlag() {
+        // TODO Future Work
+        return false;
     }
 
     public static boolean shouldBeAdditionalSecurityFlag(SscsCaseData caseData) {
         boolean isYes = false;
-        // TODO To be done by SSCS-10227
+        // TODO To be done
         //      Check unacceptableCustomerBehaviour for Appellant, their Appointee and their Representatives
         //      Check unacceptableCustomerBehaviour for each OtherParty, their Appointee and their Representatives
 
         return isYes;
     }
 
-    public static boolean shouldBeSensitiveFlag(SscsCaseData caseData) {
-        boolean isYes = false;
-        // TODO To be done by SSCS-10227
-        return isYes;
+    public static boolean shouldBeSensitiveFlag() {
+        // TODO Future Work
+        return false;
     }
 
     public static String getCaseDeepLink(String ccdCaseId) {
@@ -534,7 +534,7 @@ public final class HearingsMapping {
         return panelPreferences;
     }
 
-    public static String getLeadJudgeContractType(SscsCaseData caseData) {
+    public static String getLeadJudgeContractType() {
         // TODO Implementation to be done by SSCS-10260
         return null;
     }
@@ -611,14 +611,14 @@ public final class HearingsMapping {
     public static boolean isInterpreterRequired(String adjournCaseInterpreterRequired) {
         boolean isYes = isYes(adjournCaseInterpreterRequired);
         // TODO Adjournment - Check this is the correct logic for Adjournment
-        // TODO To be done by SSCS-10227
+        // TODO To be done
         return isYes;
     }
 
-    public static boolean isCaseLinked(SscsCaseData caseData) {
-        boolean isYes = nonNull(caseData.getLinkedCase()) && !caseData.getLinkedCase().isEmpty();
+    public static boolean isCaseLinked() {
+        // TODO Future work
+        // boolean isYes = nonNull(caseData.getLinkedCase()) && !caseData.getLinkedCase().isEmpty();
         // driven by benefit or issue, can't be auto listed
-        // TODO To be done by SSCS-10227
-        return isYes;
+        return false;
     }
 }
