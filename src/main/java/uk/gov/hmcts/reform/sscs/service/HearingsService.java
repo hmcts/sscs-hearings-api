@@ -59,6 +59,16 @@ public class HearingsService {
 
     private void createHearing(HearingWrapper wrapper) {
         //TODO Will be replaced when SSCS-10321 is merged
+//        updateFlags(wrapper);
+//
+//        HmcHearing hmcHearing = HmcHearing.builder().value(HmcHearingDetails.builder()
+//                .hmcCaseDetails(createHmcCaseDetails(wrapper))
+//                .hearingRequest(createHearingRequest(wrapper))
+//                .build()).build();
+//        if (isNull(wrapper.getUpdatedCaseData().getHmcHearings())) {
+//            wrapper.getUpdatedCaseData().setHmcHearings(new ArrayList<>());
+//        }
+//        wrapper.getUpdatedCaseData().getHmcHearings().add(hmcHearing);
     }
 
 
@@ -87,7 +97,33 @@ public class HearingsService {
         // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
-    public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response) throws UpdateCaseException {
+    public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
+        // To be called by hearing POST response
+        // HearingResponse hearingResponse = HearingResponse.builder().build();
+        //
+        // hearingResponse.setHearingRequestId(hearingRequestId);
+        // hearingResponse.setHmcStatus(hmcStatus);
+        // hearingResponse.setVersion(version);
+        //
+        // wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingResponse(hearingResponse);
+    }
+
+    public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version) {
+        // To be called by hearing PUT response
+        // HearingResponse hearingResponse = wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse();
+        // hearingResponse.setHmcStatus(hmcStatus);
+        // hearingResponse.setVersion(version);
+    }
+
+    public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version,
+                                      String cancellationReasonCode) {
+        // To be called after hearing Delete response
+        updateHearingResponse(wrapper, hmcStatus, version);
+        // wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse()
+        // wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingCancellationReason(cancellationReasonCode);
+    }
+	
+	public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response) throws UpdateCaseException {
         HearingsServiceHelper.updateHearingId(wrapper, response);
         HearingsServiceHelper.updateVersionNumber(wrapper, response);
         HearingsServiceHelper.addEvent(wrapper);
@@ -98,7 +134,7 @@ public class HearingsService {
                 event.getEventType(),
                 event.getSummary(),
                 event.getDescription());
-    }
+	}
 
 
     private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
