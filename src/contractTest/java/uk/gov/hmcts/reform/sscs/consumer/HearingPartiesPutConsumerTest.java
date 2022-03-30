@@ -42,7 +42,7 @@ public class HearingPartiesPutConsumerTest extends ContractTestDataProvider {
     private static final String VERSION_NUMBER = "123";
 
     @Autowired
-    private uk.gov.hmcts.reform.sscs.service.HmcHearingPartiesNotifiedApi HmcHearingPartiesNotifiedApi;
+    private uk.gov.hmcts.reform.sscs.service.HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
 
     @Pact(consumer = CONSUMER_NAME)
     public RequestResponsePact putHearingRequestForValidRequest(PactDslWithProvider builder) {
@@ -130,7 +130,7 @@ public class HearingPartiesPutConsumerTest extends ContractTestDataProvider {
     @PactTestFor(pactMethod = "putHearingRequestForValidRequest")
     public void shouldSuccessfullyPutHearingRequest() {
 
-        HmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID,
