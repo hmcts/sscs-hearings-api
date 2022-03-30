@@ -90,7 +90,7 @@ public class ContractTestDataProvider {
 
         request.setHearingDetails(hearingDetails());
         request.setCaseDetails(caseDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setPartiesDetails(partyDetails1());
 
         return request;
     }
@@ -98,8 +98,7 @@ public class ContractTestDataProvider {
     public static HearingRequestPayload generateInvalidHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
-        request.setPartyDetails(partyDetails1());
-
+        request.setPartiesDetails(partyDetails1());
         return request;
     }
 
@@ -165,7 +164,7 @@ public class ContractTestDataProvider {
     protected static CaseDetails caseDetails() {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
-        caseDetails.setCaseRef("ba12");
+        caseDetails.setCaseId("12");
         caseDetails.setCaseDeepLink("https://www.google.com");
         caseDetails.setHmctsInternalCaseName("Internal case name");
         caseDetails.setPublicCaseName("Public case name");
@@ -219,8 +218,8 @@ public class ContractTestDataProvider {
         panelSpecialisms.add("Specialism 5");
 
         PanelRequirements panelRequirements = new PanelRequirements();
-        panelRequirements.setRoleType(roleType);
-        panelRequirements.setAuthorisationSubType(authorisationSubType);
+        panelRequirements.setRoleTypes(roleType);
+        panelRequirements.setAuthorisationSubTypes(authorisationSubType);
         panelRequirements.setPanelPreferences(panelPreferences);
         panelRequirements.setPanelSpecialisms(panelSpecialisms);
         panelRequirements.setAuthorisationTypes(authorisationTypes);
@@ -273,10 +272,10 @@ public class ContractTestDataProvider {
 
     private static List<RelatedParty> createRelatedParties() {
         RelatedParty relatedParty1 = new RelatedParty();
-        relatedParty1.setRelatedPartyID("relatedParty1111");
+        relatedParty1.setRelatedPartyId("relatedParty1111");
         relatedParty1.setRelationshipType("Family");
         RelatedParty relatedParty2 = new RelatedParty();
-        relatedParty2.setRelatedPartyID("relatedParty3333");
+        relatedParty2.setRelatedPartyId("relatedParty3333");
         relatedParty2.setRelationshipType("Blood Brother");
 
         List<RelatedParty> relatedParties = new ArrayList<>();

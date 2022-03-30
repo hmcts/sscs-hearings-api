@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum CaseCategoryType {
 
-    CASETYPE("caseType"),
-    CASESUBTYPE("caseSubType");
+    CATEGORY_TYPE("caseType"),
+    CASE_SUBTYPE("caseSubType");
 
     private final String categoryLabel;
 }

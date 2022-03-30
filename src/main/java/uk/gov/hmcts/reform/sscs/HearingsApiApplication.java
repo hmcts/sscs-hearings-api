@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletContextListener;
 
-
 @SpringBootApplication
 @EnableScheduling
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
