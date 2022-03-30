@@ -1,14 +1,18 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 import uk.gov.hmcts.reform.sscs.model.Message;
 
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,18 +24,34 @@ public class AppInsightsServiceTest {
     private static final String ERROR_CODE = "error code";
     private static final String ERROR_MESSAGE = "error message";
 
-    private AppInsightsService appInsightsService;
+    private Message message;
 
     @BeforeEach
     public void setUp() {
-        appInsightsService = new AppInsightsService();
+        message = messageInit();
     }
 
     @Test
     public void testAppInsightsServiceDoesNotThrowJpe() {
-        Message message = messageInit();
+        AppInsightsService appInsightsService = new AppInsightsService(new ObjectMapper());
 
-        assertThatNoException().isThrownBy(() -> appInsightsService.sendAppInsightsEvent(message));
+        assertThatNoException().isThrownBy(
+            () -> appInsightsService.sendAppInsightsEvent(message)
+        );
+    }
+
+    @Test
+    public void test() throws JsonProcessingException {
+        ObjectMapper om = Mockito.spy(new ObjectMapper());
+        om.findAndRegisterModules();
+
+        AppInsightsService appInsightsService = new AppInsightsService(om);
+
+        Mockito.when(om.writeValueAsString(message)).thenThrow(JsonProcessingException.class);
+
+        assertThatExceptionOfType(JsonProcessingException.class).isThrownBy(
+            () -> appInsightsService.sendAppInsightsEvent(message)
+        );
     }
 
     private Message messageInit() {

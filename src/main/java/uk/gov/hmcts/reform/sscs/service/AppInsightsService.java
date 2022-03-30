@@ -13,22 +13,26 @@ import uk.gov.hmcts.reform.sscs.model.Message;
 public class AppInsightsService {
 
     private final TelemetryClient client = new TelemetryClient();
+    private final ObjectMapper om;
+
+    public AppInsightsService(ObjectMapper om) {
+        this.om = om;
+    }
 
     public void sendAppInsightsEvent(Message message) throws JsonProcessingException {
         String serialisedMessage = messageToJson(message);
 
         client.trackEvent(new EventTelemetry(serialisedMessage));
-        log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID().toString());
+        log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID());
     }
 
     private String messageToJson(Message message) throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
         om.findAndRegisterModules();
 
         try {
             return om.writeValueAsString(message);
         } catch (JsonProcessingException jpe) {
-            log.error("HMC failure message JsonProcessingException for Case ID: {}", message.getCaseID().toString());
+            log.error("HMC failure message JsonProcessingException for Case ID: {}", message.getCaseID());
             throw jpe;
         }
     }
