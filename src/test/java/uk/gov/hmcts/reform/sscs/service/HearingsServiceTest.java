@@ -1,30 +1,77 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingState;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_HEARING_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.HearingState.CREATE_HEARING;
 
 class HearingsServiceTest {
 
-    final String hearingRequestId = "12345";
-    final String hmcStatus = "TestStatus";
-    final Number version = 123;
-    final String cancellationReasonCode = "TestCancelCode";
+    public static final long HEARING_REQUEST_ID = 12345;
+    public static final String HMC_STATUS = "TestStatus";
+    public static final long VERSION = 1;
+    public static final String CANCELLATION_REASON_CODE = "TestCancelCode";
+    public static final String IDAM_OAUTH2_TOKEN = "TestOauth2Token";
+    public static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
+    private static final long CASE_ID = 1625080769409918L;
+    private static final long MISSING_CASE_ID = 99250807409918L;
+    public static final String EPIMS_ID = "239785";
+    public static final String REGION = "Region A";
 
-    final HearingsService hearingsService = new HearingsService();
+    public static SscsCaseData caseData;
+
+    @Mock
+    private HmcHearingApi hmcHearingApi;
+
+    @Mock
+    private IdamService idamService;
+
+    private HearingsService hearingsService;
+    private HearingWrapper wrapper;
+
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+
+        caseData = SscsCaseData.builder()
+                .ccdCaseId(String.valueOf(CASE_ID))
+                .appeal(Appeal.builder()
+                        .appellant(Appellant.builder()
+                                .name(Name.builder().build())
+                                .build())
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+                .caseManagementLocation(CaseManagementLocation.builder()
+                        .baseLocation(EPIMS_ID)
+                        .region(REGION)
+                        .build())
+                .build();
+
+        wrapper = HearingWrapper.builder()
+                .event(UPDATE_HEARING_TYPE)
+                .state(CREATE_HEARING)
+                .originalCaseData(caseData)
+                .updatedCaseData(caseData)
+                .build();
+
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
+
+        hearingsService = new HearingsService(hmcHearingApi, idamService);
+    }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
     @ParameterizedTest
@@ -37,21 +84,9 @@ class HearingsServiceTest {
     }, nullValues = {"null"})
     void processHearingRequest(EventType event, HearingState state) {
         // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId("12345")
-                .appeal(Appeal.builder().build())
-                .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .event(event)
-                .state(state)
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
-                .build();
+        wrapper.setEvent(event);
+        wrapper.setState(state);
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingRequest(wrapper));
-
-        if (HearingState.CREATE_HEARING.equals(wrapper.getState())) {
-            assertNotNull(wrapper.getUpdatedCaseData().getLatestHmcHearing());
-        }
     }
 
     @DisplayName("When wrapper with a invalid Hearing State is given "
@@ -62,110 +97,10 @@ class HearingsServiceTest {
     }, nullValues = {"null"})
     void processHearingRequestInvalidState(EventType event, HearingState state) {
         // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId("12345")
-                .appeal(Appeal.builder().build())
-                .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .event(event)
-                .state(state)
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
-                .build();
+        wrapper.setEvent(event);
+        wrapper.setState(state);
 
         assertThatExceptionOfType(UnhandleableHearingState.class).isThrownBy(
                 () -> hearingsService.processHearingRequest(wrapper));
-    }
-
-    @DisplayName("When wrapper with a invalid Event Type is given addHearingResponse should run without error")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "SENT_TO_DWP,UPDATE_HEARING",
-        "null,CREATE_HEARING",
-        "CREATE_DRAFT,UPDATE_HEARING",
-        "null,null",
-    }, nullValues = {"null"})
-    void processHearingRequestInvalidEvent(EventType event, HearingState state) {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId("12345")
-                .appeal(Appeal.builder().build())
-                .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .event(event)
-                .state(state)
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
-                .build();
-
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingRequest(wrapper));
-    }
-
-    @Test
-    @DisplayName("When wrapper with no HearingResponse is given "
-            + "addHearingResponse should return a new valid HearingResponse")
-    void addHearingResponse() {
-        List<HmcHearing> hearings = new ArrayList<>();
-        hearings.add(HmcHearing.builder().value(HmcHearingDetails.builder().build()).build());
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .updatedCaseData(SscsCaseData.builder().hmcHearings(hearings).build()).build();
-        hearingsService.addHearingResponse(wrapper, hearingRequestId, hmcStatus, version);
-        assertNotNull(wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse());
-        assertEquals(hearingRequestId,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHearingRequestId());
-        assertEquals(hmcStatus,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHmcStatus());
-        assertEquals(version,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getVersion());
-    }
-
-    @Test
-    @DisplayName("When wrapper with a valid HearingResponse is given "
-            + "updateHearingResponse should return updated valid HearingResponse")
-    void updateHearingResponse() {
-        List<HmcHearing> hearings = new ArrayList<>();
-        hearings.add(HmcHearing.builder().value(HmcHearingDetails.builder()
-                .hearingResponse(HearingResponse.builder()
-                        .hearingRequestId(hearingRequestId)
-                        .hmcStatus("Test Status Before")
-                        .version(0)
-                        .build())
-                .build()).build());
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .updatedCaseData(SscsCaseData.builder().hmcHearings(hearings).build()).build();
-        hearingsService.updateHearingResponse(wrapper, hmcStatus, version);
-        assertNotNull(wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse());
-        assertEquals(hearingRequestId,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHearingRequestId());
-        assertEquals(hmcStatus,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHmcStatus());
-        assertEquals(version,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getVersion());
-    }
-
-    @Test
-    @DisplayName("When wrapper with a valid HearingResponse and cancellationReasonCode is given "
-            + "updateHearingResponse should return updated valid HearingResponse")
-    void testUpdateHearingResponse() {
-        List<HmcHearing> hearings = new ArrayList<>();
-        hearings.add(HmcHearing.builder().value(HmcHearingDetails.builder()
-                .hearingResponse(HearingResponse.builder()
-                        .hearingRequestId(hearingRequestId)
-                        .hmcStatus("Test Status Before")
-                        .version(0)
-                        .build())
-                .build()).build());
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .updatedCaseData(SscsCaseData.builder().hmcHearings(hearings).build()).build();
-        hearingsService.updateHearingResponse(wrapper, hmcStatus, version, cancellationReasonCode);
-        assertNotNull(wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse());
-        assertEquals(hearingRequestId,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHearingRequestId());
-        assertEquals(hmcStatus,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHmcStatus());
-        assertEquals(version,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getVersion());
-        assertEquals(cancellationReasonCode,
-                wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse().getHearingCancellationReason());
     }
 }
