@@ -89,7 +89,7 @@ public class ContractTestDataProvider {
         request.setRequestDetails(requestDetails());
         request.setHearingDetails(hearingDetails());
         request.setCaseDetails(caseDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setPartiesDetails(partyDetails1());
 
         return request;
     }
@@ -97,7 +97,7 @@ public class ContractTestDataProvider {
     public static HearingRequestPayload generateInvalidHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setPartiesDetails(partyDetails1());
         request.setRequestDetails(requestDetails());
         return request;
     }
@@ -130,7 +130,7 @@ public class ContractTestDataProvider {
 
     protected static RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setVersionNumber(123);
+        requestDetails.setVersionNumber(123L);
         return requestDetails;
     }
 
@@ -164,7 +164,7 @@ public class ContractTestDataProvider {
     protected static CaseDetails caseDetails() {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
-        caseDetails.setCaseRef("ba12");
+        caseDetails.setCaseId("ba12");
         caseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         caseDetails.setCaseDeepLink("https://www.google.com");
         caseDetails.setHmctsInternalCaseName("Internal case name");
@@ -218,8 +218,8 @@ public class ContractTestDataProvider {
         panelSpecialisms.add("Specialism 5");
 
         PanelRequirements panelRequirements = new PanelRequirements();
-        panelRequirements.setRoleType(roleType);
-        panelRequirements.setAuthorisationSubType(authorisationSubType);
+        panelRequirements.setRoleTypes(roleType);
+        panelRequirements.setAuthorisationSubTypes(authorisationSubType);
         panelRequirements.setPanelPreferences(panelPreferences);
         panelRequirements.setPanelSpecialisms(panelSpecialisms);
 
@@ -444,7 +444,7 @@ public class ContractTestDataProvider {
             .stringType("timeStamp", date.toString())
             .stringType("listAssistTransactionID", "ListAssistTransactionID123123")
             .stringType("receivedDateTime", date.toString())
-            .integerType("responseVersion", 321)
+            .integerType("versionNumber", 321)
             .stringType("laCaseStatus", "ACTIVE")
             .stringType("listingStatus", "ACTIVE")
             .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
