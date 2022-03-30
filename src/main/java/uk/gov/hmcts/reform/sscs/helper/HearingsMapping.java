@@ -29,7 +29,6 @@ public final class HearingsMapping {
     public static final String APPELLANT = "Appellant";
 
     private HearingsMapping() {
-
     }
 
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
@@ -41,6 +40,13 @@ public final class HearingsMapping {
         requestPayloadBuilder.partiesDetails(buildHearingPartiesDetails(wrapper));
 
         return requestPayloadBuilder.build();
+    }
+
+    public static HmcHearingRequestPayload buildUpdateHearingPayload(HearingWrapper wrapper) {
+        HmcHearingRequestPayload payload = buildCreateHearingPayload(wrapper);
+        Long versionNumber = wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingVersionNumber();
+        payload.getHmcRequestDetails().setVersionNumber(versionNumber);
+        return payload;
     }
 
     public static void updateIds(HearingWrapper wrapper) {

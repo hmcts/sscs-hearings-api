@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcHearingResponse;
 
 import static java.util.Objects.isNull;
@@ -52,7 +51,7 @@ public class HearingsService {
             case CREATE_HEARING:
                 updateIds(wrapper);
                 HmcHearingResponse response = sendCreateHearingRequest(wrapper);
-                updateCaseHearingId(wrapper, response.getHearingRequestId());
+                updateCaseHearing(wrapper, response);
                 break;
             case UPDATE_HEARING:
                 sendUpdateHearingRequest(wrapper);
@@ -76,12 +75,14 @@ public class HearingsService {
         }
     }
 
-    private void updateCaseHearingId(HearingWrapper wrapper, Long hearingId) {
+    private void updateCaseHearing(HearingWrapper wrapper, HmcHearingResponse response) {
         SscsCaseData caseData = wrapper.getOriginalCaseData();
-        caseData.getSchedulingAndListingFields().setActiveHearingId(hearingId);
+        caseData.getSchedulingAndListingFields().setActiveHearingId(response.getHearingRequestId());
+        caseData.getSchedulingAndListingFields().setActiveHearingVersionNumber(response.getVersionNumber().longValue());
+
         try {
             ccdCaseService.updateCaseDetails(caseData, EventType.HEARING_BOOKED,
-                                             "Case Updated", "Active hearing ID set");
+                "Case Updated", "Active hearing ID and version number set");
         } catch (UpdateCaseException e) {
             //Error handling? Should we do anything here?
             e.printStackTrace();
@@ -89,10 +90,10 @@ public class HearingsService {
     }
 
     private HmcHearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload payload = buildHearingPayload(wrapper);
-
-        return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
-            idamService.getIdamTokens().getServiceAuthorization(), payload);
+        return hmcHearingApi.createHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            buildHearingPayload(wrapper));
     }
 
     private void sendUpdateHearingRequest(HearingWrapper wrapper) {
