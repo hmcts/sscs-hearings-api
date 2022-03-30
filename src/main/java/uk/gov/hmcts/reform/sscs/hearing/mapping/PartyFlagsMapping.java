@@ -27,9 +27,9 @@ public class PartyFlagsMapping {
 
     private PartyFlags mapSignLanguageType(SscsCaseData caseData) {
         var signLanguageType = Optional
-               .ofNullable(caseData.getAppeal())
-               .map(Appeal::getHearingOptions)
-               .map(HearingOptions::getArrangements);
+            .ofNullable(caseData.getAppeal())
+            .map(Appeal::getHearingOptions)
+            .map(HearingOptions::getSignLanguageType);
         PartyFlags partyFlagsSignLanguage = null;
         if (signLanguageType.isPresent()) {
             partyFlagsSignLanguage = PartyFlags.builder()

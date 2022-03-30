@@ -68,47 +68,22 @@ class PartyFlagsMappingTest {
 
     private List<PartyFlags> getPartyFlags() {
         List<PartyFlags> partyFlagsList = new ArrayList<>();
-        var disabledAccess = PartyFlags.builder()
-                                                    .flagId("21")
-                                                    .flagParentId("6")
-                                                    .flagDescription("Step free / wheelchair access").build();
-        var signLanguageType = PartyFlags.builder()
-                                                    .flagId("44")
-                                                    .flagParentId("10")
-                                                    .flagDescription("Sign Language Interpreter").build();
-        var hearingLoop = PartyFlags.builder()
-                                                .flagId("45")
-                                                .flagParentId("11")
-                                                .flagDescription("Hearing loop (hearing enhancement system)").build();
-        var isConfidentialCase =  PartyFlags.builder()
-                                                        .flagId("53")
-                                                        .flagParentId("2")
-                                                        .flagDescription("Confidential address").build();
-        var dwpUcb = PartyFlags.builder()
-                                            .flagId("56")
-                                            .flagParentId("2")
-                                            .flagDescription("Unacceptable customer behaviour").build();
-
-        var dwpPhme =  PartyFlags.builder()
-                                                .flagId("63")
-                                                .flagParentId("1")
-                                                .flagDescription("Potentially harmful medical evidence").build();
-        var urgentCase = PartyFlags.builder()
-                                                .flagId("67")
-                                                .flagParentId("1")
-                                                .flagDescription("Urgent flag").build();
-        var adjournCaseIL = PartyFlags.builder()
-                                                    .flagId("70")
-                                                    .flagParentId("2")
-                                                    .flagDescription("Language Interpreter").build();
-        partyFlagsList.add(signLanguageType);
-        partyFlagsList.add(disabledAccess);
-        partyFlagsList.add(hearingLoop);
-        partyFlagsList.add(isConfidentialCase);
-        partyFlagsList.add(dwpUcb);
-        partyFlagsList.add(dwpPhme);
-        partyFlagsList.add(urgentCase);
-        partyFlagsList.add(adjournCaseIL);
+        partyFlagsList.add(PartyFlags.builder().flagId("44").flagParentId("10")
+                               .flagDescription("Sign Language Interpreter").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("21").flagParentId("6")
+                               .flagDescription("Step free / wheelchair access").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("45").flagParentId("11")
+                               .flagDescription("Hearing loop (hearing enhancement system)").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("53").flagParentId("2")
+                               .flagDescription("Confidential address").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("56").flagParentId("2")
+                               .flagDescription("Unacceptable customer behaviour").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("63").flagParentId("1")
+                               .flagDescription("Potentially harmful medical evidence").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("67").flagParentId("1")
+                               .flagDescription("Urgent flag").build());
+        partyFlagsList.add(PartyFlags.builder().flagId("70").flagParentId("2")
+                               .flagDescription("Language Interpreter").build());
 
         return partyFlagsList;
     }
