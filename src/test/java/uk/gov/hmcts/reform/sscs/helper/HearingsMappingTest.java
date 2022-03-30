@@ -8,8 +8,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
-import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,171 +19,87 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HearingsMappingTest {
 
+    public static final String CASE_ID = "122342343434234";
+
     @Value("${exui.url}")
     private static String exUiUrl;
-
-    final String caseId = "122342343434234";
-
-    @Test
-    @DisplayName("When a valid hearing wrapper is given updateFlags updates the updatedCaseData in the wrapper "
-            + "with the correct flags")
-    void updateFlags() {
-        // TODO Finish Test when method done
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .updatedCaseData(SscsCaseData.builder()
-                        .autoListFlag(YES)
-                        .hearingsInWelshFlag(YES)
-                        .additionalSecurityFlag(NO)
-                        .sensitiveFlag(YES)
-                        .build())
-                .build();
-        HearingsMapping.updateFlags(wrapper);
-
-        assertEquals(YES, wrapper.getUpdatedCaseData().getAutoListFlag());
-        assertEquals(YES, wrapper.getUpdatedCaseData().getHearingsInWelshFlag());
-        assertEquals(NO, wrapper.getUpdatedCaseData().getAdditionalSecurityFlag());
-        assertEquals(YES, wrapper.getUpdatedCaseData().getSensitiveFlag());
-    }
-
-    @Test
-    @DisplayName("When a valid hearing wrapper is given createHmcCaseDetails returns the correct HMC Case Details")
-    void createHmcCaseDetails() {
-        // TODO Finish Test when method done
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .updatedCaseData(SscsCaseData.builder()
-                        .ccdCaseId(caseId)
-                        .caseManagementLocation(CaseManagementLocation.builder()
-                                .baseLocation("Test")
-                                .region("Test")
-                                .build())
-                        .build())
-                .build();
-        HmcCaseDetails result = HearingsMapping.createHmcCaseDetails(wrapper);
-
-        assertEquals(String.format("%s/cases/case-details/%s", exUiUrl, caseId), result.getCaseDeepLink());
-        assertNull(result.getCaseManagementLocationCode());
-    }
 
     @Test
     @DisplayName("When a valid hearing wrapper is given createHearingRequest returns the correct Hearing Request")
     void createHearingRequest() {
         // TODO Finish Test when method done
-        List<Event> events = new ArrayList<>();
-        LocalDateTime testDateTime = LocalDateTime.now();
-        events.add(Event.builder().value(EventDetails.builder()
-                .type(EventType.DWP_RESPOND.getCcdType())
-                .date(testDateTime.toString())
-                .build()).build());
-
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .updatedCaseData(SscsCaseData.builder()
-                        .ccdCaseId(caseId)
-                        .caseManagementLocation(CaseManagementLocation.builder()
-                                .baseLocation("Test")
-                                .region("Test")
-                                .build())
-                        .appeal(Appeal.builder()
-                                .hearingOptions(HearingOptions.builder().other("Test Comment").build())
-                                .build())
-                        .events(events)
-                        .autoListFlag(YES)
-                        .hearingsInWelshFlag(YES)
-                        .sensitiveFlag(YES)
-                        .additionalSecurityFlag(YES)
-                        .adjournCaseInterpreterRequired("Yes")
-                        .urgentCase("Yes")
-                        .build())
-                .build();
-        HearingRequest result = HearingsMapping.createHearingRequest(wrapper);
-
-        assertNotNull(result.getInitialRequestTimestamp());
-        assertEquals(YES, result.getAutoListFlag());
-        assertEquals(YES, result.getInWelshFlag());
-        assertEquals(NO, result.getIsLinkedFlag());
-        assertEquals(YES, result.getAdditionalSecurityFlag());
-        assertEquals(YES, result.getInterpreterRequiredFlag());
-        assertNull(result.getHearingType());
-        assertNull(result.getFirstDateTimeMustBe());
-        HearingWindowRange expectedDateTime = HearingWindowRange.builder()
-                .dateRangeStart(testDateTime.plusMonths(1).toLocalDate()).build();
-        assertEquals(expectedDateTime, result.getHearingWindowRange());
-        assertEquals(30, result.getDuration());
-        assertEquals(HearingPriorityType.HIGH, result.getHearingPriorityType());
-        assertEquals(0, result.getHearingLocations().size());
-        assertEquals(new ArrayList<>(), result.getHearingLocations());
-        assertEquals(0, result.getFacilitiesRequired().size());
-        assertEquals(new ArrayList<>(), result.getFacilitiesRequired());
-        assertEquals("Test Comment", result.getListingComments());
-        assertNull(result.getLeadJudgeContractType());
-        assertNotNull(result.getPanelRequirements());
-        assertEquals(0, result.getPanelRequirements().getRoleTypes().size());
-        assertEquals(new ArrayList<>(), result.getPanelRequirements().getRoleTypes());
-        assertEquals(0, result.getPanelRequirements().getAuthorisationSubType().size());
-        assertEquals(new ArrayList<>(), result.getPanelRequirements().getAuthorisationSubType());
-        assertEquals(0, result.getPanelRequirements().getPanelPreferences().size());
-        assertEquals(new ArrayList<>(), result.getPanelRequirements().getPanelPreferences());
-        assertEquals(0, result.getPanelRequirements().getPanelSpecialisms().size());
-        assertEquals(new ArrayList<>(), result.getPanelRequirements().getPanelSpecialisms());
     }
 
     @DisplayName("shouldBeAutoListed Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {"YES,YES", "NO,NO", "null,NO"}, nullValues = {"null"})
-    void shouldBeAutoListed(YesNo autoListFlag, YesNo expected) {
+    @Test
+    void shouldBeAutoListed() {
         // TODO Finish Test when method done
-        YesNo result = HearingsMapping.shouldBeAutoListed(autoListFlag);
+        boolean result = HearingsMapping.shouldBeAutoListed();
 
-        assertEquals(expected, result);
+        assertTrue(result);
     }
 
-    @DisplayName("shouldBeHearingsInWelshFlag Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {"YES,YES", "NO,NO", "null,NO"}, nullValues = {"null"})
-    void shouldBeHearingsInWelshFlag(YesNo hearingsInWelshFlag, YesNo expected) {
-        YesNo result = HearingsMapping.shouldBeHearingsInWelshFlag(hearingsInWelshFlag);
+    @DisplayName("shouldBeHearingsInWelshFlag Test")
+    @Test
+    void shouldBeHearingsInWelshFlag() {
+        boolean result = HearingsMapping.shouldBeHearingsInWelshFlag();
 
-        assertEquals(expected, result);
+        assertFalse(result);
     }
 
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
-    @CsvSource(value = {"YES,YES", "NO,NO", "null,NO"}, nullValues = {"null"})
-    void shouldBeAdditionalSecurityFlag(YesNo additionalSecurityFlag, YesNo expected) {
+    @CsvSource(value = {
+        "true,[true,true],true",
+        "true,[false,true],true",
+        "true,[true,false],true",
+        "true,[false,false],true",
+        "true,[false],true",
+        "true,[true],true",
+        "true,null,true",
+        "false,[true,true],true",
+        "false,[false,true],true",
+        "false,[true,false],true",
+        "false,[false,false],false",
+        "false,[true],true",
+        "false,[false],false",
+        "false,null,false",
+    }, nullValues = {"null"})
+    void shouldBeAdditionalSecurityFlag(boolean appellant, boolean[] otherParties, boolean expected) {
         // TODO Finish Test when method done
-        YesNo result = HearingsMapping.shouldBeAdditionalSecurityFlag(additionalSecurityFlag);
+        SscsCaseData caseData = SscsCaseData.builder().build();
+        boolean result = HearingsMapping.shouldBeAdditionalSecurityFlag(caseData);
 
         assertEquals(expected, result);
     }
 
-    @DisplayName("shouldBeSensitiveFlag Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {"YES,YES", "NO,NO", "null,NO"}, nullValues = {"null"})
-    void shouldBeSensitiveFlag(YesNo sensitiveFlag, YesNo expected) {
-        // TODO Finish Test when method done
-        YesNo result = HearingsMapping.shouldBeSensitiveFlag(sensitiveFlag);
-
-        assertEquals(expected, result);
-    }
-
+    @DisplayName("shouldBeSensitiveFlag Test")
     @Test
+    void shouldBeSensitiveFlag() {
+        // TODO Finish Test when method done
+        boolean result = HearingsMapping.shouldBeSensitiveFlag();
+
+        assertFalse(result);
+    }
+
     @DisplayName("When case ID is given getCaseDeepLink returns the correct link")
+    @Test
     void getCaseDeepLink() {
         // TODO Finish Test when method done
-        String result = HearingsMapping.getCaseDeepLink(caseId);
-        String expected = String.format("%s/cases/case-details/%s", exUiUrl, caseId);
+        String result = HearingsMapping.getCaseDeepLink(CASE_ID);
+        String expected = String.format("%s/cases/case-details/%s", exUiUrl, CASE_ID);
 
         assertEquals(expected, result);
     }
 
-    @Test
     @DisplayName("When ... is given getCaseManagementLocationCode returns the correct EPIMS ID")
+    @Test
     void getCaseManagementLocationCode() {
         // TODO Finish Test when method done
         CaseManagementLocation location = CaseManagementLocation.builder()
@@ -194,13 +112,13 @@ class HearingsMappingTest {
         assertEquals(expected, result);
     }
 
-    @Test
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")
+    @Test
     void getFacilitiesRequired() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
-        List<CcdValue<String>> result = HearingsMapping.getFacilitiesRequired(caseData);
-        List<CcdValue<String>> expected = new ArrayList<>();
+        List<String> result = HearingsMapping.getFacilitiesRequired(caseData);
+        List<String> expected = new ArrayList<>();
 
         assertEquals(0, result.size());
         assertEquals(expected, result);
@@ -210,9 +128,9 @@ class HearingsMappingTest {
             + "getHearingWindowRange returns a window starting within 1 month of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
-        "DWP_RESPOND,YES",
+        "DWP_RESPOND,true",
     }, nullValues = {"null"})
-    void getHearingWindowRange(EventType eventType, YesNo autoListFlag) {
+    void getHearingWindowRange(EventType eventType, boolean autoListFlag) {
         // TODO Finish Test when method done
         List<Event> events = new ArrayList<>();
         LocalDateTime testDateTime = LocalDateTime.now();
@@ -221,10 +139,14 @@ class HearingsMappingTest {
                 .date(testDateTime.toString())
                 .build()).build());
 
-        SscsCaseData caseData = SscsCaseData.builder().autoListFlag(autoListFlag).events(events).build();
-        HearingWindowRange result = HearingsMapping.getHearingWindowRange(caseData);
 
-        HearingWindowRange expected = HearingWindowRange.builder()
+
+        SscsCaseData caseData = SscsCaseData.builder().events(events).build();
+        HearingWindow result = HearingsMapping.buildHearingWindow(caseData, autoListFlag);
+
+        assertNull(result.getFirstDateTimeMustBe());
+
+        HearingWindow expected = HearingWindow.builder()
                 .dateRangeStart(testDateTime.plusMonths(1).toLocalDate()).build();
         assertEquals(expected, result);
     }
@@ -233,12 +155,12 @@ class HearingsMappingTest {
             + "getHearingWindowRange returns a null value")
     @ParameterizedTest
     @CsvSource(value = {
-        "WITHDRAWN,YES",
-        "null,YES",
-        "DWP_RESPOND,NO",
+        "WITHDRAWN,true",
+        "null,true",
+        "DWP_RESPOND,false",
         "DWP_RESPOND,null",
     }, nullValues = {"null"})
-    void getHearingWindowRangeNullReturn(EventType eventType, YesNo autoListFlag) {
+    void getHearingWindowRangeNullReturn(EventType eventType, boolean autoListFlag) {
         // TODO Finish Test when method done
         List<Event> events = new ArrayList<>();
         LocalDateTime testDateTime = LocalDateTime.now();
@@ -251,37 +173,37 @@ class HearingsMappingTest {
             events = null;
         }
 
-        SscsCaseData caseData = SscsCaseData.builder().autoListFlag(autoListFlag).events(events).build();
-        HearingWindowRange result = HearingsMapping.getHearingWindowRange(caseData);
+        SscsCaseData caseData = SscsCaseData.builder().events(events).build();
+        HearingWindow result = HearingsMapping.buildHearingWindow(caseData, autoListFlag);
+
+        assertNull(result.getFirstDateTimeMustBe());
+        assertNull(result.getDateRangeStart());
+        assertNull(result.getDateRangeEnd());
+    }
+
+    @DisplayName("When .. is given getFacilitiesRequired returns the valid LocalDateTime")
+    @Test
+    void getFirstDateTimeMustBe() {
+        // TODO Finish Test when method done
+        LocalDateTime result = HearingsMapping.getFirstDateTimeMustBe();
 
         assertNull(result);
     }
 
-    @Test
-    @DisplayName("When .. is given getFacilitiesRequired returns the valid LocalDateTime")
-    void getFirstDateTimeMustBe() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        LocalDateTime result = HearingsMapping.getFirstDateTimeMustBe(caseData);
-        LocalDateTime expected = null;
-
-        assertEquals(expected, result);
-    }
-
-    @Test
     @DisplayName("When .. is given getPanelRequirements returns the valid PanelRequirements")
+    @Test
     void getPanelRequirements() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
 
         PanelRequirements expected =  PanelRequirements.builder().build();
-        List<CcdValue<String>> roleTypes = new ArrayList<>();
+        List<String> roleTypes = new ArrayList<>();
         expected.setRoleTypes(roleTypes);
-        List<CcdValue<String>> authorisationSubType = new ArrayList<>();
-        expected.setAuthorisationSubType(authorisationSubType);
-        List<CcdValue<PanelPreference>> panelPreferences = new ArrayList<>();
+        List<String> authorisationSubTypes = new ArrayList<>();
+        expected.setAuthorisationSubTypes(authorisationSubTypes);
+        List<PanelPreference> panelPreferences = new ArrayList<>();
         expected.setPanelPreferences(panelPreferences);
-        List<CcdValue<String>> panelSpecialisms = new ArrayList<>();
+        List<String> panelSpecialisms = new ArrayList<>();
         expected.setPanelSpecialisms(panelSpecialisms);
 
         PanelRequirements result = HearingsMapping.getPanelRequirements(caseData);
@@ -289,27 +211,25 @@ class HearingsMappingTest {
         assertEquals(expected, result);
     }
 
-    @Test
     @DisplayName("When .. is given getPanelPreferences returns the correct List of PanelPreferences")
+    @Test
     void getPanelPreferences() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
-        List<CcdValue<PanelPreference>> result = HearingsMapping.getPanelPreferences(caseData);
-        List<CcdValue<PanelPreference>> expected = new ArrayList<>();
+        List<PanelPreference> result = HearingsMapping.getPanelPreferences(caseData);
+        List<PanelPreference> expected = new ArrayList<>();
 
         assertEquals(0, result.size());
         assertEquals(expected, result);
     }
 
-    @Test
     @DisplayName("When .. is given getLeadJudgeContractType returns the correct LeadJudgeContractType")
+    @Test
     void getLeadJudgeContractType() {
         // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        String result = HearingsMapping.getLeadJudgeContractType(caseData);
-        String expected = null;
+        String result = HearingsMapping.getLeadJudgeContractType();
 
-        assertEquals(expected, result);
+        assertNull(result);
     }
 
     @DisplayName("When appellant and other parties Hearing Options other comments are given "
@@ -376,15 +296,15 @@ class HearingsMappingTest {
     @ParameterizedTest
     @CsvSource(value = {"TBD,TBD,[{CLUSTER,TBD}]"}, nullValues = {"null"})
     void getHearingLocations(String baseLocation, String region,
-                             List<Pair<HearingLocationType,String>> expectedParams) {
+                             List<Pair<String,String>> expectedParams) {
         // TODO Finish Test when method done
 
         CaseManagementLocation managementLocation = CaseManagementLocation.builder()
                 .baseLocation(baseLocation)
                 .region(region)
                 .build();
-        List<CcdValue<HearingLocation>> result = HearingsMapping.getHearingLocations(managementLocation);
-        List<CcdValue<HearingLocation>> expected = new ArrayList<>();
+        List<HearingLocations> result = HearingsMapping.getHearingLocations(managementLocation);
+        List<HearingLocations> expected = new ArrayList<>();
 
         assertEquals(0, result.size());
         assertEquals(expected, result);
@@ -393,18 +313,18 @@ class HearingsMappingTest {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,HIGH", "Yes,No,HIGH", "No,Yes,HIGH",
-        "No,No,NORMAL",
-        "Yes,null,HIGH", "No,null,NORMAL",
-        "null,Yes,HIGH", "null,No,NORMAL",
-        "null,null,NORMAL",
-        "Yes,,HIGH", "No,,NORMAL",
-        ",Yes,HIGH", ",No,NORMAL",
-        ",,NORMAL"
+        "Yes,Yes,High", "Yes,No,High", "No,Yes,High",
+        "No,No,Normal",
+        "Yes,null,High", "No,null,Normal",
+        "null,Yes,High", "null,No,Normal",
+        "null,null,Normal",
+        "Yes,,High", "No,,Normal",
+        ",Yes,High", ",No,Normal",
+        ",,Normal"
     }, nullValues = {"null"})
-    void getHearingPriority(String isAdjournCase, String isUrgentCase, HearingPriorityType expected) {
+    void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
-        HearingPriorityType result = HearingsMapping.getHearingPriority(isAdjournCase, isUrgentCase);
+        String result = HearingsMapping.getHearingPriority(isAdjournCase, isUrgentCase);
 
         assertEquals(expected, result);
     }
@@ -436,35 +356,31 @@ class HearingsMappingTest {
         assertEquals(expected, result);
     }
 
-    @Test
     @DisplayName("When .. is given getHearingType returns the correct Hearing Type")
+    @Test
     void getHearingType() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
-        SscsHearingType result = HearingsMapping.getHearingType(caseData);
-        SscsHearingType expected = null;
+        String result = HearingsMapping.getHearingType(caseData);
 
-        assertEquals(expected, result);
+        assertNull(result);
     }
 
     @DisplayName("isInterpreterRequired Parameterized Tests")
     @ParameterizedTest
-    @CsvSource(value = {"Yes,YES", "No,NO", "null,NO"}, nullValues = {"null"})
-    void isInterpreterRequired(String adjournCaseInterpreterRequired, YesNo expected) {
-        YesNo result = HearingsMapping.isInterpreterRequired(adjournCaseInterpreterRequired);
+    @CsvSource(value = {"Yes,true", "No,false", "null,false"}, nullValues = {"null"})
+    void isInterpreterRequired(String adjournCaseInterpreterRequired, boolean expected) {
+        boolean result = HearingsMapping.isInterpreterRequired(adjournCaseInterpreterRequired);
 
         assertEquals(expected, result);
     }
 
-
-    @Test
     @DisplayName("When .. is given isCaseLinked returns if case is linked")
+    @Test
     void isCaseLinked() {
         // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        YesNo result = HearingsMapping.isCaseLinked(caseData);
-        YesNo expected = NO;
+        boolean result = HearingsMapping.isCaseLinked();
 
-        assertEquals(expected, result);
+        assertFalse(result);
     }
 }
