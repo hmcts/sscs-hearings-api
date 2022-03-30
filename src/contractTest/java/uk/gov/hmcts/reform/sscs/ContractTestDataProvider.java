@@ -89,7 +89,7 @@ public class ContractTestDataProvider {
         request.setRequestDetails(requestDetails());
         request.setHearingDetails(hearingDetails());
         request.setCaseDetails(caseDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setPartiesDetails(partyDetails1());
 
         return request;
     }
@@ -97,7 +97,7 @@ public class ContractTestDataProvider {
     public static HearingRequestPayload generateInvalidHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
-        request.setPartyDetails(partyDetails1());
+        request.setPartiesDetails(partyDetails1());
         request.setRequestDetails(requestDetails());
         return request;
     }
@@ -218,8 +218,8 @@ public class ContractTestDataProvider {
         panelSpecialisms.add("Specialism 5");
 
         PanelRequirements panelRequirements = new PanelRequirements();
-        panelRequirements.setRoleType(roleType);
-        panelRequirements.setAuthorisationSubType(authorisationSubType);
+        panelRequirements.setRoleTypes(roleType);
+        panelRequirements.setAuthorisationSubTypes(authorisationSubType);
         panelRequirements.setPanelPreferences(panelPreferences);
         panelRequirements.setPanelSpecialisms(panelSpecialisms);
 

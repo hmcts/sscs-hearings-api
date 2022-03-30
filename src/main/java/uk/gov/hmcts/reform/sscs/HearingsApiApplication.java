@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletContextListener;
 
-
 @SpringBootApplication
 @EnableScheduling
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
@@ -28,6 +27,7 @@ import javax.servlet.ServletContextListener;
     {
         "uk.gov.hmcts.reform.authorisation",
         "uk.gov.hmcts.reform.sscs.idam",
+        "uk.gov.hmcts.reform.sscs.service",
         "uk.gov.hmcts.reform.idam"
     })
 public class HearingsApiApplication {
