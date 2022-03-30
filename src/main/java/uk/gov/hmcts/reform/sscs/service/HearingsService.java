@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcRequestDetails;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildCreateHearingPayload;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildUpdateHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.updateIds;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
@@ -53,7 +54,7 @@ public class HearingsService {
             case CREATE_HEARING:
                 updateIds(wrapper);
                 HmcHearingResponse response = sendCreateHearingRequest(wrapper);
-                updateCaseHearingId(wrapper, response.getHearingRequestId());
+                updateCaseHearing(wrapper, response);
                 break;
             case UPDATE_HEARING:
                 sendUpdateHearingRequest(wrapper);
@@ -77,12 +78,14 @@ public class HearingsService {
         }
     }
 
-    private void updateCaseHearingId(HearingWrapper wrapper, Long hearingId) {
+    private void updateCaseHearing(HearingWrapper wrapper, HmcHearingResponse response) {
         SscsCaseData caseData = wrapper.getOriginalCaseData();
-        caseData.getSchedulingAndListingFields().setActiveHearingId(hearingId);
+        caseData.getSchedulingAndListingFields().setActiveHearingId(response.getHearingRequestId());
+        caseData.getSchedulingAndListingFields().setActiveHearingVersionNumber(response.getVersionNumber().longValue());
+
         try {
             ccdCaseService.updateCaseDetails(caseData, EventType.HEARING_BOOKED,
-                "Case Updated", "Active hearing ID set");
+                "Case Updated", "Active hearing ID and version number set");
         } catch (UpdateCaseException e) {
             //Error handling? Should we do anything here?
             e.printStackTrace();
@@ -90,10 +93,10 @@ public class HearingsService {
     }
 
     private HmcHearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-        HmcHearingRequestPayload payload = buildCreateHearingPayload(wrapper);
-
-        return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
-            idamService.getIdamTokens().getServiceAuthorization(), payload);
+        return hmcHearingApi.createHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            buildCreateHearingPayload(wrapper));
     }
 
     private void sendUpdateHearingRequest(HearingWrapper wrapper) {
@@ -101,7 +104,7 @@ public class HearingsService {
             idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(),
             wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingId().toString(),
-            buildCreateHearingPayload(wrapper));
+            buildUpdateHearingPayload(wrapper));
     }
 
 //    private void createHearing(HearingWrapper wrapper) {

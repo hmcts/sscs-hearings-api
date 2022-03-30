@@ -122,6 +122,13 @@ public final class HearingsMapping {
         return requestPayloadBuilder.build();
     }
 
+    public static HmcHearingRequestPayload buildUpdateHearingPayload(HearingWrapper wrapper) {
+        HmcHearingRequestPayload payload = buildCreateHearingPayload(wrapper);
+        Long versionNumber = wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingVersionNumber();
+        payload.getHmcRequestDetails().setVersionNumber(versionNumber);
+        return payload;
+    }
+
     private static HmcRequestDetails createHmcRequestDetails(HearingWrapper wrapper) {
         HmcRequestDetailsBuilder hmcRequestDetailsBuilder = HmcRequestDetails.builder();
         hmcRequestDetailsBuilder.versionNumber(wrapper.getSchedulingAndListingFields.version());
