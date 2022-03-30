@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
 class FeignClientErrorDecoderTest {
 
     private static final String ID = "id";
-    private static final String CASE_ID = "CASE-123";
+    private static final Long CASE_ID = 1000000000L;
     private static final String ERROR_MSG = " \"Error in calling the client method:someMethod\"";
 
     private FeignClientErrorDecoder feignClientErrorDecoder;
@@ -51,7 +51,7 @@ class FeignClientErrorDecoderTest {
         feignClientErrorDecoder = new FeignClientErrorDecoder(appInsightsService);
         hearingRequestPayload = new HearingRequestPayload();
         hearingRequestPayload.setCaseDetails(new CaseDetails());
-        hearingRequestPayload.getCaseDetails().setCaseRef(CASE_ID);
+        hearingRequestPayload.getCaseDetails().setCaseRef(String.valueOf(CASE_ID));
     }
 
     @ParameterizedTest
@@ -95,7 +95,7 @@ class FeignClientErrorDecoderTest {
         Map<String, Collection<String>> headers = new HashMap<>();
 
         Map<String, Collection<String>> queries = new HashMap<>();
-        queries.computeIfAbsent(ID, k -> new ArrayList<>()).add(CASE_ID);
+        queries.computeIfAbsent(ID, k -> new ArrayList<>()).add(String.valueOf(CASE_ID));
         RequestTemplate requestTemplate = new RequestTemplate();
         requestTemplate.queries(queries);
 

@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 public class FeignClientErrorDecoder implements ErrorDecoder {
 
     private final AppInsightsService appInsightsService;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public FeignClientErrorDecoder(AppInsightsService appInsightsService) {
         this.appInsightsService = appInsightsService;
@@ -36,14 +37,14 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
             if (payload != null) {
                 failMsg = HmcFailureMessage.builder()
                     .requestType(httpMethod.toString())
-                    .caseID(payload.getCaseDetails().getCaseRef())
+                    .caseID(Long.valueOf(payload.getCaseDetails().getCaseRef()))
                     .timeStamp(LocalDateTime.now())
                     .errorCode(String.valueOf(response.status()))
                     .errorMessage(response.reason())
                     .build();
             }
         } else {
-            String caseId = String.valueOf(response.request().requestTemplate().queries().get("id"));
+            Long caseId = Long.parseLong(response.request().requestTemplate().queries().get("id").iterator().next());
             failMsg = HmcFailureMessage.builder()
                 .requestType(httpMethod.toString())
                 .caseID(caseId)
@@ -75,11 +76,10 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
     }
 
     private HearingRequestPayload mapToPostHearingRequest(Request request) {
-        ObjectMapper mapper = new ObjectMapper();
         HearingRequestPayload hearingRequestPayload = null;
         try {
-            hearingRequestPayload = mapper.readValue(new String(request.body(), StandardCharsets.UTF_8),
-                                                     HearingRequestPayload.class);
+            hearingRequestPayload = OBJECT_MAPPER.readValue(new String(request.body(), StandardCharsets.UTF_8),
+                                                            HearingRequestPayload.class);
         } catch (JsonProcessingException e) {
             log.error("Request contained empty body");
         }
