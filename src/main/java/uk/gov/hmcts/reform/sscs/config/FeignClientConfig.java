@@ -8,9 +8,16 @@ import feign.jackson.JacksonDecoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
 import uk.gov.hmcts.reform.sscs.service.exceptions.FeignClientErrorDecoder;
 
 public class FeignClientConfig {
+
+    private final AppInsightsService appInsightsService;
+
+    public FeignClientConfig(AppInsightsService appInsightsService) {
+        this.appInsightsService = appInsightsService;
+    }
 
     @Bean
     @Primary
@@ -20,7 +27,7 @@ public class FeignClientConfig {
 
     @Bean
     public ErrorDecoder errorDecoder() {
-        return new FeignClientErrorDecoder();
+        return new FeignClientErrorDecoder(appInsightsService);
     }
 
     @Bean
