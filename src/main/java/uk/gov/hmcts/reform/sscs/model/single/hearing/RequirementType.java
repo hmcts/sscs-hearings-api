@@ -3,12 +3,12 @@ package uk.gov.hmcts.reform.sscs.model.single.hearing;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
+@RequiredArgsConstructor
 public enum RequirementType {
 
-    MUSTINC("MUSTINC"),
-    OPTINC("OPTINC"),
+    MUST_INCLUDE("MUSTINC"),
+    OPTIONAL_INCLUDE("OPTINC"),
     EXCLUDE("EXCLUDE");
 
     private final String requirementLabel;
