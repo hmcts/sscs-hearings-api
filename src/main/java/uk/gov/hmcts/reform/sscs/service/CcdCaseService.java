@@ -26,6 +26,15 @@ public class CcdCaseService {
         this.idamService = idamService;
     }
 
+    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException {
+        try {
+            long caseIdLong = Long.parseLong(caseId);
+            return getCaseDetails(caseIdLong);
+        } catch (NumberFormatException e) {
+            throw new GetCaseException(String.format("Invalid case id format for %s",caseId),e);
+        }
+    }
+
     public SscsCaseDetails getCaseDetails(long caseId) throws GetCaseException {
 
         log.info("Retrieving case details using Case id : {}",
@@ -42,7 +51,6 @@ public class CcdCaseService {
             throw exc;
         }
         return caseDetails;
-
     }
 
     public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description) throws UpdateCaseException {
