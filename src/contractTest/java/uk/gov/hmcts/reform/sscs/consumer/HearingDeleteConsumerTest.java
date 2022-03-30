@@ -29,6 +29,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
@@ -36,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 @SpringBootTest
 @PactTestFor(port = "10000")
 @PactFolder("pacts")
-public class HearingDeleteConsumerTest extends ContractTestDataProvider {
+public class HearingDeleteConsumerTest extends BasePactTest {
 
     private static final String RESPONSE_STATUS = "CANCELLATION_REQUESTED";
 
@@ -48,83 +50,95 @@ public class HearingDeleteConsumerTest extends ContractTestDataProvider {
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME + " successfully deleting a hearing request ").uponReceiving(
-            "Request to delete hearing request")
-            .path(HEARING_PATH).method(HttpMethod.DELETE.toString()).query(ID + "=" + VALID_CASE_ID)
-            .body(toJsonString(generateHearingDeleteRequest()))
-            .headers(authorisedHeaders).willRespondWith()
-            .status(HttpStatus.OK.value()).body(
-                BasePactTest
-                .generateHearingsJsonBody(MSG_200_HEARING, RESPONSE_STATUS))
+        return builder.given(CONSUMER_NAME + " successfully deleting a hearing request ")
+            .uponReceiving("Request to delete hearing request")
+            .path(ContractTestDataProvider.HEARING_PATH)
+            .method(HttpMethod.DELETE.toString())
+            .query(ID + "=" + VALID_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
+            .headers(ContractTestDataProvider.authorisedHeaders)
+            .willRespondWith()
+            .status(HttpStatus.OK.value())
+            .body(generateHearingsJsonBody(ContractTestDataProvider.MSG_200_HEARING,RESPONSE_STATUS))
             .toPact();
     }
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact badRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws bad request error while trying to delete hearing")
-                .uponReceiving("Request to DELETE hearing for bad hearing request")
-                    .path(HEARING_PATH).method(HttpMethod.DELETE.toString())
+            .uponReceiving("Request to DELETE hearing for bad hearing request")
+            .path(ContractTestDataProvider.HEARING_PATH)
+            .method(HttpMethod.DELETE.toString())
             .query(ID + "=" + VALID_CASE_ID)
-            .body(toJsonString(generateInvalidHearingDeleteRequest())).headers(authorisedHeaders)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingDeleteRequest()))
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
-            .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_400_HEARING)
-                      .stringValue(FIELD_STATUS, HttpStatus.BAD_REQUEST.value()
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE,ContractTestDataProvider.MSG_400_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.BAD_REQUEST.value()
                           + " " + HttpStatus.BAD_REQUEST.getReasonPhrase())
-                          .eachLike(FIELD_ERRORS, 1)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
     }
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact unauthorisedRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for unauthorised hearing request")
-            .path(HEARING_PATH).method(HttpMethod.DELETE.toString())
+            .path(ContractTestDataProvider.HEARING_PATH)
+            .method(HttpMethod.DELETE.toString())
             .query(ID + "=" + VALID_CASE_ID)
-            .body(toJsonString(generateHearingDeleteRequest())).headers(unauthorisedHeaders)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
+            .headers(ContractTestDataProvider.unauthorisedHeaders)
             .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
-            .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_401_HEARING)
-                      .stringValue(FIELD_STATUS, HttpStatus.UNAUTHORIZED.value()
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_401_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.UNAUTHORIZED.value()
                           + " " + HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                      .eachLike(FIELD_ERRORS, 1)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
     }
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact forbiddenRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws forbidden error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for forbidden hearing request")
-            .path(HEARING_PATH).method(HttpMethod.DELETE.toString())
+            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.DELETE.toString())
             .query(ID + "=" + FORBIDDEN_CASE_ID)
-            .body(toJsonString(generateHearingDeleteRequest())).headers(authorisedHeaders)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.FORBIDDEN.value())
-            .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_403_HEARING)
-                      .stringValue(FIELD_STATUS, HttpStatus.FORBIDDEN.value()
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE,ContractTestDataProvider.MSG_403_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.FORBIDDEN.value()
                           + " " + HttpStatus.FORBIDDEN.getReasonPhrase())
-                      .eachLike(FIELD_ERRORS, 1)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
     }
 
-    @Pact(consumer = CONSUMER_NAME)
+    @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact notFoundRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws not found request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for not found hearing request")
-            .path(HEARING_PATH).method(HttpMethod.DELETE.toString())
+            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.DELETE.toString())
             .query(ID + "=" + NOT_FOUND_CASE_ID)
-            .body(toJsonString(generateHearingDeleteRequest())).headers(authorisedHeaders)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.NOT_FOUND.value())
-            .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_404_HEARING)
-                      .stringValue(FIELD_STATUS, HttpStatus.NOT_FOUND.value()
+            .body(new PactDslJsonBody()
+                      .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_404_HEARING)
+                      .stringValue(ContractTestDataProvider.FIELD_STATUS, HttpStatus.NOT_FOUND.value()
                           + " " + HttpStatus.NOT_FOUND.getReasonPhrase())
-                      .eachLike(FIELD_ERRORS, 1)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
     }
@@ -133,45 +147,49 @@ public class HearingDeleteConsumerTest extends ContractTestDataProvider {
     @PactTestFor(pactMethod = "deleteHearingRequestForValidRequest")
     public void shouldSuccessfullyDeleteHearingRequest() {
         HearingResponse hearingResponse = hmcHearingApi.deleteHearingRequest(
-            IDAM_OAUTH2_TOKEN,
-            SERVICE_AUTHORIZATION_TOKEN,
+            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID,
-            generateHearingDeleteRequest()
+            ContractTestDataProvider.generateHearingDeleteRequest()
         );
 
         assertNotNull(hearingResponse.getHearingRequestId());
         assertFalse(hearingResponse.getStatus().isEmpty());
         assertNotNull(hearingResponse.getVersionNumber());
-        assertNotSame(ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
+        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
         assertNotNull(hearingResponse.getTimeStamp());
     }
 
     @Test
     @PactTestFor(pactMethod = "badRequestErrorFromDeleteHearing")
     public void shouldReturn400BadRequestForDeleteHearing(MockServer mockServer) {
-        executeCall(mockServer, authorisedHeaders, VALID_CASE_ID,
-                    generateInvalidHearingDeleteRequest(), HttpStatus.BAD_REQUEST);
+        executeCall(mockServer, ContractTestDataProvider.authorisedHeaders, VALID_CASE_ID,
+                    ContractTestDataProvider.generateInvalidHearingDeleteRequest(), HttpStatus.BAD_REQUEST
+        );
     }
 
     @Test
     @PactTestFor(pactMethod = "unauthorisedRequestErrorFromDeleteHearing")
     public void shouldReturn401UnauthorisedRequestForDeleteHearing(MockServer mockServer) {
-        executeCall(mockServer, unauthorisedHeaders, VALID_CASE_ID,
-                    generateHearingDeleteRequest(), HttpStatus.UNAUTHORIZED);
+        executeCall(mockServer, ContractTestDataProvider.unauthorisedHeaders, VALID_CASE_ID,
+                    ContractTestDataProvider.generateHearingDeleteRequest(), HttpStatus.UNAUTHORIZED
+        );
     }
 
     @Test
     @PactTestFor(pactMethod = "forbiddenRequestErrorFromDeleteHearing")
     public void shouldReturn403ForbiddenRequestForDeleteHearing(MockServer mockServer) {
-        executeCall(mockServer, authorisedHeaders, FORBIDDEN_CASE_ID,
-                    generateHearingDeleteRequest(), HttpStatus.FORBIDDEN);
+        executeCall(mockServer, ContractTestDataProvider.authorisedHeaders, FORBIDDEN_CASE_ID,
+                    ContractTestDataProvider.generateHearingDeleteRequest(), HttpStatus.FORBIDDEN
+        );
     }
 
     @Test
     @PactTestFor(pactMethod = "notFoundRequestErrorFromDeleteHearing")
     public void shouldReturn404NotFoundRequestForDeleteHearing(MockServer mockServer) {
-        executeCall(mockServer, authorisedHeaders, NOT_FOUND_CASE_ID,
-                    generateHearingDeleteRequest(), HttpStatus.NOT_FOUND);
+        executeCall(mockServer, ContractTestDataProvider.authorisedHeaders, NOT_FOUND_CASE_ID,
+                    ContractTestDataProvider.generateHearingDeleteRequest(), HttpStatus.NOT_FOUND
+        );
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers, String caseId,
@@ -179,8 +197,8 @@ public class HearingDeleteConsumerTest extends ContractTestDataProvider {
         RestAssured.given().headers(headers)
             .contentType(ContentType.JSON)
             .queryParam(ID, caseId)
-            .body(toJsonString(payload)).when()
-            .delete(mockServer.getUrl() + HEARING_PATH)
+            .body(ContractTestDataProvider.toJsonString(payload)).when()
+            .delete(mockServer.getUrl() + ContractTestDataProvider.HEARING_PATH)
             .then().statusCode(status.value())
             .and().extract()
             .body()

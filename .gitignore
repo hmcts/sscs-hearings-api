@@ -34,3 +34,4 @@ bin/
 # Other
 *.log
 tmp/
+pacts/
