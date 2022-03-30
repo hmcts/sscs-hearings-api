@@ -56,8 +56,7 @@ public class HearingsService {
                 updateCaseHearingId(wrapper, response.getHearingRequestId());
                 break;
             case UPDATE_HEARING:
-                updateHearing(wrapper);
-                // TODO Call hearingPut method
+                sendUpdateHearingRequest(wrapper);
                 break;
             case UPDATED_CASE:
                 updatedCase(wrapper);
@@ -97,6 +96,14 @@ public class HearingsService {
             idamService.getIdamTokens().getServiceAuthorization(), payload);
     }
 
+    private void sendUpdateHearingRequest(HearingWrapper wrapper) {
+        hmcHearingApi.updateHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingId().toString(),
+            buildCreateHearingPayload(wrapper));
+    }
+
 //    private void createHearing(HearingWrapper wrapper) {
 //        updateFlags(wrapper);
 //
@@ -109,11 +116,6 @@ public class HearingsService {
 //        }
 //        wrapper.getUpdatedCaseData().getHmcHearings().add(hmcHearing);
 //    }
-
-
-    private void updateHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing's details are updated
-    }
 
     private void updatedCase(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a case is updated
