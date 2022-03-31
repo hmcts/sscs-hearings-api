@@ -12,10 +12,12 @@ import static java.util.Objects.nonNull;
 public final class HearingsRequestMapping {
 
     private HearingsRequestMapping() {
+    }
 
     public static RequestDetails buildHearingRequestDetails(HearingWrapper wrapper) {
+        SscsCaseData caseData = wrapper.getUpdatedCaseData();
         RequestDetailsBuilder hmcRequestDetailsBuilder = RequestDetails.builder();
-        hmcRequestDetailsBuilder.versionNumber(getVersion(wrapper.getCaseData()));
+        hmcRequestDetailsBuilder.versionNumber(getVersion(caseData));
         return hmcRequestDetailsBuilder.build();
     }
 
@@ -26,11 +28,13 @@ public final class HearingsRequestMapping {
     }
 
     public static Long getVersion(SscsCaseData caseData) {
-        if (nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())
+        if (nonNull(caseData.getSchedulingAndListingFields())
+                && nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())
                 && caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber() > 0) {
             return caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber();
+        } else {
+            return null;
         }
-        return null;
     }
 
     public static String getCancellationReason(HearingWrapper wrapper) {
