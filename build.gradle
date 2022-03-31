@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.6.3'
+  id 'org.springframework.boot' version '2.6.5'
   id 'uk.gov.hmcts.java' version '0.12.18'
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.42.0'
@@ -182,7 +182,8 @@ sonarqube {
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
             "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
-            "src/main/java/uk/gov/hmcts/reform/sscs/model/**"
+            "src/main/java/uk/gov/hmcts/reform/sscs/model/**," +
+            "src/main/java/uk/gov/hmcts/reform/sscs/service/HearingsService.java" //Will be removed in SSCS-10321
   }
 }
 
@@ -236,32 +237,37 @@ repositories {
 }
 
 def versions= [
-        assertJ: '3.22.0',
-        commonsIo: '2.11.0',
-        elasticsearch: '7.16.3',
-        fortify: '1.2.2',
-        feign: '11.7',
-        gradlePiTestPlugin: '1.5.2',
-        hmctsProperties: '0.1.0',
-        junitJupiter: '5.8.2',
-        log4J: '2.17.1',
-        logback: '1.2.10',
-        reformLogging: '5.1.9',
-        lombok: '1.18.22',
-        okhttp: '4.9.2',
-        pactJava8: '4.1.34',
-        pactJunit: '4.3.5',
-        pitest: '1.7.3',
-        restAssured: '4.5.1',
-        serviceAuthProviderJavaClient: '4.0.3',
-        slf4j: '1.7.36',
-        sonarPiTestPlugin: '0.5',
-        springCloud: '2021.0.1',
-        springDoc: '1.6.6',
-        springFoxSwagger: '3.0.0',
-        springRetry: '1.3.1',
-	      sscsCommon: '4.6.46-RC-SSCS-10056-3',
-        tomcat: '9.0.58'
+  assertJ: '3.22.0',
+  commonsIo: '2.11.0',
+  elasticsearch: '7.16.3',
+  fortify: '1.2.2',
+  feign: '11.7',
+  gradlePiTestPlugin: '1.5.2',
+  hmctsProperties: '0.1.0',
+  jackson: '2.13.2',
+  jacksonDatatype: '2.13.2',
+  junitJupiter: '5.8.2',
+  log4J: '2.17.1',
+  logback: '1.2.10',
+  reformLogging: '5.1.9',
+  lombok: '1.18.22',
+  okhttp: '4.9.2',
+  pactJava8: '4.1.34',
+  pactJunit: '4.3.5',
+  pitest: '1.7.3',
+  restAssured: '4.5.1',
+  serviceAuthProviderJavaClient: '4.0.3',
+  slf4j: '1.7.36',
+  sonarPiTestPlugin: '0.5',
+  springCloud: '2021.0.1',
+  springDoc: '1.6.6',
+  springFoxSwagger: '3.0.0',
+  springRetry: '1.3.1',
+  tomcat: '9.0.58',
+  pact : '4.1.7',
+  sscsCommon: '4.6.48' ,
+  jacksonDatabind: '2.13.2.1' ,
+  jacksonBom: '2.13.2.20220324'
 ]
 
 dependencies {
@@ -310,12 +316,19 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: versions.hmctsProperties
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4J
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
+
+
   implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
+
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
+
+  implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: versions.restAssured
@@ -323,6 +336,7 @@ dependencies {
 
   testImplementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
   testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
+
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
@@ -341,9 +355,12 @@ dependencies {
   testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
   testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
+
   //pact contract testing
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pactJunit
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pactJava8
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: versions.pact
+  contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
+  contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'java8',  version: versions.pact
 }
 
 dependencyManagement {

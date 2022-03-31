@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.util.List;
 
@@ -19,6 +23,7 @@ import java.util.List;
 public class PartyDetails {
 
     private String partyID;
+    @EnumPattern(enumClass = PartyType.class, fieldName = "partyType")
     private PartyType partyType;
     private String partyName;
     private String partyChannel;
@@ -26,6 +31,6 @@ public class PartyDetails {
     private IndividualDetails individualDetails;
     private OrganisationDetails organisationDetails;
     @JsonProperty("unavailabilityDOW")
-    private List<UnavailabilityDOW> unavailabilityDow;
+    private List<UnavailabilityDayOfWeek> unavailabilityDow;
     private List<UnavailabilityRange> unavailabilityRanges;
 }

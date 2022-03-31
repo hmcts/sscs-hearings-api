@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RequirementType;
+import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 @Data
 @Builder(toBuilder = true)
@@ -17,5 +19,6 @@ public class PanelPreference {
 
     private String memberID;
     private MemberType memberType;
+    @EnumPattern(enumClass = RequirementType.class, fieldName = "requirementType")
     private RequirementType requirementType;
 }
