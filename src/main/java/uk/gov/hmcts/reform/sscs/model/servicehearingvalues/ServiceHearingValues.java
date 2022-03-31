@@ -42,4 +42,5 @@ public class ServiceHearingValues {
     private CaseFlags caseFlags;
     private List<ScreenNavigation> screenFlow;
     private List<Vocabulary> vocabulary;
+    private String hmctsServiceID;
 }
