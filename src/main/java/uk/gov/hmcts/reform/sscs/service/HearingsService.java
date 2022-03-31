@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 
 import static java.util.Objects.isNull;
 
@@ -21,8 +22,6 @@ public class HearingsService {
     private HmcHearingApi hmcHearingApi;
 
     private IdamService idamService;
-
-    private String CANCEL_REASON_TEMP = "AWAITING_LISTING";
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
@@ -63,12 +62,6 @@ public class HearingsService {
                 log.error(err.getMessage(),err);
                 throw err;
         }
-    }
-
-    private HearingDeleteRequestPayload buildDeleteHearingPayload(HearingWrapper wrapper){
-        HearingDeleteRequestPayload payload = new HearingDeleteRequestPayload();
-        payload.setCancellationReasonCode(CANCEL_REASON_TEMP); // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode();
-        return payload;
     }
 
     private HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper){
