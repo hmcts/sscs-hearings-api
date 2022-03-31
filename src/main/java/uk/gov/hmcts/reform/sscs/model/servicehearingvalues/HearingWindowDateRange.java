@@ -15,6 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class HearingWindowDateRange {
 
-    private String hearingWindowStartDateRange;
+    private String hearingWindowStartDateRange; //sscsCaseDate.caseCreated +14
     private String hearingWindowEndDateRange;
 }
