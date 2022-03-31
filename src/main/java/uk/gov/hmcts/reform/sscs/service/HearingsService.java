@@ -8,7 +8,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
