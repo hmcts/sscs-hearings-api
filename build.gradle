@@ -279,6 +279,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+  implementation group: 'org.springframework', name: 'spring-beans', version: "5.3.+"
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server'
 
