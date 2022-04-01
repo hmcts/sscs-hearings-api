@@ -1,23 +1,22 @@
-package uk.gov.hmcts.reform.sscs.hearing.mapping;
+package uk.gov.hmcts.reform.sscs.helper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlags;
 
 import java.util.List;
 
-class PartyFlagsMappingTest {
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
-    PartyFlagsMapping mapping = new PartyFlagsMapping();
+class PartyFlagsMappingTest {
 
     @Test
     void shouldAddTheMappingsGivenTheValuesAreNotNull() {
         var expected = getPartyFlags();
-        var actual = mapping.getPartyFlags(getSscsCaseData());
+        var actual = PartyFlagsMapping.getPartyFlags(getSscsCaseData());
         Assertions.assertEquals(expected, actual);
     }
 
@@ -25,7 +24,7 @@ class PartyFlagsMappingTest {
     void shouldNotThrowNullPointerWhenChainedValuesInCaseDataIsNUll() {
         NullPointerException npe = null;
         try {
-            mapping.getPartyFlags(getNullSscsCaseData());
+            PartyFlagsMapping.getPartyFlags(getNullSscsCaseData());
         } catch (NullPointerException ex) {
             npe = ex;
         }
@@ -54,7 +53,7 @@ class PartyFlagsMappingTest {
             .dwpUcb("dwpUCB")
             .urgentCase("urgentCase")
             .adjournCaseInterpreterLanguage("adjournCaseInterpreterLanguage")
-            .isConfidentialCase(YesNo.YES)
+            .isConfidentialCase(YES)
             .appeal(Appeal.builder().hearingOptions(
                 HearingOptions.builder()
                     .signLanguageType("signLanguageType")
