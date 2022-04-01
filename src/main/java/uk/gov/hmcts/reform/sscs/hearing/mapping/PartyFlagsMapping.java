@@ -22,16 +22,16 @@ import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.URGENT_CASE
 public class PartyFlagsMapping {
 
     public List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
-        List<PartyFlags> partyFlagsList = new ArrayList<>();
-        partyFlagsList.add(mapSignLanguageType(caseData));
-        partyFlagsList.add(disabledAccess(caseData));
-        partyFlagsList.add(hearingLoop(caseData));
-        partyFlagsList.add(confidentialCase(caseData));
-        partyFlagsList.add(dwpUcb(caseData));
-        partyFlagsList.add(dwpPhme(caseData));
-        partyFlagsList.add(urgentCase(caseData));
-        partyFlagsList.add(adjournCaseInterpreterLanguage(caseData));
-        return partyFlagsList;
+        return Arrays.asList(
+            mapSignLanguageType(caseData),
+            disabledAccess(caseData),
+            hearingLoop(caseData),
+            confidentialCase(caseData),
+            dwpUcb(caseData),
+            dwpPhme(caseData),
+            urgentCase(caseData),
+            adjournCaseInterpreterLanguage(caseData)
+        );
     }
 
     private PartyFlags mapSignLanguageType(SscsCaseData caseData) {
@@ -51,33 +51,30 @@ public class PartyFlagsMapping {
     }
 
     private PartyFlags disabledAccess(SscsCaseData caseData) {
-        var arrangements = Optional
+        HearingOptions options = Optional
             .ofNullable(caseData.getAppeal())
-            .map(Appeal::getHearingOptions)
-            .map(HearingOptions::getArrangements);
+            .map(Appeal::getHearingOptions).orElse(null);
         PartyFlags partyFlagsDisabledAccess = null;
-        if (arrangements.isPresent() && arrangements.get().contains("disabledAccess")) {
+
+        if (Objects.nonNull(options) && options.wantsAccessibleHearingRoom()) {
             partyFlagsDisabledAccess = PartyFlags.builder()
-                .flagId(DISABLED_ACCESS.getFlagId())
-                .flagDescription(DISABLED_ACCESS.getFlagDescription())
-                .flagParentId(DISABLED_ACCESS.getParentId())
-                .build();
+                .flagId(PartyFlagsMap.DISABLED_ACCESS.getFlagId())
+                .flagDescription(PartyFlagsMap.DISABLED_ACCESS.getFlagDescription())
+                .flagParentId(PartyFlagsMap.DISABLED_ACCESS.getParentId()).build();
         }
         return partyFlagsDisabledAccess;
     }
 
     private PartyFlags hearingLoop(SscsCaseData caseData) {
-        var arrangements = Optional
-               .ofNullable(caseData.getAppeal())
-               .map(Appeal::getHearingOptions)
-               .map(HearingOptions::getArrangements);
+        HearingOptions options = Optional
+            .ofNullable(caseData.getAppeal())
+            .map(Appeal::getHearingOptions).orElse(null);
         PartyFlags hearingLoop = null;
-        if (arrangements.isPresent() && arrangements.get().contains("hearingLoop")) {
+        if (Objects.nonNull(options) && options.wantsHearingLoop()) {
             hearingLoop = PartyFlags.builder()
-                .flagId(HEARING_LOOP.getFlagId())
-                .flagDescription(HEARING_LOOP.getFlagDescription())
-                .flagParentId(HEARING_LOOP.getParentId())
-                .build();
+                .flagId(PartyFlagsMap.HEARING_LOOP.getFlagId())
+                .flagDescription(PartyFlagsMap.HEARING_LOOP.getFlagDescription())
+                .flagParentId(PartyFlagsMap.HEARING_LOOP.getParentId()).build();
         }
         return hearingLoop;
     }
