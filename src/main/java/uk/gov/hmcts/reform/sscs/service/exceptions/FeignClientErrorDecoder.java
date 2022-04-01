@@ -28,12 +28,43 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
+        HmcFailureMessage failMsg = extractFailMsg(methodKey, response);
+
+        switch (response.status()) {
+            case 400:
+            case 401:
+            case 403:
+            case 404: {
+                log.error("Error in calling Feign client. Status code "
+                              + response.status() + ", methodKey = " + methodKey);
+                log.error("Error details: {}", response.body().toString());
+                try {
+                    appInsightsService.sendAppInsightsEvent(failMsg);
+                } catch (JsonProcessingException e) {
+                    log.error("Error sending app insight for event {}", failMsg);
+                }
+                return new ResponseStatusException(HttpStatus.valueOf(response.status()),
+                                                   "Error in calling the client method:" + methodKey);
+            }
+            default:
+                return new ResponseStatusException(HttpStatus.valueOf(response.status()), response.reason());
+        }
+    }
+
+    private HmcFailureMessage extractFailMsg(String methodKey, Response response) {
         Request originalRequest = response.request();
         HttpMethod httpMethod = originalRequest.httpMethod();
         HmcFailureMessage failMsg = null;
 
         if (httpMethod.equals(HttpMethod.POST) || httpMethod.equals(HttpMethod.PUT)) {
-            HearingRequestPayload payload = mapToPostHearingRequest(originalRequest);
+            HearingRequestPayload payload = null;
+            try {
+                payload = mapToPostHearingRequest(originalRequest);
+            } catch (JsonProcessingException e) {
+                log.error("JsonProcessingException when mapping hearing request: "
+                              + response.status() + ", methodKey = " + methodKey);
+                log.error("Error details: {}", new String(originalRequest.body(), StandardCharsets.UTF_8));
+            }
             if (payload != null) {
                 failMsg = HmcFailureMessage.builder()
                     .requestType(httpMethod.toString())
@@ -54,34 +85,17 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                 .build();
         }
 
-        switch (response.status()) {
-            case 400:
-            case 401:
-            case 403:
-            case 404: {
-                log.error("Error in calling Feign client. Status code "
-                              + response.status() + ", methodKey = " + methodKey);
-                log.error("Error details: {}", response.body().toString());
-                try {
-                    appInsightsService.sendAppInsightsEvent(failMsg);
-                } catch (JsonProcessingException e) {
-                    log.error("Error sending app insight event");
-                }
-                return new ResponseStatusException(HttpStatus.valueOf(response.status()),
-                                                   "Error in calling the client method:" + methodKey);
-            }
-            default:
-                return new Exception(response.reason());
-        }
+        return failMsg;
     }
 
-    private HearingRequestPayload mapToPostHearingRequest(Request request) {
-        HearingRequestPayload hearingRequestPayload = null;
+    private HearingRequestPayload mapToPostHearingRequest(Request request) throws JsonProcessingException {
+        HearingRequestPayload hearingRequestPayload;
+        String requestBody = new String(request.body(), StandardCharsets.UTF_8);
         try {
-            hearingRequestPayload = OBJECT_MAPPER.readValue(new String(request.body(), StandardCharsets.UTF_8),
-                                                            HearingRequestPayload.class);
+            hearingRequestPayload = OBJECT_MAPPER.readValue(requestBody, HearingRequestPayload.class);
         } catch (JsonProcessingException e) {
-            log.error("Request contained empty body");
+            log.error("JsonProcessingException when mapping for: {}", requestBody);
+            throw e;
         }
         return hearingRequestPayload;
     }

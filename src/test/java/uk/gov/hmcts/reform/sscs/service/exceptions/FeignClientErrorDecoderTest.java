@@ -62,17 +62,11 @@ class FeignClientErrorDecoderTest {
             Request.create(Request.HttpMethod.POST, "url",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
 
-        Response response = Response.builder()
-            .request(request)
-            .status(statusCode)
-            .reason("Error")
-            .body("Some body", StandardCharsets.UTF_8)
-            .build();
+        Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
         verify(appInsightsService, times(1)).sendAppInsightsEvent(any(Message.class));
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
-
 
         if (statusCode == 400) {
             assertThat(throwable.getMessage())
@@ -102,12 +96,7 @@ class FeignClientErrorDecoderTest {
         Request request =
             Request.create(Request.HttpMethod.GET, "url",
                            headers, Request.Body.empty(), requestTemplate);
-        Response response = Response.builder()
-            .request(request)
-            .status(statusCode)
-            .reason("Error")
-            .body("Some body", StandardCharsets.UTF_8)
-            .build();
+        Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
         verify(appInsightsService, times(1)).sendAppInsightsEvent(any(Message.class));
@@ -144,7 +133,8 @@ class FeignClientErrorDecoderTest {
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
 
-        assertThat(throwable).isInstanceOf(Exception.class);
+        assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+        String test = throwable.getMessage();
         assertThat(throwable.getMessage()).contains("Internal server error");
     }
 
@@ -160,5 +150,31 @@ class FeignClientErrorDecoderTest {
             e.printStackTrace();
         }
         return jsonString;
+    }
+
+    private Response buildResponse(Request req, int statusCode) {
+        String reason = "";
+        String bodyMsg = "";
+
+        if (statusCode == 400) {
+            reason = HttpStatus.BAD_REQUEST.name();
+            bodyMsg = "Bad Request data";
+        } else if (statusCode == 401) {
+            reason = HttpStatus.UNAUTHORIZED.name();
+            bodyMsg = "Authorization failed";
+        } else if (statusCode == 403) {
+            reason = HttpStatus.FORBIDDEN.name();
+            bodyMsg = "Forbidden access";
+        } else if (statusCode == 404) {
+            reason = HttpStatus.NOT_FOUND.name();
+            bodyMsg = "No data found";
+        }
+
+        return Response.builder()
+            .request(req)
+            .status(statusCode)
+            .reason(reason)
+            .body(bodyMsg, StandardCharsets.UTF_8)
+            .build();
     }
 }
