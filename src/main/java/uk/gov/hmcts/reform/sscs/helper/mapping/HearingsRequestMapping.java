@@ -32,9 +32,8 @@ public final class HearingsRequestMapping {
                 && nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())
                 && caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber() > 0) {
             return caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber();
-        } else {
-            return null;
         }
+        return null;
     }
 
     public static String getCancellationReason(HearingWrapper wrapper) {

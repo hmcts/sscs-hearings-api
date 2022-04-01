@@ -4,7 +4,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload.HearingRequestPayloadBuilder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,18 +25,15 @@ public final class HearingsMapping {
     public static final String APPELLANT = "Appellant";
 
     private HearingsMapping() {
-
     }
 
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
-        HearingRequestPayloadBuilder requestPayloadBuilder = HearingRequestPayload.builder();
-
-        requestPayloadBuilder.requestDetails(buildHearingRequestDetails(wrapper));
-        requestPayloadBuilder.hearingDetails(buildHearingDetails(wrapper));
-        requestPayloadBuilder.caseDetails(buildHearingCaseDetails(wrapper));
-        requestPayloadBuilder.partiesDetails(buildHearingPartiesDetails(wrapper));
-
-        return requestPayloadBuilder.build();
+        return HearingRequestPayload.builder()
+            .requestDetails(buildHearingRequestDetails(wrapper))
+            .hearingDetails(buildHearingDetails(wrapper))
+            .caseDetails(buildHearingCaseDetails(wrapper))
+            .partiesDetails(buildHearingPartiesDetails(wrapper))
+            .build();
     }
 
     public static void updateIds(HearingWrapper wrapper) {

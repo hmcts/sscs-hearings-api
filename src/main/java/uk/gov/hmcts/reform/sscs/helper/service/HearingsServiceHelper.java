@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
