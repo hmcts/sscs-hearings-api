@@ -40,14 +40,13 @@ public class HearingsService {
                 break;
             case UPDATE_HEARING:
                 updateHearing(wrapper);
-                // TODO Call hearingPut method
                 break;
             case UPDATED_CASE:
                 updatedCase(wrapper);
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                canelHearing(wrapper);
+                cancelHearing(wrapper);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
@@ -62,10 +61,18 @@ public class HearingsService {
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload payload = buildHearingPayload(wrapper);
+        return hmcHearingApi.createHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            buildHearingPayload(wrapper));
+    }
 
-        return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
-            idamService.getIdamTokens().getServiceAuthorization(), payload);
+    private void sendUpdateHearingRequest(HearingWrapper wrapper) {
+        hmcHearingApi.updateHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingId().toString(),
+            buildUpdateHearingPayload(wrapper));
     }
 
     private void createHearing(HearingWrapper wrapper) {
@@ -77,14 +84,14 @@ public class HearingsService {
 
 
     private void updateHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing's details are updated
+        sendUpdateHearingRequest(wrapper);
     }
 
     private void updatedCase(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a case is updated
     }
 
-    private void canelHearing(HearingWrapper wrapper) {
+    private void cancelHearing(HearingWrapper wrapper) {
         // TODO implement mapping for the event when the hearing is cancelled, might not be needed
     }
 
