@@ -33,8 +33,8 @@ public class HearingsServiceTest {
     @BeforeEach
     void setUp() {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
-        given(wrapper.getOriginalCaseData()).willReturn(HearingWrapper.builder().build().setState(sscsCaseData));
-        given(wrapper.getUpdatedCaseData()).willReturn(HearingWrapper.builder().build().setState(sscsCaseData));
+        given(wrapper.getOriginalCaseData()).willReturn(HearingWrapper.builder().build().setOriginalCaseData(sscsCaseData));
+        given(wrapper.getUpdatedCaseData()).willReturn(HearingWrapper.builder().build().setUpdatedCaseData(sscsCaseData));
         given(wrapper.getEvent()).willReturn(HearingWrapper.builder().build().setEvent(EventType.HEARING));
         given(wrapper.getState()).willReturn(HearingWrapper.builder().build().setState(HearingState.CREATE_HEARING));
     }
