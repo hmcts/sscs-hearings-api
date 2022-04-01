@@ -86,6 +86,10 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+  service-bus:
+    connectionString: ${SERVICE_BUS_CONNECTION_STRING:}
+    topicName: ${SERVICE_BUS_TOPIC_NAME:}
+    subscriptionName: ${SERVICE_BUS_SUBSCRIPTION_NAME:}
 
 feign:
   httpclient:

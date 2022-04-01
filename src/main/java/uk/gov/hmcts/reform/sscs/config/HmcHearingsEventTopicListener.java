@@ -10,6 +10,7 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.model.HmcMessage;
 
 import java.util.concurrent.CountDownLatch;
@@ -22,15 +23,15 @@ import java.util.concurrent.TimeUnit;
     "PMD.CompareObjectsWithEquals",
     "PMD.CloseResource"
 })
+@Component
 public final class HmcHearingsEventTopicListener {
 
-    @Value("${connectionString}")
+    @Value("${azure.service-bus.connectionString}")
     private String connectionString;
-    @Value("${topicName}")
+    @Value("${azure.service-bus.topicName}")
     private String topicName;
-    @Value("${subName}")
-    private String subName;
-
+    @Value("${azure.service-bus.subscriptionName}")
+    private String subscriptionName;
 
     public void receiveMessages() {
         CountDownLatch countdownLatch = new CountDownLatch(1);
@@ -39,18 +40,12 @@ public final class HmcHearingsEventTopicListener {
             .connectionString(connectionString)
             .processor()
             .topicName(topicName)
-            .subscriptionName(subName)
+            .subscriptionName(subscriptionName)
             .processMessage(HmcHearingsEventTopicListener::processMessage)
             .processError(context -> processError(context, countdownLatch))
             .buildProcessorClient();
 
         processorClient.start();
-        try {
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            log.error("Client processing interrupted: {}%n ", e.getMessage());
-        }
-        processorClient.close();
     }
 
     @SuppressWarnings({"PMD.EmptyIfStmt", "checkstyle:EmptyBlock"})
