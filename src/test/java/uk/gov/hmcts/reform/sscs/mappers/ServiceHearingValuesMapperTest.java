@@ -1,13 +1,14 @@
 package uk.gov.hmcts.reform.sscs.mappers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -259,7 +260,7 @@ public class ServiceHearingValuesMapperTest {
             .build();
     }
 
-    private List<RelatedParties> getRelatedParties() {
+    private List<RelatedParty> getRelatedParties() {
         return new ArrayList<>() {{
             /*add(RelatedParties.builder()
                     .relationshipType("Relative")

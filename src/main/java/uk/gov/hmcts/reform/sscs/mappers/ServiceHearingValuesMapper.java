@@ -4,6 +4,10 @@ import com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.S
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -285,7 +289,7 @@ public class ServiceHearingValuesMapper {
     }
 
 
-    private static List<RelatedParties> getRelatedParties(Appellant appellant){
+    private static List<RelatedParty> getRelatedParties(Appellant appellant){
         /*if(Objects.nonNull(appellant) && Objects.nonNull(appellant.getRelatedParties())) {
             return appellant.getRelatedParties().stream()
                 .map(rp -> RelatedParties.builder()
@@ -296,7 +300,7 @@ public class ServiceHearingValuesMapper {
         return new ArrayList<>();
     }
     // TODO Lucas will provide this method
-    private static List<RelatedParties> getRelatedParties(OtherParty party){
+    private static List<RelatedParty> getRelatedParties(OtherParty party){
         /*if(Objects.nonNull(party) && Objects.nonNull(party.getRelatedParties())) {
             return party.getRelatedParties().stream()
                 .map(rp -> RelatedParties.builder()
