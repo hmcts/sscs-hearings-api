@@ -187,33 +187,4 @@ public final class HearingsMapping {
 
         entity.setRelatedParties(relatedParties);
     }
-=======
-    public static int getHearingDuration(SscsCaseData caseData) {
-        int duration = 30;
-        if (nonNull(caseData.getAdjournCaseNextHearingListingDuration())
-            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
-            // TODO Adjournments - Check this is the correct logic for Adjournments
-            if ("hours".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
-                duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * 60;
-            } else {
-                // TODO Adjournments - check no other measurement than hours, mins and null
-                duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
-            }
-        } else if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
-            // TODO Will use Session Category Reference Data
-            //      depends on session category, logic to be built (manual override needed)
-            duration = sessionLookupService.getDuration((caseData.getBenefitCode() + caseData.getIssueCode()).trim());
-        }
-        return duration;
-    }
-
-    public static String getPanelMembers(SscsCaseData caseData) {
-        String panelMembers = null;
-        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
-            panelMembers = sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode());
-        }
-        return panelMembers;
-    }
-
->>>>>>> e8e04f0 (SSCS-10116)
 }
