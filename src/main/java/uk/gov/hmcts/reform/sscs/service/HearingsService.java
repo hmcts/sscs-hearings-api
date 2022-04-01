@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
@@ -17,6 +18,7 @@ import static java.util.Objects.isNull;
 // TODO Unsuppress in future
 @Slf4j
 @Service
+@AllArgsConstructor
 public class HearingsService {
 
     private HmcHearingApi hmcHearingApi;
@@ -64,7 +66,7 @@ public class HearingsService {
         }
     }
 
-    private HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper){
+    public HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper){
         HearingDeleteRequestPayload payload = buildDeleteHearingPayload(wrapper);
         return hmcHearingApi.deleteHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
                                                   idamService.getIdamTokens().getServiceAuthorization(), idamService.getIdamTokens().getUserId() ,payload);
