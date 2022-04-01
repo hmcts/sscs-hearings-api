@@ -9,4 +9,8 @@
     <cpe>cpe:/a:pivotal_software:spring_security</cpe>
     <cve>CVE-2021-29425</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[Awaiting new jackson-core dependency update]]></notes>
+    <cve>CVE-2020-36518</cve>
+  </suppress>
 </suppressions>

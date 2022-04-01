@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
+import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
@@ -28,13 +29,15 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 
 @SpringBootTest
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
 @PactTestFor(port = "10000")
-public class GetHearingPactConsumerTest extends ContractTestDataProvider {
+public class GetHearingPactConsumerTest extends BasePactTest {
 
     private static final String PATH_HEARING = "/hearing";
     private static final String FIELD_ID = "id";
@@ -67,10 +70,10 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_CASE_ID)
-            .headers(authorisedHeaders)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.OK.value())
-            .body(generateValidHearingGetResponsePactDslJsonBody(date))
+            .body(ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date))
             .toPact();
     }
 
@@ -79,8 +82,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     public void shouldSuccessfullyGetHearing() throws Exception {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
-            IDAM_OAUTH2_TOKEN,
-            SERVICE_AUTHORIZATION_TOKEN,
+            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID
         );
 
@@ -88,7 +91,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         HearingGetResponse expected = objectMapper.readValue(
-            generateValidHearingGetResponsePactDslJsonBody(date).toString(),
+            ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
             HearingGetResponse.class
         );
 
@@ -105,10 +108,10 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_CASE_ID + OPTION_FIELD_IS_VALID)
-            .headers(authorisedHeaders)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.OK.value())
-            .body(generateValidHearingGetResponsePactDslJsonBody(date))
+            .body(ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date))
             .toPact();
     }
 
@@ -118,8 +121,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     public void shouldSuccessfullyGetHearingWithRefCheck() throws Exception {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
-            IDAM_OAUTH2_TOKEN,
-            SERVICE_AUTHORIZATION_TOKEN,
+            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID + OPTION_FIELD_IS_VALID
         );
 
@@ -127,7 +130,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         HearingGetResponse expected = objectMapper.readValue(
-            generateValidHearingGetResponsePactDslJsonBody(date).toString(),
+            ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
             HearingGetResponse.class
         );
 
@@ -143,7 +146,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + VALID_NO_CONTENT_CASE_ID)
-            .headers(authorisedHeaders)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.NO_CONTENT.value())
             .body("")
@@ -156,8 +159,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
     public void shouldSuccessfullyGetHearingWithNoContent() {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
-            IDAM_OAUTH2_TOKEN,
-            SERVICE_AUTHORIZATION_TOKEN,
+            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             VALID_NO_CONTENT_CASE_ID
         );
 
@@ -174,7 +177,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + BAD_REQUEST_CASE_ID)
-            .headers(authorisedHeaders)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.BAD_REQUEST.value())
             .body("")
@@ -188,8 +191,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
 
         assertThatExceptionOfType(FeignException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                IDAM_OAUTH2_TOKEN,
-                SERVICE_AUTHORIZATION_TOKEN,
+                ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+                ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 BAD_REQUEST_CASE_ID
             )).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
@@ -204,7 +207,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + UNAUTHORISED_CASE_ID)
-            .headers(unauthorisedHeaders)
+            .headers(ContractTestDataProvider.unauthorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.UNAUTHORIZED.value())
             .body("")
@@ -218,8 +221,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
 
         assertThatExceptionOfType(FeignException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                UNAUTHORISED_IDAM_OAUTH2_TOKEN,
-                UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
+                ContractTestDataProvider.UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+                ContractTestDataProvider.UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
                 UNAUTHORISED_CASE_ID
             )).extracting("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
@@ -233,7 +236,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
-            .headers(authorisedHeaders)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.FORBIDDEN.value())
             .body("")
@@ -247,8 +250,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
 
         assertThatExceptionOfType(FeignException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                IDAM_OAUTH2_TOKEN,
-                SERVICE_AUTHORIZATION_TOKEN,
+                ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+                ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 FORBIDDEN_CASE_ID
             )).extracting("status").isEqualTo(HttpStatus.FORBIDDEN.value());
     }
@@ -263,7 +266,7 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
             .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
-            .headers(authorisedHeaders)
+            .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
             .status(HttpStatus.NOT_FOUND.value())
             .body("")
@@ -277,8 +280,8 @@ public class GetHearingPactConsumerTest extends ContractTestDataProvider {
 
         assertThatExceptionOfType(FeignException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                IDAM_OAUTH2_TOKEN,
-                SERVICE_AUTHORIZATION_TOKEN,
+                ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
+                ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 NOT_FOUND_CASE_ID
             )).extracting("status").isEqualTo(HttpStatus.NOT_FOUND.value());
     }
