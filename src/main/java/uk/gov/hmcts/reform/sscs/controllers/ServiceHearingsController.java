@@ -31,7 +31,8 @@ public class ServiceHearingsController {
     @Autowired
     public ServiceHearingsController(
         AuthorisationService authorisationService,
-        CcdCaseService ccdCaseService, ServiceHearingValuesMapper serviceHearingValuesMapper) {
+        CcdCaseService ccdCaseService,
+        ServiceHearingValuesMapper serviceHearingValuesMapper) {
         this.authorisationService = authorisationService;
         this.ccdCaseService = ccdCaseService;
         this.serviceHearingValuesMapper = serviceHearingValuesMapper;

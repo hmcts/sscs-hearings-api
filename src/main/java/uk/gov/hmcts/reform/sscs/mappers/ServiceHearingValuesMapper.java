@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.mappers;
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMapping;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
@@ -34,7 +35,7 @@ public class ServiceHearingValuesMapper {
         SscsCaseData caseData = caseDetails.getData();
         return ServiceHearingValues.builder()
             .caseName(getCaseName(caseData))
-            .autoListFlag(true) // TODO when autoListFlag is created in caseData you will map it with this value Suvarna
+            .autoListFlag(true) // TODO to be provided in a future story, right now not populated
             .hearingType(getHearingType(caseData))
             .caseType(caseData.getBenefitCode())
             .caseSubTypes(getIssueCode(caseData))
@@ -56,7 +57,7 @@ public class ServiceHearingValuesMapper {
             .judiciary(null) // TODO check with Suvarna for panel preferences and panel composition
             .hearingIsLinkedFlag(false)
             .parties(getParties(caseData))  // TODO  missing mappings
-            .caseFlags(CaseFlags.builder().build()) // TODO Zikrur will provide
+            .caseFlags(getCaseFlags(caseData))
             .screenFlow(null)
             .vocabulary(null)
             .hmctsServiceID("BBA3")
@@ -326,6 +327,12 @@ public class ServiceHearingValuesMapper {
             .build();
     }
 
+    private static CaseFlags getCaseFlags(SscsCaseData sscsCaseData){
+        return CaseFlags.builder()
+            .flags(PartyFlagsMapping.getPartyFlags(sscsCaseData))
+            .flagAmendUrl(null)
+            .build();
+    }
     // TODO right now we assume all parties are Individuals
     private static PartyType getPartyType(OtherParty party) {
         /*if(Objects.nonNull(party.getOrganisation())){
@@ -386,12 +393,7 @@ public class ServiceHearingValuesMapper {
         return null;
     }
 
-    private static CaseFlags getCaseFlags(SscsCaseData sscsCaseData){
-        return CaseFlags.builder()
-            .flags(getPartyFlags(sscsCaseData))
-            .flagAmendUrl("")
-            .build();
-    }
+
 
     private static List<PartyFlags> getPartyFlags(SscsCaseData sscsCaseData) {
         return Optional.ofNullable(sscsCaseData.getOtherParties())

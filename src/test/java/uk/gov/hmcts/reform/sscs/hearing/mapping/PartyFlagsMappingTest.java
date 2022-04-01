@@ -12,12 +12,11 @@ import java.util.List;
 
 class PartyFlagsMappingTest {
 
-    PartyFlagsMapping mapping = new PartyFlagsMapping();
 
     @Test
     void shouldAddTheMappingsGivenTheValuesAreNotNull() {
         var expected = getPartyFlags();
-        var actual = mapping.getPartyFlags(getSscsCaseData());
+        var actual = PartyFlagsMapping.getPartyFlags(getSscsCaseData());
         Assertions.assertEquals(expected, actual);
     }
 
@@ -25,7 +24,7 @@ class PartyFlagsMappingTest {
     void shouldNotThrowNullPointerWhenChainedValuesInCaseDataIsNUll() {
         NullPointerException npe = null;
         try {
-            mapping.getPartyFlags(getNullSscsCaseData());
+            PartyFlagsMapping.getPartyFlags(getNullSscsCaseData());
         } catch (NullPointerException ex) {
             npe = ex;
         }
