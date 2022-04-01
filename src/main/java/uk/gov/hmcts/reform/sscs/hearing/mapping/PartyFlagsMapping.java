@@ -6,8 +6,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlags;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
@@ -58,9 +59,9 @@ public class PartyFlagsMapping {
 
         if (Objects.nonNull(options) && options.wantsAccessibleHearingRoom()) {
             partyFlagsDisabledAccess = PartyFlags.builder()
-                .flagId(PartyFlagsMap.DISABLED_ACCESS.getFlagId())
-                .flagDescription(PartyFlagsMap.DISABLED_ACCESS.getFlagDescription())
-                .flagParentId(PartyFlagsMap.DISABLED_ACCESS.getParentId()).build();
+                .flagId(DISABLED_ACCESS.getFlagId())
+                .flagDescription(DISABLED_ACCESS.getFlagDescription())
+                .flagParentId(DISABLED_ACCESS.getParentId()).build();
         }
         return partyFlagsDisabledAccess;
     }
@@ -72,9 +73,9 @@ public class PartyFlagsMapping {
         PartyFlags hearingLoop = null;
         if (Objects.nonNull(options) && options.wantsHearingLoop()) {
             hearingLoop = PartyFlags.builder()
-                .flagId(PartyFlagsMap.HEARING_LOOP.getFlagId())
-                .flagDescription(PartyFlagsMap.HEARING_LOOP.getFlagDescription())
-                .flagParentId(PartyFlagsMap.HEARING_LOOP.getParentId()).build();
+                .flagId(HEARING_LOOP.getFlagId())
+                .flagDescription(HEARING_LOOP.getFlagDescription())
+                .flagParentId(HEARING_LOOP.getParentId()).build();
         }
         return hearingLoop;
     }
