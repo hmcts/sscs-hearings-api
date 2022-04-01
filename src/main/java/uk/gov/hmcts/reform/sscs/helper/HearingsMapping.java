@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
+<<<<<<< HEAD
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -24,11 +25,24 @@ public final class HearingsMapping {
     public static final String REPRESENTATIVE = "Representative";
     public static final String APPOINTEE = "Appointee";
     public static final String APPELLANT = "Appellant";
+=======
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.service.SessionLookupService;
+
+import static java.util.Objects.nonNull;
+
+@SuppressWarnings({"PMD.LinguisticNaming","PMD.UnnecessaryLocalBeforeReturn"})
+// TODO Unsuppress in future
+public final class HearingsMapping {
+
+    private static SessionLookupService sessionLookupService;
+>>>>>>> e8e04f0 (SSCS-10116)
 
     private HearingsMapping() {
 
     }
 
+<<<<<<< HEAD
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
         HearingRequestPayloadBuilder requestPayloadBuilder = HearingRequestPayload.builder();
 
@@ -173,4 +187,33 @@ public final class HearingsMapping {
 
         entity.setRelatedParties(relatedParties);
     }
+=======
+    public static int getHearingDuration(SscsCaseData caseData) {
+        int duration = 30;
+        if (nonNull(caseData.getAdjournCaseNextHearingListingDuration())
+            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
+            // TODO Adjournments - Check this is the correct logic for Adjournments
+            if ("hours".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
+                duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * 60;
+            } else {
+                // TODO Adjournments - check no other measurement than hours, mins and null
+                duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
+            }
+        } else if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
+            // TODO Will use Session Category Reference Data
+            //      depends on session category, logic to be built (manual override needed)
+            duration = sessionLookupService.getDuration((caseData.getBenefitCode() + caseData.getIssueCode()).trim());
+        }
+        return duration;
+    }
+
+    public static String getPanelMembers(SscsCaseData caseData) {
+        String panelMembers = null;
+        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
+            panelMembers = sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode());
+        }
+        return panelMembers;
+    }
+
+>>>>>>> e8e04f0 (SSCS-10116)
 }

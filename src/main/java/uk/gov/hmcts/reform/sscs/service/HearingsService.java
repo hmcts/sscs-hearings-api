@@ -78,6 +78,8 @@ public class HearingsService {
 
     private void updateHearing(HearingWrapper wrapper) {
         // TODO implement mapping for the event when the hearing's details are updated
+
+
     }
 
     private void updatedCase(HearingWrapper wrapper) {
