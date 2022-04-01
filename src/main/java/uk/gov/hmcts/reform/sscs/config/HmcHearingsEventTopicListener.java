@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.messaging;
+package uk.gov.hmcts.reform.sscs.config;
 
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusErrorContext;
@@ -9,6 +9,8 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import uk.gov.hmcts.reform.sscs.model.HmcMessage;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -22,17 +24,22 @@ import java.util.concurrent.TimeUnit;
 })
 public final class HmcHearingsEventTopicListener {
 
-    private final HmcHearingsTopicListenerProperties properties;
+    @Value("${connectionString}")
+    private String connectionString;
+    @Value("${topicName}")
+    private String topicName;
+    @Value("${subName}")
+    private String subName;
 
-    @SuppressWarnings("unused")
+
     public void receiveMessages() {
         CountDownLatch countdownLatch = new CountDownLatch(1);
 
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .connectionString(properties.getConnectionString())
+            .connectionString(connectionString)
             .processor()
-            .topicName(properties.getTopicName())
-            .subscriptionName(properties.getSubName())
+            .topicName(topicName)
+            .subscriptionName(subName)
             .processMessage(HmcHearingsEventTopicListener::processMessage)
             .processError(context -> processError(context, countdownLatch))
             .buildProcessorClient();
@@ -57,12 +64,14 @@ public final class HmcHearingsEventTopicListener {
         }
 
         log.info("Processing message. Session: {}, Sequence #: {}. Contents: {}%n", message.getMessageId(),
-                 message.getSequenceNumber(), message.getBody());
+                 message.getSequenceNumber(), message.getBody()
+        );
     }
 
     private void processError(ServiceBusErrorContext context, CountDownLatch countdownLatch) {
         log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'%n",
-                  context.getFullyQualifiedNamespace(), context.getEntityPath());
+                  context.getFullyQualifiedNamespace(), context.getEntityPath()
+        );
 
         if (!(context.getException() instanceof ServiceBusException)) {
             log.warn("Non-ServiceBusException occurred: {}%n", context.getException().toString());
@@ -76,7 +85,8 @@ public final class HmcHearingsEventTopicListener {
             || reason == ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND
             || reason == ServiceBusFailureReason.UNAUTHORIZED) {
             log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}%n",
-                      reason, exception.getMessage());
+                      reason, exception.getMessage()
+            );
             countdownLatch.countDown();
         } else if (reason == ServiceBusFailureReason.MESSAGE_LOCK_LOST) {
             log.warn("Message lock lost for message: {}%n", context.getException().toString());
@@ -88,7 +98,8 @@ public final class HmcHearingsEventTopicListener {
             }
         } else {
             log.error("Error source {}, reason {}, message: {}%n", context.getErrorSource(),
-                      reason, context.getException());
+                      reason, context.getException()
+            );
         }
     }
 }
