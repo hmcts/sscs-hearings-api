@@ -1,47 +1,55 @@
-package uk.gov.hmcts.reform.sscs.hearing.mapping;
+package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlags;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.DISABLED_ACCESS;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.DWP_PHME;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.DWP_UCB;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.HEARING_LOOP;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
-import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.URGENT_CASE;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.DISABLED_ACCESS;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.DWP_PHME;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.DWP_UCB;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.URGENT_CASE;
 
-public class PartyFlagsMapping {
+public final class PartyFlagsMapping {
 
-    public List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
-        return Arrays.asList(
-            mapSignLanguageType(caseData),
-            disabledAccess(caseData),
-            hearingLoop(caseData),
-            confidentialCase(caseData),
-            dwpUcb(caseData),
-            dwpPhme(caseData),
-            urgentCase(caseData),
-            adjournCaseInterpreterLanguage(caseData)
-        );
+    private PartyFlagsMapping() {
+
     }
 
-    private PartyFlags mapSignLanguageType(SscsCaseData caseData) {
-        var signLanguageType = Optional
+    public static List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
+        return Stream.of(
+                signLanguage(caseData),
+                disabledAccess(caseData),
+                hearingLoop(caseData),
+                confidentialCase(caseData),
+                dwpUcb(caseData),
+                dwpPhme(caseData),
+                urgentCase(caseData),
+                adjournCaseInterpreterLanguage(caseData)
+        ).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    public static PartyFlags signLanguage(SscsCaseData caseData) {
+        String signLanguageType = Optional
             .ofNullable(caseData.getAppeal())
             .map(Appeal::getHearingOptions)
-            .map(HearingOptions::getSignLanguageType);
+            .map(HearingOptions::getSignLanguageType).orElse(null);
         PartyFlags partyFlagsSignLanguage = null;
-        if (signLanguageType.isPresent()) {
+        if (isNotBlank(signLanguageType)) {
             partyFlagsSignLanguage = PartyFlags.builder()
                 .flagId(SIGN_LANGUAGE_TYPE.getFlagId())
                 .flagDescription(SIGN_LANGUAGE_TYPE.getFlagDescription())
@@ -51,13 +59,13 @@ public class PartyFlagsMapping {
         return partyFlagsSignLanguage;
     }
 
-    private PartyFlags disabledAccess(SscsCaseData caseData) {
+    public static PartyFlags disabledAccess(SscsCaseData caseData) {
         HearingOptions options = Optional
             .ofNullable(caseData.getAppeal())
             .map(Appeal::getHearingOptions).orElse(null);
         PartyFlags partyFlagsDisabledAccess = null;
 
-        if (Objects.nonNull(options) && options.wantsAccessibleHearingRoom()) {
+        if (nonNull(options) && isTrue(options.wantsAccessibleHearingRoom())) {
             partyFlagsDisabledAccess = PartyFlags.builder()
                 .flagId(DISABLED_ACCESS.getFlagId())
                 .flagDescription(DISABLED_ACCESS.getFlagDescription())
@@ -66,12 +74,12 @@ public class PartyFlagsMapping {
         return partyFlagsDisabledAccess;
     }
 
-    private PartyFlags hearingLoop(SscsCaseData caseData) {
+    public static PartyFlags hearingLoop(SscsCaseData caseData) {
         HearingOptions options = Optional
             .ofNullable(caseData.getAppeal())
             .map(Appeal::getHearingOptions).orElse(null);
         PartyFlags hearingLoop = null;
-        if (Objects.nonNull(options) && options.wantsHearingLoop()) {
+        if (nonNull(options) && isTrue(options.wantsHearingLoop())) {
             hearingLoop = PartyFlags.builder()
                 .flagId(HEARING_LOOP.getFlagId())
                 .flagDescription(HEARING_LOOP.getFlagDescription())
@@ -80,23 +88,21 @@ public class PartyFlagsMapping {
         return hearingLoop;
     }
 
-    private PartyFlags confidentialCase(SscsCaseData caseData) {
-        var isConfidentialCase = caseData.getIsConfidentialCase();
-        PartyFlags confidentialCase = null;
-        if (isConfidentialCase == YesNo.YES) {
-            confidentialCase = PartyFlags.builder()
+    public static PartyFlags confidentialCase(SscsCaseData caseData) {
+        PartyFlags confidentialCaseFlag = null;
+        if (isYes(caseData.getIsConfidentialCase())) {
+            confidentialCaseFlag = PartyFlags.builder()
                 .flagId(IS_CONFIDENTIAL_CASE.getFlagId())
                 .flagDescription(IS_CONFIDENTIAL_CASE.getFlagDescription())
                 .flagParentId(IS_CONFIDENTIAL_CASE.getParentId())
                 .build();
         }
-        return confidentialCase;
+        return confidentialCaseFlag;
     }
 
-    private PartyFlags dwpUcb(SscsCaseData caseData) {
-        var dwpUcb = caseData.getDwpUcb();
+    public static PartyFlags dwpUcb(SscsCaseData caseData) {
         PartyFlags dwpUcbPartyFlag = null;
-        if (dwpUcb != null) {
+        if (isNotBlank(caseData.getDwpUcb())) {
             dwpUcbPartyFlag = PartyFlags.builder()
                 .flagId(DWP_UCB.getFlagId())
                 .flagDescription(DWP_UCB.getFlagDescription())
@@ -105,10 +111,9 @@ public class PartyFlagsMapping {
         return  dwpUcbPartyFlag;
     }
 
-    private PartyFlags dwpPhme(SscsCaseData caseData) {
-        var dwpPhme = caseData.getDwpPhme();
+    public static PartyFlags dwpPhme(SscsCaseData caseData) {
         PartyFlags dwpPhmePartyFlag = null;
-        if (dwpPhme != null) {
+        if (isNotBlank(caseData.getDwpPhme())) {
             dwpPhmePartyFlag = PartyFlags.builder()
                 .flagId(DWP_PHME.getFlagId())
                 .flagDescription(DWP_PHME.getFlagDescription())
@@ -117,10 +122,9 @@ public class PartyFlagsMapping {
         return dwpPhmePartyFlag;
     }
 
-    private PartyFlags urgentCase(SscsCaseData caseData) {
-        var urgentCase = caseData.getUrgentCase();
+    public static PartyFlags urgentCase(SscsCaseData caseData) {
         PartyFlags urgentCasePartyFlag = null;
-        if (urgentCase != null) {
+        if (isYes(caseData.getUrgentCase())) {
             urgentCasePartyFlag = PartyFlags.builder()
                 .flagId(URGENT_CASE.getFlagId())
                 .flagDescription(URGENT_CASE.getFlagDescription())
@@ -129,10 +133,9 @@ public class PartyFlagsMapping {
         return urgentCasePartyFlag;
     }
 
-    private PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
-        var adjournCaseInterpreterLanguage = caseData.getAdjournCaseInterpreterLanguage();
+    public static PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
         PartyFlags adjournCasePartyFlag = null;
-        if (adjournCaseInterpreterLanguage != null) {
+        if (isNotBlank(caseData.getAdjournCaseInterpreterLanguage())) {
             adjournCasePartyFlag = PartyFlags.builder()
                 .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
                 .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
