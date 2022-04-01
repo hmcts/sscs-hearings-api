@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -39,7 +40,6 @@ public class HearingsService {
                 break;
             case UPDATE_HEARING:
                 updateHearing(wrapper);
-                // TODO Call hearingPut method
                 break;
             case UPDATED_CASE:
                 updatedCase(wrapper);
@@ -60,14 +60,6 @@ public class HearingsService {
         }
     }
 
-    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-
-        return hmcHearingApi.createHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
-                buildHearingPayload(wrapper));
-    }
-
     private void createHearing(HearingWrapper wrapper) {
         updateIds(wrapper);
         buildRelatedParties(wrapper);
@@ -77,7 +69,10 @@ public class HearingsService {
 
 
     private void updateHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing's details are updated
+        updateIds(wrapper);
+        buildRelatedParties(wrapper);
+        sendUpdateHearingRequest(wrapper);
+        // TODO Store response with SSCS-10274
     }
 
     private void updatedCase(HearingWrapper wrapper) {
@@ -91,4 +86,22 @@ public class HearingsService {
     private void partyNotified(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a party has been notified, might not be needed
     }
+
+    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+        return hmcHearingApi.createHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                buildHearingPayload(wrapper)
+        );
+    }
+
+    private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) {
+        return hmcHearingApi.updateHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                getHearingId(wrapper),
+                buildHearingPayload(wrapper)
+        );
+    }
+
 }

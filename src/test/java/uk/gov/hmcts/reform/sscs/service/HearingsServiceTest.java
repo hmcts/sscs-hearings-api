@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -16,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_HEARING_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.HearingState.CREATE_HEARING;
 
@@ -45,7 +45,7 @@ class HearingsServiceTest {
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.openMocks(this);
+        openMocks(this);
 
         caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
