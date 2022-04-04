@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange.Unavail
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -559,14 +560,10 @@ public final class HearingsMapping {
     }
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        HearingLocations hearingLocations = new HearingLocations();
-        hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
-        hearingLocations.setLocationType("court");
-
-        List<HearingLocations> hearingLocationsList = new ArrayList<>();
-        hearingLocationsList.add(hearingLocations);
-
-        return hearingLocationsList;
+        return Arrays.asList(HearingLocations.builder()
+                                 .locationId(caseManagementLocation.getBaseLocation())
+                                 .locationType(LocationType.COURT.getLocationLabel())
+                                 .build());
     }
 
     public static String getHearingPriority(String isAdjournCase, String isUrgentCase) {
