@@ -8,10 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -315,11 +312,11 @@ class HearingsMappingTest {
                 .region(region)
                 .build();
         List<HearingLocations> result = HearingsMapping.getHearingLocations(managementLocation);
-        //List<HearingLocations> expected = new ArrayList<>();
-
-        assertEquals(1, result.size());
-        assertEquals("219164", result.get(0).getLocationId());
-        assertEquals("court", result.get(0).getLocationType());
+        List<HearingLocations> expected = Arrays.asList(HearingLocations.builder()
+                                                            .locationId("219164")
+                                                            .locationType(LocationType.COURT.getLocationLabel())
+                                                            .build());
+        assertEquals(expected, result);
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
