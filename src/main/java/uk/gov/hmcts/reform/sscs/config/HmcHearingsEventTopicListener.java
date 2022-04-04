@@ -10,21 +10,18 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.model.HmcMessage;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
 @Data
-@SuppressWarnings({
-    "PMD.LawOfDemeter",
-    "PMD.CompareObjectsWithEquals",
-    "PMD.CloseResource"
-})
-@Component
-public final class HmcHearingsEventTopicListener {
+@Configuration
+public class HmcHearingsEventTopicListener {
 
     @Value("${azure.service-bus.connectionString}")
     private String connectionString;
@@ -33,6 +30,8 @@ public final class HmcHearingsEventTopicListener {
     @Value("${azure.service-bus.subscriptionName}")
     private String subscriptionName;
 
+    //TODO add @Bean and add correct values (connectionString,topicName,subscriptionName) in application.yml
+    @SuppressWarnings({"PMD.CloseResource"})
     public void receiveMessages() {
         CountDownLatch countdownLatch = new CountDownLatch(1);
 
@@ -48,7 +47,6 @@ public final class HmcHearingsEventTopicListener {
         processorClient.start();
     }
 
-    @SuppressWarnings({"PMD.EmptyIfStmt", "checkstyle:EmptyBlock"})
     private static void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
         HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
@@ -56,6 +54,7 @@ public final class HmcHearingsEventTopicListener {
 
         if (hmctsServiceID.contains("BBA3")) {
             //TODO process all messages with BBA3
+            log.info("Processing hearing #: {}. and case #: {}%n", hmcMessage.getHearingID(), hmcMessage.getCaseRef());
         }
 
         log.info("Processing message. Session: {}, Sequence #: {}. Contents: {}%n", message.getMessageId(),
@@ -76,18 +75,18 @@ public final class HmcHearingsEventTopicListener {
         ServiceBusException exception = (ServiceBusException) context.getException();
         ServiceBusFailureReason reason = exception.getReason();
 
-        if (reason == ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED
-            || reason == ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND
-            || reason == ServiceBusFailureReason.UNAUTHORIZED) {
+        if (Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED)
+            || Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND)
+            || Objects.equals(reason, ServiceBusFailureReason.UNAUTHORIZED)) {
             log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}%n",
                       reason, exception.getMessage()
             );
             countdownLatch.countDown();
-        } else if (reason == ServiceBusFailureReason.MESSAGE_LOCK_LOST) {
+        } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
             log.warn("Message lock lost for message: {}%n", context.getException().toString());
-        } else if (reason == ServiceBusFailureReason.SERVICE_BUSY) {
+        } else if (Objects.equals(reason, ServiceBusFailureReason.SERVICE_BUSY)) {
             try {
-                TimeUnit.SECONDS.sleep(1);
+                SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 log.warn("Unable to sleep for period of time");
             }
