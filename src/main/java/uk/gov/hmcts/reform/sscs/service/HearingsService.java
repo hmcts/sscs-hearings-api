@@ -68,10 +68,11 @@ public class HearingsService {
 
     public HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper) {
         HearingDeleteRequestPayload payload = buildDeleteHearingPayload(wrapper);
-        return hmcHearingApi.deleteHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
-                                                  idamService.getIdamTokens().getServiceAuthorization(),
-                                                  idamService.getIdamTokens().getUserId(),
-                                                  payload
+        return hmcHearingApi.deleteHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            idamService.getIdamTokens().getUserId(),
+            payload
         );
     }
 
