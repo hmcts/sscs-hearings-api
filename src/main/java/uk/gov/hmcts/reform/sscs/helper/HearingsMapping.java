@@ -491,7 +491,10 @@ public final class HearingsMapping {
     }
 
     public static String getCaseManagementLocationCode(CaseManagementLocation caseManagementLocation) {
-        // TODO SSCS-10245 - map from caseManagementLocation to epims
+        // caseManagementLocation's baseLocation == epimsId
+        // TODO Lucas - map from caseManagementLocation to epims
+
+
         return null;
     }
 
@@ -556,14 +559,14 @@ public final class HearingsMapping {
     }
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        // locationType - from reference data - processing venue to venue type/epims
-        // locationId - epims
-        // manual over-ride e.g. if a judge wants to change venue
-        // if paper case - display all venues in that region
-        // locations where there is more than one venue
-        // Normally one location, but can be two in some cities.
-        // TODO SSCS-10245 - work out what venues to choose and get epims/locationType info from Reference Data
-        return new ArrayList<>();
+        HearingLocations hearingLocations = new HearingLocations();
+        hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+        hearingLocations.setLocationType("court");
+
+        List<HearingLocations> hearingLocationsList = new ArrayList<>();
+        hearingLocationsList.add(hearingLocations);
+
+        return hearingLocationsList;
     }
 
     public static String getHearingPriority(String isAdjournCase, String isUrgentCase) {
