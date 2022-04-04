@@ -306,23 +306,20 @@ class HearingsMappingTest {
         assertNull(result);
     }
 
-    @Disabled
     @DisplayName("getHearingLocations Parameterized Tests")
     @ParameterizedTest
-    @CsvSource(value = {"TBD,TBD,[{CLUSTER,TBD}]"}, nullValues = {"null"})
-    void getHearingLocations(String baseLocation, String region,
-                             List<Pair<String,String>> expectedParams) {
-        // TODO Finish Test when method done
-
+    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    void getHearingLocations(String baseLocation, String region) {
         CaseManagementLocation managementLocation = CaseManagementLocation.builder()
                 .baseLocation(baseLocation)
                 .region(region)
                 .build();
         List<HearingLocations> result = HearingsMapping.getHearingLocations(managementLocation);
-        List<HearingLocations> expected = new ArrayList<>();
+        //List<HearingLocations> expected = new ArrayList<>();
 
-        assertEquals(0, result.size());
-        assertEquals(expected, result);
+        assertEquals(1, result.size());
+        assertEquals("219164", result.get(0).getLocationId());
+        assertEquals("court", result.get(0).getLocationType());
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
