@@ -1,18 +1,17 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildDeleteHearingPayload;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
-
-import static java.util.Objects.isNull;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -28,7 +27,8 @@ public class HearingsService {
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
             log.info("The Event: {}, cannot be handled for the case with the id: {}",
-                    wrapper.getEvent(), wrapper.getOriginalCaseData().getCcdCaseId());
+                     wrapper.getEvent(), wrapper.getOriginalCaseData().getCcdCaseId()
+            );
             return;
         }
 
@@ -61,15 +61,18 @@ public class HearingsService {
                 break;
             default:
                 UnhandleableHearingState err = new UnhandleableHearingState(wrapper.getState());
-                log.error(err.getMessage(),err);
+                log.error(err.getMessage(), err);
                 throw err;
         }
     }
 
-    public HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper){
+    public HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper) {
         HearingDeleteRequestPayload payload = buildDeleteHearingPayload(wrapper);
         return hmcHearingApi.deleteHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
-                                                  idamService.getIdamTokens().getServiceAuthorization(), idamService.getIdamTokens().getUserId() ,payload);
+                                                  idamService.getIdamTokens().getServiceAuthorization(),
+                                                  idamService.getIdamTokens().getUserId(),
+                                                  payload
+        );
     }
 
     private void createHearing(HearingWrapper wrapper) {
