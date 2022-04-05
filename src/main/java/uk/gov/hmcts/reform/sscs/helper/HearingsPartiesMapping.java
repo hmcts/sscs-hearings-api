@@ -13,13 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-<<<<<<< HEAD
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-=======
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
->>>>>>> f474aa49b43511c4a69056d9824e3fd4d7da389d
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;

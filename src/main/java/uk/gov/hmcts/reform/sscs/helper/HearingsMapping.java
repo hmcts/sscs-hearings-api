@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
-<<<<<<< HEAD
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -25,24 +24,11 @@ public final class HearingsMapping {
     public static final String REPRESENTATIVE = "Representative";
     public static final String APPOINTEE = "Appointee";
     public static final String APPELLANT = "Appellant";
-=======
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.service.SessionLookupService;
-
-import static java.util.Objects.nonNull;
-
-@SuppressWarnings({"PMD.LinguisticNaming","PMD.UnnecessaryLocalBeforeReturn"})
-// TODO Unsuppress in future
-public final class HearingsMapping {
-
-    private static SessionLookupService sessionLookupService;
->>>>>>> e8e04f0 (SSCS-10116)
 
     private HearingsMapping() {
 
     }
 
-<<<<<<< HEAD
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
         HearingRequestPayloadBuilder requestPayloadBuilder = HearingRequestPayload.builder();
 
