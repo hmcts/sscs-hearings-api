@@ -1,21 +1,24 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 
-import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+
+import javax.servlet.http.HttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 
 @ExtendWith(MockitoExtension.class)
 public class HearingsServiceTest {
@@ -50,18 +53,23 @@ public class HearingsServiceTest {
 
     @DisplayName("sendDeleteHearingRequest should send request successfully")
     @Test
-    void sendDeleteHearingRequest(){
+    void sendDeleteHearingRequest() {
         wrapper = HearingWrapper.builder()
-            //  .updatedCaseData(SscsCaseData.builder().canclelationCode(CANCEL_REASON_TEMP).build()) TODO: Uncomment when implemented
+                //.updatedCaseData(SscsCaseData.builder().canclelationCode(CANCEL_REASON_TEMP).build())
+                //TODO: Uncomment when implemented
                 .build();
         HearingResponse expectedHearingResponse = HearingResponse.builder()
                     .status(HttpServletResponse.SC_OK + "")
                     .build();
         HearingDeleteRequestPayload payload = HearingDeleteRequestPayload.builder()
-            .cancellationReasonCode(CANCEL_REASON_TEMP)// .cancellationReasonCode(wrapper.getOriginalCaseData()) TODO: Uncomment when implemented.
+            .cancellationReasonCode(CANCEL_REASON_TEMP)
+            // .cancellationReasonCode(wrapper.getOriginalCaseData())
+            // TODO: Uncomment when implemented.
             .build();
 
-        given(hmcHearingApi.deleteHearingRequest(idamTokens.getIdamOauth2Token(), idamTokens.getServiceAuthorization(), idamTokens.getUserId(), payload))
+        given(hmcHearingApi.deleteHearingRequest(idamTokens.getIdamOauth2Token(),
+                                                 idamTokens.getServiceAuthorization(),
+                                                 idamTokens.getUserId(), payload))
             .willReturn(expectedHearingResponse);
         HearingResponse actualHearingResponse = hearingsService.sendDeleteHearingRequest(wrapper);
 
