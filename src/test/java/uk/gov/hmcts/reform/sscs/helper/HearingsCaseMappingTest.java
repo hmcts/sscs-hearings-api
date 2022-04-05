@@ -4,16 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-<<<<<<< HEAD
-import org.springframework.beans.factory.annotation.Value;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
-=======
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,41 +19,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-<<<<<<< HEAD
-=======
 import static org.junit.jupiter.api.Assertions.assertNotNull;
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.CASE_SUB_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.CASE_TYPE;
 
-<<<<<<< HEAD
-class HearingsCaseMappingTest {
-
-    public static final long HEARING_REQUEST_ID = 12345;
-    public static final String HMC_STATUS = "TestStatus";
-    public static final long VERSION = 1;
-    public static final String CANCELLATION_REASON_CODE = "TestCancelCode";
-    private static final long CASE_ID = 1625080769409918L;
-    private static final long MISSING_CASE_ID = 99250807409918L;
-    private static final String ARRAY_SPLIT_REGEX = "\\s*\\|\\s*";
-
-    @Value("${exui.url}")
-    private static String exUiUrl;
-
-    @Value("${sscs.serviceCode}")
-    private static String sscsServiceCode;
-=======
 class HearingsCaseMappingTest extends HearingsMappingBase {
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
     void buildHearingCaseDetails() {
         // TODO Finish Test when method done
-<<<<<<< HEAD
-=======
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .hearingOptions(HearingOptions.builder().build())
@@ -107,7 +78,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         assertNotNull(caseDetails.getCaseCategories());
         assertNotNull(caseDetails.getCaseManagementLocationCode());
         assertNotNull(caseDetails.getCaseSlaStartDate());
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("getServiceCode Test")
@@ -115,12 +85,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getServiceCode() {
         // TODO Finish Test when method done
         String result = HearingsCaseMapping.getServiceCode();
-<<<<<<< HEAD
-        String expected = sscsServiceCode;
-=======
         String expected = SSCS_SERVICE_CODE;
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
-
         assertEquals(expected, result);
     }
 
@@ -142,12 +107,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().ccdCaseId(String.valueOf(CASE_ID)).build();
         String result = HearingsCaseMapping.getCaseDeepLink(caseData);
-<<<<<<< HEAD
-        String expected = String.format("%s/cases/case-details/%s", exUiUrl, CASE_ID);
-=======
         String expected = String.format("%s/cases/case-details/%s", EX_UI_URL, CASE_ID);
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
-
         assertEquals(expected, result);
     }
 
@@ -155,11 +115,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Test
     void getInternalCaseName() {
         // TODO Finish Test when method done
-<<<<<<< HEAD
-        String caseNameInternal = "Case Name Internal";
-=======
         String caseNameInternal = CASE_NAME_INTERNAL;
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
         SscsCaseData caseData = SscsCaseData.builder()
                 .workAllocationFields(WorkAllocationFields.builder()
                         .caseNameHmctsInternal(caseNameInternal)
@@ -175,11 +131,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Test
     void getPublicCaseName() {
         // TODO Finish Test when method done
-<<<<<<< HEAD
-        String caseNamePublic = "Case Name Internal";
-=======
         String caseNamePublic = CASE_NAME_PUBLIC;
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
         SscsCaseData caseData = SscsCaseData.builder()
                 .workAllocationFields(WorkAllocationFields.builder()
                         .caseNamePublic(caseNamePublic)
@@ -194,24 +146,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-<<<<<<< HEAD
-        "true,true|true,true",
-        "true,false|true,true",
-        "true,true|false,true",
-        "true,false|false,true",
-        "true,false,true",
-        "true,true,true",
-        "true,null,true",
-        "false,true|true,true",
-        "false,false|true,true",
-        "false,true|false,true",
-        "false,false,false,false",
-        "false,true,true",
-        "false,false,false",
-        "false,null,false",
-    }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityFlag(boolean appellantFlag, String otherPartiesFlags, boolean expected) {
-=======
         "true,true,true,true#true#true,true",
         "true,true,false,true#true#true,true",
         "true,false,true,true#true#true,true",
@@ -286,15 +220,10 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         "false,false,false,null,false",
     }, nullValues = {"null"})
     void shouldBeAdditionalSecurityFlag(boolean appellantFlag, boolean appointeeFlag, boolean repFlag, String otherPartiesFlags, boolean expected) {
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
         // TODO Finish Test when method done
         List<CcdValue<OtherParty>> otherParties = null;
         if (nonNull(otherPartiesFlags)) {
             otherParties = new ArrayList<>();
-<<<<<<< HEAD
-            for (boolean flag : Arrays.stream(otherPartiesFlags.split(ARRAY_SPLIT_REGEX)).map(Boolean::parseBoolean).collect(Collectors.toList())) {
-                otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().unacceptableCustomerBehaviour(flag ? YES : NO).build()).build());
-=======
             for (String flag : Arrays.stream(otherPartiesFlags.split(ARRAY_SPLIT_REGEX)).collect(Collectors.toList())) {
                 List<Boolean> booleanStream = Arrays.stream(flag.split(ARRAY_SPLIT_REGEX_2)).map(Boolean::parseBoolean).collect(Collectors.toList());
                 otherParties.add(CcdValue.<OtherParty>builder()
@@ -310,15 +239,11 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                                         .build())
                                 .build())
                         .build());
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
             }
         }
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .appeal(Appeal.builder()
-<<<<<<< HEAD
-                        .appellant(Appellant.builder().unacceptableCustomerBehaviour(appellantFlag ? YES : NO).build())
-=======
                         .appellant(Appellant.builder()
                                 .unacceptableCustomerBehaviour(appellantFlag ? YES : NO)
                                 .isAppointee("Yes")
@@ -330,7 +255,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                                 .hasRepresentative("Yes")
                                 .unacceptableCustomerBehaviour(repFlag ? YES : NO)
                                 .build())
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
                         .build())
                 .otherParties(otherParties)
                 .build();
@@ -342,34 +266,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("isInterpreterRequired Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-<<<<<<< HEAD
-        "Yes,Yes,true,true",
-        "Yes,Yes,false,true",
-        "Yes,No,true,true",
-        "Yes,No,false,true",
-        "No,Yes,true,true",
-        "No,Yes,false,true",
-        "No,No,true,true",
-        "No,No,false,false",
-        "Yes,null,true,true",
-        "Yes,null,false,true",
-        "null,Yes,true,true",
-        "null,Yes,false,true",
-        "null,null,true,true",
-        "null,null,false,false",
-    }, nullValues = {"null"})
-    void isInterpreterRequired(String adjournCaseInterpreterRequired, String languageInterpreter, boolean signLanguage, boolean expected) {
-        // TODO add tests for otherParties
-        List<String> arrangements = new ArrayList<>();
-        if (signLanguage) {
-            arrangements.add("signLanguageInterpreter");
-        }
-        SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                .languageInterpreter(languageInterpreter)
-                                .arrangements(arrangements)
-=======
         "Yes,Yes,true,true#true,true",
         "Yes,Yes,true,true#false,true",
         "Yes,Yes,true,false#true,true",
@@ -465,7 +361,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder()
                                 .languageInterpreter(languageInterpreter)
                                 .arrangements(signLanguage ? List.of("signLanguageInterpreter") : null)
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
                                 .build())
                         .build())
                 .adjournCaseInterpreterRequired(adjournCaseInterpreterRequired)
@@ -498,27 +393,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Test
     void getCaseManagementLocationCode() {
         // TODO Finish Test when method done
-<<<<<<< HEAD
-        String baseLocation = "239585";
-        SscsCaseData caseData = SscsCaseData.builder()
-                    .caseManagementLocation(CaseManagementLocation.builder()
-                    .baseLocation(baseLocation)
-                    .region("Test Region")
-=======
         SscsCaseData caseData = SscsCaseData.builder()
                     .caseManagementLocation(CaseManagementLocation.builder()
                     .baseLocation(EPIMS_ID)
                     .region(REGION)
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
                     .build())
                 .build();
         String result = HearingsCaseMapping.getCaseManagementLocationCode(caseData);
-
-<<<<<<< HEAD
-        assertEquals(baseLocation, result);
-=======
         assertEquals(EPIMS_ID, result);
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("shouldBeSensitiveFlag Test")
@@ -529,8 +411,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
 
         assertFalse(result);
     }
-<<<<<<< HEAD
-=======
 
     @DisplayName("getCaseCreated Test")
     @Test
@@ -545,5 +425,4 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
 
         assertEquals(caseCreatedDate, result);
     }
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 }

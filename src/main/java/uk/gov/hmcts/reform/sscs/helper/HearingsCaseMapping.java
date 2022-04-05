@@ -35,11 +35,7 @@ public final class HearingsCaseMapping {
         CaseDetailsBuilder caseDetailsBuilder = CaseDetails.builder();
 
         caseDetailsBuilder.hmctsServiceCode(getServiceCode());
-<<<<<<< HEAD
-        caseDetailsBuilder.caseRef(getCaseID(caseData));
-=======
         caseDetailsBuilder.caseId(getCaseID(caseData));
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
         caseDetailsBuilder.caseDeepLink(getCaseDeepLink(caseData));
         caseDetailsBuilder.hmctsInternalCaseName(getInternalCaseName(caseData));
         caseDetailsBuilder.publicCaseName(getPublicCaseName(caseData));
@@ -48,11 +44,7 @@ public final class HearingsCaseMapping {
         caseDetailsBuilder.caseCategories(buildCaseCategories(caseData));
         caseDetailsBuilder.caseManagementLocationCode(getCaseManagementLocationCode(caseData));
         caseDetailsBuilder.caseRestrictedFlag(shouldBeSensitiveFlag());
-<<<<<<< HEAD
-        caseDetailsBuilder.caseSlaStartDate(caseData.getCaseCreated());
-=======
         caseDetailsBuilder.caseSlaStartDate(getCaseCreated(caseData));
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 
         return caseDetailsBuilder.build();
     }
@@ -86,11 +78,7 @@ public final class HearingsCaseMapping {
         Appellant appellant = appeal.getAppellant();
         boolean isYes = isYes(appellant.getUnacceptableCustomerBehaviour())
                 || isYes(appellant.getIsAppointee()) && nonNull(appellant.getAppointee()) && isYes(appellant.getAppointee().getUnacceptableCustomerBehaviour())
-<<<<<<< HEAD
-                || nonNull(appeal.getRep()) && isYes(appeal.getRep().getHasRepresentative()) && isYes(appellant.getRep().getUnacceptableCustomerBehaviour());
-=======
                 || nonNull(appeal.getRep()) && isYes(appeal.getRep().getHasRepresentative()) && isYes(appeal.getRep().getUnacceptableCustomerBehaviour());
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
         if (nonNull(caseData.getOtherParties())) {
             isYes = isYes || caseData.getOtherParties().stream()
                     .map(CcdValue::getValue)
@@ -142,12 +130,10 @@ public final class HearingsCaseMapping {
         // TODO Future Work
         return false;
     }
-<<<<<<< HEAD
-=======
+
 
     public static String getCaseCreated(SscsCaseData caseData) {
         // TODO Confirm Correct
         return caseData.getCaseCreated();
     }
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 }

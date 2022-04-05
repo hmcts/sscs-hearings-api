@@ -23,6 +23,8 @@ public final class HearingsDetailsMapping {
     public static final String NORMAL = "Normal";
     public static final String HIGH = "High";
 
+    private static SessionLookupService sessionLookupService;
+
     private HearingsDetailsMapping() {
 
     }
@@ -30,30 +32,6 @@ public final class HearingsDetailsMapping {
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getOriginalCaseData();
 
-<<<<<<< HEAD
-        var requestDetailsBuilder = HearingDetails.builder();
-
-        boolean autoListed = shouldBeAutoListed();
-
-        requestDetailsBuilder.autolistFlag(autoListed);
-        requestDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag());
-
-        requestDetailsBuilder.hearingIsLinkedFlag(isCaseLinked());
-        requestDetailsBuilder.hearingType(getHearingType(caseData));  // Assuming key is what is required.
-        requestDetailsBuilder.hearingWindow(buildHearingWindow(caseData, autoListed));
-        requestDetailsBuilder.duration(getHearingDuration(caseData));
-        requestDetailsBuilder.hearingPriorityType(getHearingPriority(caseData.getAdjournCaseCanCaseBeListedRightAway(), //Confirm this
-            caseData.getUrgentCase()));
-        requestDetailsBuilder.numberOfPhysicalAttendees(getNumberOfPhysicalAttendees());
-        requestDetailsBuilder.hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
-        requestDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
-        requestDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
-        requestDetailsBuilder.hearingRequester(getHearingRequester());
-        requestDetailsBuilder.leadJudgeContractType(getLeadJudgeContractType());
-        requestDetailsBuilder.panelRequirements(getPanelRequirements(caseData));
-
-        return requestDetailsBuilder.build();
-=======
         HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
 
         boolean autoListed = shouldBeAutoListed();
@@ -76,7 +54,6 @@ public final class HearingsDetailsMapping {
         hearingDetailsBuilder.panelRequirements(getPanelRequirements(caseData));
 
         return hearingDetailsBuilder.build();
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     public static boolean shouldBeAutoListed() {
@@ -107,21 +84,13 @@ public final class HearingsDetailsMapping {
         LocalDate dateRangeEnd = null;
 
         if (autoListed && nonNull(caseData.getEvents())) {
-<<<<<<< HEAD
-            if (isYes(caseData.getUrgentCase()) && nonNull(caseData.getCaseCreated())) {
-=======
             if (isYes(caseData.getUrgentCase()) && isNotBlank(caseData.getCaseCreated())) {
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
                 dateRangeStart = LocalDate.parse(caseData.getCaseCreated()).plusDays(14);
             } else {
                 Event dwpResponded = caseData.getEvents().stream()
                         .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
                         .findFirst().orElse(null);
-<<<<<<< HEAD
-                if (nonNull(dwpResponded) && nonNull(dwpResponded.getValue())) {
-=======
                 if (nonNull(dwpResponded) && nonNull(dwpResponded.getValue()) && isNotBlank(dwpResponded.getValue().getDate())) {
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
                     dateRangeStart = dwpResponded.getValue().getDateTime().plusMonths(1).toLocalDate();
                 }
             }
@@ -158,6 +127,7 @@ public final class HearingsDetailsMapping {
         if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
             // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
             //      depends on session category, logic to be built (manual override needed)
+            return sessionLookupService.getDuration(caseData.getBenefitCode() + caseData.getIssueCode());
             return 60;
         }
         return 30;
@@ -235,6 +205,9 @@ public final class HearingsDetailsMapping {
         List<String> roleTypes = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
         //      find out what role types there are and how these are determined
+        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
+            roleTypes.addAll(sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode()));
+        }
 
         panelRequirementsBuilder.roleTypes(roleTypes);
 

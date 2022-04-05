@@ -5,13 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-<<<<<<< HEAD
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-=======
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
@@ -24,30 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-<<<<<<< HEAD
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-class HearingsPartiesMappingTest {
-
-    private static final long HEARING_REQUEST_ID = 12345;
-    private static final String HMC_STATUS = "TestStatus";
-    private static final long VERSION = 1;
-    private static final String CANCELLATION_REASON_CODE = "TestCancelCode";
-    private static final long CASE_ID = 1625080769409918L;
-    private static final long MISSING_CASE_ID = 99250807409918L;
-=======
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
     void buildHearingPartiesDetails() {
-<<<<<<< HEAD
-        // TODO Finish Test when method done
-=======
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .hearingOptions(HearingOptions.builder().build())
@@ -92,15 +72,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                     assertNull(o.getUnavailabilityDayOfWeek());
                     assertNull(o.getUnavailabilityRanges());
                 });
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("buildHearingPartiesPartyDetails Test")
     @Test
     void buildHearingPartiesPartyDetails() {
         // TODO Finish Test when method done
-<<<<<<< HEAD
-=======
         Party party = Appellant.builder()
                 .id("1")
                 .name(Name.builder()
@@ -142,15 +119,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                     assertNull(o.getUnavailabilityDayOfWeek());
                     assertNull(o.getUnavailabilityRanges());
                 });
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("createHearingPartyDetails Test")
     @Test
     void createHearingPartyDetails() {
         // TODO Finish Test when method done
-<<<<<<< HEAD
-=======
         Entity entity = Appellant.builder()
                 .id("1")
                 .name(Name.builder()
@@ -170,7 +144,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertNull(partyDetails.getOrganisationDetails());
         assertNull(partyDetails.getUnavailabilityDayOfWeek());
         assertNull(partyDetails.getUnavailabilityRanges());
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("getPartyId Parameterised Tests")
@@ -201,12 +174,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-<<<<<<< HEAD
-    @DisplayName("getPartyRole Test")
-    @Test
-    void getPartyRole() {
-        // TODO Finish Test when method done
-=======
     @DisplayName("getPartyRole Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
@@ -239,7 +206,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         String result = HearingsPartiesMapping.getPartyRole(entity);
 
         assertEquals(expected, result);
->>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("getPartyIndividualDetails Test")
