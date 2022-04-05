@@ -267,7 +267,8 @@ def versions= [
   pact : '4.1.7',
   sscsCommon: '4.8.1' ,
   jacksonDatabind: '2.13.2.1' ,
-  jacksonBom: '2.13.2.20220324'
+  jacksonBom: '2.13.2.20220324',
+  wiremock: '2.27.2'
 ]
 
 dependencies {
@@ -354,6 +355,8 @@ dependencies {
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: versions.assertJ
   testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
+
+  testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wiremock
 
 
   //pact contract testing
