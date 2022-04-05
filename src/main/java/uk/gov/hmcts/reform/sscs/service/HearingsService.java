@@ -4,15 +4,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
 public class HearingsService {
+
+    private final HmcHearingApi hmcHearingApi;
+
+    private final IdamService idamService;
+
+    public HearingsService(HmcHearingApi hmcHearingApi,
+                           IdamService idamService) {
+        this.hmcHearingApi = hmcHearingApi;
+        this.idamService = idamService;
+    }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
@@ -30,7 +44,6 @@ public class HearingsService {
         switch (wrapper.getState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
-                // TODO Call hearingPost method
                 break;
             case UPDATE_HEARING:
                 updateHearing(wrapper);
@@ -55,8 +68,18 @@ public class HearingsService {
         }
     }
 
+    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+        HearingRequestPayload payload = buildHearingPayload(wrapper);
+
+        return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(), payload);
+    }
+
     private void createHearing(HearingWrapper wrapper) {
-        //TODO Will be replaced when SSCS-10321 is merged
+        updateIds(wrapper);
+        buildRelatedParties(wrapper);
+        sendCreateHearingRequest(wrapper);
+        // TODO Store response with SSCS-10274
     }
 
 
@@ -78,15 +101,28 @@ public class HearingsService {
 
     public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
         // To be called by hearing POST response
+        // HearingResponse hearingResponse = HearingResponse.builder().build();
+        //
+        // hearingResponse.setHearingRequestId(hearingRequestId);
+        // hearingResponse.setHmcStatus(hmcStatus);
+        // hearingResponse.setVersion(version);
+        //
+        // wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingResponse(hearingResponse);
     }
 
     public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version) {
         // To be called by hearing PUT response
+        // HearingResponse hearingResponse = wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse();
+        // hearingResponse.setHmcStatus(hmcStatus);
+        // hearingResponse.setVersion(version);
     }
 
     public void updateHearingResponse(HearingWrapper wrapper, String hmcStatus, Number version,
                                       String cancellationReasonCode) {
         // To be called after hearing Delete response
+        updateHearingResponse(wrapper, hmcStatus, version);
+        // wrapper.getUpdatedCaseData().getLatestHmcHearing().getHearingResponse()
+        // wrapper.getUpdatedCaseData().getLatestHmcHearing().setHearingCancellationReason(cancellationReasonCode);
     }
 
 
