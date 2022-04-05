@@ -12,16 +12,12 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Component
 public class ServiceHearingValuesMapper {
-
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
     public static final String FACE_TO_FACE = "faceToFace";
     public static final String TELEPHONE = "telephone";
     public static final String VIDEO = "video";
@@ -35,7 +31,7 @@ public class ServiceHearingValuesMapper {
         SscsCaseData caseData = caseDetails.getData();
         return ServiceHearingValues.builder()
             .caseName(getCaseName(caseData))
-            .autoListFlag(true) // TODO to be provided in a future story, right now not populated
+            .autoListFlag(true) // TODO to be provided in a future story, right now not populated caseData.getAutoListFlag
             .hearingType(getHearingType(caseData))
             .caseType(caseData.getBenefitCode())
             .caseSubTypes(getIssueCode(caseData))
@@ -177,7 +173,7 @@ public class ServiceHearingValuesMapper {
                 if (YesNo.isYes(sscsCaseData.getAppeal().getRep().getHasRepresentative())) {
                     numberOfAttendees++;
                 }
-                // TODO how to get if there is DWP atendee
+                // TODO how to get if there is DWP atendee (Andrew)
                 numberOfAttendees += 0;
 
                 // TODO when panelMembers is created in caseData you will map it with the size of this value (Suvarna)
