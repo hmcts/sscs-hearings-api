@@ -16,7 +16,7 @@ public class QueueHelper {
         );
 
         if (!(context.getException() instanceof ServiceBusException)) {
-            log.warn("Non-ServiceBusException occurred: {}%n", context.getException().toString());
+            log.error("Non-ServiceBusException occurred: {}%n", context.getException().toString());
             return;
         }
 

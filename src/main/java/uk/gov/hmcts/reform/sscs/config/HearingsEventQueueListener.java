@@ -15,12 +15,10 @@ import java.util.concurrent.CountDownLatch;
 @Configuration
 public class HearingsEventQueueListener {
 
-    @Value("${azure.hearings-queue.connectionString}")
+    @Value("${azure.hearings-queue.inboundConnectionString}")
     private String connectionString;
     @Value("${azure.hearings-queue.topicName}")
     private String topicName;
-    @Value("${azure.hearings-queue.subscriptionName}")
-    private String subscriptionName;
 
     public void receiveMessages() {
         CountDownLatch countdownLatch = new CountDownLatch(1);
@@ -29,7 +27,6 @@ public class HearingsEventQueueListener {
             .connectionString(connectionString)
             .processor()
             .topicName(topicName)
-            .subscriptionName(subscriptionName)
             .processMessage(HearingsEventQueueListener::processMessage)
             .processError(context -> QueueHelper.processError(context, countdownLatch))
             .buildProcessorClient();
