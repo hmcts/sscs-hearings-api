@@ -90,14 +90,21 @@ public final class HearingsCaseMapping {
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData) {
         List<CaseCategory> categories = new ArrayList<>();
 
+        String benefitCodeValue = sscsServiceCode+"-" +
+                                  caseData.getBenefitCode();
+
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(caseData.getBenefitCode())
+                .categoryValue(benefitCodeValue)
                 .build());
+
+
+        String issueCodeValue = benefitCodeValue +
+                                caseData.getIssueCode();
 
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
-                .categoryValue(caseData.getIssueCode())
+                .categoryValue(issueCodeValue)
                 .build());
 
         return categories;

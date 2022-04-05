@@ -6,18 +6,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 
 import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.buildCaseCategories;
 
 class HearingsCaseMappingTest {
 
@@ -75,6 +78,25 @@ class HearingsCaseMappingTest {
         boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData);
 
         assertEquals(expected, result);
+    }
+
+    @Test
+    void buildCaseCategoriesTest(){
+        ReflectionTestUtils.setField(HearingsCaseMapping.class, "sscsServiceCode", "BBA3");
+        List<CaseCategory> categories = new ArrayList<>();
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(Benefit.CARERS_ALLOWANCE.getBenefitCode())
+            .issueCode("AA")
+            .build();
+
+        CaseCategory caseCategory = CaseCategory.builder().categoryType("caseType").categoryValue("BBA3-070").build();
+        CaseCategory caseCategoryOne = CaseCategory.builder().categoryType("caseSubType").categoryValue("BBA3-070AA").build();
+
+        categories.add(caseCategory);
+        categories.add(caseCategoryOne);
+
+        assertEquals(categories, buildCaseCategories(caseData));
     }
 
     @DisplayName("shouldBeSensitiveFlag Test")
