@@ -8,15 +8,18 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.Request;
 import feign.RequestTemplate;
 import feign.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 import uk.gov.hmcts.reform.sscs.model.Message;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
@@ -29,19 +32,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class FeignClientErrorDecoderTest {
 
     private static final String ID = "id";
     private static final Long CASE_ID = 1000000000L;
     private static final String ERROR_MSG = " \"Error in calling the client method:someMethod\"";
+    private static final Map<String, Collection<String>> headers = new HashMap<>();
 
     private FeignClientErrorDecoder feignClientErrorDecoder;
     private HearingRequestPayload hearingRequestPayload;
+    private ArgumentCaptor<HmcFailureMessage> argument;
 
     @Mock
     private AppInsightsService appInsightsService;
@@ -52,12 +61,12 @@ class FeignClientErrorDecoderTest {
         hearingRequestPayload = new HearingRequestPayload();
         hearingRequestPayload.setCaseDetails(new CaseDetails());
         hearingRequestPayload.getCaseDetails().setCaseRef(String.valueOf(CASE_ID));
+        argument = ArgumentCaptor.forClass(HmcFailureMessage.class);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {400, 401, 403, 404})
     void should_handle_4xx_post_put_error(int statusCode) throws JsonProcessingException {
-        Map<String, Collection<String>> headers = new HashMap<>();
         Request request =
             Request.create(Request.HttpMethod.POST, "url",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
@@ -65,8 +74,13 @@ class FeignClientErrorDecoderTest {
         Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
-        verify(appInsightsService, times(1)).sendAppInsightsEvent(any(Message.class));
+        verify(appInsightsService, times(1)).sendAppInsightsEvent(argument.capture());
+
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+        assertEquals(request.httpMethod().toString(), argument.getValue().getRequestType());
+        assertEquals(CASE_ID, argument.getValue().getCaseID());
+        assertEquals(String.valueOf(statusCode), argument.getValue().getErrorCode());
+        assertEquals(response.reason(), argument.getValue().getErrorMessage());
 
         if (statusCode == 400) {
             assertThat(throwable.getMessage())
@@ -86,8 +100,6 @@ class FeignClientErrorDecoderTest {
     @ParameterizedTest
     @ValueSource(ints = {400, 401, 403, 404})
     void should_handle_4xx_get_delete_error(int statusCode) throws JsonProcessingException {
-        Map<String, Collection<String>> headers = new HashMap<>();
-
         Map<String, Collection<String>> queries = new HashMap<>();
         queries.computeIfAbsent(ID, k -> new ArrayList<>()).add(String.valueOf(CASE_ID));
         RequestTemplate requestTemplate = new RequestTemplate();
@@ -99,8 +111,13 @@ class FeignClientErrorDecoderTest {
         Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
-        verify(appInsightsService, times(1)).sendAppInsightsEvent(any(Message.class));
+        verify(appInsightsService, times(1)).sendAppInsightsEvent(argument.capture());
+
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+        assertEquals(request.httpMethod().toString(), argument.getValue().getRequestType());
+        assertEquals(CASE_ID, argument.getValue().getCaseID());
+        assertEquals(String.valueOf(statusCode), argument.getValue().getErrorCode());
+        assertEquals(response.reason(), argument.getValue().getErrorMessage());
 
         if (statusCode == 400) {
             assertThat(throwable.getMessage())
@@ -119,8 +136,6 @@ class FeignClientErrorDecoderTest {
 
     @Test
     void should_handle_500_error() {
-
-        Map<String, Collection<String>> headers = new HashMap<>();
         Request request =
             Request.create(Request.HttpMethod.PUT, "url",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
@@ -138,6 +153,30 @@ class FeignClientErrorDecoderTest {
         assertThat(throwable.getMessage()).contains("Internal server error");
     }
 
+    @Test
+    void testSendAppInsight() throws JsonProcessingException {
+        Request request =
+            Request.create(Request.HttpMethod.POST, "url",
+                           headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
+        Response response = buildResponse(request, 400);
+
+        doThrow(mock(JsonProcessingException.class)).when(appInsightsService).sendAppInsightsEvent(any(Message.class));
+
+        Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
+        assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void testShouldThrowMappingException() throws JsonProcessingException {
+        Request request =
+            Request.create(Request.HttpMethod.POST, "url",
+                           headers, Request.Body.create(toJsonString(new CaseDetails())), null);
+        Response response = buildResponse(request, 400);
+
+        Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
+        assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+    }
+
     private String toJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -148,6 +187,7 @@ class FeignClientErrorDecoderTest {
             jsonString = objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            log.error("JsonProcessingException when mapping for: {}", object);
         }
         return jsonString;
     }
