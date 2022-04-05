@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.service.SessionLookupService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,7 +25,11 @@ public final class HearingsDetailsMapping {
     public static final String NORMAL = "Normal";
     public static final String HIGH = "High";
 
-    private HearingsDetailsMapping() {
+    private static SessionLookupService sessionLookupService;
+
+    @Autowired
+    private HearingsDetailsMapping(SessionLookupService sessionLookupService) {
+        this.sessionLookupService = sessionLookupService;
 
     }
 
@@ -125,7 +131,7 @@ public final class HearingsDetailsMapping {
         if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
             // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
             //      depends on session category, logic to be built (manual override needed)
-            return 60;
+            return sessionLookupService.getDuration(caseData.getBenefitCode() + caseData.getIssueCode());
         }
         return 30;
     }
@@ -202,6 +208,9 @@ public final class HearingsDetailsMapping {
         List<String> roleTypes = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
         //      find out what role types there are and how these are determined
+        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
+            roleTypes.addAll(sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode()));
+        }
 
         panelRequirementsBuilder.roleTypes(roleTypes);
 
