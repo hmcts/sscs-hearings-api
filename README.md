@@ -87,6 +87,16 @@ docker image rm <image-id>
 
 There is no need to remove postgres and java or similar core images.
 
+### AppInsights Events
+
+You will need to set the environment variable for the HMC failure messages to be sent as events to Azure AppInsights.
+
+The env var should look similar to below and will need to be grabbed from Azure or another developer.
+
+```
+APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey\=xxx-xxx-xxx\;IngestionEndpoint\=xxx-xxx-xxx/
+```
+
 ### Other
 
 Hystrix offers much more than Circuit Breaker pattern implementation or command monitoring.
