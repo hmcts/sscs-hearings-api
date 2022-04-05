@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
+<<<<<<< HEAD
 import org.jetbrains.annotations.NotNull;
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
+<<<<<<< HEAD
 class HearingsMappingTest {
 
     private static final long HEARING_REQUEST_ID = 12345;
@@ -29,6 +33,9 @@ class HearingsMappingTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final long MISSING_CASE_ID = 99250807409918L;
     private static final String ARRAY_SPLIT_REGEX = "\\s*\\|\\s*";
+=======
+class HearingsMappingTest extends HearingsMappingBase {
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
@@ -46,10 +53,14 @@ class HearingsMappingTest {
                 .appointee(Appointee.builder().build())
                 .rep(Representative.builder().build())
                 .build()));
+<<<<<<< HEAD
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .appointee(Appointee.builder().build())
                 .rep(Representative.builder().build())
                 .build()));
+=======
+        otherParties.add(new CcdValue<>(OtherParty.builder().build()));
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
         SscsCaseData caseData = SscsCaseData.builder()
                 .appeal(Appeal.builder()
                         .appellant(Appellant.builder().appointee(Appointee.builder().build()).build())
@@ -73,8 +84,11 @@ class HearingsMappingTest {
         assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(0).getValue().getRep().getId());
 
         assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(1).getValue().getId());
+<<<<<<< HEAD
         assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(1).getValue().getAppointee().getId());
         assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(1).getValue().getRep().getId());
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("getMaxId Test")
@@ -246,9 +260,12 @@ class HearingsMappingTest {
         assertFalse(entity.getRelatedParties().isEmpty());
     }
 
+<<<<<<< HEAD
     @NotNull
     List<String> splitCsvParamArray(String expected) {
         return List.of(expected.split(ARRAY_SPLIT_REGEX));
     }
 
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 }

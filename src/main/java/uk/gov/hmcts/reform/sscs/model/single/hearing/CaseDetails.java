@@ -19,7 +19,8 @@ public class CaseDetails {
 
     private String hmctsServiceCode;
 
-    private String caseRef;
+    @JsonProperty("caseRef")
+    private String caseId;
 
     private LocalDateTime requestTimeStamp;
 

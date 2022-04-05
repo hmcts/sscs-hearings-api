@@ -25,7 +25,11 @@ public class HearingResponse {
     private String status;
 
     private LocalDateTime timeStamp;
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     private Long versionNumber;
 
     private String listAssistTransactionID;

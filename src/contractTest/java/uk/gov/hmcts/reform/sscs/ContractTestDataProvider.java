@@ -164,7 +164,7 @@ public class ContractTestDataProvider {
     protected static CaseDetails caseDetails() {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
-        caseDetails.setCaseRef("ba12");
+        caseDetails.setCaseId("ba12");
         caseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         caseDetails.setCaseDeepLink("https://www.google.com");
         caseDetails.setHmctsInternalCaseName("Internal case name");
@@ -444,7 +444,7 @@ public class ContractTestDataProvider {
             .stringType("timeStamp", date.toString())
             .stringType("listAssistTransactionID", "ListAssistTransactionID123123")
             .stringType("receivedDateTime", date.toString())
-            .integerType("responseVersion", 321)
+            .integerType("versionNumber", 321)
             .stringType("laCaseStatus", "ACTIVE")
             .stringType("listingStatus", "ACTIVE")
             .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")

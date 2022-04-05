@@ -1,13 +1,21 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
 import org.apache.commons.lang3.tuple.Pair;
+<<<<<<< HEAD
 import org.jetbrains.annotations.NotNull;
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+<<<<<<< HEAD
+=======
+import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
@@ -21,11 +29,16 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+<<<<<<< HEAD
+=======
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
+<<<<<<< HEAD
 class HearingsDetailsMappingTest {
 
     private static final long HEARING_REQUEST_ID = 12345;
@@ -35,11 +48,39 @@ class HearingsDetailsMappingTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final long MISSING_CASE_ID = 99250807409918L;
     private static final String ARRAY_SPLIT_REGEX = "\\s*\\|\\s*";
+=======
+class HearingsDetailsMappingTest extends HearingsMappingBase {
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
     void buildHearingDetails() {
         // TODO Finish Test when method done
+<<<<<<< HEAD
+=======
+        SscsCaseData caseData = SscsCaseData.builder()
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+                .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+                .originalCaseData(caseData)
+                .updatedCaseData(caseData)
+                .build();
+
+        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper);
+
+        assertNull(hearingDetails.getHearingType());
+        assertNotNull(hearingDetails.getHearingWindow());
+        assertNotNull(hearingDetails.getDuration());
+        assertNotNull(hearingDetails.getHearingPriorityType());
+        assertNull(hearingDetails.getNumberOfPhysicalAttendees());
+        assertNotNull(hearingDetails.getHearingLocations());
+        assertNull(hearingDetails.getListingComments());
+        assertNull(hearingDetails.getHearingRequester());
+        assertNull(hearingDetails.getLeadJudgeContractType());
+        assertNotNull(hearingDetails.getPanelRequirements());
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     @DisplayName("shouldBeAutoListed Parameterized Tests")
@@ -83,6 +124,15 @@ class HearingsDetailsMappingTest {
     @CsvSource(value = {
         "DWP_RESPOND,2021-10-10,2021-12-01T10:15:30,true,true,2021-10-24",
         "DWP_RESPOND,2021-10-10,2021-12-01T10:15:30,true,false,2022-01-01",
+<<<<<<< HEAD
+=======
+        "DWP_RESPOND,2021-10-10,null,true,true,2021-10-24",
+        "DWP_RESPOND,2021-10-10,null,true,false,null",
+        "DWP_RESPOND,null,2021-12-01T10:15:30,true,true,2022-01-01",
+        "DWP_RESPOND,null,2021-12-01T10:15:30,true,false,2022-01-01",
+        "DWP_RESPOND,null,null,true,true,null",
+        "DWP_RESPOND,null,null,true,false,null",
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }, nullValues = {"null"})
     void buildHearingWindow(EventType eventType, String caseStart, String dwpResponded, boolean autoListFlag, boolean isUrgent, LocalDate expected) {
         // TODO Finish Test when method done
@@ -334,9 +384,12 @@ class HearingsDetailsMappingTest {
 
         assertEquals(expected, result);
     }
+<<<<<<< HEAD
 
     @NotNull
     List<String> splitCsvParamArray(String expected) {
         return List.of(expected.split(ARRAY_SPLIT_REGEX));
     }
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 }

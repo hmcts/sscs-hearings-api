@@ -5,7 +5,10 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+<<<<<<< HEAD
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
@@ -47,7 +50,7 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                canelHearing(wrapper);
+                cancelHearing(wrapper);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
@@ -62,10 +65,18 @@ public class HearingsService {
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+<<<<<<< HEAD
         HearingRequestPayload payload = buildHearingPayload(wrapper);
 
         return hmcHearingApi.createHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(), payload);
+=======
+
+        return hmcHearingApi.createHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                buildHearingPayload(wrapper));
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
     }
 
     private void createHearing(HearingWrapper wrapper) {
@@ -84,13 +95,14 @@ public class HearingsService {
         // TODO implement mapping for the event when a case is updated
     }
 
-    private void canelHearing(HearingWrapper wrapper) {
+    private void cancelHearing(HearingWrapper wrapper) {
         // TODO implement mapping for the event when the hearing is cancelled, might not be needed
     }
 
     private void partyNotified(HearingWrapper wrapper) {
         // TODO implement mapping for the event when a party has been notified, might not be needed
     }
+<<<<<<< HEAD
 
     public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
         // To be called by hearing POST response
@@ -119,4 +131,6 @@ public class HearingsService {
     }
 
 
+=======
+>>>>>>> 9692bd47575ca92d430a80443fd0fbc7af1611a8
 }
