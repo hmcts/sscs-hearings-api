@@ -13,8 +13,6 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingLocations {
-    @EnumPattern(enumClass = LocationType.class, fieldName = "court")
     private String locationType;
-
     private String locationId;
 }
