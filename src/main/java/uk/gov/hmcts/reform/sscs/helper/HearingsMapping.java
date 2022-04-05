@@ -7,6 +7,9 @@ public class HearingsMapping {
 
     private static String CANCEL_REASON_TEMP = "AWAITING_LISTING";
 
+    private HearingsMapping() {
+
+    }
 
     public static HearingDeleteRequestPayload buildDeleteHearingPayload(HearingWrapper wrapper) {
         return HearingDeleteRequestPayload.builder()
