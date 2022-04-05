@@ -10,7 +10,6 @@ import static java.util.Objects.nonNull;
 public final class HearingsRequestMapping {
 
     private HearingsRequestMapping() {
-
     }
 
     public static RequestDetails buildHearingRequestDetails(HearingWrapper wrapper) {
@@ -25,8 +24,7 @@ public final class HearingsRequestMapping {
                 && nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())
                 && caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber() > 0) {
             return caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber();
-        } else {
-            return null;
         }
+        return null;
     }
 }

@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_HEARING_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.HearingState.CREATE_HEARING;
 
@@ -45,7 +46,7 @@ class HearingsServiceTest {
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.openMocks(this);
+        openMocks(this);
 
         caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
+import java.util.Optional;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -17,6 +18,7 @@ import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.buildHearingCa
 import static uk.gov.hmcts.reform.sscs.helper.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsRequestMapping.buildHearingRequestDetails;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsRequestMapping.getVersion;
 
 public final class HearingsMapping {
 
@@ -29,21 +31,12 @@ public final class HearingsMapping {
     }
 
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
-        HearingRequestPayloadBuilder requestPayloadBuilder = HearingRequestPayload.builder();
-
-        requestPayloadBuilder.requestDetails(buildHearingRequestDetails(wrapper));
-        requestPayloadBuilder.hearingDetails(buildHearingDetails(wrapper));
-        requestPayloadBuilder.caseDetails(buildHearingCaseDetails(wrapper));
-        requestPayloadBuilder.partiesDetails(buildHearingPartiesDetails(wrapper));
-
-        return requestPayloadBuilder.build();
-    }
-
-    public static HearingRequestPayload buildUpdateHearingPayload(HearingWrapper wrapper) {
-        HearingRequestPayload payload = buildHearingPayload(wrapper);
-        Long versionNumber = wrapper.getOriginalCaseData().getSchedulingAndListingFields().getActiveHearingVersionNumber();
-        payload.getRequestDetails().setVersionNumber(versionNumber);
-        return payload;
+        return HearingRequestPayload.builder()
+            .requestDetails(buildHearingRequestDetails(wrapper))
+            .hearingDetails(buildHearingDetails(wrapper))
+            .caseDetails(buildHearingCaseDetails(wrapper))
+            .partiesDetails(buildHearingPartiesDetails(wrapper))
+            .build();
     }
 
     public static void updateIds(HearingWrapper wrapper) {
