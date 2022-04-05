@@ -97,6 +97,21 @@ The env var should look similar to below and will need to be grabbed from Azure 
 APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey\=xxx-xxx-xxx\;IngestionEndpoint\=xxx-xxx-xxx/
 ```
 
+### HMC & Tribunals queue listeners
+
+You will need to set the environment variable for these respective queues.
+
+```
+AZURE_HMC_QUEUE_CONNECTION_STRING=
+AZURE_HMC_QUEUE_TOPIC_NAME=
+AZURE_HMC_QUEUE_SUBSCRIPTION_NAME=
+```
+```
+AZURE_HEARINGS_QUEUE_CONNECTION_STRING=
+AZURE_HEARINGS_QUEUE_TOPIC_NAME=
+AZURE_HEARINGS_QUEUE_SUBSCRIPTION_NAME=
+```
+
 ### Other
 
 Hystrix offers much more than Circuit Breaker pattern implementation or command monitoring.

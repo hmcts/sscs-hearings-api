@@ -86,10 +86,14 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-  service-bus:
-    connectionString: ""
-    topicName: ""
-    subscriptionName: ""
+  hmc-queue:
+    connectionString: ${AZURE_HMC_QUEUE_CONNECTION_STRING}
+    topicName: ${AZURE_HMC_QUEUE_TOPIC_NAME}
+    subscriptionName: ${AZURE_HMC_QUEUE_SUBSCRIPTION_NAME}
+  hearings-queue:
+    connectionString: ${AZURE_HEARINGS_QUEUE_CONNECTION_STRING}
+    topicName: ${AZURE_HEARINGS_QUEUE_TOPIC_NAME}
+    subscriptionName: ${AZURE_HEARINGS_QUEUE_SUBSCRIPTION_NAME}
 
 feign:
   httpclient:

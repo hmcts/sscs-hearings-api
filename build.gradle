@@ -238,6 +238,8 @@ repositories {
 
 def versions= [
   assertJ: '3.22.0',
+  azureCore: '1.26.0',
+  azureMessagingServicebus: '7.7.0',
   commonsIo: '2.11.0',
   elasticsearch: '7.16.3',
   fortify: '1.2.2',
@@ -326,9 +328,9 @@ dependencies {
 
   implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
 
-  implementation group: 'com.azure', name: 'azure-core', version: '1.26.0'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.7.0'
-  
+  implementation group: 'com.azure', name: 'azure-core', version: versions.azureCore
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: versions.azureMessagingServicebus
+
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
 
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom

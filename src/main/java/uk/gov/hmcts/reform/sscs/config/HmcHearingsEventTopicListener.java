@@ -1,9 +1,6 @@
 package uk.gov.hmcts.reform.sscs.config;
 
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusErrorContext;
-import com.azure.messaging.servicebus.ServiceBusException;
-import com.azure.messaging.servicebus.ServiceBusFailureReason;
 import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
@@ -11,23 +8,21 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import uk.gov.hmcts.reform.sscs.helper.QueueHelper;
 import uk.gov.hmcts.reform.sscs.model.HmcMessage;
 
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
 @Data
 @Configuration
 public class HmcHearingsEventTopicListener {
 
-    @Value("${azure.service-bus.connectionString}")
+    @Value("${azure.hmc-queue.connectionString}")
     private String connectionString;
-    @Value("${azure.service-bus.topicName}")
+    @Value("${azure.hmc-queue.topicName}")
     private String topicName;
-    @Value("${azure.service-bus.subscriptionName}")
+    @Value("${azure.hmc-queue.subscriptionName}")
     private String subscriptionName;
 
     //TODO add @Bean and add correct values (connectionString,topicName,subscriptionName) in application.yml
@@ -41,7 +36,7 @@ public class HmcHearingsEventTopicListener {
             .topicName(topicName)
             .subscriptionName(subscriptionName)
             .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(context -> processError(context, countdownLatch))
+            .processError(context -> QueueHelper.processError(context, countdownLatch))
             .buildProcessorClient();
 
         processorClient.start();
@@ -60,40 +55,5 @@ public class HmcHearingsEventTopicListener {
         log.info("Processing message. Session: {}, Sequence #: {}. Contents: {}%n", message.getMessageId(),
                  message.getSequenceNumber(), message.getBody()
         );
-    }
-
-    private void processError(ServiceBusErrorContext context, CountDownLatch countdownLatch) {
-        log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'%n",
-                  context.getFullyQualifiedNamespace(), context.getEntityPath()
-        );
-
-        if (!(context.getException() instanceof ServiceBusException)) {
-            log.warn("Non-ServiceBusException occurred: {}%n", context.getException().toString());
-            return;
-        }
-
-        ServiceBusException exception = (ServiceBusException) context.getException();
-        ServiceBusFailureReason reason = exception.getReason();
-
-        if (Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED)
-            || Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND)
-            || Objects.equals(reason, ServiceBusFailureReason.UNAUTHORIZED)) {
-            log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}%n",
-                      reason, exception.getMessage()
-            );
-            countdownLatch.countDown();
-        } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
-            log.warn("Message lock lost for message: {}%n", context.getException().toString());
-        } else if (Objects.equals(reason, ServiceBusFailureReason.SERVICE_BUSY)) {
-            try {
-                SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                log.warn("Unable to sleep for period of time");
-            }
-        } else {
-            log.error("Error source {}, reason {}, message: {}%n", context.getErrorSource(),
-                      reason, context.getException()
-            );
-        }
     }
 }
