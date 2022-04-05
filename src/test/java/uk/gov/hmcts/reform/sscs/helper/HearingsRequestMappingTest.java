@@ -18,7 +18,6 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildHearingRequestDetails() {
         // TODO Finish Test when method done
-
         SscsCaseData caseData = SscsCaseData.builder()
                 .schedulingAndListingFields(SchedulingAndListingFields.builder()
                         .activeHearingVersionNumber(VERSION)

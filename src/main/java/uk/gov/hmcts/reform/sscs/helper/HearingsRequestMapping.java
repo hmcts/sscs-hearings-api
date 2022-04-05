@@ -20,7 +20,6 @@ public final class HearingsRequestMapping {
         return hmcRequestDetailsBuilder.build();
     }
 
-
     public static Long getVersion(SscsCaseData caseData) {
         if (nonNull(caseData.getSchedulingAndListingFields())
                 && nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())

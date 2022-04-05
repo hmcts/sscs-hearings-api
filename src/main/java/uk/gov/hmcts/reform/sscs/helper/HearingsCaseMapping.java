@@ -131,7 +131,6 @@ public final class HearingsCaseMapping {
         return false;
     }
 
-
     public static String getCaseCreated(SscsCaseData caseData) {
         // TODO Confirm Correct
         return caseData.getCaseCreated();

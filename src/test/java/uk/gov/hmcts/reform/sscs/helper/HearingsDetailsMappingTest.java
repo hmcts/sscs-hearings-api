@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
-
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
@@ -357,5 +356,4 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertEquals(expected, result);
     }
-
 }

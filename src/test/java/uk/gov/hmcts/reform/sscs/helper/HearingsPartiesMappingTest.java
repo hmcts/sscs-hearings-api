@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
 
@@ -75,50 +77,126 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     }
 
     @DisplayName("buildHearingPartiesPartyDetails Test")
-    @Test
-    void buildHearingPartiesPartyDetails() {
+    @ParameterizedTest
+    @CsvSource(value = {
+        "true,true,true,true",
+        "true,true,true,false",
+        "true,true,false,true",
+        "true,true,false,false",
+        "true,true,null,true",
+        "true,true,null,false",
+        "true,false,true,true",
+        "true,false,true,false",
+        "true,false,false,true",
+        "true,false,false,false",
+        "true,false,null,true",
+        "true,false,null,false",
+        "false,true,true,true",
+        "false,true,true,false",
+        "false,true,false,true",
+        "false,true,false,false",
+        "false,true,null,true",
+        "false,true,null,false",
+        "false,false,true,true",
+        "false,false,true,false",
+        "false,false,false,true",
+        "false,false,false,false",
+        "false,false,null,true",
+        "false,false,null,false",
+        "null,true,true,true",
+        "null,true,true,false",
+        "null,true,false,true",
+        "null,true,false,false",
+        "null,true,null,true",
+        "null,true,null,false",
+        "null,false,true,true",
+        "null,false,true,false",
+        "null,false,false,true",
+        "null,false,false,false",
+        "null,false,null,true",
+        "null,false,null,false",
+    }, nullValues = {"null"})
+    void buildHearingPartiesPartyDetails(Boolean isAppointee, boolean nonNullAppointee, Boolean isRepresentative, boolean nonNullRep) {
         // TODO Finish Test when method done
+        Appointee appointee = null;
+        String appointeeId = "2";
+        if (nonNullAppointee) {
+            appointee = Appointee.builder()
+                    .id(appointeeId)
+                    .name(Name.builder()
+                            .title("title")
+                            .firstName("first")
+                            .lastName("last")
+                            .build())
+                    .relatedParties(new ArrayList<>())
+                    .build();
+        }
+        String appellantId = "1";
         Party party = Appellant.builder()
-                .id("1")
+                .id(appellantId)
+                .isAppointee(nonNull(isAppointee) ? isAppointee ? YES.getValue() : NO.getValue() : null)
                 .name(Name.builder()
                         .title("title")
                         .firstName("first")
                         .lastName("last")
                         .build())
-                .appointee(Appointee.builder()
-                        .id("2")
-                        .name(Name.builder()
-                                .title("title")
-                                .firstName("first")
-                                .lastName("last")
-                                .build())
-                        .relatedParties(new ArrayList<>())
-                        .build())
+                .appointee(appointee)
                 .relatedParties(new ArrayList<>())
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        Representative rep = Representative.builder()
-                .id("3")
-                .name(Name.builder()
-                        .title("title")
-                        .firstName("first")
-                        .lastName("last")
-                        .build())
-                .relatedParties(new ArrayList<>())
-                .build();
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, false, false, rep, hearingOptions, null, null);
+        Representative rep = null;
+        String repId = "3";
+        if (nonNullRep) {
+            rep = Representative.builder()
+                    .id(repId)
+                    .hasRepresentative(nonNull(isRepresentative) ? isRepresentative ? YES.getValue() : NO.getValue() : null)
+                    .name(Name.builder()
+                            .title("title")
+                            .firstName("first")
+                            .lastName("last")
+                            .build())
+                    .relatedParties(new ArrayList<>())
+                    .build();
+        }
 
-        assertThat(partiesDetails)
-                .isNotEmpty()
-                .allSatisfy(o -> {
-                    assertNotNull(o.getPartyID());
-                    assertNotNull(o.getPartyType());
-                    assertNotNull(o.getPartyRole());
-                    assertNotNull(o.getIndividualDetails());
-                    assertNull(o.getOrganisationDetails());
-                    assertNull(o.getUnavailabilityDayOfWeek());
-                    assertNull(o.getUnavailabilityRanges());
-                });
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, rep, hearingOptions, null, null);
+
+        PartyDetails appellantPartyDetails = partiesDetails.stream().filter(o -> appellantId.equals(o.getPartyID())).findFirst().orElse(null);
+        assertNotNull(appellantPartyDetails);
+        assertNotNull(appellantPartyDetails.getPartyType());
+        assertNotNull(appellantPartyDetails.getPartyRole());
+        assertNotNull(appellantPartyDetails.getIndividualDetails());
+        assertNull(appellantPartyDetails.getOrganisationDetails());
+        assertNull(appellantPartyDetails.getUnavailabilityDayOfWeek());
+        assertNull(appellantPartyDetails.getUnavailabilityRanges());
+
+        PartyDetails appointeePartyDetails = partiesDetails.stream().filter(o -> appointeeId.equals(o.getPartyID())).findFirst().orElse(null);
+
+        if (nonNullAppointee && nonNull(isAppointee) && isAppointee) {
+            assertNotNull(appointeePartyDetails);
+            assertNotNull(appointeePartyDetails.getPartyType());
+            assertNotNull(appointeePartyDetails.getPartyRole());
+            assertNotNull(appointeePartyDetails.getIndividualDetails());
+            assertNull(appointeePartyDetails.getOrganisationDetails());
+            assertNull(appointeePartyDetails.getUnavailabilityDayOfWeek());
+            assertNull(appointeePartyDetails.getUnavailabilityRanges());
+        } else {
+            assertNull(appointeePartyDetails);
+        }
+
+        PartyDetails representativePartyDetails = partiesDetails.stream().filter(o -> repId.equals(o.getPartyID())).findFirst().orElse(null);
+
+        if (nonNullRep && nonNull(isRepresentative) && isRepresentative) {
+            assertNotNull(representativePartyDetails);
+            assertNotNull(representativePartyDetails.getPartyType());
+            assertNotNull(representativePartyDetails.getPartyRole());
+            assertNotNull(representativePartyDetails.getIndividualDetails());
+            assertNull(representativePartyDetails.getOrganisationDetails());
+            assertNull(representativePartyDetails.getUnavailabilityDayOfWeek());
+            assertNull(representativePartyDetails.getUnavailabilityRanges());
+        } else {
+            assertNull(representativePartyDetails);
+        }
     }
 
     @DisplayName("createHearingPartyDetails Test")
@@ -185,7 +263,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getPartyRole(String entityType, String expected) {
         // TODO Finish Test when method done
-        Entity entity = null;
+        Entity entity;
         switch (entityType) {
             case "Appellant":
                 entity = Appellant.builder().build();
@@ -282,7 +360,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualReasonableAdjustments() {
         // TODO Finish Test when method done
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions);
+        List<String> individualReasonableAdjustments = HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions);
+        assertThat(individualReasonableAdjustments).isEmpty();
     }
 
     @DisplayName("isIndividualVulnerableFlag Test")

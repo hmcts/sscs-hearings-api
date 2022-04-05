@@ -23,8 +23,6 @@ public final class HearingsDetailsMapping {
     public static final String NORMAL = "Normal";
     public static final String HIGH = "High";
 
-    private static SessionLookupService sessionLookupService;
-
     private HearingsDetailsMapping() {
 
     }
@@ -127,7 +125,6 @@ public final class HearingsDetailsMapping {
         if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
             // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
             //      depends on session category, logic to be built (manual override needed)
-            return sessionLookupService.getDuration(caseData.getBenefitCode() + caseData.getIssueCode());
             return 60;
         }
         return 30;
@@ -161,7 +158,7 @@ public final class HearingsDetailsMapping {
         // if paper case - display all venues in that region
         // locations where there is more than one venue
         // Normally one location, but can be two in some cities.
-        // TODO SSCS-10245 - work out what venues to choose and get epims/locationType info from Reference Data
+        // TODO Implementation to be done by SSCS-10245 - work out what venues to choose and get epims/locationType info from Reference Data
         return new ArrayList<>();
     }
 
@@ -205,9 +202,6 @@ public final class HearingsDetailsMapping {
         List<String> roleTypes = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
         //      find out what role types there are and how these are determined
-        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
-            roleTypes.addAll(sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode()));
-        }
 
         panelRequirementsBuilder.roleTypes(roleTypes);
 
