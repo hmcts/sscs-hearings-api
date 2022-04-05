@@ -108,15 +108,8 @@ public class ServiceHearingValuesMapper {
 
     public static HearingWindow getHearingWindow(SscsCaseData caseData) {
         Event dwpResponded = caseData.getEvents().stream()
-            .filter(c -> {
-                        System.out.println("event type : " + c.getValue());
-                        return EventType.DWP_RESPOND.equals(c.getValue().getEventType());
-                    }
-            )
+            .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
             .findFirst().orElse(null);
-
-        System.out.println("events : " + caseData.getEvents());
-
 
         ZonedDateTime dateTime = Optional.ofNullable(dwpResponded)
             .map(Event::getValue)
