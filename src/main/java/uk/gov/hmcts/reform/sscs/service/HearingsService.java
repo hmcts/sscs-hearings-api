@@ -9,7 +9,10 @@ import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload;
+import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.getHearingId;
+import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.getVersionNumber;
+
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
