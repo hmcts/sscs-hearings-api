@@ -17,13 +17,13 @@ import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 @Service
 public class HearingsService {
 
+    private final HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
     private final IdamService idamService;
-    private final  HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
 
     @Autowired
-    public HearingsService(IdamService idamService , HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi){
-        this.idamService = idamService;
+    public HearingsService(HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi, IdamService idamService) {
         this.hmcHearingPartiesNotifiedApi = hmcHearingPartiesNotifiedApi;
+        this.idamService = idamService;
     }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
