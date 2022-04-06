@@ -92,6 +92,9 @@ azure:
   hearings-queue:
     inboundConnectionString: ${AZURE_HEARINGS_QUEUE_CONNECTION_STRING}
     topicName: ${AZURE_HEARINGS_QUEUE_TOPIC_NAME}
+    timeout: ${AZURE_HEARINGS_QUEUE_TIMEOUT}
+    delay: ${AZURE_HEARINGS_QUEUE_DELAY}
+    retries: ${AZURE_HEARINGS_QUEUE_RETRIES}
 
 feign:
   httpclient:
