@@ -10,6 +10,7 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
@@ -23,11 +24,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Configuration
 public class HmcHearingsEventTopicListener {
 
-    @Value("${azure.service-bus.connectionString}")
+    @Value("${azure.hearings-topic.inbound.connectionString}")
     private String connectionString;
-    @Value("${azure.service-bus.topicName}")
+    @Value("${azure.hearings-topic.inbound.topicName}")
     private String topicName;
-    @Value("${azure.service-bus.subscriptionName}")
+    @Value("${azure.hearings-topic.inbound.subscriptionName}")
     private String subscriptionName;
 
     //TODO add @Bean and add correct values (connectionString,topicName,subscriptionName) in application.yml
@@ -53,7 +54,7 @@ public class HmcHearingsEventTopicListener {
         String hmctsServiceID = hmcMessage.getHmctsServiceID();
 
         if (hmctsServiceID.contains("BBA3")) {
-            //TODO process all messages with BBA3
+            //TODO process all messages with BBA3 and remove log message if needed.
             log.info("Processing hearing #: {}. and case #: {}%n", hmcMessage.getHearingID(), hmcMessage.getCaseRef());
         }
 
@@ -68,7 +69,7 @@ public class HmcHearingsEventTopicListener {
         );
 
         if (!(context.getException() instanceof ServiceBusException)) {
-            log.warn("Non-ServiceBusException occurred: {}%n", context.getException().toString());
+            log.error("Non-ServiceBusException occurred: {}%n", context.getException().toString());
             return;
         }
 
@@ -85,10 +86,11 @@ public class HmcHearingsEventTopicListener {
         } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
             log.warn("Message lock lost for message: {}%n", context.getException().toString());
         } else if (Objects.equals(reason, ServiceBusFailureReason.SERVICE_BUSY)) {
+            log.warn("Service busy:  waiting 5 secounds to retry {}%n", context.getException().toString());
             try {
-                SECONDS.sleep(1);
+                SECONDS.sleep(5);
             } catch (InterruptedException e) {
-                log.warn("Unable to sleep for period of time");
+                log.warn("Unable to sleep for period of time: " + e.getMessage());
             }
         } else {
             log.error("Error source {}, reason {}, message: {}%n", context.getErrorSource(),

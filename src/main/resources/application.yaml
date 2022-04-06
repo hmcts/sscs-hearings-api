@@ -86,10 +86,11 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-  service-bus:
-    connectionString: ""
-    topicName: ""
-    subscriptionName: ""
+  hearings-topic:
+    inbound:
+      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
+      topicName: ${HEARINGS_TOPIC_NAME:}
+      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
 
 feign:
   httpclient:
