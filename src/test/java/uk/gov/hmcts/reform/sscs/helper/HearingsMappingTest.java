@@ -1,11 +1,14 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.service.SessionLookupService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HearingsMappingTest extends HearingsMappingBase {
 
+    @Mock
+    private HearingsDetailsMapping hearingsDetailsMapping;
+    @Mock
+    private HearingsRequestMapping hearingsRequestMapping;
     private HearingsMapping hearingsMapping;
+
+    @BeforeEach
+    void setUp() {
+        this.hearingsMapping = new HearingsMapping(hearingsDetailsMapping, hearingsRequestMapping);
+    }
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
