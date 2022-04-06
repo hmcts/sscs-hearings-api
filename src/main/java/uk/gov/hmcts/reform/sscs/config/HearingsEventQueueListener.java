@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.config;
 
-import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +16,11 @@ import java.util.concurrent.CountDownLatch;
 @Configuration
 public class HearingsEventQueueListener {
 
-    @Value("${azure.hearings-queue.inboundConnectionString}")
+    @Value("${azure.hearings-queue.inbound.connectionString}")
     private String connectionString;
-    @Value("${azure.hearings-queue.topicName}")
+    @Value("${azure.hearings-queue.inbound.topicName}")
     private String topicName;
-    @Value("${azure.hearings-queue.subscriptionName}")
+    @Value("${azure.hearings-queue.inbound.subscriptionName}")
     private String subscriptionName;
     @Value("${azure.hearings-queue.timeout}")
     private Duration tryTimeout;
@@ -34,7 +33,7 @@ public class HearingsEventQueueListener {
         CountDownLatch countdownLatch = new CountDownLatch(1);
 
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .retryOptions(configureRetryOptions())
+            .retryOptions(QueueHelper.configureRetryOptions(tryTimeout, delay, maxRetries))
             .connectionString(connectionString)
             .processor()
             .topicName(topicName)
@@ -50,18 +49,5 @@ public class HearingsEventQueueListener {
         ServiceBusReceivedMessage message = context.getMessage();
         HearingRequest hearingRequest = message.getBody().toObject(HearingRequest.class);
         log.info("Message {} received from Hearings Event Queue for Case ID {}", hearingRequest.toString(), hearingRequest.getCcdCaseId());
-    }
-
-    private AmqpRetryOptions configureRetryOptions() {
-        AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
-
-        if (tryTimeout != null)
-            amqpRetryOptions.setTryTimeout(tryTimeout);
-        if (maxRetries != null)
-            amqpRetryOptions.setMaxRetries(maxRetries);
-        if (delay != null)
-            amqpRetryOptions.setDelay(delay);
-
-        return amqpRetryOptions;
     }
 }

@@ -86,13 +86,20 @@ spring:
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-  hmc-queue:
-    connectionString: ${AZURE_HMC_QUEUE_CONNECTION_STRING}
-    topicName: ${AZURE_HMC_QUEUE_TOPIC_NAME}
+  hearings-topic:
+    inbound:
+      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
+      topicName: ${HEARINGS_TOPIC_NAME:}
+      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
+    duration: ${HEARINGS_TOPIC_DURATION:}
+    retries: ${HEARINGS_TOPIC_RETRIES:}
+    delay: ${HEARINGS_TOPIC_DELAY:}
+    hmcServiceIdBba3: ${HEARINGS_TOPIC_SERVICE_ID_BBA3:BBA3}
   hearings-queue:
-    inboundConnectionString: ${AZURE_HEARINGS_QUEUE_CONNECTION_STRING}
-    topicName: ${AZURE_HEARINGS_QUEUE_TOPIC_NAME}
-    subscriptionName: ${AZURE_HEARINGS_QUEUE_SUBSCRIPTION_NAME}
+    inbound:
+      connectionString: ${AZURE_HEARINGS_QUEUE_CONNECTION_STRING}
+      topicName: ${AZURE_HEARINGS_QUEUE_TOPIC_NAME}
+      subscriptionName: ${AZURE_HEARINGS_QUEUE_SUBSCRIPTION_NAME}
     timeout: ${AZURE_HEARINGS_QUEUE_TIMEOUT}
     delay: ${AZURE_HEARINGS_QUEUE_DELAY}
     retries: ${AZURE_HEARINGS_QUEUE_RETRIES}

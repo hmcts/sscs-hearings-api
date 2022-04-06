@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
+import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
@@ -43,5 +46,21 @@ public class QueueHelper {
                       reason, context.getException()
             );
         }
+    }
+
+    public static AmqpRetryOptions configureRetryOptions(Duration tryTimeout, Duration delay, Integer maxRetries) {
+        AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
+
+        if (tryTimeout != null) {
+            amqpRetryOptions.setTryTimeout(tryTimeout);
+        }
+        if (maxRetries != null) {
+            amqpRetryOptions.setMaxRetries(maxRetries);
+        }
+        if (delay != null) {
+            amqpRetryOptions.setDelay(delay);
+        }
+
+        return amqpRetryOptions;
     }
 }
