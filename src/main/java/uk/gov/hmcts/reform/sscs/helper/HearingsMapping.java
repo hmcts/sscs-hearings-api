@@ -15,7 +15,7 @@ public class HearingsMapping {
         return HearingDeleteRequestPayload.builder()
             .cancellationReasonCode(CANCEL_REASON_TEMP)
             .build();
-        // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode();
+        // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode(); Ticket: SSCS-10366
     }
 
 }
