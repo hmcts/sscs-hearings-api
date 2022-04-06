@@ -26,6 +26,7 @@ public class HearingsDetailsMapping {
     public static final String HIGH = "High";
 
     private final SessionLookupService sessionLookupService;
+    public static final int DEFAULT_DURATION = 30;
 
     @Autowired
     public HearingsDetailsMapping(SessionLookupService sessionLookupService) {
@@ -131,9 +132,14 @@ public class HearingsDetailsMapping {
         if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
             // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
             //      depends on session category, logic to be built (manual override needed)
-            return sessionLookupService.getDuration(caseData.getBenefitCode() + caseData.getIssueCode());
+            String ccdKey = caseData.getBenefitCode() + caseData.getIssueCode();
+            int result = sessionLookupService.getDuration(ccdKey);
+            if (result != 0) {
+                return result;
+            }
+            return DEFAULT_DURATION;
         }
-        return 30;
+        return DEFAULT_DURATION;
     }
 
     public String getHearingPriority(String isAdjournCase, String isUrgentCase) {
