@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.config;
 
+import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusErrorContext;
 import com.azure.messaging.servicebus.ServiceBusException;
@@ -10,10 +11,10 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
@@ -30,6 +31,14 @@ public class HmcHearingsEventTopicListener {
     private String topicName;
     @Value("${azure.hearings-topic.inbound.subscriptionName}")
     private String subscriptionName;
+    @Value("${azure.hearings-topic.duration}")
+    private Duration tryTimeout;
+    @Value("${azure.hearings-topic.delay}")
+    private Duration delay;
+    @Value("${azure.hearings-topic.retries}")
+    private Integer maxRetries;
+    @Value("${azure.hearings-topic.hmcServiceIdBba3}")
+    private static String hmcServiceIdBba3;
 
     //TODO add @Bean and add correct values (connectionString,topicName,subscriptionName) in application.yml
     @SuppressWarnings({"PMD.CloseResource"})
@@ -37,6 +46,7 @@ public class HmcHearingsEventTopicListener {
         CountDownLatch countdownLatch = new CountDownLatch(1);
 
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
+            .retryOptions(configureRetryOptions())
             .connectionString(connectionString)
             .processor()
             .topicName(topicName)
@@ -53,7 +63,7 @@ public class HmcHearingsEventTopicListener {
         HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
         String hmctsServiceID = hmcMessage.getHmctsServiceID();
 
-        if (hmctsServiceID.contains("BBA3")) {
+        if (hmctsServiceID.contains(hmcServiceIdBba3)) {
             //TODO process all messages with BBA3 and remove log message if needed.
             log.info("Processing hearing #: {}. and case #: {}%n", hmcMessage.getHearingID(), hmcMessage.getCaseRef());
         }
@@ -97,5 +107,21 @@ public class HmcHearingsEventTopicListener {
                       reason, context.getException()
             );
         }
+    }
+
+    private AmqpRetryOptions configureRetryOptions() {
+        AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
+
+        if (tryTimeout != null) {
+            amqpRetryOptions.setTryTimeout(tryTimeout);
+        }
+        if (maxRetries != null) {
+            amqpRetryOptions.setMaxRetries(maxRetries);
+        }
+        if (delay != null) {
+            amqpRetryOptions.setDelay(delay);
+        }
+
+        return amqpRetryOptions;
     }
 }
