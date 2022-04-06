@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.service.SessionLookupService;
 
 import java.util.ArrayList;
 import java.util.List;
