@@ -19,7 +19,7 @@ import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.buildHearingCa
 import static uk.gov.hmcts.reform.sscs.helper.HearingsPartiesMapping.buildHearingPartiesDetails;
 
 @Component
-public final class HearingsMapping {
+public class HearingsMapping {
 
     public static final String OTHER_PARTY = "OtherParty";
     public static final String REPRESENTATIVE = "Representative";
