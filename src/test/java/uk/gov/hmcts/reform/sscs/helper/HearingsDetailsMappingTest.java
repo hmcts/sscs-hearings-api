@@ -1,18 +1,31 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
+import uk.gov.hmcts.reform.sscs.service.SessionLookupService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,10 +38,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
+@ExtendWith(MockitoExtension.class)
 class HearingsDetailsMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private SessionLookupService sessionLookupService;
+    private HearingsDetailsMapping hearingsDetailsMapping;
+
+    @BeforeEach
+    void setUp() {
+        this.hearingsDetailsMapping = new HearingsDetailsMapping(sessionLookupService);
+    }
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
@@ -44,7 +68,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .updatedCaseData(caseData)
                 .build();
 
-        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper);
+        HearingDetails hearingDetails = hearingsDetailsMapping.buildHearingDetails(wrapper);
 
         assertNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
@@ -62,7 +86,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void shouldBeAutoListed() {
         // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed();
+        boolean result = hearingsDetailsMapping.shouldBeAutoListed();
 
         assertTrue(result);
     }
@@ -70,7 +94,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeHearingsInWelshFlag Test")
     @Test
     void shouldBeHearingsInWelshFlag() {
-        boolean result = HearingsDetailsMapping.shouldBeHearingsInWelshFlag();
+        boolean result = hearingsDetailsMapping.shouldBeHearingsInWelshFlag();
 
         assertFalse(result);
     }
@@ -79,7 +103,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void isCaseLinked() {
         // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.isCaseLinked();
+        boolean result = hearingsDetailsMapping.isCaseLinked();
 
         assertFalse(result);
     }
@@ -89,7 +113,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingType() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
-        String result = HearingsDetailsMapping.getHearingType(caseData);
+        String result = hearingsDetailsMapping.getHearingType(caseData);
 
         assertNull(result);
     }
@@ -119,7 +143,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .events(events)
                 .urgentCase(isUrgent ? YES.toString() : NO.toString())
                 .build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
+        HearingWindow result = hearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
 
         assertNull(result.getFirstDateTimeMustBe());
         assertEquals(expected, result.getDateRangeStart());
@@ -147,7 +171,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         }
 
         SscsCaseData caseData = SscsCaseData.builder().events(events).build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
+        HearingWindow result = hearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
 
         assertNull(result.getFirstDateTimeMustBe());
         assertNull(result.getDateRangeStart());
@@ -158,7 +182,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getFirstDateTimeMustBe() {
         // TODO Finish Test when method done
-        LocalDateTime result = HearingsDetailsMapping.getFirstDateTimeMustBe();
+        LocalDateTime result = hearingsDetailsMapping.getFirstDateTimeMustBe();
 
         assertNull(result);
     }
@@ -177,7 +201,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
-        String result = HearingsDetailsMapping.getHearingPriority(isAdjournCase, isUrgentCase);
+        String result = hearingsDetailsMapping.getHearingPriority(isAdjournCase, isUrgentCase);
 
         assertEquals(expected, result);
     }
@@ -185,7 +209,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getNumberOfPhysicalAttendees Test")
     @Test
     void getNumberOfPhysicalAttendees() {
-        Number result = HearingsDetailsMapping.getNumberOfPhysicalAttendees();
+        Number result = hearingsDetailsMapping.getNumberOfPhysicalAttendees();
 
         assertNull(result);
     }
@@ -202,7 +226,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .baseLocation(baseLocation)
                 .region(region)
                 .build();
-        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
+        List<HearingLocations> result = hearingsDetailsMapping.getHearingLocations(managementLocation);
         List<HearingLocations> expected = new ArrayList<>();
 
         assertEquals(0, result.size());
@@ -214,7 +238,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getFacilitiesRequired() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
-        List<String> result = HearingsDetailsMapping.getFacilitiesRequired(caseData);
+        List<String> result = hearingsDetailsMapping.getFacilitiesRequired(caseData);
         List<String> expected = new ArrayList<>();
 
         assertEquals(0, result.size());
@@ -246,7 +270,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             appeal.setHearingOptions(HearingOptions.builder().other(appellant).build());
         }
 
-        String result = HearingsDetailsMapping.getListingComments(appeal, otherParties);
+        String result = hearingsDetailsMapping.getListingComments(appeal, otherParties);
 
         assertEquals(expected.replace("\\n","\n"), result);
     }
@@ -275,7 +299,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             appeal.setHearingOptions(HearingOptions.builder().other(appellant).build());
         }
 
-        String result = HearingsDetailsMapping.getListingComments(appeal, otherParties);
+        String result = hearingsDetailsMapping.getListingComments(appeal, otherParties);
 
         assertNull(result);
     }
@@ -283,7 +307,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingRequester Test")
     @Test
     void getHearingRequester() {
-        String result = HearingsDetailsMapping.getHearingRequester();
+        String result = hearingsDetailsMapping.getHearingRequester();
 
         assertNull(result);
     }
@@ -292,7 +316,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getLeadJudgeContractType() {
         // TODO Finish Test when method done
-        String result = HearingsDetailsMapping.getLeadJudgeContractType();
+        String result = hearingsDetailsMapping.getLeadJudgeContractType();
 
         assertNull(result);
     }
@@ -313,7 +337,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         List<String> panelSpecialisms = new ArrayList<>();
         expected.setPanelSpecialisms(panelSpecialisms);
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData);
+        PanelRequirements result = hearingsDetailsMapping.getPanelRequirements(caseData);
 
         assertEquals(expected, result);
     }
@@ -323,7 +347,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getPanelPreferences() {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
-        List<PanelPreference> result = HearingsDetailsMapping.getPanelPreferences(caseData);
+        List<PanelPreference> result = hearingsDetailsMapping.getPanelPreferences(caseData);
         List<PanelPreference> expected = new ArrayList<>();
 
         assertEquals(0, result.size());
@@ -352,7 +376,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .adjournCaseNextHearingListingDuration(adjournCaseDuration)
                 .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
                 .build();
-        int result = HearingsDetailsMapping.getHearingDuration(caseData);
+        int result = hearingsDetailsMapping.getHearingDuration(caseData);
 
         assertEquals(expected, result);
     }

@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HearingsMappingTest extends HearingsMappingBase {
 
+    private HearingsMapping hearingsMapping;
+
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
     void buildHearingPayload() {
@@ -50,7 +52,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .updatedCaseData(caseData)
                 .build();
 
-        HearingsMapping.updateIds(wrapper);
+        hearingsMapping.updateIds(wrapper);
 
         assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getId());
         assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getAppointee().getId());
@@ -72,7 +74,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder().id("2").build()));
 
-        int result = HearingsMapping.getMaxId(otherParties, appellant, rep);
+        int result = hearingsMapping.getMaxId(otherParties, appellant, rep);
 
         assertEquals(6, result);
     }
@@ -86,7 +88,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder().id("2").build()));
 
-        List<Integer> result = HearingsMapping.getAllIds(otherParties, appellant, rep);
+        List<Integer> result = hearingsMapping.getAllIds(otherParties, appellant, rep);
         List<Integer> expected = Stream.of(new Integer[]{1,2,3,6}).sorted().collect(Collectors.toList());
 
         assertEquals(expected, result.stream().sorted().collect(Collectors.toList()));
@@ -99,7 +101,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         Party party = Appellant.builder().id("1").appointee(Appointee.builder().id("2").build()).build();
         Representative rep = Representative.builder().id("3").build();
 
-        List<Integer> result = HearingsMapping.getAllPartyIds(party, rep);
+        List<Integer> result = hearingsMapping.getAllPartyIds(party, rep);
         List<Integer> expected = Stream.of(new Integer[]{1,2,3}).sorted().collect(Collectors.toList());
 
         assertEquals(expected, result.stream().sorted().collect(Collectors.toList()));
@@ -117,7 +119,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         Entity entity = Appellant.builder().id(id).build();
 
-        int result = HearingsMapping.updateEntityId(entity, maxId);
+        int result = hearingsMapping.updateEntityId(entity, maxId);
 
         assertEquals(expectedId, entity.getId());
         assertEquals(expectedMaxId, result);
@@ -140,7 +142,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .updatedCaseData(caseData)
                 .build();
 
-        HearingsMapping.buildRelatedParties(wrapper);
+        hearingsMapping.buildRelatedParties(wrapper);
 
         assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getRelatedParties());
         assertFalse(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getRelatedParties().isEmpty());
@@ -168,7 +170,7 @@ class HearingsMappingTest extends HearingsMappingBase {
             }
         }
         Appellant appellant = Appellant.builder().id(appellantId).build();
-        List<String> result = HearingsMapping.getAllPartiesIds(otherParties, appellant);
+        List<String> result = hearingsMapping.getAllPartiesIds(otherParties, appellant);
         assertEquals(splitCsvParamArray(expected).stream().sorted().collect(Collectors.toList()),
                 result.stream().sorted().collect(Collectors.toList()));
     }
@@ -197,7 +199,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         Appointee appointee = appointeeNull ? null : Appointee.builder().id("5").build();
         Party party = Appellant.builder().appointee(appointee).id("4").build();
         Representative rep =  representativeNull ? null : Representative.builder().id("6").build();
-        HearingsMapping.buildRelatedPartiesParty(party, ids, hasAppointee, hasRepresentative, rep);
+        hearingsMapping.buildRelatedPartiesParty(party, ids, hasAppointee, hasRepresentative, rep);
 
         assertNotNull(party.getRelatedParties());
         assertFalse(party.getRelatedParties().isEmpty());
@@ -227,7 +229,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         List<String> ids = List.of(new String[]{"1", "2", "3"});
         Appellant entity = Appellant.builder().build();
-        HearingsMapping.updateEntityRelatedParties(entity, ids);
+        hearingsMapping.updateEntityRelatedParties(entity, ids);
         assertNotNull(entity.getRelatedParties());
         assertFalse(entity.getRelatedParties().isEmpty());
     }

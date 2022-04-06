@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingState;
@@ -40,6 +41,9 @@ class HearingsServiceTest {
     @Mock
     private IdamService idamService;
 
+    @Mock
+    private HearingsMapping hearingsMapping;
+
     private HearingsService hearingsService;
     private HearingWrapper wrapper;
 
@@ -70,7 +74,7 @@ class HearingsServiceTest {
 
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
 
-        hearingsService = new HearingsService(hmcHearingApi, idamService);
+        hearingsService = new HearingsService(hmcHearingApi, idamService, hearingsMapping);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")

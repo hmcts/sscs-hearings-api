@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
@@ -18,22 +19,21 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn"})
-// TODO Unsuppress in future
-public final class HearingsDetailsMapping {
+@Component
+public class HearingsDetailsMapping {
 
     public static final String NORMAL = "Normal";
     public static final String HIGH = "High";
 
-    private static SessionLookupService sessionLookupService;
+    private final SessionLookupService sessionLookupService;
 
     @Autowired
-    private HearingsDetailsMapping(SessionLookupService sessionLookupService) {
+    public HearingsDetailsMapping(SessionLookupService sessionLookupService) {
         this.sessionLookupService = sessionLookupService;
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper) {
+    public HearingDetails buildHearingDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getOriginalCaseData();
 
         HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
@@ -60,30 +60,30 @@ public final class HearingsDetailsMapping {
         return hearingDetailsBuilder.build();
     }
 
-    public static boolean shouldBeAutoListed() {
+    public boolean shouldBeAutoListed() {
         // TODO Future Work
         return true;
     }
 
-    public static boolean shouldBeHearingsInWelshFlag() {
+    public boolean shouldBeHearingsInWelshFlag() {
         // TODO Future Work
         return false;
     }
 
-    public static boolean isCaseLinked() {
+    public boolean isCaseLinked() {
         // TODO Future work
         // boolean isYes = nonNull(caseData.getLinkedCase()) && !caseData.getLinkedCase().isEmpty();
         // driven by benefit or issue, can't be auto listed
         return false;
     }
 
-    public static String getHearingType(SscsCaseData caseData) {
+    public String getHearingType(SscsCaseData caseData) {
         String hearingType = null;
         // TODO Dependant on SSCS-10273 - find out what logic is needed here
         return hearingType;
     }
 
-    public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
+    public HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
         LocalDate dateRangeStart = null;
         LocalDate dateRangeEnd = null;
 
@@ -108,7 +108,7 @@ public final class HearingsDetailsMapping {
                 .build();
     }
 
-    public static LocalDateTime getFirstDateTimeMustBe() {
+    public LocalDateTime getFirstDateTimeMustBe() {
         // TODO Adjournments - Find out how to use adjournCase data to work this out, possibly related variables:
         //      adjournCaseNextHearingDateType, adjournCaseNextHearingDateOrPeriod, adjournCaseNextHearingDateOrTime,
         //      adjournCaseNextHearingFirstAvailableDateAfterDate, adjournCaseNextHearingFirstAvailableDateAfterPeriod
@@ -116,7 +116,7 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    public static int getHearingDuration(SscsCaseData caseData) {
+    public int getHearingDuration(SscsCaseData caseData) {
         if (nonNull(caseData.getAdjournCaseNextHearingListingDuration())
                 && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
             // TODO Adjournments - Check this is the correct logic for Adjournments
@@ -136,7 +136,7 @@ public final class HearingsDetailsMapping {
         return 30;
     }
 
-    public static String getHearingPriority(String isAdjournCase, String isUrgentCase) {
+    public String getHearingPriority(String isAdjournCase, String isUrgentCase) {
         // urgentCase Should go to top of queue in LA - also consider case created date
         // Flag to Lauren - how  can this be captured in HMC queue?
         // If there's an adjournment - date shouldn't reset - should also go to top priority
@@ -152,12 +152,12 @@ public final class HearingsDetailsMapping {
         return hearingPriorityType;
     }
 
-    public static Number getNumberOfPhysicalAttendees() {
+    public Number getNumberOfPhysicalAttendees() {
         // TODO Implementation to be done by SSCS-10260
         return null;
     }
 
-    public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
+    public List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         // locationType - from reference data - processing venue to venue type/epims
         // locationId - epims
         // manual over-ride e.g. if a judge wants to change venue
@@ -168,7 +168,7 @@ public final class HearingsDetailsMapping {
         return new ArrayList<>();
     }
 
-    public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
+    public List<String> getFacilitiesRequired(SscsCaseData caseData) {
         List<String> facilitiesRequired = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
@@ -176,7 +176,7 @@ public final class HearingsDetailsMapping {
         return facilitiesRequired;
     }
 
-    public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
+    public String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
         List<String> listingComments = new ArrayList<>();
         // TODO Lucas - Check this is all that is needed in this
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
@@ -192,17 +192,17 @@ public final class HearingsDetailsMapping {
         return listingComments.isEmpty() ? null : String.join("\n", listingComments);
     }
 
-    public static String getHearingRequester() {
+    public String getHearingRequester() {
         // TODO Implementation to be done by SSCS-10260. Optional?
         return null;
     }
 
-    public static String getLeadJudgeContractType() {
+    public String getLeadJudgeContractType() {
         // TODO Implementation to be done by SSCS-10260
         return null;
     }
 
-    public static PanelRequirements getPanelRequirements(SscsCaseData caseData) {
+    public PanelRequirements getPanelRequirements(SscsCaseData caseData) {
         var panelRequirementsBuilder = PanelRequirements.builder();
 
         List<String> roleTypes = new ArrayList<>();
@@ -228,7 +228,7 @@ public final class HearingsDetailsMapping {
         return panelRequirementsBuilder.build();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
+    public List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
         List<PanelPreference> panelPreferences = new ArrayList<>();
         // TODO Adjournments - loop to go through Judicial members that are need to be included or excluded
         // TODO Waqas - Check no other reason to have panel preferences

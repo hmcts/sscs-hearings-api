@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -14,10 +16,9 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.buildHearingCaseDetails;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsPartiesMapping.buildHearingPartiesDetails;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsRequestMapping.buildHearingRequestDetails;
 
+@Component
 public final class HearingsMapping {
 
     public static final String OTHER_PARTY = "OtherParty";
@@ -25,22 +26,27 @@ public final class HearingsMapping {
     public static final String APPOINTEE = "Appointee";
     public static final String APPELLANT = "Appellant";
 
-    private HearingsMapping() {
+    private final HearingsDetailsMapping hearingsDetailsMapping;
+    private final HearingsRequestMapping hearingsRequestMapping;
 
+    @Autowired
+    public HearingsMapping(HearingsDetailsMapping hearingsDetailsMapping, HearingsRequestMapping hearingsRequestMapping) {
+        this.hearingsDetailsMapping = hearingsDetailsMapping;
+        this.hearingsRequestMapping = hearingsRequestMapping;
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
+    public HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
         HearingRequestPayloadBuilder requestPayloadBuilder = HearingRequestPayload.builder();
 
-        requestPayloadBuilder.requestDetails(buildHearingRequestDetails(wrapper));
-        requestPayloadBuilder.hearingDetails(buildHearingDetails(wrapper));
+        requestPayloadBuilder.requestDetails(hearingsRequestMapping.buildHearingRequestDetails(wrapper));
+        requestPayloadBuilder.hearingDetails(hearingsDetailsMapping.buildHearingDetails(wrapper));
         requestPayloadBuilder.caseDetails(buildHearingCaseDetails(wrapper));
         requestPayloadBuilder.partiesDetails(buildHearingPartiesDetails(wrapper));
 
         return requestPayloadBuilder.build();
     }
 
-    public static void updateIds(HearingWrapper wrapper) {
+    public void updateIds(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getUpdatedCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
@@ -66,11 +72,11 @@ public final class HearingsMapping {
         }
     }
 
-    public static int getMaxId(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
+    public int getMaxId(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
         return getAllIds(otherParties, appellant, rep).stream().max(Comparator.naturalOrder()).orElse(0);
     }
 
-    public static List<Integer> getAllIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
+    public List<Integer> getAllIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
         List<Integer> currentIds = new ArrayList<>();
         if (nonNull(otherParties)) {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
@@ -83,7 +89,7 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static List<Integer> getAllPartyIds(Party party, Representative rep) {
+    public List<Integer> getAllPartyIds(Party party, Representative rep) {
         List<Integer> currentIds = new ArrayList<>();
 
         if (party.getId() != null) {
@@ -99,7 +105,7 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static int updateEntityId(Entity entity, int maxId) {
+    public int updateEntityId(Entity entity, int maxId) {
         String id = entity.getId();
         int newMaxId = maxId;
         if (isBlank(id)) {
@@ -109,7 +115,7 @@ public final class HearingsMapping {
         return newMaxId;
     }
 
-    public static void buildRelatedParties(HearingWrapper wrapper) {
+    public void buildRelatedParties(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getUpdatedCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
@@ -126,7 +132,7 @@ public final class HearingsMapping {
         buildRelatedPartiesParty(appellant, allPartiesIds, isYes(appellant.getIsAppointee()), nonNull(appeal.getRep()) && isYes(appeal.getRep().getHasRepresentative()), appeal.getRep());
     }
 
-    public static List<String> getAllPartiesIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant) {
+    public List<String> getAllPartiesIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant) {
         List<String> currentIds = new ArrayList<>();
         if (nonNull(otherParties)) {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
@@ -139,7 +145,7 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static void buildRelatedPartiesParty(Party party, List<String> allPartiesIds, boolean hasAppointee, boolean hasRepresentative, Representative rep) {
+    public void buildRelatedPartiesParty(Party party, List<String> allPartiesIds, boolean hasAppointee, boolean hasRepresentative, Representative rep) {
         updateEntityRelatedParties(party, allPartiesIds);
         if (hasAppointee && nonNull(party.getAppointee())) {
             updateEntityRelatedParties(party.getAppointee(), List.of(party.getId()));
@@ -149,7 +155,7 @@ public final class HearingsMapping {
         }
     }
 
-    public static void updateEntityRelatedParties(Entity entity, List<String> ids) {
+    public void updateEntityRelatedParties(Entity entity, List<String> ids) {
         List<RelatedParty> relatedParties = new ArrayList<>();
         // TODO ref data that hasn't been published yet
 

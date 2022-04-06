@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
@@ -13,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HearingsRequestMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private HearingsRequestMapping hearingsRequestMapping;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingRequestDetails returns the correct Hearing Request")
     @Test
@@ -28,7 +32,7 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
                 .updatedCaseData(caseData)
                 .build();
 
-        RequestDetails requestDetails = HearingsRequestMapping.buildHearingRequestDetails(wrapper);
+        RequestDetails requestDetails = hearingsRequestMapping.buildHearingRequestDetails(wrapper);
 
         assertNotNull(requestDetails.getVersionNumber());
     }
@@ -42,7 +46,7 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
                         .activeHearingVersionNumber(VERSION)
                         .build())
                 .build();
-        Long result = HearingsRequestMapping.getVersion(caseData);
+        Long result = hearingsRequestMapping.getVersion(caseData);
 
         assertEquals(VERSION, result);
     }
@@ -68,7 +72,7 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
                 .schedulingAndListingFields(schedulingAndListingFields)
                 .build();
 
-        Long result = HearingsRequestMapping.getVersion(caseData);
+        Long result = hearingsRequestMapping.getVersion(caseData);
 
         assertNull(result);
     }

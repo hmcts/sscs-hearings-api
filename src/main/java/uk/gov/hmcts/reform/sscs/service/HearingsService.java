@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -20,10 +21,14 @@ public class HearingsService {
 
     private final IdamService idamService;
 
+    private final HearingsMapping hearingsMapping;
+
     public HearingsService(HmcHearingApi hmcHearingApi,
-                           IdamService idamService) {
+                           IdamService idamService,
+                           HearingsMapping hearingsMapping) {
         this.hmcHearingApi = hmcHearingApi;
         this.idamService = idamService;
+        this.hearingsMapping = hearingsMapping;
     }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
@@ -65,12 +70,12 @@ public class HearingsService {
         return hmcHearingApi.createHearingRequest(
                 idamService.getIdamTokens().getIdamOauth2Token(),
                 idamService.getIdamTokens().getServiceAuthorization(),
-                buildHearingPayload(wrapper));
+                hearingsMapping.buildHearingPayload(wrapper));
     }
 
     private void createHearing(HearingWrapper wrapper) {
-        updateIds(wrapper);
-        buildRelatedParties(wrapper);
+        hearingsMapping.updateIds(wrapper);
+        hearingsMapping.buildRelatedParties(wrapper);
         sendCreateHearingRequest(wrapper);
         // TODO Store response with SSCS-10274
     }
