@@ -267,7 +267,7 @@ def versions= [
   springDoc: '1.6.6',
   springFoxSwagger: '3.0.0',
   springRetry: '1.3.1',
-  sscsCommon: '4.7.2-RC-SSCS-10321-2',
+  sscsCommon: '4.7.2-RC-SSCS-10116',
   tomcat: '9.0.58'
 ]
 
