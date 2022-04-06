@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -44,5 +47,17 @@ public class HearingUpdate {
         this.hearingRoomId = hearingRoomId;
         this.hearingJudgeId = hearingJudgeId;
 
+    }
+
+    public LocalDateTime getHearingResponseReceivedDateTime() {
+        return LocalDateTime.parse(this.hearingEventBroadcastDateTime);
+    }
+
+    public LocalDateTime getHearingEventBroadcastDateTime() {
+        return LocalDateTime.parse(this.hearingEventBroadcastDateTime);
+    }
+
+    public LocalDate getNextHearingDate() {
+        return LocalDate.parse(this.nextHearingDate);
     }
 }
