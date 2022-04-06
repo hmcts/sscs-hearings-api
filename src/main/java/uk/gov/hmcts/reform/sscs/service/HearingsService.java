@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.*;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -69,11 +69,13 @@ public class HearingsService {
 
     private void sendUpdatePartiesNotifiedRequest(HearingWrapper wrapper) {
 
-        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
-                                                                         idamService.getIdamTokens().getServiceAuthorization(),
-                                                                         getHearingId(wrapper),
-                                                                         getResponseVersionNumber(wrapper),
-                                                                         buildUpdatePartiesNotifiedPayload(wrapper)
+        hmcHearingPartiesNotifiedApi
+            .updatePartiesNotifiedHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                getHearingId(wrapper),
+                getVersionNumber(wrapper),
+                buildUpdatePartiesNotifiedPayload(wrapper)
         );
     }
 
