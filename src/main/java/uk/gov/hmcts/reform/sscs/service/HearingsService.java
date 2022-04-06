@@ -1,18 +1,30 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
 public class HearingsService {
+
+    private final IdamService idamService;
+    private final  HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
+
+    @Autowired
+    public HearingsService(IdamService idamService , HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi){
+        this.idamService = idamService;
+        this.hmcHearingPartiesNotifiedApi = hmcHearingPartiesNotifiedApi;
+    }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
@@ -55,6 +67,17 @@ public class HearingsService {
         }
     }
 
+    private void sendUpdatePartiesNotifiedRequest(HearingWrapper wrapper) {
+
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(idamService.getIdamTokens().getIdamOauth2Token(),
+                                                                         idamService.getIdamTokens().getServiceAuthorization(),
+                                                                         getHearingId(wrapper),
+                                                                         getResponseVersionNumber(wrapper),
+                                                                         buildUpdatePartiesNotifiedPayload(wrapper)
+        );
+    }
+
+
     private void createHearing(HearingWrapper wrapper) {
         //TODO Will be replaced when SSCS-10321 is merged
     }
@@ -73,7 +96,7 @@ public class HearingsService {
     }
 
     private void partyNotified(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when a party has been notified, might not be needed
+        sendUpdatePartiesNotifiedRequest(wrapper);
     }
 
     public void addHearingResponse(HearingWrapper wrapper, String hearingRequestId, String hmcStatus, Number version) {
