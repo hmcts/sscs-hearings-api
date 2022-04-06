@@ -21,6 +21,8 @@ public class HearingsEventQueueListener {
     private String connectionString;
     @Value("${azure.hearings-queue.topicName}")
     private String topicName;
+    @Value("${azure.hearings-queue.subscriptionName}")
+    private String subscriptionName;
     @Value("${azure.hearings-queue.timeout}")
     private Duration tryTimeout;
     @Value("${azure.hearings-queue.delay}")
@@ -36,6 +38,7 @@ public class HearingsEventQueueListener {
             .connectionString(connectionString)
             .processor()
             .topicName(topicName)
+            .subscriptionName(subscriptionName)
             .processMessage(HearingsEventQueueListener::processMessage)
             .processError(context -> QueueHelper.processError(context, countdownLatch))
             .buildProcessorClient();
