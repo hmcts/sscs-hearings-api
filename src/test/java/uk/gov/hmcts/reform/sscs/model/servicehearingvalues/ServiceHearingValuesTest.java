@@ -10,6 +10,7 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ResourceLoader;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.ServiceHearingValues;
 
 import java.util.Set;
 
