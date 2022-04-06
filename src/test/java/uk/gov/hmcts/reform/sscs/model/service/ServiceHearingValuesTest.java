@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.service;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +10,7 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ResourceLoader;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.ServiceHearingValues;
 
 import java.util.Set;
 
