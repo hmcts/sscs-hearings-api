@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.helper.QueueHelper;
-import uk.gov.hmcts.reform.sscs.model.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -42,7 +42,7 @@ public class HmcHearingsEventTopicListener {
         processorClient.start();
     }
 
-    private static void processMessage(ServiceBusReceivedMessageContext context) {
+    public static void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
         HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
         String hmctsServiceID = hmcMessage.getHmctsServiceID();
