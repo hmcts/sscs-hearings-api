@@ -15,4 +15,6 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 public class HearingLocations {
     private String locationType;
     private String locationId;
+    private String locationName;
+    private String region;
 }
