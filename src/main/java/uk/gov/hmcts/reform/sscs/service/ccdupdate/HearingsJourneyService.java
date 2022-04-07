@@ -75,6 +75,7 @@ public class HearingsJourneyService {
                 ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, EXCEPTION_SUMMARY, EXCEPTION_DESC);
                 break;
             default:
+                log.info("CCD state has not been updated for the hearing Id: {}", hearingId);
                 break;
         }
     }

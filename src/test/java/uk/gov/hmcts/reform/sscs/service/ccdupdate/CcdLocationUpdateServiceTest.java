@@ -12,8 +12,8 @@ import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,8 +39,7 @@ class CcdLocationUpdateServiceTest {
             .regionalProcessingCentre("regionalProcessingCentre")
             .build();
         VenueRpcDetails venueRpcDetails = new VenueRpcDetails(venueDetails);
-        List<VenueRpcDetails> venueRpcDetailsList = List.of(venueRpcDetails);
-        when(venueRpcDetailsService.getVenues(any())).thenReturn(venueRpcDetailsList);
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(Optional.of(venueRpcDetails));
 
         // when
         Venue venue = underTest.findVenue(venueId);
@@ -61,7 +60,7 @@ class CcdLocationUpdateServiceTest {
     void shouldReturnNullIfVenueDoesNotExist() {
         // given
         final String venueId = "987";
-        when(venueRpcDetailsService.getVenues(any())).thenReturn(Collections.emptyList());
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(Optional.empty());
 
         // when
         Venue venue = underTest.findVenue(venueId);
@@ -98,8 +97,7 @@ class CcdLocationUpdateServiceTest {
             .regionalProcessingCentre("regionalProcessingCentre")
             .build();
         VenueRpcDetails venueRpcDetails = new VenueRpcDetails(venueDetails);
-        List<VenueRpcDetails> venueRpcDetailsList = List.of(venueRpcDetails);
-        when(venueRpcDetailsService.getVenues(any())).thenReturn(venueRpcDetailsList);
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(Optional.of(venueRpcDetails));
 
         // when
         underTest.updateVenue(hmcMessage, caseData);

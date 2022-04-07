@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -21,9 +19,9 @@ public class VenueRpcDetailsService {
         this.venueDataLoader = venueDataLoader;
     }
 
-    public List<VenueRpcDetails> getVenues(Predicate<VenueRpcDetails> predicate) {
+    public Optional<VenueRpcDetails> getVenue(String epimsId) {
         return venueDataLoader.getVenueDetailsMap().values().stream().filter(this::isActiveVenue)
-            .map(VenueRpcDetails::new).filter(predicate).collect(Collectors.toList());
+            .map(VenueRpcDetails::new).filter(v -> v.getEpimsId().equalsIgnoreCase(epimsId)).findAny();
     }
 
     private boolean isActiveVenue(VenueDetails venueDetails) {

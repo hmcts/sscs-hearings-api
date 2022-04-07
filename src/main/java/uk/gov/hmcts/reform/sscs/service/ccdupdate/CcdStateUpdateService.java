@@ -19,7 +19,7 @@ public class CcdStateUpdateService {
             state = mapHmcCreatedOrUpdatedToCcd(hearingResponse);
         }
 
-        if (!state.equals(State.UNKNOWN)) {
+        if (isKnownState(state)) {
             sscsCaseData.setState(state);
         }
     }
@@ -31,7 +31,7 @@ public class CcdStateUpdateService {
             state = mapHmcCancelledToCcdState(
                 hearingResponse.getHearingResponse().getHearingCancellationReason());
         }
-        if (!state.equals(State.UNKNOWN)) {
+        if (isKnownState(state)) {
             sscsCaseData.setState(state);
         }
     }
@@ -48,6 +48,10 @@ public class CcdStateUpdateService {
             return State.READY_TO_LIST;
         }
         return State.UNKNOWN;
+    }
+
+    private boolean isKnownState(State state) {
+        return !state.equals(State.UNKNOWN);
     }
 
     @SuppressWarnings("PMD.CyclomaticComplexity")

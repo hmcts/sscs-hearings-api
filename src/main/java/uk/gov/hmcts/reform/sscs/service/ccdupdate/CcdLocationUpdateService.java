@@ -8,12 +8,12 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
 import uk.gov.hmcts.reform.sscs.messaging.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
@@ -67,23 +67,22 @@ public class CcdLocationUpdateService {
 
     public Venue findVenue(String venueId) {
 
-        Predicate<VenueRpcDetails> venuePredicate = v -> v.getEpimsId().equalsIgnoreCase(venueId);
-        List<VenueRpcDetails> venues = venueRpcDetailsService.getVenues(venuePredicate);
+        Optional<VenueRpcDetails> venue = venueRpcDetailsService.getVenue(venueId);
 
-        if (venues.isEmpty()) {
+        if (venue.isEmpty()) {
             return null;
         }
 
-        VenueRpcDetails venueDetails = venues.get(0);
+        VenueDetails venueDetails = venue.get().getVenueDetails();
         return Venue.builder()
             .address(Address.builder()
-                         .line1(venueDetails.getVenueDetails().getVenAddressLine1())
-                         .line2(venueDetails.getVenueDetails().getVenAddressLine2())
-                         .postcodeAddress(venueDetails.getVenueDetails().getVenAddressPostcode())
-                         .county(venueDetails.getVenueDetails().getVenAddressCounty())
-                         .town(venueDetails.getVenueDetails().getVenAddressTown())
+                         .line1(venueDetails.getVenAddressLine1())
+                         .line2(venueDetails.getVenAddressLine2())
+                         .postcodeAddress(venueDetails.getVenAddressPostcode())
+                         .county(venueDetails.getVenAddressCounty())
+                         .town(venueDetails.getVenAddressTown())
                          .build())
-            .name(venueDetails.getVenueDetails().getVenName())
+            .name(venueDetails.getVenName())
             .build();
     }
 
