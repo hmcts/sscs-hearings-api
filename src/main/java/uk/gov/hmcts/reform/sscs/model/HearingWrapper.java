@@ -12,8 +12,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 @AllArgsConstructor
 @Builder
 public class HearingWrapper {
-    private SscsCaseData originalCaseData;
-    private SscsCaseData updatedCaseData;
+    private SscsCaseData caseData;
     private EventType event;
     private HearingState state; // TODO when SSCS-10222 is deployed, replace with SSCS-Common version of this class
 }

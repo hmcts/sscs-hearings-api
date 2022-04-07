@@ -40,7 +40,7 @@ class HearingsServiceHelperTest {
 
     private HearingWrapper activeHearingIdFixture(final Long hearingId) {
         return HearingWrapper.builder()
-            .updatedCaseData(SscsCaseData.builder()
+            .caseData(SscsCaseData.builder()
                     .schedulingAndListingFields(SchedulingAndListingFields.builder()
                             .activeHearingId(hearingId)
                             .build())

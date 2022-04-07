@@ -31,7 +31,7 @@ public final class HearingsCaseMapping {
     }
 
     public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getOriginalCaseData();
+        SscsCaseData caseData = wrapper.getCaseData();
         CaseDetailsBuilder caseDetailsBuilder = CaseDetails.builder();
 
         caseDetailsBuilder.hmctsServiceCode(getServiceCode());

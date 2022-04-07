@@ -64,8 +64,8 @@ class HearingsServiceTest {
         wrapper = HearingWrapper.builder()
                 .event(UPDATE_HEARING_TYPE)
                 .state(CREATE_HEARING)
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
+                .caseData(caseData)
+                .caseData(caseData)
                 .build();
 
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());

@@ -40,8 +40,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
+                .caseData(caseData)
+                .caseData(caseData)
                 .build();
 
         HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper);
