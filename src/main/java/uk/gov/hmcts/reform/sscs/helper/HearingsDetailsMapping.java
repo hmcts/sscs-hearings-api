@@ -79,9 +79,10 @@ public class HearingsDetailsMapping {
     }
 
     public String getHearingType(SscsCaseData caseData) {
-        String hearingType = null;
+//        String hearingType = null;
         // TODO Dependant on SSCS-10273 - find out what logic is needed here
-        return hearingType;
+//        return hearingType;
+        return null;
     }
 
     public HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -175,11 +176,12 @@ public class HearingsDetailsMapping {
     }
 
     public List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        List<String> facilitiesRequired = new ArrayList<>();
+//        List<String> facilitiesRequired = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return facilitiesRequired;
+//        return facilitiesRequired;
+        return new ArrayList<>();
     }
 
     public String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
@@ -235,10 +237,11 @@ public class HearingsDetailsMapping {
     }
 
     public List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
-        List<PanelPreference> panelPreferences = new ArrayList<>();
+//        List<PanelPreference> panelPreferences = new ArrayList<>();
         // TODO Adjournments - loop to go through Judicial members that are need to be included or excluded
         // TODO Waqas - Check no other reason to have panel preferences
         //      Will need Judicial Staff Reference Data
-        return panelPreferences;
+//        return panelPreferences;
+        return new ArrayList<>();
     }
 }

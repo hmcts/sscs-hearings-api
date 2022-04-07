@@ -11,10 +11,6 @@ import static java.util.Objects.nonNull;
 @Component
 public class HearingsRequestMapping {
 
-    public HearingsRequestMapping() {
-
-    }
-
     public RequestDetails buildHearingRequestDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getUpdatedCaseData();
         RequestDetailsBuilder hmcRequestDetailsBuilder = RequestDetails.builder();
