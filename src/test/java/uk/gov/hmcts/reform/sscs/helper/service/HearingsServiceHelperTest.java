@@ -115,17 +115,17 @@ class HearingsServiceHelperTest {
     }
 
     @Test
-    void shouldReturnNull_givenInvalidWrapper() {
-        final String actualHearingId = getHearingId(new HearingWrapper());
+    void shouldReturnNullHearingId_givenNullValue() {
+        HearingWrapper wrapper = activeHearingIdFixture(null);
+
+        final String actualHearingId = getHearingId(wrapper);
 
         assertNull(actualHearingId);
     }
 
     @Test
-    void shouldReturnNullHearingId_givenNullValue() {
-        HearingWrapper wrapper = activeHearingIdFixture(null);
-
-        final String actualHearingId = getHearingId(wrapper);
+    void shouldReturnNull_givenInvalidWrapper() {
+        final String actualHearingId = getHearingId(new HearingWrapper());
 
         assertNull(actualHearingId);
     }

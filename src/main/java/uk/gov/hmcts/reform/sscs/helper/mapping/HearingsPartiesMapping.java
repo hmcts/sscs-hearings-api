@@ -36,12 +36,12 @@ public final class HearingsPartiesMapping {
 
     public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper) {
 
-        Appeal appeal = wrapper.getUpdatedCaseData().getAppeal();
+        Appeal appeal = wrapper.getCaseData().getAppeal();
         Appellant appellant = appeal.getAppellant();
 
         List<PartyDetails> partiesDetails = new ArrayList<>(buildHearingPartiesPartyDetails(appellant, appeal.getRep(), appeal.getHearingOptions(), appeal.getHearingType(), appeal.getHearingSubtype()));
 
-        List<CcdValue<OtherParty>> otherParties = wrapper.getUpdatedCaseData().getOtherParties();
+        List<CcdValue<OtherParty>> otherParties = wrapper.getCaseData().getOtherParties();
 
         if (nonNull(otherParties)) {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {

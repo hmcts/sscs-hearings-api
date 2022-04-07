@@ -37,7 +37,7 @@ public final class HearingsMapping {
     }
 
     public static void updateIds(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getUpdatedCaseData();
+        SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
         int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep());
@@ -106,7 +106,7 @@ public final class HearingsMapping {
     }
 
     public static void buildRelatedParties(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getUpdatedCaseData();
+        SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
 

@@ -28,7 +28,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getOriginalCaseData();
+        SscsCaseData caseData = wrapper.getCaseData();
 
         HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
 

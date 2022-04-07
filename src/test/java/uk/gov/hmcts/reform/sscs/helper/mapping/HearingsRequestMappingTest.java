@@ -28,8 +28,8 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
+                .caseData(caseData)
+                .caseData(caseData)
                 .build();
 
         RequestDetails requestDetails = HearingsRequestMapping.buildHearingRequestDetails(wrapper);

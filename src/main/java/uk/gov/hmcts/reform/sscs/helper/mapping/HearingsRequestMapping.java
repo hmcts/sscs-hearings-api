@@ -15,7 +15,7 @@ public final class HearingsRequestMapping {
     }
 
     public static RequestDetails buildHearingRequestDetails(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getUpdatedCaseData();
+        SscsCaseData caseData = wrapper.getCaseData();
         RequestDetailsBuilder hmcRequestDetailsBuilder = RequestDetails.builder();
         hmcRequestDetailsBuilder.versionNumber(getVersion(caseData));
         return hmcRequestDetailsBuilder.build();

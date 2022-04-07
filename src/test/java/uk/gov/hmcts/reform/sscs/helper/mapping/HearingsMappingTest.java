@@ -46,21 +46,21 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .otherParties(otherParties)
                 .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
+                .caseData(caseData)
+                .caseData(caseData)
                 .build();
 
         HearingsMapping.updateIds(wrapper);
 
-        assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getId());
-        assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getAppointee().getId());
-        assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getRep().getId());
+        assertNotNull(wrapper.getCaseData().getAppeal().getAppellant().getId());
+        assertNotNull(wrapper.getCaseData().getAppeal().getAppellant().getAppointee().getId());
+        assertNotNull(wrapper.getCaseData().getAppeal().getRep().getId());
 
-        assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(0).getValue().getId());
-        assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(0).getValue().getAppointee().getId());
-        assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(0).getValue().getRep().getId());
+        assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getId());
+        assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getAppointee().getId());
+        assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getRep().getId());
 
-        assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(1).getValue().getId());
+        assertNotNull(wrapper.getCaseData().getOtherParties().get(1).getValue().getId());
     }
 
     @DisplayName("getMaxId Test")
@@ -136,17 +136,17 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .otherParties(otherParties)
                 .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .originalCaseData(caseData)
-                .updatedCaseData(caseData)
+                .caseData(caseData)
+                .caseData(caseData)
                 .build();
 
         HearingsMapping.buildRelatedParties(wrapper);
 
-        assertNotNull(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getRelatedParties());
-        assertFalse(wrapper.getUpdatedCaseData().getAppeal().getAppellant().getRelatedParties().isEmpty());
+        assertNotNull(wrapper.getCaseData().getAppeal().getAppellant().getRelatedParties());
+        assertFalse(wrapper.getCaseData().getAppeal().getAppellant().getRelatedParties().isEmpty());
 
-        assertNotNull(wrapper.getUpdatedCaseData().getOtherParties().get(0).getValue().getRelatedParties());
-        assertFalse(wrapper.getUpdatedCaseData().getOtherParties().get(0).getValue().getRelatedParties().isEmpty());
+        assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getRelatedParties());
+        assertFalse(wrapper.getCaseData().getOtherParties().get(0).getValue().getRelatedParties().isEmpty());
     }
 
     @DisplayName("getAllPartiesIds Parameterised Tests")
