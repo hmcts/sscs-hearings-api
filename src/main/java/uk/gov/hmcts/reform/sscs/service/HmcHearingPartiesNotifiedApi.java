@@ -6,13 +6,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@RestController
 @FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = FeignClientConfig.class)
 public interface HmcHearingPartiesNotifiedApi {
 
@@ -23,7 +21,6 @@ public interface HmcHearingPartiesNotifiedApi {
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam("id") String id,
-        @RequestParam("version") String responseVersion,
         @RequestBody PartiesNotified partiesNotified
     );
 }

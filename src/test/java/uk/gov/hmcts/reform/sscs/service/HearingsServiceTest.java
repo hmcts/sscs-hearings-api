@@ -5,8 +5,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -41,6 +46,9 @@ class HearingsServiceTest {
     @Mock
     private IdamService idamService;
 
+    @Mock
+    private HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
+
     private HearingsService hearingsService;
     private HearingWrapper wrapper;
 
@@ -71,7 +79,7 @@ class HearingsServiceTest {
 
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
 
-        hearingsService = new HearingsService(hmcHearingApi, idamService);
+        hearingsService = new HearingsService(hmcHearingApi, idamService, hmcHearingPartiesNotifiedApi);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")

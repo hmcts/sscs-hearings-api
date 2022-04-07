@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
-import java.util.Optional;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload.HearingRequestPayloadBuilder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,7 +16,6 @@ import static uk.gov.hmcts.reform.sscs.helper.HearingsCaseMapping.buildHearingCa
 import static uk.gov.hmcts.reform.sscs.helper.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsRequestMapping.buildHearingRequestDetails;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsRequestMapping.getVersion;
 
 public final class HearingsMapping {
 

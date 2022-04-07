@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
@@ -21,10 +22,13 @@ public class HearingsService {
 
     private final IdamService idamService;
 
+    private final HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
+
     public HearingsService(HmcHearingApi hmcHearingApi,
-                           IdamService idamService) {
+                           IdamService idamService, HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi) {
         this.hmcHearingApi = hmcHearingApi;
         this.idamService = idamService;
+        this.hmcHearingPartiesNotifiedApi = hmcHearingPartiesNotifiedApi;
     }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
@@ -99,7 +103,17 @@ public class HearingsService {
         // TODO implement mapping for the event when the hearing is cancelled, might not be needed
     }
 
+    private void sendPartiesNotifiedUpdateRequest(HearingWrapper wrapper) {
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            getHearingId(wrapper),
+            buildUpdatePartiesNotifiedPayload(wrapper)
+
+        );
+    }
+
     private void partyNotified(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when a party has been notified, might not be needed
+        sendPartiesNotifiedUpdateRequest(wrapper);
     }
 }

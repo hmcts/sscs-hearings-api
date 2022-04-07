@@ -1,9 +1,10 @@
 package uk.gov.hmcts.reform.sscs.helper.service;
 
-import java.util.Optional;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+
+import java.util.Optional;
 
 public final class HearingsServiceHelper {
 
