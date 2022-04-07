@@ -26,6 +26,7 @@ import javax.servlet.ServletContextListener;
 @ComponentScan(basePackages = {"uk.gov.hmcts.reform"})
 @EnableFeignClients(basePackages =
     {
+        "uk.gov.hmcts.reform.sscs.service",
         "uk.gov.hmcts.reform.authorisation",
         "uk.gov.hmcts.reform.sscs.idam",
         "uk.gov.hmcts.reform.idam"
