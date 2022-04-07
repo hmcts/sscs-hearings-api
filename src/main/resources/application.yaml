@@ -97,12 +97,12 @@ azure:
     hmcServiceIdBba3: ${HEARINGS_TOPIC_SERVICE_ID_BBA3:BBA3}
   hearings-queue:
     inbound:
-      connectionString: ${AZURE_HEARINGS_QUEUE_CONNECTION_STRING}
-      topicName: ${AZURE_HEARINGS_QUEUE_TOPIC_NAME}
-      subscriptionName: ${AZURE_HEARINGS_QUEUE_SUBSCRIPTION_NAME}
-    timeout: ${AZURE_HEARINGS_QUEUE_TIMEOUT}
-    delay: ${AZURE_HEARINGS_QUEUE_DELAY}
-    retries: ${AZURE_HEARINGS_QUEUE_RETRIES}
+      connectionString: ${AZURE_HEARINGS_QUEUE_CONNECTION_STRING:}
+      topicName: ${AZURE_HEARINGS_QUEUE_TOPIC_NAME:}
+      subscriptionName: ${AZURE_HEARINGS_QUEUE_SUBSCRIPTION_NAME:}
+    timeout: ${AZURE_HEARINGS_QUEUE_TIMEOUT:}
+    delay: ${AZURE_HEARINGS_QUEUE_DELAY:}
+    retries: ${AZURE_HEARINGS_QUEUE_RETRIES:}
 
 feign:
   httpclient:
