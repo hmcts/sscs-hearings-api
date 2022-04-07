@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -36,13 +35,11 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 @ExtendWith(MockitoExtension.class)
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
-    @Mock
-    private SessionLookupService sessionLookupService;
     private HearingsDetailsMapping hearingsDetailsMapping;
 
     @BeforeEach
     void setUp() {
-        this.hearingsDetailsMapping = new HearingsDetailsMapping(sessionLookupService);
+        this.hearingsDetailsMapping = new HearingsDetailsMapping(new SessionLookupService());
     }
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
