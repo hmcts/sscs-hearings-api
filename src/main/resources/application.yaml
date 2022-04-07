@@ -88,12 +88,12 @@ azure:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
   hearings-topic:
     inbound:
-      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING}
-      topicName: ${HEARINGS_TOPIC_NAME}
-      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME}
-    duration: ${HEARINGS_TOPIC_DURATION}
-    retries: ${HEARINGS_TOPIC_RETRIES}
-    delay: ${HEARINGS_TOPIC_DELAY}
+      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
+      topicName: ${HEARINGS_TOPIC_NAME:}
+      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
+    duration: ${HEARINGS_TOPIC_DURATION:}
+    retries: ${HEARINGS_TOPIC_RETRIES:}
+    delay: ${HEARINGS_TOPIC_DELAY:}
     hmcServiceIdBba3: ${HEARINGS_TOPIC_SERVICE_ID_BBA3:BBA3}
 
 
