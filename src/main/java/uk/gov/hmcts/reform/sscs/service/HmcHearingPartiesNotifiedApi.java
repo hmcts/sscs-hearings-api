@@ -11,6 +11,9 @@ import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+
+@SuppressWarnings({"PMD.UseObjectForClearerAPI"})
+// TODO Unsuppressed lot string argument as request will have two parameter
 @FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = FeignClientConfig.class)
 public interface HmcHearingPartiesNotifiedApi {
 
@@ -21,6 +24,7 @@ public interface HmcHearingPartiesNotifiedApi {
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam("id") String id,
+        @RequestParam("version") String responseVersion,
         @RequestBody PartiesNotified partiesNotified
     );
 }

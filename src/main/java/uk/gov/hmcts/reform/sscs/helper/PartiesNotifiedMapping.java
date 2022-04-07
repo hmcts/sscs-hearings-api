@@ -19,14 +19,6 @@ public final class PartiesNotifiedMapping {
         return partiesNotifiedBuilder.build();
     }
 
-    public static String getHearingId(HearingWrapper wrapper) {
-        return Optional.of(wrapper)
-            .map(HearingWrapper::getUpdatedCaseData)
-            .map(SscsCaseData::getSchedulingAndListingFields)
-            .map(SchedulingAndListingFields::getActiveHearingId)
-            .map(Object::toString).orElse(null);
-    }
-
     public static String getVersionNumber(HearingWrapper wrapper) {
         return Optional.of(wrapper)
             .map(HearingWrapper::getUpdatedCaseData)

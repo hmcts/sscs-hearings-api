@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.*;
 import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload;
+import static uk.gov.hmcts.reform.sscs.helper.PartiesNotifiedMapping.getVersionNumber;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
@@ -108,6 +109,7 @@ public class HearingsService {
             idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(),
             getHearingId(wrapper),
+            getVersionNumber(wrapper),
             buildUpdatePartiesNotifiedPayload(wrapper)
 
         );
