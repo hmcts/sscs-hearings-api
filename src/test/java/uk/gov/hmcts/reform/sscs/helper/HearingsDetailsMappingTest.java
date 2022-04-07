@@ -349,11 +349,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "null,null,null,null,30",
         "061,null,null,null,30",
         "null,IssueCode,null,null,30",
-        "051,FR,null,null,20",
+        "061,FR,null,null,30",
         "037,IssueCode,null,60,30",
-        "061,IssueCode,2,hours,30",
-        "061,WI,1,sessions,20",
-        "null,IssueCode,-1,hours,30",
+        "061,IssueCode,2,hours,120",
+        "061,WI,1,sessions,165",
+        "null,IssueCode,2,hours,120",
     }, nullValues = {"null"})
     void getHearingDuration(String benefitCode, String issueCode,
                             String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {

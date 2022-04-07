@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -18,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ExtendWith(MockitoExtension.class)
 class HearingsRequestMappingTest extends HearingsMappingBase {
 
-    @Mock
-    private HearingsRequestMapping hearingsRequestMapping;
+    private final HearingsRequestMapping hearingsRequestMapping = new HearingsRequestMapping();
 
     @DisplayName("When a valid hearing wrapper is given buildHearingRequestDetails returns the correct Hearing Request")
     @Test
