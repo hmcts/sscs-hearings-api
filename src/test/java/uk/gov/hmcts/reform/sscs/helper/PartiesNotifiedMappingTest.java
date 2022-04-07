@@ -2,21 +2,21 @@ package uk.gov.hmcts.reform.sscs.helper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PartiesNotifiedMappingTest extends HearingsMappingBase{
+public class PartiesNotifiedMappingTest extends HearingsMappingBase {
 
     public static final String VERSION_NUMBER = "1";
+
     @DisplayName("When a valid hearing wrapper is given buildUpdatePartiesNotifiedPayload returns the correct Hearing Request")
     @Test
-    void buildUpdatePartiesNotifiedPayload(){
+    void buildUpdatePartiesNotifiedPayload() {
 
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
