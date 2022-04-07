@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 
 import java.util.Optional;
 
-
 public final class PartiesNotifiedMapping {
 
     private PartiesNotifiedMapping() {
