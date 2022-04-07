@@ -13,8 +13,4 @@
     <notes><![CDATA[Awaiting new jackson-core dependency update]]></notes>
     <cve>CVE-2020-36518</cve>
   </suppress>
-  <suppress>
-    <notes><![CDATA[Temporary suppress to pass the build - fix before going to production]]></notes>
-    <cve>CVE-2022-22965</cve>
-  </suppress>
 </suppressions>
