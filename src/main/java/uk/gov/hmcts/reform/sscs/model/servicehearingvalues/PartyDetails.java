@@ -25,8 +25,7 @@ public class PartyDetails {
     private String partyID;
     @EnumPattern(enumClass = PartyType.class, fieldName = "partyType")
     private PartyType partyType;
-    private String partyName;
-    private String partyChannel;
+    private String partyChannelSubType;
     private String partyRole;
     private IndividualDetails individualDetails;
     private OrganisationDetails organisationDetails;
