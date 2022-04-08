@@ -33,21 +33,6 @@
   "listingComments": "Additional instructions for the hearing",
   "hearingRequester": "",
   "privateHearingRequiredFlag": false,
-  "panelRequirements": {
-    "roleType": [
-      "tribunalJudge",
-      "deputyTribunalJudge",
-      "regionalTribunalJudge"
-    ],
-    "panelPreferences": [],
-    "panelSpecialisms": [
-      "DisabilityQualifiedPanelMember",
-      "EyeSurgeon",
-      "GeneralPractitioner",
-      "FinanciallyQualifiedPanelMember",
-      "RegionalMedicalMember"
-    ]
-  },
   "leadJudgeContractType": "",
   "judiciary": {
     "roleType": [
@@ -77,10 +62,27 @@
     ]
   },
   "hearingIsLinkedFlag": false,
+  "panelRequirements": {
+    "roleType": [
+      "tribunalJudge",
+      "deputyTribunalJudge",
+      "regionalTribunalJudge"
+    ],
+    "panelPreferences": [],
+    "panelSpecialisms": [
+      "DisabilityQualifiedPanelMember",
+      "EyeSurgeon",
+      "GeneralPractitioner",
+      "FinanciallyQualifiedPanelMember",
+      "RegionalMedicalMember"
+    ]
+  },
   "parties": [
     {
       "partyID": "P1",
       "partyType": "IND",
+      "partyName": "Jane Smith",
+      "partyChannel": "byVideo",
       "unavailabilityRanges": [
         {
           "unavailableFromDate": "2021-12-10T09:00:00.000+0000",
@@ -91,6 +93,8 @@
     {
       "partyID": "P2",
       "partyType": "ORG",
+      "partyName": "DWP",
+      "partyChannel": "byVideo",
       "unavailabilityRanges": [
         {
           "unavailableFromDate": "2021-12-20T09:00:00.000+0000",
