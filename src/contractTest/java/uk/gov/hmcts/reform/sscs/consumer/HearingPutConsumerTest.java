@@ -154,8 +154,8 @@ public class HearingPutConsumerTest extends BasePactTest {
 
         assertNotNull(hearingResponse.getHearingRequestId());
         assertTrue(hearingResponse.getStatus().equalsIgnoreCase(ContractTestDataProvider.HEARING_RESPONSE_STATUS));
-        assertNotNull(hearingResponse.getVersionNumber());
-        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
+        assertNotNull(hearingResponse.getVersion());
+        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersion());
         assertNotNull(hearingResponse.getTimeStamp()
                           .compareTo(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE)));
     }

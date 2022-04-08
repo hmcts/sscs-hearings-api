@@ -245,13 +245,17 @@ def versions= [
   gradlePiTestPlugin: '1.5.2',
   hmctsProperties: '0.1.0',
   jackson: '2.13.2',
+  jacksonBom: '2.13.2.20220324',
+  jacksonDatabind: '2.13.2.1',
   jacksonDatatype: '2.13.2',
   junitJupiter: '5.8.2',
+  jsonSchemaValidator: '1.0.66',
   log4J: '2.17.1',
   logback: '1.2.10',
   reformLogging: '5.1.9',
   lombok: '1.18.22',
   okhttp: '4.9.2',
+  pact: '4.1.7',
   pactJava8: '4.1.34',
   pactJunit: '4.3.5',
   pitest: '1.7.3',
@@ -263,9 +267,9 @@ def versions= [
   springDoc: '1.6.6',
   springFoxSwagger: '3.0.0',
   springRetry: '1.3.1',
+  sscsCommon: '4.6.49-SSCS-10321-1',
   tomcat: '9.0.58',
   pact : '4.1.7',
-  sscsCommon: '4.7.1' ,
   jacksonDatabind: '2.13.2.1' ,
   jacksonBom: '2.13.2.20220324'
 ]
@@ -324,10 +328,9 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
 
 
-  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: versions.jsonSchemaValidator
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
-
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
@@ -336,7 +339,6 @@ dependencies {
 
   testImplementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
   testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
-
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'

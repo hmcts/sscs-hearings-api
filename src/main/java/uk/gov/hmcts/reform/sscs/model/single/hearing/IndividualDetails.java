@@ -8,11 +8,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IndividualDetails {
 
@@ -35,6 +34,6 @@ public class IndividualDetails {
     private String hearingChannelEmail;
 
     private String hearingChannelPhone;
-    //@JsonProperty("relatedParties")
+
     private List<RelatedParty> relatedParties;
 }
