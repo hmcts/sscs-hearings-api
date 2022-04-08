@@ -4,7 +4,7 @@ import com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.S
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMapping;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvCaseFlags;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindow;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindowDateRange;
@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.ServiceHearingValues;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ public class ServiceHearingValuesMapper {
                 .hearingType(getHearingType(caseData))
                 .caseType(caseData.getBenefitCode())
                 .caseSubTypes(getIssueCode(caseData))
-                // TODO same method is in HearingsDetailsMapping -> buildHearingWindow
-                //  (SSCS-10321-Create-Hearing-POST-Mapping)
+                // TODO a method doing the same thing is in HearingsDetailsMapping -> buildHearingWindow
+                //  use that one (SSCS-10321-Create-Hearing-POST-Mapping)
                 .shvHearingWindow(getHearingWindow(caseData))
                 .duration(0) // TODO SSCS-10116 will provide
                 .hearingPriorityType(getHearingPriority(
@@ -53,16 +54,16 @@ public class ServiceHearingValuesMapper {
                 .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData)) // TODO missing mappings
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(YesNo.isYes("No"))
-                // TODO get hearingLocations from the method created in SSCS-10245-send-epimsID-to-HMC
-                .shvHearingLocations(new ArrayList<>())
+                .hearingLocations(HearingsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
                 // TODO the method below "getAdditionalSecurityFlag" is already created in
                 //  SSCS-10321-Create-Hearing-POST-Mapping, HearingsCaseMapping ->  shouldBeAdditionalSecurityFlag
+                //  use that method
                 .caseAdditionalSecurityFlag(getAdditionalSecurityFlag(caseData.getOtherParties(), caseData.getDwpUcb()))
                 .facilitiesRequired(getFacilitiesRequired(caseData))
                 .listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
                 .hearingRequester(null)
                 .privateHearingRequiredFlag(false)
-                .leadJudgeContractType(null) // TODO ref data isn't availible yet. List Assist may handle this value
+                .leadJudgeContractType(null) // TODO ref data isn't available yet. List Assist may handle this value
                 .shvJudiciary(null) // TODO
                 .hearingIsLinkedFlag(false)
                 .shvParties(getParties(caseData)) // TODO missing mappings

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyDetails;
 
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class ServiceHearingValues {
     private Integer numberOfPhysicalAttendees;
     private boolean hearingInWelshFlag;
     //@JsonProperty("hearingLocations")
-    private List<ShvHearingLocation> shvHearingLocations;
+    private List<HearingLocations> hearingLocations;
     private Boolean caseAdditionalSecurityFlag;
     private List<String> facilitiesRequired;
     private String listingComments;

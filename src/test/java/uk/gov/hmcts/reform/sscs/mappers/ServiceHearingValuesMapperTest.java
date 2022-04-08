@@ -3,16 +3,13 @@ package uk.gov.hmcts.reform.sscs.mappers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvCaseFlags;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindow;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyDetails;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyFlags;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.UnavailabilityRange;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 
 import java.util.ArrayList;
@@ -133,7 +130,7 @@ public class ServiceHearingValuesMapperTest {
         assertEquals(serviceHearingValues.getHearingPriorityType(), HearingPriorityType.HIGH.getType());
         assertEquals(serviceHearingValues.getNumberOfPhysicalAttendees(), 3);  //TODO
         assertEquals(serviceHearingValues.isHearingInWelshFlag(), false);
-        assertEquals(serviceHearingValues.getShvHearingLocations().size(), 0); // TODO
+        assertEquals(serviceHearingValues.getHearingLocations().size(), 0); // TODO
         assertEquals(serviceHearingValues.getCaseAdditionalSecurityFlag(), true);
         assertEquals(serviceHearingValues.getFacilitiesRequired(), Arrays.asList(
             "signLanguageInterpreter",
@@ -149,8 +146,6 @@ public class ServiceHearingValuesMapperTest {
         assertEquals(serviceHearingValues.getLeadJudgeContractType(), null); // TODO
         assertEquals(serviceHearingValues.getShvJudiciary(), null); // TODO
         assertEquals(serviceHearingValues.isHearingIsLinkedFlag(), false);
-        System.out.println("Parties : " + getParties());
-        System.out.println("Parties actual : " + serviceHearingValues.getShvParties());
         assertEquals(serviceHearingValues.getShvParties(), getParties()); // TODO
         assertEquals(serviceHearingValues.getShvCaseFlags(), getCaseFlags());
         assertEquals(serviceHearingValues.getShvVocabulary(), null);
@@ -204,16 +199,10 @@ public class ServiceHearingValuesMapperTest {
                                    .isAppointee("No")
                                    .appointee(Appointee.builder().build())
                                    .rep(Representative.builder().build())
-                                   .otherPartySubscription(Subscription.builder().build())
-                                   .otherPartyAppointeeSubscription(Subscription.builder().build())
-                                   .otherPartyRepresentativeSubscription(Subscription.builder().build())
-                                   .sendNewOtherPartyNotification(YesNo.NO)
                                    .reasonableAdjustment(ReasonableAdjustmentDetails.builder()
                                                              .reasonableAdjustmentRequirements("Some adjustments...")
                                                              .wantsReasonableAdjustment(YesNo.YES)
                                                              .build())
-                                   .appointeeReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
-                                   .repReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
                                    .role(Role.builder()
                                              .name("party_role")
                                              .description("description")
