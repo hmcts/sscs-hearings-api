@@ -79,7 +79,10 @@ class HearingsJourneyServiceTest {
         underTest.process(hmcMessage);
 
         // then
-        if ("LISTED".equals(hmcStatus) || "UPDATE_SUBMITTED".equals(hmcStatus)) {
+        if ("LISTED".equals(hmcStatus)) {
+            verify(ccdStateUpdateService).updateListed(hearingResponse, caseData);
+            verify(ccdLocationUpdateService).updateVenue(hmcMessage, caseData);
+        } else if ("UPDATE_SUBMITTED".equals(hmcStatus)) {
             verify(ccdStateUpdateService).updateListed(hearingResponse, caseData);
             verify(ccdLocationUpdateService).updateVenue(hmcMessage, caseData);
         } else if ("CANCELLED".equals(hmcStatus)) {

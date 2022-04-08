@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service.ccdupdate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -17,6 +18,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HearingsJourneyService {
 
     private static final String CREATED_SUMMARY = "SSCS - new case sent to HMC";
@@ -32,16 +34,6 @@ public class HearingsJourneyService {
     private final CcdCaseService ccdCaseService;
     private final CcdStateUpdateService ccdStateUpdateService;
     private final CcdLocationUpdateService locationUpdateService;
-
-    public HearingsJourneyService(HmcHearingService hmcHearingService,
-                                  CcdCaseService ccdCaseService,
-                                  CcdStateUpdateService ccdStateUpdateService,
-                                  CcdLocationUpdateService locationUpdateService) {
-        this.hmcHearingService = hmcHearingService;
-        this.ccdCaseService = ccdCaseService;
-        this.ccdStateUpdateService = ccdStateUpdateService;
-        this.locationUpdateService = locationUpdateService;
-    }
 
     public void process(HmcMessage hmcMessage) throws GetCaseException, UpdateCaseException {
         validateHmcMessage(hmcMessage);

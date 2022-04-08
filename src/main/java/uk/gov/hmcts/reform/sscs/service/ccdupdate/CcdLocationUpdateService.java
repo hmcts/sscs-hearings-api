@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service.ccdupdate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
@@ -20,13 +21,10 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CcdLocationUpdateService {
 
     private final VenueRpcDetailsService venueRpcDetailsService;
-
-    public CcdLocationUpdateService(VenueRpcDetailsService venueRpcDetailsService) {
-        this.venueRpcDetailsService = venueRpcDetailsService;
-    }
 
     public void updateVenue(HmcMessage hmcMessage, SscsCaseData sscsCaseData) {
 
@@ -56,13 +54,16 @@ public class CcdLocationUpdateService {
 
         // remove hearing with outdated venueId
         List<Hearing> updatedHearingList = sscsCaseData.getHearings().stream()
-            .filter(obj -> !obj.getValue().getHearingId().equals(hmcMessage.getHearingID()))
+            .filter(hearing -> !hearing.getValue().getHearingId().equals(hmcMessage.getHearingID()))
             .collect(toList());
 
         // add hearing with updated venueId
         updatedHearingList.add(Hearing.builder().value(updatedHearingDetails).build());
 
         sscsCaseData.setHearings(updatedHearingList);
+        log.info("Venue has been updated from epimsId {} to {} for hearingId {}",
+                 existingHearingDetails.getHearingId(), updatedVenueId, hmcMessage.getHearingID()
+        );
     }
 
     public Venue findVenue(String venueId) {
@@ -70,6 +71,7 @@ public class CcdLocationUpdateService {
         Optional<VenueRpcDetails> venue = venueRpcDetailsService.getVenue(venueId);
 
         if (venue.isEmpty()) {
+            log.error("Can not find venue with Id {}", venueId);
             return null;
         }
 

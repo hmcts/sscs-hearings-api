@@ -1,15 +1,18 @@
 package uk.gov.hmcts.reform.sscs.service.ccdupdate;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus.AWAITING_LISTING;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus.FIXED;
 
+@Slf4j
 @Service
 public class CcdStateUpdateService {
 
@@ -21,6 +24,7 @@ public class CcdStateUpdateService {
 
         if (isKnownState(state)) {
             sscsCaseData.setState(state);
+            log.info("CCD state has been updated to {} for caseId {}", state, sscsCaseData.getCcdCaseId());
         }
     }
 
@@ -33,18 +37,20 @@ public class CcdStateUpdateService {
         }
         if (isKnownState(state)) {
             sscsCaseData.setState(state);
+            log.info("CCD state has been updated to {} for caseId {}", state, sscsCaseData.getCcdCaseId());
         }
     }
 
     public void updateFailed(SscsCaseData sscsCaseData) {
         sscsCaseData.setState(State.HANDLING_ERROR);
+        log.info("CCD state has been updated to {} for caseId {}", State.HANDLING_ERROR, sscsCaseData.getCcdCaseId());
     }
 
     private State mapHmcCreatedOrUpdatedToCcd(HearingGetResponse hearingResponse) {
-        if (isHearingListed(hearingResponse)) {
+        if (checkHearingStatus(hearingResponse, LISTED)) {
             return State.HEARING;
         }
-        if (isHearingAwaitingListing(hearingResponse)) {
+        if (checkHearingStatus(hearingResponse, AWAITING_LISTING)) {
             return State.READY_TO_LIST;
         }
         return State.UNKNOWN;
@@ -75,13 +81,8 @@ public class CcdStateUpdateService {
         }
     }
 
-    private boolean isHearingAwaitingListing(HearingGetResponse hearingResponse) {
-        return AWAITING_LISTING.getListingCaseStatusLabel().equals(
-            hearingResponse.getHearingResponse().getListingCaseStatus());
-    }
-
-    private static boolean isHearingListed(HearingGetResponse hearingResponse) {
-        return LISTED.getListingCaseStatusLabel().equals(
+    private static boolean checkHearingStatus(HearingGetResponse hearingResponse, ListingCaseStatus laStatus) {
+        return laStatus.getListingCaseStatusLabel().equals(
             hearingResponse.getHearingResponse().getListingCaseStatus());
     }
 
@@ -90,7 +91,6 @@ public class CcdStateUpdateService {
             hearingResponse.getHearingResponse().getListingStatus());
     }
 
-    // todo clarify below ok
     private static boolean isHearingCancelled(HearingGetResponse hearingResponse) {
         return "Cancelled".equalsIgnoreCase(hearingResponse.getRequestDetails().getStatus())
             || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
