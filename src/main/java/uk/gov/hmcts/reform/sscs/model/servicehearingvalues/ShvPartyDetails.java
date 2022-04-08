@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,21 +19,21 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartyDetails {
+public class ShvPartyDetails {
 
     private String partyID;
-    @JsonProperty("SvhPartyType")
+    //@JsonProperty("SvhPartyType")
     @EnumPattern(enumClass = PartyType.class, fieldName = "partyType")
     private PartyType partyType;
     private String partyName;
     private String partyChannel;
     private String partyRole;
-    @JsonProperty("SvhIndividualDetails")
+    //@JsonProperty("individualDetails")
     private IndividualDetails individualDetails;
-    @JsonProperty("SvhOrganisationDetails")
+    //@JsonProperty("organisationDetails")
     private OrganisationDetails organisationDetails;
-    @JsonProperty("SvhUnavailabilityDOW")
-    private List<UnavailabilityDayOfWeek> unavailabilityDow;
-    @JsonProperty("SvhUnavailabilityRanges")
+    //@JsonProperty("unavailabilityDow")
+    private List<ShvUnavailabilityDayOfWeek> unavailabilityDow;
+    //@JsonProperty("unavailabilityRanges")
     private List<UnavailabilityRange> unavailabilityRanges;
 }

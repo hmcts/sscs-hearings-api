@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +35,6 @@ public class IndividualDetails {
     private String hearingChannelEmail;
 
     private String hearingChannelPhone;
-    @JsonProperty("SvhRelatedParties")
+    //@JsonProperty("relatedParties")
     private List<RelatedParty> relatedParties;
 }

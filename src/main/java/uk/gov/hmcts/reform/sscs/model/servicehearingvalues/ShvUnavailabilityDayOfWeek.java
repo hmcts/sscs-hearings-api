@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 @NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UnavailabilityDayOfWeek {
+public class ShvUnavailabilityDayOfWeek {
 
     @JsonProperty("SvhDOW")
     @EnumPattern(enumClass = DayOfWeek.class, fieldName = "dayOfWeek")

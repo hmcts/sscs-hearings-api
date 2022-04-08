@@ -15,7 +15,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScreenNavigation {
+public class ShvScreenNavigation {
     private String screenName;
     private String conditionKey;
     private List<Navigation> navigation;

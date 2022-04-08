@@ -4,7 +4,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlags;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyFlags;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,9 +20,9 @@ import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.IS_CONFIDEN
 import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
 import static uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMap.URGENT_CASE;
 
-public class PartyFlagsMapping {
+public final class PartyFlagsMapping {
 
-    public static List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
+    public static List<ShvPartyFlags> getPartyFlags(SscsCaseData caseData) {
         return Arrays.asList(
             mapSignLanguageType(caseData),
             disabledAccess(caseData),
@@ -35,14 +35,18 @@ public class PartyFlagsMapping {
         );
     }
 
-    private static PartyFlags mapSignLanguageType(SscsCaseData caseData) {
+    private PartyFlagsMapping() {
+        //not called
+    }
+
+    private static ShvPartyFlags mapSignLanguageType(SscsCaseData caseData) {
         var signLanguageType = Optional
             .ofNullable(caseData.getAppeal())
             .map(Appeal::getHearingOptions)
             .map(HearingOptions::getSignLanguageType);
-        PartyFlags partyFlagsSignLanguage = null;
+        ShvPartyFlags partyFlagsSignLanguage = null;
         if (signLanguageType.isPresent()) {
-            partyFlagsSignLanguage = PartyFlags.builder()
+            partyFlagsSignLanguage = ShvPartyFlags.builder()
                 .flagId(SIGN_LANGUAGE_TYPE.getFlagId())
                 .flagDescription(SIGN_LANGUAGE_TYPE.getFlagDescription())
                 .flagParentId(SIGN_LANGUAGE_TYPE.getParentId())
@@ -51,14 +55,14 @@ public class PartyFlagsMapping {
         return partyFlagsSignLanguage;
     }
 
-    private static PartyFlags disabledAccess(SscsCaseData caseData) {
+    private static ShvPartyFlags disabledAccess(SscsCaseData caseData) {
         HearingOptions options = Optional
             .ofNullable(caseData.getAppeal())
             .map(Appeal::getHearingOptions).orElse(null);
-        PartyFlags partyFlagsDisabledAccess = null;
+        ShvPartyFlags partyFlagsDisabledAccess = null;
 
         if (Objects.nonNull(options) && options.wantsAccessibleHearingRoom()) {
-            partyFlagsDisabledAccess = PartyFlags.builder()
+            partyFlagsDisabledAccess = ShvPartyFlags.builder()
                 .flagId(DISABLED_ACCESS.getFlagId())
                 .flagDescription(DISABLED_ACCESS.getFlagDescription())
                 .flagParentId(DISABLED_ACCESS.getParentId()).build();
@@ -66,13 +70,13 @@ public class PartyFlagsMapping {
         return partyFlagsDisabledAccess;
     }
 
-    private static PartyFlags hearingLoop(SscsCaseData caseData) {
+    private static ShvPartyFlags hearingLoop(SscsCaseData caseData) {
         HearingOptions options = Optional
             .ofNullable(caseData.getAppeal())
             .map(Appeal::getHearingOptions).orElse(null);
-        PartyFlags hearingLoop = null;
+        ShvPartyFlags hearingLoop = null;
         if (Objects.nonNull(options) && options.wantsHearingLoop()) {
-            hearingLoop = PartyFlags.builder()
+            hearingLoop = ShvPartyFlags.builder()
                 .flagId(HEARING_LOOP.getFlagId())
                 .flagDescription(HEARING_LOOP.getFlagDescription())
                 .flagParentId(HEARING_LOOP.getParentId()).build();
@@ -80,11 +84,11 @@ public class PartyFlagsMapping {
         return hearingLoop;
     }
 
-    private static PartyFlags confidentialCase(SscsCaseData caseData) {
+    private static ShvPartyFlags confidentialCase(SscsCaseData caseData) {
         var isConfidentialCase = caseData.getIsConfidentialCase();
-        PartyFlags confidentialCase = null;
+        ShvPartyFlags confidentialCase = null;
         if (isConfidentialCase == YesNo.YES) {
-            confidentialCase = PartyFlags.builder()
+            confidentialCase = ShvPartyFlags.builder()
                 .flagId(IS_CONFIDENTIAL_CASE.getFlagId())
                 .flagDescription(IS_CONFIDENTIAL_CASE.getFlagDescription())
                 .flagParentId(IS_CONFIDENTIAL_CASE.getParentId())
@@ -93,11 +97,11 @@ public class PartyFlagsMapping {
         return confidentialCase;
     }
 
-    private static PartyFlags dwpUcb(SscsCaseData caseData) {
+    private static ShvPartyFlags dwpUcb(SscsCaseData caseData) {
         var dwpUcb = caseData.getDwpUcb();
-        PartyFlags dwpUcbPartyFlag = null;
+        ShvPartyFlags dwpUcbPartyFlag = null;
         if (dwpUcb != null) {
-            dwpUcbPartyFlag = PartyFlags.builder()
+            dwpUcbPartyFlag = ShvPartyFlags.builder()
                 .flagId(DWP_UCB.getFlagId())
                 .flagDescription(DWP_UCB.getFlagDescription())
                 .flagParentId(DWP_UCB.getParentId()).build();
@@ -105,11 +109,11 @@ public class PartyFlagsMapping {
         return  dwpUcbPartyFlag;
     }
 
-    private static PartyFlags dwpPhme(SscsCaseData caseData) {
+    private static ShvPartyFlags dwpPhme(SscsCaseData caseData) {
         var dwpPhme = caseData.getDwpPhme();
-        PartyFlags dwpPhmePartyFlag = null;
+        ShvPartyFlags dwpPhmePartyFlag = null;
         if (dwpPhme != null) {
-            dwpPhmePartyFlag = PartyFlags.builder()
+            dwpPhmePartyFlag = ShvPartyFlags.builder()
                 .flagId(DWP_PHME.getFlagId())
                 .flagDescription(DWP_PHME.getFlagDescription())
                 .flagParentId(DWP_PHME.getParentId()).build();
@@ -117,11 +121,11 @@ public class PartyFlagsMapping {
         return dwpPhmePartyFlag;
     }
 
-    private static PartyFlags urgentCase(SscsCaseData caseData) {
+    private static ShvPartyFlags urgentCase(SscsCaseData caseData) {
         var urgentCase = caseData.getUrgentCase();
-        PartyFlags urgentCasePartyFlag = null;
+        ShvPartyFlags urgentCasePartyFlag = null;
         if (urgentCase != null) {
-            urgentCasePartyFlag = PartyFlags.builder()
+            urgentCasePartyFlag = ShvPartyFlags.builder()
                 .flagId(URGENT_CASE.getFlagId())
                 .flagDescription(URGENT_CASE.getFlagDescription())
                 .flagParentId(URGENT_CASE.getParentId()).build();
@@ -129,11 +133,11 @@ public class PartyFlagsMapping {
         return urgentCasePartyFlag;
     }
 
-    private static PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
+    private static ShvPartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
         var adjournCaseInterpreterLanguage = caseData.getAdjournCaseInterpreterLanguage();
-        PartyFlags adjournCasePartyFlag = null;
+        ShvPartyFlags adjournCasePartyFlag = null;
         if (adjournCaseInterpreterLanguage != null) {
-            adjournCasePartyFlag = PartyFlags.builder()
+            adjournCasePartyFlag = ShvPartyFlags.builder()
                 .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
                 .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
                 .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();

@@ -8,8 +8,8 @@
     "Good cause",
     "Rate of Assessment / Payability Issues - complex"
   ],
-  "hearingWindow": {
-    "hearingWindowDateRange": {
+  "shvHearingWindow": {
+    "shvHearingWindowDateRange": {
       "hearingWindowStartDateRange": "2022-11-23T09:00:00.000+0000",
       "hearingWindowEndDateRange": "2022-11-30T09:00:00.000+0000"
     },
@@ -19,7 +19,7 @@
   "hearingPriorityType": "standard",
   "numberOfPhysicalAttendees": 2,
   "hearingInWelshFlag": false,
-  "hearingLocations": [
+  "shvHearingLocations": [
     {
       "locationId": "196538",
       "locationName": "LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL",
@@ -34,7 +34,7 @@
   "hearingRequester": "",
   "privateHearingRequiredFlag": false,
   "leadJudgeContractType": "",
-  "judiciary": {
+  "shvJudiciary": {
     "roleType": [
       ""
     ],
@@ -44,13 +44,13 @@
     "authorisationSubType": [
       ""
     ],
-    "panelComposition": [
+    "shvPanelComposition": [
       {
         "memberType": "",
         "count": 1
       }
     ],
-    "judiciaryPreferences": [
+    "shvJudiciaryPreferences": [
       {
         "memberID": "p1000000",
         "memberType": "JUDGE",
@@ -62,13 +62,13 @@
     ]
   },
   "hearingIsLinkedFlag": false,
-  "panelRequirements": {
+  "shvPanelRequirements": {
     "roleType": [
       "tribunalJudge",
       "deputyTribunalJudge",
       "regionalTribunalJudge"
     ],
-    "panelPreferences": [],
+    "shvPanelPreferences": [],
     "panelSpecialisms": [
       "DisabilityQualifiedPanelMember",
       "EyeSurgeon",
@@ -77,7 +77,7 @@
       "RegionalMedicalMember"
     ]
   },
-  "parties": [
+  "shvParties": [
     {
       "partyID": "P1",
       "partyType": "IND",
@@ -103,8 +103,8 @@
       ]
     }
   ],
-  "caseFlags": {
-    "flags": [
+  "shvCaseFlags": {
+    "shvFlags": [
       {
         "partyName": "Jane Smith",
         "flagParentId": "RA0008",
@@ -192,7 +192,7 @@
     ],
     "flagAmendURL": "/flag/amend"
   },
-  "screenFlow": [
+  "shvScreenFlow": [
     {
       "screenName": "hearing-requirements",
       "navigation": [
@@ -282,7 +282,7 @@
       ]
     }
   ],
-  "vocabulary": [
+  "shvVocabulary": [
     {
       "word1": ""
     }

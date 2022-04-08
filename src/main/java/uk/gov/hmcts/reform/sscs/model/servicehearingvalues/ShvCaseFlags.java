@@ -8,17 +8,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@SuppressWarnings("checkstyle:abbreviationaswordinname")
-public class UnavailabilityDOW {
-
-    @JsonProperty("DOW")
-    private DOW dow;
-    @JsonProperty("DOWUnavailabilityType")
-    private DOWUnavailabilityType dowUnavailabilityType;
+public class ShvCaseFlags {
+    //@JsonProperty("flags")
+    private List<ShvPartyFlags> shvFlags;
+    @JsonProperty("flagAmendURL")
+    private String flagAmendUrl;
 }

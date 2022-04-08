@@ -3,7 +3,13 @@ package uk.gov.hmcts.reform.sscs.mappers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvCaseFlags;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindow;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindowDateRange;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyDetails;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyFlags;
+import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
@@ -97,66 +103,78 @@ public class ServiceHearingValuesMapperTest {
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully(){
+    void shouldMapServiceHearingValuesSuccessfully() {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
         // when
         ServiceHearingValues serviceHearingValues = mapper.mapServiceHearingValues(sscsCaseDetails);
 
-        HearingWindow expectedHearingWindow = HearingWindow.builder()
+        final ShvHearingWindow expectedHearingWindow = ShvHearingWindow.builder()
             .hearingWindowFirstDate(null)
-            .hearingWindowDateRange(HearingWindowDateRange.builder()
+            .shvHearingWindowDateRange(ShvHearingWindowDateRange.builder()
                                         .hearingWindowStartDateRange("2022-02-26")
                                         .hearingWindowEndDateRange(null)
                                         .build())
             .build();
 
         //then
-        assertEquals(serviceHearingValues.getCaseName(), sscsCaseData.getAppeal().getAppellant().getName().getFullName());
-        assertEquals(serviceHearingValues.isAutoListFlag(), true); // TODO
+        assertEquals(
+            serviceHearingValues.getCaseName(),
+            sscsCaseData.getAppeal().getAppellant().getName().getFullName()
+        );
+        assertEquals(serviceHearingValues.isAutoListFlag(), false); // TODO
         assertEquals(serviceHearingValues.getDuration(), 0); // TODO
         assertEquals(serviceHearingValues.getHearingType(), sscsCaseData.getAppeal().getHearingType());
         assertEquals(serviceHearingValues.getCaseType(), sscsCaseData.getBenefitCode());
         assertEquals(String.join("", serviceHearingValues.getCaseSubTypes()), sscsCaseData.getIssueCode());
-        assertEquals(serviceHearingValues.getHearingWindow(), expectedHearingWindow);
+        assertEquals(serviceHearingValues.getShvHearingWindow(), expectedHearingWindow);
 
         assertEquals(serviceHearingValues.getHearingPriorityType(), HearingPriorityType.HIGH.getType());
         assertEquals(serviceHearingValues.getNumberOfPhysicalAttendees(), 3);  //TODO
         assertEquals(serviceHearingValues.isHearingInWelshFlag(), false);
-        assertEquals(serviceHearingValues.getHearingLocations().size(), 0); // TODO
+        assertEquals(serviceHearingValues.getShvHearingLocations().size(), 0); // TODO
         assertEquals(serviceHearingValues.getCaseAdditionalSecurityFlag(), true);
-        assertEquals(serviceHearingValues.getFacilitiesRequired(), Arrays.asList("signLanguageInterpreter",
-                                                                                 "hearingLoop",
-                                                                                 "disabledAccess"
+        assertEquals(serviceHearingValues.getFacilitiesRequired(), Arrays.asList(
+            "signLanguageInterpreter",
+            "hearingLoop",
+            "disabledAccess"
         ));
-        assertEquals(serviceHearingValues.getListingComments(),  NOTE_FROM_OTHER_APPELLANT + "\n" + NOTE_FROM_OTHER_PARTY);
-        assertEquals(serviceHearingValues.getHearingRequester(),  null);
-        assertEquals(serviceHearingValues.isPrivateHearingRequiredFlag(),  false);
-        assertEquals(serviceHearingValues.getLeadJudgeContractType(),  null); // TODO
-        assertEquals(serviceHearingValues.getJudiciary(), null); // TODO
+        assertEquals(
+            serviceHearingValues.getListingComments(),
+            NOTE_FROM_OTHER_APPELLANT + "\n" + NOTE_FROM_OTHER_PARTY
+        );
+        assertEquals(serviceHearingValues.getHearingRequester(), null);
+        assertEquals(serviceHearingValues.isPrivateHearingRequiredFlag(), false);
+        assertEquals(serviceHearingValues.getLeadJudgeContractType(), null); // TODO
+        assertEquals(serviceHearingValues.getShvJudiciary(), null); // TODO
         assertEquals(serviceHearingValues.isHearingIsLinkedFlag(), false);
-        assertEquals(serviceHearingValues.getParties(), getParties()); // TODO
-        assertEquals(serviceHearingValues.getCaseFlags(), getCaseFlags());
-        assertEquals(serviceHearingValues.getVocabulary(), null);
+        System.out.println("Parties : " + getParties());
+        System.out.println("Parties actual : " + serviceHearingValues.getShvParties());
+        assertEquals(serviceHearingValues.getShvParties(), getParties()); // TODO
+        assertEquals(serviceHearingValues.getShvCaseFlags(), getCaseFlags());
+        assertEquals(serviceHearingValues.getShvVocabulary(), null);
     }
 
     private List<Event> getEventsOfCaseData() {
-        return new ArrayList<>() {{
-            add(Event.builder()
-                    .value(EventDetails.builder()
-                               .date("2022-02-12T20:30:00")
-                               .type("responseReceived")
-                               .description("Dwp respond")
-                               .build())
-                    .build());
-        }};
+        return new ArrayList<>() {
+            {
+                add(Event.builder()
+                        .value(EventDetails.builder()
+                                   .date("2022-02-12T20:30:00")
+                                   .type("responseReceived")
+                                   .description("Dwp respond")
+                                   .build())
+                        .build());
+            }
+        };
     }
 
 
     private List<CcdValue<OtherParty>> getOtherParties() {
-        return new ArrayList<CcdValue<OtherParty>>(){{
-            add(new CcdValue<>(OtherParty.builder()
+        return new ArrayList<CcdValue<OtherParty>>() {
+            {
+                add(new CcdValue<>(OtherParty.builder()
                                    .id("party_id_1")
                                    .name(Name.builder()
                                              .firstName("Barny")
@@ -201,34 +219,38 @@ public class ServiceHearingValuesMapperTest {
                                              .description("description")
                                              .build())
                                    .build()));
-        }};
+            }
+        };
     }
 
 
-
-    private List<PartyDetails> getParties() {
-        return new ArrayList<>() {{
-            add(PartyDetails.builder()
-                    .partyID("party_id_1")
-                    .partyType(PartyType.IND)
-                    .partyName("Mr Barny Boulderstone")
-                    .partyChannel(FACE_TO_FACE)
-                    .partyRole("party_role")
-                    .individualDetails(getIndividualDetails())
-                    .organisationDetails(OrganisationDetails.builder().build())
-                    .unavailabilityDow(null)
-                    .unavailabilityRanges(getUnavailabilityRanges())
-                    .build());
-        }};
+    private List<ShvPartyDetails> getParties() {
+        return new ArrayList<>() {
+            {
+                add(ShvPartyDetails.builder()
+                        .partyID("party_id_1")
+                        .partyType(PartyType.IND)
+                        .partyName("Mr Barny Boulderstone")
+                        .partyChannel(FACE_TO_FACE)
+                        .partyRole("party_role")
+                        .individualDetails(getIndividualDetails())
+                        .organisationDetails(OrganisationDetails.builder().build())
+                        .unavailabilityDow(null)
+                        .unavailabilityRanges(getUnavailabilityRanges())
+                        .build());
+            }
+        };
     }
 
     private List<UnavailabilityRange> getUnavailabilityRanges() {
-        return new ArrayList<>() {{
-            add(UnavailabilityRange.builder()
+        return new ArrayList<>() {
+            {
+                add(UnavailabilityRange.builder()
                     .unavailableFromDate("12/01/2022")
                     .unavailableToDate("19/01/2022")
                     .build());
-        }};
+            }
+        };
     }
 
     private IndividualDetails getIndividualDetails() {
@@ -243,78 +265,76 @@ public class ServiceHearingValuesMapperTest {
             .vulnerabilityDetails(null)
             .hearingChannelEmail("test2@gmail.com")
             .hearingChannelPhone("0999733735")
-            .relatedParties(getRelatedParties()) // TODO this field would be populated when the corresponding method is finished
+            // TODO Field below would be populated when the corresponding method is finished
+            //  (SSCS-10321-Create-Hearing-POST-Mapping)
+            .relatedParties(getRelatedParties())
             .build();
     }
 
     private List<RelatedParty> getRelatedParties() {
-        return new ArrayList<>() {{
-            /*add(RelatedParties.builder()
+        return new ArrayList<>() {
+            {
+                /*add(RelatedParties.builder()
                     .relationshipType("Relative")
                     .relatedPartyID("1")
                     .build());*/
-        }};
+            }
+        };
     }
 
-
-   /* private List<RelatedParty> getRelatedPartyList() {
-        return new ArrayList<>() {{
-            add(RelatedParty.builder()
-                    .relationshipType("Relative")
-                    .relatedPartyId("1")
-                    .build());
-        }};
-    }*/
-
-
     private List<ExcludeDate> getExcludeDates() {
-        return new ArrayList<>() {{
-            add(ExcludeDate.builder()
+        return new ArrayList<>() {
+            {
+                add(ExcludeDate.builder()
                     .value(DateRange.builder()
                                .start("12/01/2022")
                                .end("19/01/2022")
                                .build())
                     .build());
-        }};
-    }
-    // TODO it will be populated when the method is provided
-    private CaseFlags getCaseFlags() {
-        return CaseFlags.builder()
-                    .flags(getPartyFlags())
-                    .flagAmendUrl(null)
-                .build();
+            }
+        };
     }
 
-    private List<PartyFlags> getPartyFlags() {
-        return new ArrayList<>() {{
-            add(PartyFlags.builder()
+    // TODO it will be populated when the method is provided
+    private ShvCaseFlags getCaseFlags() {
+        return ShvCaseFlags.builder()
+            .shvFlags(getPartyFlags())
+            .flagAmendUrl(null)
+            .build();
+    }
+
+    private List<ShvPartyFlags> getPartyFlags() {
+        return new ArrayList<>() {
+            {
+                add(ShvPartyFlags.builder()
                     .partyName(null)
                     .flagParentId("10")
                     .flagId("44")
                     .flagDescription("Sign Language Interpreter")
                     .flagStatus(null)
                     .build());
-            add(PartyFlags.builder()
+                add(ShvPartyFlags.builder()
                     .partyName(null)
                     .flagParentId("6")
                     .flagId("21")
                     .flagDescription("Step free / wheelchair access")
                     .flagStatus(null)
                     .build());
-            add(PartyFlags.builder()
+                add(ShvPartyFlags.builder()
                     .partyName(null)
                     .flagParentId("11")
                     .flagId("45")
                     .flagDescription("Hearing loop (hearing enhancement system)")
                     .flagStatus(null)
                     .build());
-            add(PartyFlags.builder()
+                add(ShvPartyFlags.builder()
                     .partyName(null)
                     .flagParentId("1")
                     .flagId("67")
                     .flagDescription("Urgent flag")
                     .flagStatus(null)
                     .build());
-        }};
+            }
+        };
     }
 }

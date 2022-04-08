@@ -13,11 +13,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartyFlags {
+public class ShvVocabulary {
 
-    private String partyName;
-    private String flagParentId;
-    private String flagId;
-    private String flagDescription;
-    private String flagStatus;
+    private String word1;
 }

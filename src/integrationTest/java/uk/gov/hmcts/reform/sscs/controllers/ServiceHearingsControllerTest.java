@@ -15,9 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.WorkAllocationFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
@@ -96,7 +94,7 @@ class ServiceHearingsControllerTest {
             + "should return the case name with a with 200 response code")
     @Test
     public void testPostRequestServiceHearingValues() throws Exception {
-        ServiceHearingValues model = ServiceHearingValues.builder().caseName(CASE_NAME).build();
+        ServiceHearingValues model = ServiceHearingValues.builder().caseName("").build();
         String json = asJsonString(model);
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)

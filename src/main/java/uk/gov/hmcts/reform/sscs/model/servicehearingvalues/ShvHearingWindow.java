@@ -2,13 +2,10 @@ package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -16,9 +13,9 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class CaseFlags {
+public class ShvHearingWindow {
 
-    private List<PartyFlags> flags;
-    @JsonProperty("flagAmendURL")
-    private String flagAmendUrl;
+    //@JsonProperty("hearingWindowDateRange")
+    private ShvHearingWindowDateRange shvHearingWindowDateRange;
+    private String hearingWindowFirstDate;
 }

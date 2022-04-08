@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.RequirementType;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 @Data
 @Builder(toBuilder = true)
@@ -16,12 +14,11 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class PanelPreference {
+@SuppressWarnings("checkstyle:abbreviationaswordinname")
+public class ShvUnavailabilityDOW {
 
-    private String memberID;
-    @JsonProperty("SvhMemberType")
-    private MemberType memberType;
-    @JsonProperty("SvhRequirementType")
-    @EnumPattern(enumClass = RequirementType.class, fieldName = "requirementType")
-    private RequirementType requirementType;
+    @JsonProperty("DOW")
+    private DOW dow;
+    @JsonProperty("DOWUnavailabilityType")
+    private DOWUnavailabilityType dowUnavailabilityType;
 }
