@@ -10,10 +10,7 @@ import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindow;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyDetails;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.UnavailabilityRange;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -54,7 +51,11 @@ public class ServiceHearingValuesMapper {
                 .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData)) // TODO missing mappings
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(YesNo.isYes("No"))
-                .hearingLocations(HearingsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
+                // TODO INFO this is the part which differs from SSCS-10260, we are getting the hearing locations value
+                //  from the method which was created in SSCS-10245. SSCS-10245 pulled the changes from SSCS-10321
+                //  so if you make a branch comparison with SSCS-10260 you will see what is included in this branch to
+                //  allow making a call to  HearingsMapping.getHearingLocations method
+                .hearingLocations(getHearingLocation(caseData.getCaseManagementLocation()))
                 // TODO the method below "getAdditionalSecurityFlag" is already created in
                 //  SSCS-10321-Create-Hearing-POST-Mapping, HearingsCaseMapping ->  shouldBeAdditionalSecurityFlag
                 //  use that method
@@ -72,6 +73,13 @@ public class ServiceHearingValuesMapper {
                 .shvVocabulary(null)
                 .hmctsServiceID("BBA3")
             .build();
+    }
+
+    private List<HearingLocations> getHearingLocation(CaseManagementLocation caseManagementLocation) {
+        if(Objects.nonNull(caseManagementLocation)) {
+            return HearingsMapping.getHearingLocations(caseManagementLocation);
+        }
+        return new ArrayList<>();
     }
 
     private Boolean getAdditionalSecurityFlag(List<CcdValue<OtherParty>> otherParties, String dwpUcb) {

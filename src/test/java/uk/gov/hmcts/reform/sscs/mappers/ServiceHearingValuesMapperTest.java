@@ -35,6 +35,9 @@ public class ServiceHearingValuesMapperTest {
                       .benefitCode("001")
                       .issueCode("DD")
                       .urgentCase("Yes")
+                      .caseManagementLocation(CaseManagementLocation.builder()
+                                                  .baseLocation("Location-1")
+                                                  .build())
                       .adjournCaseCanCaseBeListedRightAway("Yes")
                       .appeal(Appeal.builder()
                                   .hearingType("final")
@@ -130,7 +133,7 @@ public class ServiceHearingValuesMapperTest {
         assertEquals(serviceHearingValues.getHearingPriorityType(), HearingPriorityType.HIGH.getType());
         assertEquals(serviceHearingValues.getNumberOfPhysicalAttendees(), 3);  //TODO
         assertEquals(serviceHearingValues.isHearingInWelshFlag(), false);
-        assertEquals(serviceHearingValues.getHearingLocations().size(), 0); // TODO
+        assertEquals(serviceHearingValues.getHearingLocations(), getHearingLocations());
         assertEquals(serviceHearingValues.getCaseAdditionalSecurityFlag(), true);
         assertEquals(serviceHearingValues.getFacilitiesRequired(), Arrays.asList(
             "signLanguageInterpreter",
@@ -160,6 +163,17 @@ public class ServiceHearingValuesMapperTest {
                                    .type("responseReceived")
                                    .description("Dwp respond")
                                    .build())
+                        .build());
+            }
+        };
+    }
+
+    private List<HearingLocations> getHearingLocations() {
+        return new ArrayList<>() {
+            {
+                add(HearingLocations.builder()
+                        .locationId("Location-1")
+                        .locationType(LocationType.COURT.getLocationLabel())
                         .build());
             }
         };
