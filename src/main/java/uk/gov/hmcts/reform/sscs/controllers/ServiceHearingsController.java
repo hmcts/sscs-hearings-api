@@ -17,14 +17,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
+import uk.gov.hmcts.reform.sscs.mappers.ServiceHearingValuesMapper;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
-import uk.gov.hmcts.reform.sscs.mappers.ServiceHearingValuesMapper;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 
 import java.util.List;
@@ -39,7 +36,7 @@ public class ServiceHearingsController {
     private final CcdCaseService ccdCaseService;
     private final ServiceHearingValuesMapper serviceHearingValuesMapper;
 
-    public ServiceHearingsController(CcdCaseService ccdCaseService) {
+    public ServiceHearingsController(CcdCaseService ccdCaseService, ServiceHearingValuesMapper serviceHearingValuesMapper) {
         this.ccdCaseService = ccdCaseService;
         this.serviceHearingValuesMapper = serviceHearingValuesMapper;
     }

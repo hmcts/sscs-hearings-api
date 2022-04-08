@@ -26,8 +26,6 @@ import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,7 +49,7 @@ class ServiceHearingsControllerTest {
     private static final long HEARING_ID = 123L;
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
-    private static final String CASE_NAME = "Test Case Name";
+    private static final String CASE_NAME = "";
 
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -164,7 +162,7 @@ class ServiceHearingsControllerTest {
     @Test
     void testPostRequestServiceLinkedCases_badCaseID() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(String.valueOf(BAD_CASE_ID))
+                .caseId(BAD_CASE_ID)
                 .hearingId(String.valueOf(HEARING_ID))
                 .build();
 
