@@ -7,8 +7,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
-import uk.gov.hmcts.reform.sscs.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
 

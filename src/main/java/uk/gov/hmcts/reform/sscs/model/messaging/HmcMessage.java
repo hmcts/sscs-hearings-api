@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.messaging;
+package uk.gov.hmcts.reform.sscs.model.messaging;
 
 import lombok.Builder;
 import lombok.Data;

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
-import uk.gov.hmcts.reform.sscs.messaging.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingService;
