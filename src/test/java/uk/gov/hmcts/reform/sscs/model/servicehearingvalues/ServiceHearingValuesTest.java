@@ -44,19 +44,6 @@ class ServiceHearingValuesTest {
         assertThat(errors.size()).isEqualTo(0);
     }
 
-    @Test
-    void givenValidJsonWhenValidateAgainstSchemaThenValidationPass2() throws Exception {
-
-        String json = ResourceLoader.loadJson("serviceHearingValues.json");
-        String jsonSchema = ResourceLoader.loadJson("serviceHearingValuesSchema.json");
-
-        JsonSchema schema = getJsonSchemaFromStringContent(jsonSchema);
-        JsonNode node = getJsonNodeFromStringContent(json);
-        Set<ValidationMessage> errors = schema.validate(node);
-        assertThat(errors.size()).isEqualTo(0);
-    }
-
-
 
     @Test
     void givenInvalidJsonWhenValidateAgainstSchemaThenRaiseError() throws Exception {
