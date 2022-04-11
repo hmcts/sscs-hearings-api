@@ -33,45 +33,58 @@ import java.util.Map;
 
 public class ContractTestDataProvider {
 
-    public static final String CONSUMER_NAME = "hmcHearingServiceConsumer";
+    public static final String CONSUMER_NAME = "sscs_hearingsApi";
     public static final String PROVIDER_NAME = "hmcHearingServiceProvider";
 
-    protected static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
-    protected static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";
-    protected static final String UNAUTHORISED_IDAM_OAUTH2_TOKEN = "unauthorised-pact-test-idam-token";
-    protected static final String SERVICE_AUTHORIZATION_TOKEN = "pact-test-s2s-token";
-    protected static final String UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN = "unauthorised-pact-test-s2s-token";
+    public static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
+    public static final String IDAM_OAUTH2_TOKEN = "pact-test-idam-token";
+    public static final String UNAUTHORISED_IDAM_OAUTH2_TOKEN = "unauthorised-pact-test-idam-token";
+    public static final String SERVICE_AUTHORIZATION_TOKEN = "pact-test-s2s-token";
+    public static final String UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN = "unauthorised-pact-test-s2s-token";
 
     public static final String MSG_200_HEARING = "Success (with content)";
-    public static final String MSG_400_HEARING = "Invalid hearing state for DELETE";
+    public static final String MSG_400_HEARING = "Invalid request";
     public static final String MSG_401_HEARING = "Unauthorised request";
     public static final String MSG_403_HEARING = "Forbidden request";
     public static final String MSG_404_HEARING = "Not Found request";
 
-    protected static final String CONTENT_TYPE = "Content-Type";
-    protected static final String APPLICATION_JSON = "application/json";
 
-    protected static final String HEARING_PATH = "/hearing";
-    protected static final String FIELD_STATUS = "status";
-    protected static final String BAD_REQUEST = "BAD_REQUEST";
-    protected static final String FIELD_MESSAGE = "message";
-    protected static final String FIELD_ERRORS = "errors";
-    protected static final int ZERO_LENGTH = 0;
-    protected static final Number ZERO_NUMBER_LENGTH = 0;
 
-    protected static final Map<String, String> authorisedHeaders = Map.of(
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String APPLICATION_JSON = "application/json";
+
+    public static final String HEARING_PATH = "/hearing";
+    public static final String FIELD_STATUS = "status";
+    public static final String BAD_REQUEST = "BAD_REQUEST";
+    public static final String FIELD_MESSAGE = "message";
+    public static final String FIELD_ERRORS = "errors";
+    public static final int ZERO_LENGTH = 0;
+    public static final Number ZERO_NUMBER_LENGTH = 0;
+    public static final String FIELD_ID = "id";
+    public static final String VALID_CASE_ID = "123";
+    public static final String FORBIDDEN_CASE_ID = "456";
+    public static final String NOT_FOUND_CASE_ID = "789";
+
+    public static final String HEARING_RESPONSE_STATUS = "HEARING_REQUESTED";
+    public static final String HEARING_DATE = "2030-08-20T12:40";
+
+    private ContractTestDataProvider() {
+
+    }
+
+    public static final Map<String, String> authorisedHeaders = Map.of(
         HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
 
-    protected static final Map<String, String> unauthorisedHeaders = Map.of(
+    public static final Map<String, String> unauthorisedHeaders = Map.of(
         HttpHeaders.AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
 
-    protected HearingRequestPayload generateHearingRequest() {
+    public static HearingRequestPayload generateHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setRequestDetails(requestDetails());
         request.setHearingDetails(hearingDetails());
@@ -81,7 +94,7 @@ public class ContractTestDataProvider {
         return request;
     }
 
-    protected HearingRequestPayload generateInvalidHearingRequest() {
+    public static HearingRequestPayload generateInvalidHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
         request.setPartyDetails(partyDetails1());
@@ -89,19 +102,19 @@ public class ContractTestDataProvider {
         return request;
     }
 
-    protected HearingDeleteRequestPayload generateHearingDeleteRequest() {
+    public static HearingDeleteRequestPayload generateHearingDeleteRequest() {
         HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
         request.setCancellationReasonCode("Cancel reason");
         return request;
     }
 
-    protected HearingDeleteRequestPayload generateInvalidHearingDeleteRequest() {
+    public static HearingDeleteRequestPayload generateInvalidHearingDeleteRequest() {
         HearingDeleteRequestPayload request = new HearingDeleteRequestPayload();
         request.setCancellationReasonCode("");
         return request;
     }
 
-    protected String toJsonString(Object object) {
+    public static String toJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false);
@@ -115,14 +128,13 @@ public class ContractTestDataProvider {
         return jsonString;
     }
 
-    protected RequestDetails requestDetails() {
+    protected static RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         requestDetails.setVersionNumber(123);
         return requestDetails;
     }
 
-    protected HearingDetails hearingDetails() {
+    protected static HearingDetails hearingDetails() {
         HearingDetails hearingDetails = new HearingDetails();
         hearingDetails.setAutolistFlag(true);
         hearingDetails.setHearingType("Some hearing type");
@@ -137,10 +149,11 @@ public class ContractTestDataProvider {
         hearingLocations.add(location1);
         hearingDetails.setHearingLocations(hearingLocations);
         hearingDetails.setPanelRequirements(panelRequirements1());
+        hearingDetails.setAmendReasonCode("amend Reason Code ");
         return hearingDetails;
     }
 
-    protected HearingWindow hearingWindow() {
+    protected static HearingWindow hearingWindow() {
         HearingWindow hearingWindow = new HearingWindow();
         hearingWindow.setDateRangeStart(LocalDate.parse("2020-02-01"));
         hearingWindow.setDateRangeEnd(LocalDate.parse("2020-02-12"));
@@ -148,7 +161,7 @@ public class ContractTestDataProvider {
         return hearingWindow;
     }
 
-    protected CaseDetails caseDetails() {
+    protected static CaseDetails caseDetails() {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
         caseDetails.setCaseRef("ba12");
@@ -168,7 +181,7 @@ public class ContractTestDataProvider {
         return caseDetails;
     }
 
-    protected PanelRequirements panelRequirements1() {
+    protected static PanelRequirements panelRequirements1() {
         List<String> roleType = new ArrayList<>();
         roleType.add("role 1");
         roleType.add("role 2");
@@ -213,7 +226,7 @@ public class ContractTestDataProvider {
         return panelRequirements;
     }
 
-    protected List<PartyDetails> partyDetails1() {
+    protected static List<PartyDetails> partyDetails1() {
         ArrayList<PartyDetails> partyDetailsArrayList = new ArrayList<>();
         partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
         partyDetailsArrayList.add(createPartyDetails("P2", "IND", "DEF2", createIndividualDetails(), null));
@@ -223,7 +236,7 @@ public class ContractTestDataProvider {
         return partyDetailsArrayList;
     }
 
-    private OrganisationDetails createOrganisationDetails() {
+    private static OrganisationDetails createOrganisationDetails() {
         OrganisationDetails organisationDetails = new OrganisationDetails();
         organisationDetails.setName("name");
         organisationDetails.setOrganisationType("organisationType");
@@ -231,7 +244,7 @@ public class ContractTestDataProvider {
         return organisationDetails;
     }
 
-    private IndividualDetails createIndividualDetails() {
+    private static IndividualDetails createIndividualDetails() {
         IndividualDetails individualDetails = new IndividualDetails();
         individualDetails.setTitle("Master");
         individualDetails.setFirstName("Harry");
@@ -246,7 +259,7 @@ public class ContractTestDataProvider {
         return individualDetails;
     }
 
-    private List<RelatedParty> createRelatedParties() {
+    private static List<RelatedParty> createRelatedParties() {
         RelatedParty relatedParty1 = new RelatedParty();
         relatedParty1.setRelatedPartyID("relatedParty1111");
         relatedParty1.setRelationshipType("Family");
@@ -260,7 +273,7 @@ public class ContractTestDataProvider {
         return relatedParties;
     }
 
-    private PartyDetails createPartyDetails(String partyID, String partyType, String partyRole,
+    private static PartyDetails createPartyDetails(String partyID, String partyType, String partyRole,
                                             IndividualDetails individualDetails,
                                             OrganisationDetails organisationDetails) {
         PartyDetails partyDetails = new PartyDetails();
@@ -274,7 +287,7 @@ public class ContractTestDataProvider {
         return partyDetails;
     }
 
-    private List<String> createReasonableAdjustments() {
+    private static List<String> createReasonableAdjustments() {
         List<String> reasonableAdjustments = new ArrayList<>();
         reasonableAdjustments.add("adjust 1");
         reasonableAdjustments.add("adjust 2");
@@ -282,7 +295,7 @@ public class ContractTestDataProvider {
         return reasonableAdjustments;
     }
 
-    private List<UnavailabilityDayOfWeek> createUnavailabilityDows() {
+    private static List<UnavailabilityDayOfWeek> createUnavailabilityDows() {
         List<UnavailabilityDayOfWeek> unavailabilityDows = new ArrayList<>();
         UnavailabilityDayOfWeek unavailabilityDow1 = new UnavailabilityDayOfWeek();
         unavailabilityDow1.setDayOfWeek("DOW1");
@@ -295,7 +308,7 @@ public class ContractTestDataProvider {
         return unavailabilityDows;
     }
 
-    private List<UnavailabilityRange> createUnavailableDateRanges() {
+    private static List<UnavailabilityRange> createUnavailableDateRanges() {
         UnavailabilityRange unavailabilityRanges1 = new UnavailabilityRange();
         unavailabilityRanges1.setUnavailableFromDate(LocalDate.parse("2021-01-01"));
         unavailabilityRanges1.setUnavailableToDate(LocalDate.parse("2021-01-15"));
@@ -310,12 +323,11 @@ public class ContractTestDataProvider {
     }
 
 
-    protected PactDslJsonBody generateValidHearingGetResponsePactDslJsonBody(LocalDateTime date) {
+    public static PactDslJsonBody generateValidHearingGetResponsePactDslJsonBody(LocalDateTime date) {
         PactDslJsonBody result = new PactDslJsonBody();
 
         result
             .object("requestDetails")
-            .stringType("requestTimeStamp", date.toString())
             .integerType("versionNumber", 123)
             .stringType("hearingRequestID", "hearingRequestID123")
             .stringType("status", "status123")

@@ -10,6 +10,7 @@ import au.com.dius.pact.core.model.annotations.Pact;
 import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -39,18 +41,24 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 @SpringBootTest
 @PactTestFor(port = "10000")
 @PactFolder("pacts")
-public class HearingPostConsumerTest extends BasePactTest {
+public class HearingPutConsumerTest extends BasePactTest {
 
     @Autowired
     private HmcHearingApi hmcHearingApi;
 
+    @BeforeEach
+    public void timeGapBetweenEachTest() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(2);
+    }
+
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact createHearingRequestForValidRequest(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME + " successfully creating hearing request ")
-            .uponReceiving("Request to create hearing request to save details")
+    public RequestResponsePact updateHearingRequestForValidRequest(PactDslWithProvider builder) {
+        return builder.given(CONSUMER_NAME + " successfully updating hearing request ")
+            .uponReceiving("Request to update hearing request to save details")
             .path(ContractTestDataProvider.HEARING_PATH)
-            .method(HttpMethod.POST.toString()).body(
-                ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
+            .method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.VALID_CASE_ID)
+            .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value())
             .body(generateHearingsJsonBody(ContractTestDataProvider.MSG_200_HEARING, HEARING_RESPONSE_STATUS))
@@ -58,28 +66,32 @@ public class HearingPostConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact validationErrorFromPostHearing(PactDslWithProvider builder) {
+    public RequestResponsePact validationErrorFromPutHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
-                                 + " throws validation error while trying to create hearing")
-                .uponReceiving("Request to CREATE hearing for invalid hearing request")
-                    .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.POST.toString())
+                                 + " throws validation error while trying to update hearing")
+            .uponReceiving("Request to UPDATE hearing for invalid hearing request")
+            .path(ContractTestDataProvider.HEARING_PATH)
+            .method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
-            .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
+            .willRespondWith()
+             .status(HttpStatus.BAD_REQUEST.value())
             .body(new PactDslJsonBody()
                       .stringType(ContractTestDataProvider.FIELD_MESSAGE, ContractTestDataProvider.MSG_400_HEARING)
                       .stringValue(ContractTestDataProvider.FIELD_STATUS, ContractTestDataProvider.BAD_REQUEST)
-                          .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
+                      .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
             .toPact();
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact unauthorisedRequestErrorFromPostHearing(PactDslWithProvider builder) {
+    public RequestResponsePact unauthorisedRequestErrorFromPutHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for unauthorised hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.POST.toString())
+            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.unauthorisedHeaders)
             .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
@@ -93,11 +105,12 @@ public class HearingPostConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact forbiddenRequestErrorFromPostHearing(PactDslWithProvider builder) {
+    public RequestResponsePact forbiddenRequestErrorFromPutHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws forbidden error while trying to updating hearing")
             .uponReceiving("Request to UPDATE hearing for forbidden hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.POST.toString())
+            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.FORBIDDEN_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.FORBIDDEN.value())
@@ -111,11 +124,12 @@ public class HearingPostConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact notFoundRequestErrorFromPostHearing(PactDslWithProvider builder) {
+    public RequestResponsePact notFoundRequestErrorFromPutHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws not found request error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for not found hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.POST.toString())
+            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.PUT.toString())
+            .query(ContractTestDataProvider.FIELD_ID + "=" + ContractTestDataProvider.NOT_FOUND_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.NOT_FOUND.value())
@@ -128,13 +142,13 @@ public class HearingPostConsumerTest extends BasePactTest {
             .toPact();
     }
 
-
     @Test
-    @PactTestFor(pactMethod = "createHearingRequestForValidRequest")
-    public void shouldSuccessfullyPostHearingRequest() throws JsonProcessingException {
-        HearingResponse hearingResponse = hmcHearingApi.createHearingRequest(
+    @PactTestFor(pactMethod = "updateHearingRequestForValidRequest")
+    public void shouldSuccessfullyPutHearingRequest() throws JsonProcessingException {
+        HearingResponse hearingResponse = hmcHearingApi.updateHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
+            ContractTestDataProvider.VALID_CASE_ID,
             ContractTestDataProvider.generateHearingRequest()
         );
 
@@ -146,54 +160,59 @@ public class HearingPostConsumerTest extends BasePactTest {
                           .compareTo(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE)));
     }
 
-
     @Test
-    @PactTestFor(pactMethod = "validationErrorFromPostHearing")
-    public void shouldReturn400BadRequestForPostHearing(MockServer mockServer) {
+    @PactTestFor(pactMethod = "validationErrorFromPutHearing")
+    public void shouldReturn400BadRequestForPutHearing(MockServer mockServer) {
 
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders,
-                    ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.BAD_REQUEST.value()
+                           ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.VALID_CASE_ID,
+                           ContractTestDataProvider.toJsonString(
+                           ContractTestDataProvider.generateInvalidHearingRequest()),
+                           ContractTestDataProvider.HEARING_PATH, HttpStatus.BAD_REQUEST.value()
         );
     }
 
     @Test
-    @PactTestFor(pactMethod = "unauthorisedRequestErrorFromPostHearing")
-    public void shouldReturn401UnauthorisedRequestForPostHearing(MockServer mockServer) {
+    @PactTestFor(pactMethod = "unauthorisedRequestErrorFromPutHearing")
+    public void shouldReturn401UnauthorisedRequestForPutHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.unauthorisedHeaders,
-                    ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.UNAUTHORIZED.value()
+                           ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.VALID_CASE_ID,
+                           ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
+                           ContractTestDataProvider.HEARING_PATH, HttpStatus.UNAUTHORIZED.value()
         );
     }
 
     @Test
-    @PactTestFor(pactMethod = "forbiddenRequestErrorFromPostHearing")
-    public void shouldReturn403ForbiddenRequestForPostHearing(MockServer mockServer) {
+    @PactTestFor(pactMethod = "forbiddenRequestErrorFromPutHearing")
+    public void shouldReturn403ForbiddenRequestForPutHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders,
-                    ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.FORBIDDEN.value()
+                           ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.FORBIDDEN_CASE_ID,
+                           ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
+                           ContractTestDataProvider.HEARING_PATH, HttpStatus.FORBIDDEN.value()
         );
     }
 
     @Test
-    @PactTestFor(pactMethod = "notFoundRequestErrorFromPostHearing")
-    public void shouldReturn404NotFoundRequestForPostHearing(MockServer mockServer) {
+    @PactTestFor(pactMethod = "notFoundRequestErrorFromPutHearing")
+    public void shouldReturn404NotFoundRequestForPutHearing(MockServer mockServer) {
 
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders,
-                    ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
-                    ContractTestDataProvider.HEARING_PATH, HttpStatus.NOT_FOUND.value()
+                           ContractTestDataProvider.FIELD_ID, ContractTestDataProvider.NOT_FOUND_CASE_ID,
+                           ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()),
+                           ContractTestDataProvider.HEARING_PATH, HttpStatus.NOT_FOUND.value()
         );
 
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers,
-                             String hearingRequest,
-                             String path, int httpStatus) {
+                                    String id, String idValue, String hearingRequest,
+                                    String path, int httpStatus) {
         RestAssured.given().headers(headers)
             .contentType(io.restassured.http.ContentType.JSON)
+            .queryParam(id, idValue)
             .body(hearingRequest)
             .when()
-            .post(mockServer.getUrl() + path)
+            .put(mockServer.getUrl() + path)
             .then().statusCode(httpStatus)
             .and().extract()
             .body();
