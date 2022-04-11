@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
@@ -45,6 +46,6 @@ public class HearingResponse {
 
     private Integer requestVersion;
 
-    private ServiceData serviceData;
+    private JsonNode serviceData;
 
 }
