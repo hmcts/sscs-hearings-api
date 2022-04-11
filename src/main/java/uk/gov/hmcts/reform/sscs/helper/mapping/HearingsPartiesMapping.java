@@ -182,22 +182,25 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static String getIndividualHearingChannelEmail(Entity entity) {
-        if (nonNull(entity.getContact())) {
-            return entity.getContact().getEmail();
+    public static List<String> getIndividualHearingChannelEmail(Entity entity) {
+        List<String> emails = new ArrayList<>();
+        if (nonNull(entity.getContact()) && isNotBlank(entity.getContact().getEmail())) {
+            emails.add(entity.getContact().getEmail());
         }
-        return null;
+        return emails;
     }
 
-    public static String getIndividualHearingChannelPhone(Entity entity) {
-        String phoneNumber = null;
+    public static List<String> getIndividualHearingChannelPhone(Entity entity) {
+        List<String> phoneNumbers = new ArrayList<>();
         if (nonNull(entity.getContact())) {
-            phoneNumber = entity.getContact().getMobile();
-            if (isBlank(phoneNumber)) {
-                phoneNumber = entity.getContact().getPhone();
+            if (isNotBlank(entity.getContact().getMobile())) {
+                phoneNumbers.add(entity.getContact().getMobile());
+            }
+            if (isNotBlank(entity.getContact().getPhone())) {
+                phoneNumbers.add(entity.getContact().getPhone());
             }
         }
-        return isNotBlank(phoneNumber) ? phoneNumber : null;
+        return phoneNumbers;
     }
 
     public static List<RelatedParty> getIndividualRelatedParties(Entity entity) {

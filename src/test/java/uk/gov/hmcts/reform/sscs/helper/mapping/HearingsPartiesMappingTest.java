@@ -390,8 +390,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("getIndividualHearingChannelEmail Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "test,test",
-        "null,null",
+        "test@test.com,test@test.com",
+        "null,''",
+        "'',''",
     }, nullValues = {"null"})
     void getIndividualHearingChannelEmail(String value, String expected) {
         // TODO Finish Test when method done
@@ -401,18 +402,21 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         }
         Entity entity = Appellant.builder().contact(contact).build();
 
-        String result = HearingsPartiesMapping.getIndividualHearingChannelEmail(entity);
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(entity);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(splitCsvParamArray(expected));
     }
 
     @DisplayName("getIndividualHearingChannelPhone Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "01000000000,02000000000,01000000000",
+        "01000000000,02000000000,01000000000|02000000000",
         "01000000000,null,01000000000",
         "null,02000000000,02000000000",
-        "null,null,null",
+        "null,null,''",
+        "01000000000,,01000000000",
+        "'',02000000000,02000000000",
+        "'','',''",
     }, nullValues = {"null"})
     void getIndividualHearingChannelPhone(String mobile, String phone, String expected) {
         // TODO Finish Test when method done
@@ -420,9 +424,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         Entity entity = Appellant.builder().contact(contact).build();
 
-        String result = HearingsPartiesMapping.getIndividualHearingChannelPhone(entity);
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelPhone(entity);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(splitCsvParamArray(expected));
     }
 
     @DisplayName("getIndividualRelatedParties Test")

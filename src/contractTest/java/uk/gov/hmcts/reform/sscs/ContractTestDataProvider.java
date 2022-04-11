@@ -249,7 +249,8 @@ public class ContractTestDataProvider {
         individualDetails.setTitle("Master");
         individualDetails.setFirstName("Harry");
         individualDetails.setLastName("Styles");
-        individualDetails.setHearingChannelEmail("harry.styles.neveragin@gmailsss.com");
+        individualDetails.setHearingChannelEmail(List.of("harry.styles.neveragin@gmailsss.com"));
+        individualDetails.setHearingChannelPhone(List.of("01000000000","02000000000"));
         individualDetails.setInterpreterLanguage("German");
         individualDetails.setPreferredHearingChannel("CBeebies");
         individualDetails.setReasonableAdjustments(createReasonableAdjustments());
@@ -412,9 +413,14 @@ public class ContractTestDataProvider {
             .stringType("preferredHearingChannel", "preferredHearingChannel123")
             .stringType("interpreterLanguage", "interpreterLanguage123")
             .stringType("vulnerabilityDetails", "vulnerabilityDetails123")
-            .stringType("hearingChannelEmail", "hearingChannelEmail123")
-            .stringType("hearingChannelPhone", "07345960795")
             .booleanValue("vulnerableFlag", true)
+            .array("hearingChannelEmail")
+            .string("hearingChannelEmail123@gmaild.com")
+            .closeArray()
+            .array("hearingChannelPhone")
+            .string("07345960795")
+            .string("07234534522")
+            .closeArray()
             .array("reasonableAdjustments")
             .string("reasonableAdjustments1")
             .closeArray()

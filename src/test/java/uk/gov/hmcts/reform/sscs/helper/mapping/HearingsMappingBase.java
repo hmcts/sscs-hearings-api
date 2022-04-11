@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HearingsMappingBase {
@@ -37,6 +39,8 @@ public class HearingsMappingBase {
 
     @NotNull
     public static List<String> splitCsvParamArray(String expected) {
-        return List.of(expected.split(ARRAY_SPLIT_REGEX));
+        List<String> paramArray = new ArrayList<>(List.of(expected.split(ARRAY_SPLIT_REGEX)));
+        paramArray.removeAll(Arrays.asList("", null));
+        return paramArray;
     }
 }
