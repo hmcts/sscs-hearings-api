@@ -13,5 +13,4 @@ public class UnavailabilityRange {
 
     private String unavailableToDate;
 
-    private String unavailabilityType;
 }
