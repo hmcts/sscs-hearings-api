@@ -23,13 +23,18 @@ import java.util.List;
 public class PartyDetails {
 
     private String partyID;
+
     @EnumPattern(enumClass = PartyType.class, fieldName = "partyType")
     private PartyType partyType;
-    private String partyChannelSubType;
+
     private String partyRole;
+
     private IndividualDetails individualDetails;
+
     private OrganisationDetails organisationDetails;
+
     @JsonProperty("unavailabilityDOW")
     private List<UnavailabilityDayOfWeek> unavailabilityDow;
+
     private List<UnavailabilityRange> unavailabilityRanges;
 }
