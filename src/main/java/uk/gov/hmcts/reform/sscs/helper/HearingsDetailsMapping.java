@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -72,9 +74,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static String getHearingType(SscsCaseData caseData) {
-        String hearingType = null;
-        // TODO Dependant on SSCS-10273 - find out what logic is needed here
-        return hearingType;
+        return HearingTypeLov.SUBSTANTIVE.getKey();
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -131,15 +131,13 @@ public final class HearingsDetailsMapping {
         // Flag to Lauren - how  can this be captured in HMC queue?
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
-        String hearingPriorityType = NORMAL;
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
         // TODO Dependant on SSCS-10273 - Needed for enum values and logic
         if (isYes(isUrgentCase) || isYes(isAdjournCase)) {
-            hearingPriorityType = HIGH;
+            return HearingPriority.HIGH.getKey();
         }
-
-        return hearingPriorityType;
+        return HearingPriority.NORMAL.getKey();
     }
 
     private static Number getNumberOfPhysicalAttendees() {

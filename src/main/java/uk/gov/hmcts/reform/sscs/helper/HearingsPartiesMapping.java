@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -132,15 +133,26 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data of valid Hearing Channel codes
+        if(hearingType.equals("paper")){
+            return HearingChannel.NOT_ATTENDING.getKey();
+        }
+        //If not paper and is Oral
+        if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
+            return HearingChannel.FACE_TO_FACE.getKey();
+        }else if(isYes(hearingSubtype.getWantsHearingTypeVideo())){
+            return HearingChannel.VIDEO.getKey();
+        }else if(isYes(hearingSubtype.getWantsHearingTypeTelephone())){
+            return HearingChannel.TELEPHONE.getKey();
+        }
+
         return null;
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data to convert from SSCS Languages/Sign Languages to Reference languages
+        // TODO Depends on SSCS-10273 - Needs to implement for Reference data to convert from SSCS Languages/Sign Languages to Reference languages Ignore for now
         if (isYes(hearingOptions.getLanguageInterpreter())) {
-            String signLanguageType = hearingOptions.getSignLanguageType();
             String languages = hearingOptions.getLanguages();
+            String signLanguageType = hearingOptions.getSignLanguageType();
         }
         return null;
     }
