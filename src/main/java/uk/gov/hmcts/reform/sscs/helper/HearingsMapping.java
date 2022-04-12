@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
-import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 
 public class HearingsMapping {
