@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.config;
 
+import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusErrorContext;
@@ -11,6 +12,8 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
@@ -18,35 +21,36 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 @Slf4j
 @Data
 @Configuration
+@ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
 public class HmcHearingsEventTopicListener {
 
-    @Value("${azure.hearings-topic.inbound.connectionString}")
+    @Value("${azure.service-bus.hmc-to-hearings-api.connectionString}")
     private String connectionString;
-    @Value("${azure.hearings-topic.inbound.topicName}")
+    @Value("${azure.service-bus.hmc-to-hearings-api.topicName}")
     private String topicName;
-    @Value("${azure.hearings-topic.inbound.subscriptionName}")
+    @Value("${azure.service-bus.hmc-to-hearings-api.subscriptionName}")
     private String subscriptionName;
-    @Value("${azure.hearings-topic.duration}")
-    private Duration tryTimeout;
-    @Value("${azure.hearings-topic.delay}")
-    private Duration delay;
-    @Value("${azure.hearings-topic.retries}")
-    private Integer maxRetries;
-    @Value("${azure.hearings-topic.hmcServiceIdBba3}")
-    private static String hmcServiceIdBba3;
 
-    //TODO add @Bean and add correct values (connectionString,topicName,subscriptionName) in application.yml
-    @SuppressWarnings({"PMD.CloseResource"})
-    public void receiveMessages() {
+    @Value("${azure.service-bus.hmc-to-hearings-api.retryTimeout}")
+    private Long retryTimeout;
+    @Value("${azure.service-bus.hmc-to-hearings-api.retryDelay}")
+    private Long retryDelay;
+    @Value("${azure.service-bus.hmc-to-hearings-api.maxRetries}")
+    private Integer maxRetries;
+
+    @Value("${sscs.serviceCode}")
+    private String serviceId;
+
+    @Bean
+    @SuppressWarnings("PMD.CloseResource")
+    public void hmcHearingEventProcessorClient() {
         CountDownLatch countdownLatch = new CountDownLatch(1);
 
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .retryOptions(configureRetryOptions())
+            .retryOptions(retryOptions())
             .connectionString(connectionString)
             .processor()
             .topicName(topicName)
@@ -56,6 +60,7 @@ public class HmcHearingsEventTopicListener {
             .buildProcessorClient();
 
         processorClient.start();
+        log.info("HMC hearing event processor started.");
     }
 
     public static void processMessage(ServiceBusReceivedMessageContext context) {
@@ -63,14 +68,15 @@ public class HmcHearingsEventTopicListener {
         HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
         String hmctsServiceID = hmcMessage.getHmctsServiceID();
 
-        if (hmctsServiceID.contains(hmcServiceIdBba3)) {
-            //TODO process all messages with BBA3 and remove log message if needed.
-            log.info("Processing hearing #: {}. and case #: {}%n", hmcMessage.getHearingID(), hmcMessage.getCaseRef());
+        if (isMessageRelevantForService(hmcMessage, hmctsServiceID)) {
+            //TODO process all messages: SSCS-10286
+            log.info("Processing hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+                hmcMessage.getCaseRef());
         }
+    }
 
-        log.info("Processing message. Session: {}, Sequence #: {}. Contents: {}%n", message.getMessageId(),
-                 message.getSequenceNumber(), message.getBody()
-        );
+    public static boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceId) {
+        return hmcMessage.getHmctsServiceID().contains(serviceId);
     }
 
     private void processError(ServiceBusErrorContext context, CountDownLatch countdownLatch) {
@@ -95,13 +101,6 @@ public class HmcHearingsEventTopicListener {
             countdownLatch.countDown();
         } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
             log.warn("Message lock lost for message: {}%n", context.getException().toString());
-        } else if (Objects.equals(reason, ServiceBusFailureReason.SERVICE_BUSY)) {
-            log.warn("Service busy:  waiting 5 secounds to retry {}%n", context.getException().toString());
-            try {
-                SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                log.warn("Unable to sleep for period of time: " + e.getMessage());
-            }
         } else {
             log.error("Error source {}, reason {}, message: {}%n", context.getErrorSource(),
                       reason, context.getException()
@@ -109,18 +108,12 @@ public class HmcHearingsEventTopicListener {
         }
     }
 
-    private AmqpRetryOptions configureRetryOptions() {
+    private AmqpRetryOptions retryOptions() {
         AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
-
-        if (tryTimeout != null) {
-            amqpRetryOptions.setTryTimeout(tryTimeout);
-        }
-        if (maxRetries != null) {
-            amqpRetryOptions.setMaxRetries(maxRetries);
-        }
-        if (delay != null) {
-            amqpRetryOptions.setDelay(delay);
-        }
+        amqpRetryOptions.setMode(AmqpRetryMode.EXPONENTIAL);
+        amqpRetryOptions.setTryTimeout(Duration.ofMinutes(retryTimeout));
+        amqpRetryOptions.setMaxRetries(maxRetries);
+        amqpRetryOptions.setDelay(Duration.ofSeconds(retryDelay));
 
         return amqpRetryOptions;
     }

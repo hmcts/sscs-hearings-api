@@ -15,6 +15,10 @@ java:
         - idam-sscs-systemupdate-user
         - idam-sscs-systemupdate-password
         - s2s-micro
+    hmc:
+      secrets:
+        - name: hmc-servicebus-connection-string
+          alisa: HEARINGS_TOPIC_CONNECTION_STRING
   environment:
     SERVER_PORT: 8083
     REFORM_TEAM: sscs
@@ -30,3 +34,6 @@ java:
     CORE_CASE_DATA_API_URL: "http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     COMMON_REF_API_URL: "http://rd-commondata-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JUDICIAL_REF_API_URL: "http://judicial-ref-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+    HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
+    HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-subs-to-cft-{{ .Values.global.environment }}"
+    HMC_HEARING_LISTENING_ENABLED: false
