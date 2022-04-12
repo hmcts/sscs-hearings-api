@@ -52,7 +52,7 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                sendDeleteHearingRequest(null);
+                sendDeleteHearingRequest(null); // TODO: Get Reason in Ticket: SSCS-10366
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
