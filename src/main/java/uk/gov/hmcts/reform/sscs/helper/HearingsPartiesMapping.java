@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -27,7 +29,7 @@ public final class HearingsPartiesMapping {
     public static final String APPOINTEE = "Appointee";
     public static final String APPELLANT = "Appellant";
 
-    private HearingsPartiesMapping() {
+    HearingsPartiesMapping() {
 
     }
 
@@ -153,6 +155,11 @@ public final class HearingsPartiesMapping {
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             String languages = hearingOptions.getLanguages();
             String signLanguageType = hearingOptions.getSignLanguageType();
+
+            if(!signLanguageType.equals(null)){
+                return ""+SignLanguage.getSignLanguageByLanguage(signLanguageType);
+            }
+            return ""+InterpreterLanguage.getLanguageAndConvert(languages);
         }
         return null;
     }
