@@ -5,17 +5,15 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload
 
 public class HearingsMapping {
 
-    private static String CANCEL_REASON_TEMP = "AWAITING_LISTING";
-
     private HearingsMapping() {
 
     }
 
-    public static HearingDeleteRequestPayload buildDeleteHearingPayload(HearingWrapper wrapper) {
+    public static HearingDeleteRequestPayload buildDeleteHearingPayload(String cancellationReason) {
         return HearingDeleteRequestPayload.builder()
-//            .cancellationReasonCode(CANCEL_REASON_TEMP)
+            .cancellationReasonCode(cancellationReason)
             .build();
-        // TODO: Get list of reasons E.g. wrapper.getCaseData().getCancellationCode(); Ticket: SSCS-10366
+        // TODO: Get Reason in Ticket: SSCS-10366
     }
 
 }

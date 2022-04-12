@@ -52,7 +52,7 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                sendDeleteHearingRequest(wrapper);
+                sendDeleteHearingRequest(null);
                 // TODO Call hearingDelete method
                 break;
             case PARTY_NOTIFIED:
@@ -66,12 +66,12 @@ public class HearingsService {
         }
     }
 
-    public HearingResponse sendDeleteHearingRequest(HearingWrapper wrapper) {
+    public HearingResponse sendDeleteHearingRequest(String cancellationReason) {
         return hmcHearingApi.deleteHearingRequest(
             idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(),
             idamService.getIdamTokens().getUserId(),
-            buildDeleteHearingPayload(wrapper)
+            buildDeleteHearingPayload(cancellationReason)
         );
     }
 
