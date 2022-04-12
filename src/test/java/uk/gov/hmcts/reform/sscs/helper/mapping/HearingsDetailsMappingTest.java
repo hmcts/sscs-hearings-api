@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,7 +43,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
                 .caseData(caseData)
                 .build();
 
@@ -107,7 +109,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "DWP_RESPOND,null,false,false,null",
     }, nullValues = {"null"})
     void buildHearingWindow(EventType eventType, String dwpResponded, boolean autoListFlag, boolean isUrgent, LocalDate expected) {
-        // TODO Finish Test when method done
         List<Event> events = new ArrayList<>();
         events.add(Event.builder().value(EventDetails.builder()
                 .type(eventType.getCcdType())
@@ -133,7 +134,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "DWP_RESPOND,false",
     }, nullValues = {"null"})
     void buildHearingWindowNullReturn(EventType eventType, boolean autoListFlag) {
-        // TODO Finish Test when method done
         List<Event> events = new ArrayList<>();
         LocalDateTime testDateTime = LocalDateTime.now();
         if (nonNull(eventType)) {
@@ -176,7 +176,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
-        String result = HearingsDetailsMapping.getHearingPriority(isAdjournCase, isUrgentCase);
+        SscsCaseData caseData = SscsCaseData.builder()
+                .urgentCase(isUrgentCase)
+                .adjournCaseCanCaseBeListedRightAway(isAdjournCase)
+                .build();
+        String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
         assertEquals(expected, result);
     }
@@ -224,30 +228,42 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             + "getListingComments returns all the comments separated by newlines")
     @ParameterizedTest
     @CsvSource(value = {
-        "AppellantComments,'OpComments1|OpComments2',AppellantComments\\nOpComments1\\nOpComments2",
-        "AppellantComments,'OpComments1',AppellantComments\\nOpComments1",
-        "AppellantComments,'',AppellantComments",
-        "AppellantComments,'||',AppellantComments",
+        "AppellantComments,'OpComments1',Appellant - Mx Test Appellant:\\nAppellantComments\\n\\nOther Party - Mx Test OtherParty:\\nOpComments1",
+        "AppellantComments,'',Appellant - Mx Test Appellant:\\nAppellantComments",
+        "AppellantComments,null,Appellant - Mx Test Appellant:\\nAppellantComments",
     }, nullValues = {"null"})
     void getListingComments(String appellant, String otherPartiesComments, String expected) {
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        List<CcdValue<OtherParty>> otherParties = null;
+
         if (nonNull(otherPartiesComments)) {
-            for (String otherPartyComment : splitCsvParamArray(otherPartiesComments)) {
-                otherParties.add(new CcdValue<>(OtherParty.builder()
-                        .hearingOptions(HearingOptions.builder().other(otherPartyComment).build())
-                        .build()));
-            }
-        } else {
-            otherParties = null;
+            otherParties = new ArrayList<>();
+            otherParties.add(new CcdValue<>(OtherParty.builder()
+                    .name(Name.builder()
+                            .title("Mx")
+                            .firstName("Test")
+                            .lastName("OtherParty")
+                            .build())
+                    .hearingOptions(HearingOptions.builder()
+                            .other(otherPartiesComments)
+                            .build())
+                    .build()));
         }
-        Appeal appeal = Appeal.builder().build();
+
+        Appeal appeal = Appeal.builder().appellant(Appellant.builder()
+                        .name(Name.builder()
+                                .title("Mx")
+                                .firstName("Test")
+                                .lastName("Appellant")
+                                .build())
+                        .build())
+                .build();
         if (nonNull(appellant)) {
             appeal.setHearingOptions(HearingOptions.builder().other(appellant).build());
         }
 
         String result = HearingsDetailsMapping.getListingComments(appeal, otherParties);
 
-        assertEquals(expected.replace("\\n","\n"), result);
+        assertThat(result).isEqualToNormalizingNewlines(expected.replace("\\n",String.format("%n")));
     }
 
     @DisplayName("When all null or empty comments are given getListingComments returns null")
@@ -277,6 +293,109 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         String result = HearingsDetailsMapping.getListingComments(appeal, otherParties);
 
         assertNull(result);
+    }
+
+
+    @DisplayName("getPartyRole with Role Test")
+    @Test
+    void getPartyRole() {
+        Party party = Appellant.builder()
+                .role(Role.builder()
+                        .name("Test Role")
+                        .build())
+                .build();
+        String result = HearingsDetailsMapping.getPartyRole(party);
+
+        assertThat(result).isEqualTo("Test Role");
+    }
+
+    @DisplayName("getPartyRole without Role Test")
+    @Test
+    void getPartyRoleNoRole() {
+        Party party = Appellant.builder().build();
+        String result = HearingsDetailsMapping.getPartyRole(party);
+
+        assertThat(result).isEqualTo("Appellant");
+    }
+
+    @DisplayName("getPartyRole with empty/null Role Name Test")
+    @ParameterizedTest
+    @NullAndEmptySource
+    void getPartyRoleNoRole(String role) {
+        Party party = Appellant.builder()
+                .role(Role.builder()
+                        .name(role)
+                        .build())
+                .build();
+        String result = HearingsDetailsMapping.getPartyRole(party);
+
+        assertThat(result).isEqualTo("Appellant");
+    }
+
+    @DisplayName("getPartyName where Appointee is null Test")
+    @ParameterizedTest
+    @ValueSource(strings = {"Yes", "No"})
+    @NullAndEmptySource
+    void getPartyName(String isAppointee) {
+        Party party = Appellant.builder()
+                .isAppointee(isAppointee)
+                .name(Name.builder()
+                        .title("Mx")
+                        .firstName("Test")
+                        .lastName("Appellant")
+                        .build())
+                .build();
+        String result = HearingsDetailsMapping.getPartyName(party);
+
+        assertThat(result).isEqualTo("Mx Test Appellant");
+    }
+
+    @DisplayName("getPartyName with Appointee Test")
+    @Test
+    void getPartyNameAppointee() {
+        Party party = Appellant.builder()
+                .isAppointee("Yes")
+                .appointee(Appointee.builder()
+                        .name(Name.builder()
+                                .title("Mx")
+                                .firstName("Test")
+                                .lastName("Appointee")
+                                .build())
+                        .build())
+                .name(Name.builder()
+                        .title("Mx")
+                        .firstName("Test")
+                        .lastName("Appellant")
+                        .build())
+                .build();
+        String result = HearingsDetailsMapping.getPartyName(party);
+
+        assertThat(result).isEqualTo("Mx Test Appointee");
+    }
+
+    @DisplayName("getPartyName No Appointee Test")
+    @ParameterizedTest
+    @ValueSource(strings = {"No"})
+    @NullAndEmptySource
+    void getPartyNameAppointee(String isAppointee) {
+        Party party = Appellant.builder()
+                .isAppointee(isAppointee)
+                .appointee(Appointee.builder()
+                        .name(Name.builder()
+                                .title("Mx")
+                                .firstName("Test")
+                                .lastName("Appointee")
+                                .build())
+                        .build())
+                .name(Name.builder()
+                        .title("Mx")
+                        .firstName("Test")
+                        .lastName("Appellant")
+                        .build())
+                .build();
+        String result = HearingsDetailsMapping.getPartyName(party);
+
+        assertThat(result).isEqualTo("Mx Test Appellant");
     }
 
     @DisplayName("getHearingRequester Test")
@@ -336,14 +455,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "null,null,null,null,30",
         "061,null,null,null,30",
         "null,IssueCode,null,null,30",
-        "051,IssueCode,null,null,60",
-        "037,IssueCode,null,60,60",
+        "051,IssueCode,null,null,45",
+        "037,IssueCode,null,60,45",
         "061,IssueCode,2,hours,120",
         "061,IssueCode,3,sessions,495",
         "null,IssueCode,-1,hours,30",
+        "null,IssueCode,0,hours,30",
+        "061,IssueCode,2,other,45",
+        "061,null,2,,30",
     }, nullValues = {"null"})
-    void getHearingDuration(String benefitCode, String issueCode,
-                            String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
+    void getHearingDuration(String benefitCode, String issueCode, String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)

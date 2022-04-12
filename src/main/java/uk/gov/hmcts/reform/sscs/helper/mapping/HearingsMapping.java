@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.ccd.domain.RelatedParty;
+import uk.gov.hmcts.reform.sscs.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 
 import java.util.ArrayList;
@@ -16,13 +17,15 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.buildH
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping.buildHearingRequestDetails;
+import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.APPELLANT;
+import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.OTHER_PARTY;
+import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.REPRESENTATIVE;
 
 public final class HearingsMapping {
 
-    public static final String OTHER_PARTY = "OtherParty";
-    public static final String REPRESENTATIVE = "Representative";
-    public static final String APPOINTEE = "Appointee";
-    public static final String APPELLANT = "Appellant";
+    public static final String DWP_ID = "DWP";
+    public static final String DWP_ORGANISATION_TYPE = "OGD";
 
     private HearingsMapping() {
     }
@@ -40,26 +43,42 @@ public final class HearingsMapping {
         SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
+
         int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep());
-        maxId = updateEntityId(appellant, maxId);
-        if (nonNull(appellant.getAppointee())) {
-            maxId = updateEntityId(appellant.getAppointee(), maxId);
-        }
-        if (nonNull(appeal.getRep())) {
-            maxId = updateEntityId(appeal.getRep(), maxId);
-        }
-        if (nonNull(caseData.getOtherParties())) {
-            for (CcdValue<OtherParty> otherPartyCcdValue : caseData.getOtherParties()) {
+
+        maxId = updatePartyIds(appellant, appeal.getRep(), maxId);
+        updateOtherPartiesIds(caseData.getOtherParties(), maxId);
+    }
+
+    private static void updateOtherPartiesIds(List<CcdValue<OtherParty>> otherParties, int maxId) {
+        int newMaxId = maxId;
+        if (nonNull(otherParties)) {
+            for (CcdValue<OtherParty> otherPartyCcdValue : otherParties) {
                 OtherParty otherParty = otherPartyCcdValue.getValue();
-                maxId = updateEntityId(otherParty, maxId);
-                if (nonNull(otherParty.getAppointee())) {
-                    maxId = updateEntityId(otherParty.getAppointee(), maxId);
-                }
-                if (nonNull(otherParty.getRep())) {
-                    maxId = updateEntityId(otherParty.getRep(), maxId);
-                }
+                newMaxId = updatePartyIds(otherParty, otherParty.getRep(), newMaxId);
             }
         }
+    }
+
+    private static int updatePartyIds(Party party, Representative rep, int maxId) {
+        int newMaxId = maxId;
+        newMaxId = updateEntityId(party, newMaxId);
+        if (nonNull(party.getAppointee())) {
+            newMaxId = updateEntityId(party.getAppointee(), newMaxId);
+        }
+        if (nonNull(rep)) {
+            newMaxId = updateEntityId(rep, newMaxId);
+        }
+        return newMaxId;
+    }
+
+    public static int updateEntityId(Entity entity, int maxId) {
+        String id = entity.getId();
+        int newMaxId = maxId;
+        if (isBlank(id)) {
+            entity.setId(String.valueOf(++newMaxId));
+        }
+        return newMaxId;
     }
 
     public static int getMaxId(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
@@ -95,31 +114,23 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static int updateEntityId(Entity entity, int maxId) {
-        String id = entity.getId();
-        int newMaxId = maxId;
-        if (isBlank(id)) {
-            id = String.valueOf(++newMaxId);
-        }
-        entity.setId(id);
-        return newMaxId;
-    }
-
     public static void buildRelatedParties(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
 
         List<String> allPartiesIds = getAllPartiesIds(caseData.getOtherParties(), appellant);
+        allPartiesIds.add("DWP");
+        // TODO SSCS-10378 - Add joint party ID
 
         if (nonNull(caseData.getOtherParties())) {
-            for (CcdValue<OtherParty> otherPartyCcdValue: caseData.getOtherParties()) {
+            for (CcdValue<OtherParty> otherPartyCcdValue : caseData.getOtherParties()) {
                 OtherParty otherParty = otherPartyCcdValue.getValue();
-                buildRelatedPartiesParty(otherParty, allPartiesIds, otherParty.hasAppointee(), otherParty.hasRepresentative(), otherParty.getRep());
+                buildRelatedPartiesParty(otherParty, allPartiesIds, otherParty.getRep());
             }
         }
 
-        buildRelatedPartiesParty(appellant, allPartiesIds, isYes(appellant.getIsAppointee()), nonNull(appeal.getRep()) && isYes(appeal.getRep().getHasRepresentative()), appeal.getRep());
+        buildRelatedPartiesParty(appellant, allPartiesIds, appeal.getRep());
     }
 
     public static List<String> getAllPartiesIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant) {
@@ -135,12 +146,12 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static void buildRelatedPartiesParty(Party party, List<String> allPartiesIds, boolean hasAppointee, boolean hasRepresentative, Representative rep) {
+    public static void buildRelatedPartiesParty(Party party, List<String> allPartiesIds, Representative rep) {
         updateEntityRelatedParties(party, allPartiesIds);
-        if (hasAppointee && nonNull(party.getAppointee())) {
+        if (isYes(party.getIsAppointee()) && nonNull(party.getAppointee())) {
             updateEntityRelatedParties(party.getAppointee(), List.of(party.getId()));
         }
-        if (hasRepresentative && nonNull(rep)) {
+        if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
             updateEntityRelatedParties(rep, List.of(party.getId()));
         }
     }
@@ -149,16 +160,7 @@ public final class HearingsMapping {
         List<RelatedParty> relatedParties = new ArrayList<>();
         // TODO Depends on SSCS-10273 - EntityRoleCode -> parentRole - Mapping to be confirmed by Andrew
 
-        String partyRole = "Unknown";
-        if (entity instanceof Appellant) {
-            partyRole = APPELLANT;
-        } else if (entity instanceof Appointee) {
-            partyRole = APPOINTEE;
-        } else if (entity instanceof Representative) {
-            partyRole = REPRESENTATIVE;
-        } else if (entity instanceof OtherParty) {
-            partyRole = OTHER_PARTY;
-        }
+        String partyRole = getEntityRoleCode(entity).getParentRole();
 
         for (String id : ids) {
             relatedParties.add(RelatedParty.builder()
@@ -169,4 +171,38 @@ public final class HearingsMapping {
 
         entity.setRelatedParties(relatedParties);
     }
+
+    public static SessionCaseCodeMapping getSessionCaseCode(SscsCaseData caseData) {
+        //  TODO SSCS-10116 - replace return with:
+        //             return SessionLookupService.getSessionMappingsByCcdKey(caseData.getBenefitCode(), caseData.getIssueCode());
+        return SessionCaseCodeMapping.builder()
+                .benefitCode(1)
+                .issueCode("DD")
+                .ccdKey("001DD")
+                .benefitDescription("UNIVERSAL CREDIT")
+                .issueDescription("APPEAL DIRECTLY LODGED")
+                .sessionCat(1)
+                .otherSessionCat(null)
+                .durationFaceToFace(20)
+                .durationPaper(10)
+                .panelMembers(List.of("Judge"))
+                .comment(null)
+                .build();
+    }
+
+    public static EntityRoleCode getEntityRoleCode(Entity entity) {
+        // TODO SSCS-10273 - replace with common object
+        // TODO Future work - handle interpreter
+        if (entity instanceof Appellant) {
+            return APPELLANT;
+        }
+        if (entity instanceof Appointee) {
+            return APPOINTEE;
+        }
+        if (entity instanceof Representative) {
+            return REPRESENTATIVE;
+        }
+        return OTHER_PARTY;
+    }
+
 }

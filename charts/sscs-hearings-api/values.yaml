@@ -39,3 +39,8 @@ java:
     HMC_HEARING_LISTENING_ENABLED: false
     TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
     TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
+    EXUI_API_URL: "https://manage-case.{{ .Values.global.environment }}.platform.hmcts.net"
+    HMC_API_URL: "http://hmc-cft-hearing-service-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+    CORE_CASE_DATA_JURISDICTION_ID: SSCS
+    CORE_CASE_DATA_CASE_TYPE_ID: Benefit
+    SSCS_SERVICE_CODE: BBA3
