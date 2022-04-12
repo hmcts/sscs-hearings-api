@@ -13,15 +13,13 @@ public final class HearingsRequestMapping {
     }
 
     public static RequestDetails buildHearingRequestDetails(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getCaseData();
         RequestDetailsBuilder hmcRequestDetailsBuilder = RequestDetails.builder();
-        hmcRequestDetailsBuilder.versionNumber(getVersion(caseData));
+        hmcRequestDetailsBuilder.versionNumber(getVersion(wrapper.getCaseData()));
         return hmcRequestDetailsBuilder.build();
     }
 
     public static Long getVersion(SscsCaseData caseData) {
-        if (nonNull(caseData.getSchedulingAndListingFields())
-                && nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())
+        if (nonNull(caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber())
                 && caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber() > 0) {
             return caseData.getSchedulingAndListingFields().getActiveHearingVersionNumber();
         }

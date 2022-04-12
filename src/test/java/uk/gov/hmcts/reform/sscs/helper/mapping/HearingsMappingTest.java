@@ -6,17 +6,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 class HearingsMappingTest extends HearingsMappingBase {
@@ -24,13 +23,48 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
     void buildHearingPayload() {
-        // TODO Finish Test when method done
+        SscsCaseData caseData = SscsCaseData.builder()
+                .ccdCaseId(String.valueOf(CASE_ID))
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
+                .caseCreated(CASE_CREATED)
+                .workAllocationFields(WorkAllocationFields.builder()
+                        .caseNameHmctsInternal(CASE_NAME_INTERNAL)
+                        .caseNamePublic(CASE_NAME_PUBLIC)
+                        .build())
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .appellant(Appellant.builder()
+                                .id("1")
+                                .name(Name.builder()
+                                        .title("title")
+                                        .firstName("first")
+                                        .lastName("last")
+                                        .build())
+                                .relatedParties(new ArrayList<>())
+                                .build())
+                        .build())
+                .caseManagementLocation(CaseManagementLocation.builder()
+                        .baseLocation(EPIMS_ID)
+                        .region(REGION)
+                        .build())
+                .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+                .caseData(caseData)
+                .caseData(caseData)
+                .build();
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRequestDetails()).isNotNull();
+        assertThat(result.getHearingDetails()).isNotNull();
+        assertThat(result.getCaseDetails()).isNotNull();
+        assertThat(result.getRequestDetails()).isNotNull();
     }
 
     @DisplayName("updateIds Test")
     @Test
     void updateIds() {
-        // TODO Finish Test when method done
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .id("2")
@@ -66,7 +100,6 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("getMaxId Test")
     @Test
     void getMaxId() {
-        // TODO Finish Test when method done
         Appellant appellant = Appellant.builder().id("1").appointee(Appointee.builder().id("6").build()).build();
         Representative rep = Representative.builder().id("3").build();
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
@@ -80,14 +113,13 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("getAllIds Test")
     @Test
     void getAllIds() {
-        // TODO Finish Test when method done
         Appellant appellant = Appellant.builder().id("1").appointee(Appointee.builder().id("6").build()).build();
         Representative rep = Representative.builder().id("3").build();
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder().id("2").build()));
 
         List<Integer> result = HearingsMapping.getAllIds(otherParties, appellant, rep);
-        List<Integer> expected = Stream.of(new Integer[]{1,2,3,6}).sorted().collect(Collectors.toList());
+        List<Integer> expected = List.of(1,2,3,6);
 
         assertEquals(expected, result.stream().sorted().collect(Collectors.toList()));
     }
@@ -95,12 +127,11 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("getAllPartyIds Test")
     @Test
     void getAllPartyIds() {
-        // TODO Finish Test when method done
         Party party = Appellant.builder().id("1").appointee(Appointee.builder().id("2").build()).build();
         Representative rep = Representative.builder().id("3").build();
 
         List<Integer> result = HearingsMapping.getAllPartyIds(party, rep);
-        List<Integer> expected = Stream.of(new Integer[]{1,2,3}).sorted().collect(Collectors.toList());
+        List<Integer> expected = List.of(1,2,3);
 
         assertEquals(expected, result.stream().sorted().collect(Collectors.toList()));
     }
@@ -114,7 +145,6 @@ class HearingsMappingTest extends HearingsMappingBase {
         "null,16,17,17",
     }, nullValues = {"null"})
     void updateEntityId(String id, int maxId, String expectedId, int expectedMaxId) {
-        // TODO Finish Test when method done
         Entity entity = Appellant.builder().id(id).build();
 
         int result = HearingsMapping.updateEntityId(entity, maxId);
@@ -149,82 +179,90 @@ class HearingsMappingTest extends HearingsMappingBase {
         assertFalse(wrapper.getCaseData().getOtherParties().get(0).getValue().getRelatedParties().isEmpty());
     }
 
-    @DisplayName("getAllPartiesIds Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "4,1,4|1",
-        "3,5|4,3|5|4",
-        "6,8|9|10,6|8|9|10",
-        "2,null,2",
-        "7,,7",
-    }, nullValues = {"null"})
-    void getAllPartiesIds(String appellantId, String otherPartiesIds, String expected) {
-        // TODO Finish Test when method done
-        List<CcdValue<OtherParty>> otherParties = null;
-        if (nonNull(otherPartiesIds)) {
-            otherParties = new ArrayList<>();
-            for (String id : splitCsvParamArray(otherPartiesIds)) {
-                otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id(id).build()).build());
-            }
-        }
-        Appellant appellant = Appellant.builder().id(appellantId).build();
+    @DisplayName("given otherParties is not null then getAllPartiesIds will return the correct list of ids")
+    @Test
+    void getAllPartiesIds() {
+        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("1").build()).build());
+        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("5").build()).build());
+        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("6").build()).build());
+        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("7").build()).build());
+
+        Appellant appellant = Appellant.builder().id("4").build();
         List<String> result = HearingsMapping.getAllPartiesIds(otherParties, appellant);
-        assertEquals(splitCsvParamArray(expected).stream().sorted().collect(Collectors.toList()),
-                result.stream().sorted().collect(Collectors.toList()));
+        assertThat(result).contains("4", "1", "5", "6", "7");
     }
 
+    @DisplayName("given otherParties is null then getAllPartiesIds will return the correct list of ids")
+    @Test
+    void getAllPartiesIdsOtherPartiesNull() {
+        Appellant appellant = Appellant.builder().id("4").build();
+        List<String> result = HearingsMapping.getAllPartiesIds(null, appellant);
+        assertThat(result).contains("4");
+    }
 
-
-    @DisplayName("buildRelatedPartiesParty Parameterised Tests")
+    @DisplayName("buildRelatedPartiesParty when Appointee is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "true,true,true,true",
-        "true,true,true,false",
-        "true,true,false,true",
-        "true,true,false,false",
-        "true,false,true,true",
-        "true,false,true,false",
-        "true,false,false,true",
-        "true,false,false,false",
-        "false,false,true,true",
-        "false,false,true,false",
-        "false,false,false,true",
-        "false,false,false,false",
+        "Yes,true",
+        "No,false",
+        "null,false",
+        ",false",
     }, nullValues = {"null"})
-    void buildRelatedPartiesParty(boolean hasAppointee, boolean hasRepresentative, boolean appointeeNull, boolean representativeNull) {
-        // TODO Finish Test when method done
+    void buildRelatedPartiesPartyAppointee(String isAppointee, boolean expected) {
         List<String> ids = List.of(new String[]{"1", "2", "3"});
-        Appointee appointee = appointeeNull ? null : Appointee.builder().id("5").build();
-        Party party = Appellant.builder().appointee(appointee).id("4").build();
-        Representative rep =  representativeNull ? null : Representative.builder().id("6").build();
-        HearingsMapping.buildRelatedPartiesParty(party, ids, hasAppointee, hasRepresentative, rep);
+        Appointee appointee = Appointee.builder().id("5").build();
+        Party party = Appellant.builder().id("4").isAppointee(isAppointee).appointee(appointee).build();
 
-        assertNotNull(party.getRelatedParties());
-        assertFalse(party.getRelatedParties().isEmpty());
+        HearingsMapping.buildRelatedPartiesParty(party, ids, null);
 
-        if (!appointeeNull) {
-            if (hasAppointee) {
-                assertNotNull(appointee.getRelatedParties());
-                assertFalse(appointee.getRelatedParties().isEmpty());
-            } else {
-                assertNull(appointee.getRelatedParties());
-            }
+        assertThat(party.getRelatedParties()).isNotNull().isNotEmpty();
+        if (expected) {
+            assertThat(appointee.getRelatedParties()).isNotNull().isNotEmpty();
+        } else {
+            assertThat(appointee.getRelatedParties()).isNull();
         }
+    }
 
-        if (!representativeNull) {
-            if (hasRepresentative) {
-                assertNotNull(rep.getRelatedParties());
-                assertFalse(rep.getRelatedParties().isEmpty());
-            } else {
-                assertNull(rep.getRelatedParties());
-            }
+    @DisplayName("buildRelatedPartiesParty when representative is not null Parameterised Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "Yes,true",
+        "No,false",
+        "null,false",
+        ",false",
+    }, nullValues = {"null"})
+    void buildRelatedPartiesPartyRepresentative(String hasRepresentative, boolean expected) {
+        List<String> ids = List.of(new String[]{"1", "2", "3"});
+        Party party = Appellant.builder().id("4").build();
+        Representative rep =  Representative.builder().id("6").hasRepresentative(hasRepresentative).build();
+        HearingsMapping.buildRelatedPartiesParty(party, ids, rep);
+
+        assertThat(party.getRelatedParties()).isNotNull().isNotEmpty();
+        if (expected) {
+            assertThat(rep.getRelatedParties()).isNotNull().isNotEmpty();
+        } else {
+            assertThat(rep.getRelatedParties()).isNull();
         }
+    }
+
+    @DisplayName("buildRelatedPartiesParty when representative and appointee are null Parameterised Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "Yes",
+        "No",
+    }, nullValues = {"null"})
+    void buildRelatedPartiesPartyAppointeeRepNull(String isAppointee) {
+        List<String> ids = List.of(new String[]{"1", "2", "3"});
+        Party party = Appellant.builder().id("4").isAppointee(isAppointee).build();
+        HearingsMapping.buildRelatedPartiesParty(party, ids, null);
+
+        assertThat(party.getRelatedParties()).isNotNull().isNotEmpty();
     }
 
     @DisplayName("updateEntityRelatedParties Test")
     @Test
     void updateEntityRelatedParties() {
-        // TODO Finish Test when method done
         List<String> ids = List.of(new String[]{"1", "2", "3"});
         Appellant entity = Appellant.builder().build();
         HearingsMapping.updateEntityRelatedParties(entity, ids);

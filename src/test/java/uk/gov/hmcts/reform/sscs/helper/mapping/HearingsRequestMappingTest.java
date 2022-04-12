@@ -17,10 +17,9 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @DisplayName("When a valid hearing wrapper is given buildHearingRequestDetails returns the correct Hearing Request")
     @Test
     void buildHearingRequestDetails() {
-        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                        .activeHearingVersionNumber(VERSION)
+                        .activeHearingVersionNumber(1L)
                         .build())
                 .build();
         HearingWrapper wrapper = HearingWrapper.builder()
@@ -36,40 +35,39 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @DisplayName("getVersion Test")
     @Test
     void getVersion() {
-        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                        .activeHearingVersionNumber(VERSION)
+                        .activeHearingVersionNumber(1L)
                         .build())
                 .build();
         Long result = HearingsRequestMapping.getVersion(caseData);
 
-        assertEquals(VERSION, result);
+        assertEquals(1L, result);
     }
 
     @DisplayName("getVersion null return ParameterisedTest Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "true,null",
-        "true,0",
-        "true,-1",
-        "false,1",
-        "false,null",
-        "false,0",
-        "false,-1",
+        "null",
+        "0",
+        "-1",
     }, nullValues = {"null"})
-    void getVersion(boolean fieldNotNull, Long version) {
-        // TODO Finish Test when method done
-        SchedulingAndListingFields schedulingAndListingFields = null;
-        if (fieldNotNull) {
-            schedulingAndListingFields = SchedulingAndListingFields.builder()
-                    .activeHearingVersionNumber(version)
-                    .build();
-        }
-
+    void getVersion(Long version) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .schedulingAndListingFields(schedulingAndListingFields)
+                .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                        .activeHearingVersionNumber(version)
+                        .build())
                 .build();
+
+        Long result = HearingsRequestMapping.getVersion(caseData);
+
+        assertNull(result);
+    }
+
+    @DisplayName("getVersion when SchedulingAndListingFields is null ParameterisedTest Tests")
+    @Test
+    void getVersionNull() {
+        SscsCaseData caseData = SscsCaseData.builder().build();
 
         Long result = HearingsRequestMapping.getVersion(caseData);
 
