@@ -47,8 +47,6 @@ public class HmcHearingsEventTopicListener {
     @Bean
     @SuppressWarnings("PMD.CloseResource")
     public void hmcHearingEventProcessorClient() {
-        CountDownLatch countdownLatch = new CountDownLatch(1);
-
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
             .retryOptions(retryOptions())
             .connectionString(connectionString)
@@ -56,7 +54,7 @@ public class HmcHearingsEventTopicListener {
             .topicName(topicName)
             .subscriptionName(subscriptionName)
             .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(context -> processError(context, countdownLatch))
+            .processError(HmcHearingsEventTopicListener::processError)
             .buildProcessorClient();
 
         processorClient.start();
@@ -79,7 +77,7 @@ public class HmcHearingsEventTopicListener {
         return hmcMessage.getHmctsServiceID().contains(serviceId);
     }
 
-    private void processError(ServiceBusErrorContext context, CountDownLatch countdownLatch) {
+    public static void processError(ServiceBusErrorContext context) {
         log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'%n",
                   context.getFullyQualifiedNamespace(), context.getEntityPath()
         );
@@ -91,14 +89,12 @@ public class HmcHearingsEventTopicListener {
 
         ServiceBusException exception = (ServiceBusException) context.getException();
         ServiceBusFailureReason reason = exception.getReason();
-
         if (Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED)
             || Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND)
             || Objects.equals(reason, ServiceBusFailureReason.UNAUTHORIZED)) {
             log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}%n",
                       reason, exception.getMessage()
             );
-            countdownLatch.countDown();
         } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
             log.warn("Message lock lost for message: {}%n", context.getException().toString());
         } else {
