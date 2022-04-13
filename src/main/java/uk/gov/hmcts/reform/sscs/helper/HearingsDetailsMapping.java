@@ -5,21 +5,22 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 
+
 @SuppressWarnings({"PMD.LinguisticNaming","PMD.UnnecessaryLocalBeforeReturn"})
-// TODO Unsuppress in future
+// TODO Unsuppressed in future
 public final class HearingsDetailsMapping {
 
     public static final String NORMAL = "Normal";

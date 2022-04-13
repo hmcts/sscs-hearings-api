@@ -6,14 +6,14 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails.IndividualDetailsBuilder;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails.PartyDetailsBuilder;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange.UnavailabilityRangeBuilder;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -135,15 +135,15 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        if(hearingType.equals("paper")){
+        if (hearingType.equals("paper")) {
             return HearingChannel.NOT_ATTENDING.getKey();
         }
-        //If not paper and is Oral
+
         if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
             return HearingChannel.FACE_TO_FACE.getKey();
-        }else if(isYes(hearingSubtype.getWantsHearingTypeVideo())){
+        } else if (isYes(hearingSubtype.getWantsHearingTypeVideo())) {
             return HearingChannel.VIDEO.getKey();
-        }else if(isYes(hearingSubtype.getWantsHearingTypeTelephone())){
+        } else if (isYes(hearingSubtype.getWantsHearingTypeTelephone())) {
             return HearingChannel.TELEPHONE.getKey();
         }
 
@@ -151,15 +151,13 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data to convert from SSCS Languages/Sign Languages to Reference languages Ignore for now
+        if (hearingOptions.wantsSignLanguageInterpreter()) {
+            String signLanguageType = hearingOptions.getSignLanguageType();
+            return SignLanguage.getSignLanguageByLanguage(signLanguageType).getKey();
+        }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             String languages = hearingOptions.getLanguages();
-            String signLanguageType = hearingOptions.getSignLanguageType();
-
-            if(!signLanguageType.equals(null)){
-                return ""+SignLanguage.getSignLanguageByLanguage(signLanguageType);
-            }
-            return ""+InterpreterLanguage.getLanguageAndConvert(languages);
+            return InterpreterLanguage.getLanguageAndConvert(languages).getKey();
         }
         return null;
     }

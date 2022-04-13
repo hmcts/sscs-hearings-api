@@ -262,10 +262,8 @@ class HearingsDetailsMappingTest {
         ",,Normal"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
-        // TODO Finish Test when method done
         String result = HearingsDetailsMapping.getHearingPriority(isAdjournCase, isUrgentCase);
-
-        assertEquals(expected, result);
+        assertEquals(expected.toLowerCase(), result.toLowerCase());
     }
 
 
@@ -298,11 +296,10 @@ class HearingsDetailsMappingTest {
     @DisplayName("When .. is given getHearingType returns the correct Hearing Type")
     @Test
     void getHearingType() {
-        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
         String result = HearingsDetailsMapping.getHearingType(caseData);
 
-        assertNull(result);
+        assertEquals(result, "BBA3-substantive");
     }
 
     @DisplayName("When .. is given isCaseLinked returns if case is linked")

@@ -8,12 +8,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 
 import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -81,7 +81,7 @@ class HearingsCaseMappingTest {
     }
 
     @Test
-    void buildCaseCategoriesTest(){
+    void buildCaseCategoriesTest() {
         ReflectionTestUtils.setField(HearingsCaseMapping.class, "sscsServiceCode", "BBA3");
         List<CaseCategory> categories = new ArrayList<>();
 

@@ -1,12 +1,17 @@
 package uk.gov.hmcts.reform.sscs.helper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class HearingsPartiesMappingTest {
 
@@ -23,236 +28,69 @@ class HearingsPartiesMappingTest {
         // TODO Finish Test when method done
     }
 
+    @DisplayName("When language passed in should return correct LOV format")
     @ParameterizedTest
-    @ValueSource(strings = {"Acholi",
-        "Afrikaans",
-        "Akan",
-        "Albanian",
-        "Algerian",
-        "Amharic",
-        "Arabic",
-        "Arabic (Middle Eastern)",
-        "Arabic (North African)",
-        "Armenian",
-        "Ashanti",
-        "Assyrian",
-        "Ateso",
-        "Azari",
-        "Azerbajani (aka Nth Azari)",
-        "Bajan (West Indian)",
-        "Bajuni",
-        "Baluchi",
-        "Bambara",
-        "Banjuni",
-        "Bardini",
-        "Bassa",
-        "Belorussian",
-        "Benba (Bemba)",
-        "Bengali",
-        "Bengali (Sylheti)",
-        "Benin/Edo",
-        "Berber",
-        "Bharuchi",
-        "Bhutanese",
-        "Bihari",
-        "Bilin",
-        "Bravanese",
-        "Brong",
-        "Bulgarian",
-        "Burmese",
-        "Cambellpuri",
-        "Cantonese",
-        "Cebuano",
-        "Chechen",
-        "Chichewa",
-        "Chittagonain",
-        "Creole (English)",
-        "Creole (French)",
-        "Creole (Portuguese)",
-        "Creole (Spanish)",
-        "Czech",
-        "Danish",
-        "Dari",
-        "Dinka",
-        "Dioula",
-        "Douala",
-        "Dutch",
-        "Edo/Benin",
-        "Efik",
-        "Emakhuna",
-        "Estonian",
-        "Ewe",
-        "Ewondo",
-        "Fanti",
-        "Farsi",
-        "Feili",
-        "Fijian",
-        "Flemish",
-        "French",
-        "French (Arabic)",
-        "French(African)",
-        "Fula",
-        "Ga",
-        "Gallacian",
-        "Georgian",
-        "German",
-        "Gorani",
-        "Greek",
-        "Gujarati",
-        "Gurage",
-        "Guran",
-        "Hakka",
-        "Hausa",
-        "Hebrew",
-        "Hendko",
-        "Herero",
-        "Hindi",
-        "Hindko",
-        "Hokkien",
-        "Hungarian",
-        "Ibibio",
-        "Igbo (Also Known As Ibo)",
-        "Ilocano",
-        "Indonesian",
-        "Ishan",
-        "Isoko",
-        "Italian",
-        "Jamaican",
-        "Japanese",
-        "Javanese",
-        "Kachi",
-        "Karaninka",
-        "Kashmiri",
-        "Khalanga",
-        "Khmer",
-        "Khymer Khymer",
-        "Kibajuni,Kibanjuni,Bajuni,Ban",
-        "Kibanjuni",
-        "Kichagga",
-        "Kikongo",
-        "Kikuyu",
-        "Kinyarwandan",
-        "Kirundi",
-        "Kisakata",
-        "Kiswahili",
-        "Konkani",
-        "Korean",
-        "Krio (Sierra Leone)",
-        "Kru",
-        "Kurdish (Bardini)",
-        "Kurdish (Kurmanji)",
-        "Kurdish (Sorani)",
-        "Kutchi",
-        "Kyrgyz",
-        "Lango",
-        "Latvian",
-        "Lingala",
-        "Lithuanian",
-        "Luba (Tshiluba)",
-        "Lugandan",
-        "Lugisa",
-        "Lunyankole",
-        "Luo",
-        "Luo (Kenyan)",
-        "Luo (Ugandan[Acholi District])",
-        "Luo (Ugandan[Lango District])",
-        "Lusoga",
-        "Lutoro",
-        "Macedonian",
-        "Maghreb",
-        "Malay",
-        "Malayalam",
-        "Maldivian",
-        "Malinke",
-        "Maltese",
-        "Mandarin",
-        "Mandinka",
-        "Marathi",
-        "Mende",
-        "Mina",
-        "Mirpuri",
-        "Moldovan",
-        "Mongolian",
-        "Monokutuba",
-        "Navsari",
-        "Ndebele",
-        "Nepali",
-        "Ngwa",
-        "Norwegian",
-        "Nzima",
-        "Oromo",
-        "Pahari",
-        "Pampangan",
-        "Pangasinan",
-        "Pathwari",
-        "Patois",
-        "Pidgin English",
-        "Polish",
-        "Portuguese",
-        "Pothohari",
-        "Punjabi",
-        "Punjabi (Indian)",
-        "Punjabi (Pakistani)",
-        "Pushtu (Also Known As Pashto)",
-        "Putonghue",
-        "Roma",
-        "Romanian",
-        "Romany",
-        "Rukiga",
-        "Runyoro",
-        "Russian",
-        "Rutoro",
-        "Sarahuleh",
-        "Saraiki (Seraiki)",
-        "Sarpo",
-        "Senegal (French) Olof Dialect",
-        "Senegal (Wolof)",
-        "Serbo‑Croatian",
-        "Setswana",
-        "Shina",
-        "Shona",
-        "Sindhi",
-        "Sinhalese",
-        "Slovak",
-        "Slovenian",
-        "Somali",
-        "Spanish",
-        "Susu",
-        "Swahili",
-        "Swedish",
-        "Sylheti",
-        "Tagalog",
-        "Taiwanese",
-        "Tamil",
-        "Telugu",
-        "Temne",
-        "Thai",
-        "Tibetan",
-        "Tigre",
-        "Tigrinya",
-        "Toura",
-        "Training",
-        "Turkish",
-        "Turkmen",
-        "Twi",
-        "Uighur",
-        "Ukrainian",
-        "Urdu",
-        "Urohobo",
-        "Uzbek",
-        "Vietnamese",
-        "Visayan",
-        "Welsh",
-        "Wolof",
-        "Xhosa",
-        "Yoruba",
-        "Zaghawa",
-        "Zaza",
-        "Zulu"})
-    void getIndividualInterpreterLanguageTest(String lang){
-        HearingsPartiesMapping hearingsPartiesMapping = new HearingsPartiesMapping();
-        HearingOptions hearingOptions = HearingOptions.builder().languageInterpreter("Yes").languages(lang).build();
-        String result = hearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
-        assertThat(result).isEqualTo("null");
+    @CsvSource({"Acholi,ach-ach", "Afrikaans,afr-afr", "Akan,aka-aka", "Albanian,alb-alb", "Zaza,zza-zza", "Zulu,zul-zul"})
+    void getIndividualInterpreterLanguageTest(String lang, String expected) {
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages(lang)
+            .build();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @DisplayName("When sign language passed in should return correct LOV format")
+    @ParameterizedTest
+    @CsvSource({"American Sign Language (ASL),americanSignLanguage", "Hands on signing,handsOnSigning", "Deaf Relay,deafRelay", "Palantypist / Speech to text,palantypist"})
+    void getIndividualInterpreterSignLanguageTest(String signLang, String expected) {
+        List<String> arrangements = Collections.singletonList("signLanguageInterpreter");
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .arrangements(arrangements)
+            .signLanguageType(signLang)
+            .build();
+        hearingOptions.wantsSignLanguageInterpreter();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @DisplayName("When hearing type paper then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelPaperTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("paper", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.NOT_ATTENDING.getKey());
+    }
+
+    @DisplayName("When hearing type oral and video then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralVideoTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.VIDEO.getKey());
+    }
+
+    @DisplayName("When hearing type oral and telephone then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralTelephoneTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getKey());
+    }
+
+    @DisplayName("When hearing type oral and face to face then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralFaceToFaceTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getKey());
+    }
+
+    @DisplayName("When hearing type is blank and face to face then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelBlankFaceToFaceTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getKey());
     }
 }
