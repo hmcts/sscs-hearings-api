@@ -406,7 +406,6 @@ public class ContractTestDataProvider {
             .stringType("hmctsInternalCaseName", "hmctsInternalCaseName123")
             .stringType("publicCaseName", "publicCaseName123")
             .stringType("caseManagementLocationCode", "caseManagementLocationCode123")
-            .stringType("requestTimeStamp", date.toString())
             .stringType("caseSLAStartDate", date.toString())
             .minArrayLike("caseCategories", 0, 1)
             .stringType("categoryType", "categoryType123")
