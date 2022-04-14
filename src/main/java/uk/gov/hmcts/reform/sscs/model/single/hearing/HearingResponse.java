@@ -40,11 +40,11 @@ public class HearingResponse {
 
     private String hearingCancellationReason;
 
-    private List<HearingDaySchedule> hearingDaySchedule;
-
     private LocalDateTime partiesNotified;
 
     private Integer requestVersion;
+
+    private List<HearingDaySchedule> hearingDaySchedule;
 
     private JsonNode serviceData;
 
