@@ -14,4 +14,6 @@ public class CaseCategory {
     private String categoryType;
 
     private String categoryValue;
+
+    private String categoryParent;
 }
