@@ -291,9 +291,6 @@ dependencies {
 
   implementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
-  implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springFoxSwagger
-  implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springFoxSwagger
-
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feign
   implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: versions.okhttp
 
@@ -324,7 +321,7 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
 
 
-  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: 'versions.jsonSchemaValidator'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
 
