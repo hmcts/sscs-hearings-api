@@ -321,7 +321,7 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
 
 
-  implementation group: 'com.networknt', name: 'json-schema-validator', version: 'versions.jsonSchemaValidator'
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: versions.jsonSchemaValidator
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
 
