@@ -238,8 +238,9 @@ repositories {
 
 def versions= [
   assertJ: '3.22.0',
+  azureCore: '1.26.0',
+  azureMessagingServicebus: '7.7.0',
   commonsIo: '2.11.0',
-  elasticsearch: '7.16.3',
   fortify: '1.2.2',
   feign: '11.7',
   gradlePiTestPlugin: '1.5.2',
@@ -308,8 +309,6 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
 
-  implementation group: 'org.elasticsearch', name: 'elasticsearch', version: versions.elasticsearch
-
   implementation group: 'com.github.hmcts', name: 'properties-volume-spring-boot-starter', version: versions.hmctsProperties
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 
@@ -322,6 +321,9 @@ dependencies {
 
 
   implementation group: 'com.networknt', name: 'json-schema-validator', version: versions.jsonSchemaValidator
+
+  implementation group: 'com.azure', name: 'azure-core', version: versions.azureCore
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: versions.azureMessagingServicebus
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
 
