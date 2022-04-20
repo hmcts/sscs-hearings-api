@@ -269,7 +269,7 @@ def versions= [
   sscsCommon: '4.8.4' ,
   jacksonDatabind: '2.13.2.1' ,
   jacksonBom: '2.13.2.20220324',
-  wiremock: '2.27.2'
+  wiremock: '2.27.2',
   jsonSchemaValidator: '1.0.66'
 ]
 
