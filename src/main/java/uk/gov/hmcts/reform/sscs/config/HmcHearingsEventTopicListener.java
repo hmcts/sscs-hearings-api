@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @Data
