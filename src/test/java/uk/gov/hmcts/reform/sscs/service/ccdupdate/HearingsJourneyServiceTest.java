@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.messaging.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingService;
@@ -57,7 +58,7 @@ class HearingsJourneyServiceTest {
         "EXCEPTION,updateCaseOnly,SSCS - exception occurred,SSCS - exception occurred"
     })
     void shouldUpdateCcdStateAndLocationAndSndNewHearingBookedEvent(
-        String hmcStatus, String eventType, String summary, String description)
+        HmcStatus hmcStatus, String eventType, String summary, String description)
         throws GetCaseException, UpdateCaseException {
 
         // given
@@ -107,7 +108,7 @@ class HearingsJourneyServiceTest {
         // given
         final String hearingId = "123";
         HmcMessage hmcMessage = HmcMessage.builder().hearingID(hearingId)
-            .hearingUpdate(HearingUpdate.builder().hmcStatus("status").build()).build();
+            .hearingUpdate(HearingUpdate.builder().hmcStatus(HmcStatus.EXCEPTION).build()).build();
         when(hmcHearingService.getHearingRequest(hearingId)).thenReturn(null);
 
         // then

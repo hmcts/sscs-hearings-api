@@ -30,14 +30,16 @@ public class CcdLocationUpdateService {
 
         Optional<HearingDetails> hearingDetails = getHearingDetailsFromHearingList(hmcMessage, sscsCaseData);
         if (hearingDetails.isEmpty()) {
-            log.error("Failed to update venue in CCD - can not find hearing with Id: {}", hmcMessage.getHearingID());
+            log.error("Failed to update venue in CCD(Case Id: {}) - "
+                          + "can not find hearing with Id: {}", sscsCaseData.getCcdCaseId(), hmcMessage.getHearingID());
             return;
         }
 
         String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueID();
         Venue venue = findVenue(updatedVenueId);
         if (isNull(venue)) {
-            log.error("Failed to update location for CCD - can not find venue with Id {}", updatedVenueId);
+            log.error("Failed to update location for CCD(Case Id: {}) - "
+                          + "can not find venue with Id {} ", sscsCaseData.getCcdCaseId(), updatedVenueId);
             return;
         }
 
@@ -61,8 +63,9 @@ public class CcdLocationUpdateService {
         updatedHearingList.add(Hearing.builder().value(updatedHearingDetails).build());
 
         sscsCaseData.setHearings(updatedHearingList);
-        log.info("Venue has been updated from epimsId {} to {} for hearingId {}",
-                 existingHearingDetails.getHearingId(), updatedVenueId, hmcMessage.getHearingID()
+        log.info("(Case Id: {}) Venue has been updated from epimsId {} to {} for hearingId {}",
+                 sscsCaseData.getCcdCaseId(), existingHearingDetails.getHearingId(),
+                 updatedVenueId, hmcMessage.getHearingID()
         );
     }
 

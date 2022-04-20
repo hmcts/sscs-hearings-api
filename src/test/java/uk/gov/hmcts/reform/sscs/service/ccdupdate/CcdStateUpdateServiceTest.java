@@ -29,7 +29,7 @@ class CcdStateUpdateServiceTest {
         hearingResponse.setListingStatus(listingStatus);
         hearingResponse.setListingCaseStatus(laCaseStatus);
         hearingGetResponse.setHearingResponse(hearingResponse);
-        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).build();
+        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).ccdCaseId("123").build();
 
         // when
         underTest.updateListed(hearingGetResponse, caseData);
@@ -60,7 +60,7 @@ class CcdStateUpdateServiceTest {
         HearingResponse hearingResponse = new HearingResponse();
         hearingResponse.setHearingCancellationReason(cancellationReason);
         hearingGetResponse.setHearingResponse(hearingResponse);
-        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).build();
+        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).ccdCaseId("123").build();
 
         // when
         underTest.updateCancelled(hearingGetResponse, caseData);
@@ -73,7 +73,7 @@ class CcdStateUpdateServiceTest {
     @Test
     void shouldSetCcdStateForFailedHearingsCorrectly() {
         // given
-        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).build();
+        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).ccdCaseId("123").build();
 
         // when
         underTest.updateFailed(caseData);

@@ -9,7 +9,7 @@ public class HearingUpdate {
 
     private String hearingResponseReceivedDateTime;
     private String hearingEventBroadcastDateTime;
-    private String hmcStatus;
+    private HmcStatus hmcStatus;
     private String hearingListingStatus;
     private String nextHearingDate;
     private String listAssistCaseStatus;

@@ -76,6 +76,7 @@ class CcdLocationUpdateServiceTest {
         final String hearingId = "789";
         final String oldVenueId = "123";
         final String newVenueId = "456";
+        final String caseId = "777";
 
         HmcMessage hmcMessage = HmcMessage.builder()
             .hearingID(hearingId)
@@ -90,7 +91,7 @@ class CcdLocationUpdateServiceTest {
             .build();
         Hearing hearingWithOldVenue = Hearing.builder().value(hearingDetailsWithOldVenue).build();
         List<Hearing> hearingListWithOldVenue = List.of(hearingWithOldVenue);
-        SscsCaseData caseData = SscsCaseData.builder().hearings(hearingListWithOldVenue).build();
+        SscsCaseData caseData = SscsCaseData.builder().hearings(hearingListWithOldVenue).ccdCaseId(caseId).build();
 
         VenueDetails venueDetails = VenueDetails.builder()
             .venueId(newVenueId)

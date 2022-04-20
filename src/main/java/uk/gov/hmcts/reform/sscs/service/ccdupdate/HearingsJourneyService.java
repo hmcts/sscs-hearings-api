@@ -48,21 +48,21 @@ public class HearingsJourneyService {
 
         // todo review statuses
         switch (hmcMessage.getHearingUpdate().getHmcStatus()) {
-            case "LISTED":
+            case LISTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);
                 locationUpdateService.updateVenue(hmcMessage, caseData);
                 ccdCaseService.updateCaseDetails(caseData, NEW_HEARING_BOOKED, CREATED_SUMMARY, CREATED_DESC);
                 break;
-            case "UPDATE_SUBMITTED":
+            case UPDATE_SUBMITTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);
                 locationUpdateService.updateVenue(hmcMessage, caseData);
                 ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, UPDATED_SUMMARY, UPDATED_DESC);
                 break;
-            case "CANCELLED":
+            case CANCELLED:
                 ccdStateUpdateService.updateCancelled(hearingResponse, caseData);
                 ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, CANCELLED_SUMMARY, CANCELLED_DESC);
                 break;
-            case "EXCEPTION":
+            case EXCEPTION:
                 ccdStateUpdateService.updateFailed(caseData);
                 ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, EXCEPTION_SUMMARY, EXCEPTION_DESC);
                 break;
