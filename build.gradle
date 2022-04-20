@@ -266,7 +266,8 @@ def versions= [
   pact : '4.1.7',
   sscsCommon: '4.8.4' ,
   jacksonDatabind: '2.13.2.1' ,
-  jacksonBom: '2.13.2.20220324'
+  jacksonBom: '2.13.2.20220324',
+  jsonSchemaValidator: '1.0.66'
 ]
 
 dependencies {
@@ -320,7 +321,7 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
 
 
-  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.66'
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: versions.jsonSchemaValidator
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
 
