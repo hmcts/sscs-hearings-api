@@ -1,6 +1,6 @@
 module "servicebus-subscription" {
   source                = "git@github.com:hmcts/terraform-module-servicebus-subscription?ref=master"
-  name                  = "hmc-subs-to-cft-${var.env}"
+  name                  = "hmc-to-sscs-subscription-${var.env}"
   namespace_name        = "hmc-servicebus-${var.env}"
   topic_name            = "hmc-to-cft-${var.env}"
   resource_group_name   = "hmc-shared-${var.env}"
@@ -12,7 +12,7 @@ data "azurerm_key_vault" "hmc-key-vault" {
 }
 
 data "azurerm_key_vault_secret" "hmc-servicebus-connection-string" {
-  key_vault_id = "${data.azurerm_key_vault.hmc-key-vault.id}"
+  key_vault_id = data.azurerm_key_vault.hmc-key-vault.id
   name         = "hmc-servicebus-connection-string"
 }
 
