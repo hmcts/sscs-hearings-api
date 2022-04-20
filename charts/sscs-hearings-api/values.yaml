@@ -34,5 +34,5 @@ java:
     COMMON_REF_API_URL: "http://rd-commondata-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JUDICIAL_REF_API_URL: "http://judicial-ref-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
-    HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-subs-to-cft-{{ .Values.global.environment }}"
+    HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARING_LISTENING_ENABLED: false
