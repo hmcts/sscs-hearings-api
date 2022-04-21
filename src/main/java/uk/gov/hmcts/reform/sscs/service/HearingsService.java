@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 
 import static java.util.Objects.isNull;
 
@@ -17,11 +18,13 @@ import static java.util.Objects.isNull;
 @Service
 public class HearingsService {
 
+
     private HmcHearingApi hmcHearingApi;
 
     private IdamService idamService;
 
-    public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingState {
+    public void processHearingRequest(HearingRequest request) throws UnhandleableHearingState {
+        HearingWrapper wrapper = HearingWrapper.builder().build();
         if (!EventType.READY_TO_LIST.equals(wrapper.getEvent())) {
             log.info("The Event: {}, cannot be handled for the case with the id: {}",
                     wrapper.getEvent(), wrapper.getOriginalCaseData().getCcdCaseId());

@@ -3,9 +3,6 @@ package uk.gov.hmcts.reform.sscs.config;
 import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusErrorContext;
-import com.azure.messaging.servicebus.ServiceBusException;
-import com.azure.messaging.servicebus.ServiceBusFailureReason;
 import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
@@ -18,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
 import java.time.Duration;
-import java.util.Objects;
 
 @Slf4j
 @Data
@@ -45,7 +41,7 @@ public class HmcHearingsEventTopicListener {
 
     @Bean
     @SuppressWarnings("PMD.CloseResource")
-    public void hmcHearingEventProcessorClient() {
+    public ServiceBusProcessorClient hmcHearingEventProcessorClient() {
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
             .retryOptions(retryOptions())
             .connectionString(connectionString)
@@ -53,11 +49,13 @@ public class HmcHearingsEventTopicListener {
             .topicName(topicName)
             .subscriptionName(subscriptionName)
             .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(HmcHearingsEventTopicListener::processError)
+            .processError(QueueHelper::processError)
             .buildProcessorClient();
 
         processorClient.start();
-        log.info("HMC hearing event processor started.");
+        log.info("HMC hearing event topic processor started.");
+
+        return processorClient;
     }
 
     public static void processMessage(ServiceBusReceivedMessageContext context) {
@@ -74,33 +72,6 @@ public class HmcHearingsEventTopicListener {
 
     public static boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceId) {
         return hmcMessage.getHmctsServiceID().contains(serviceId);
-    }
-
-    public static void processError(ServiceBusErrorContext context) {
-        log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'%n",
-                  context.getFullyQualifiedNamespace(), context.getEntityPath()
-        );
-
-        if (!(context.getException() instanceof ServiceBusException)) {
-            log.error("Non-ServiceBusException occurred: {}%n", context.getException().toString());
-            return;
-        }
-
-        ServiceBusException exception = (ServiceBusException) context.getException();
-        ServiceBusFailureReason reason = exception.getReason();
-        if (Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED)
-            || Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND)
-            || Objects.equals(reason, ServiceBusFailureReason.UNAUTHORIZED)) {
-            log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}%n",
-                      reason, exception.getMessage()
-            );
-        } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
-            log.warn("Message lock lost for message: {}%n", context.getException().toString());
-        } else {
-            log.error("Error source {}, reason {}, message: {}%n", context.getErrorSource(),
-                      reason, context.getException()
-            );
-        }
     }
 
     private AmqpRetryOptions retryOptions() {
