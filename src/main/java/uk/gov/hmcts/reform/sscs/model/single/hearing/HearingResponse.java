@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,6 +44,12 @@ public class HearingResponse {
 
     private String hearingCancellationReason;
 
+    private LocalDateTime partiesNotified;
+
+    private Integer requestVersion;
+
     private List<HearingDaySchedule> hearingDaySchedule;
+
+    private JsonNode serviceData;
 
 }
