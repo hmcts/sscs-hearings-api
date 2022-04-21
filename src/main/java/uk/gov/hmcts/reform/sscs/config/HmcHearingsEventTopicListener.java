@@ -9,6 +9,7 @@ import com.azure.messaging.servicebus.ServiceBusFailureReason;
 import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,21 +56,29 @@ public class HmcHearingsEventTopicListener {
 
         if (isMessageRelevantForService(hmcMessage, hmctsServiceID)) {
             try {
-                hearingsJourneyService.process(hmcMessage);
-
                 log.info("Processing hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
                          hmcMessage.getCaseRef()
                 );
-            } catch (GetCaseException exc) {
-                log.error("Case not found for case id {}, {}", hmctsServiceID, exc);
-                context.abandon();
-            } catch (UpdateCaseException exc) {
-                log.error("Case not update for case id {}, {}", hmctsServiceID, exc);
+
+                hearingsJourneyService.process(hmcMessage);
+
+                log.info("Complete hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+                         hmcMessage.getCaseRef()
+                );
+
+                context.complete();
+            } catch (GetCaseException | UpdateCaseException exc) {
+                log.error("An exception occurred whilst processing hearing event for "
+                              + "HMCTS Service ID {}, case reference: {}", hmcMessage.getHearingID(),
+                          hmcMessage.getCaseRef(), exc);
                 context.abandon();
             }
-
+        } else {
+            log.info("Nothing updated for hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+                     hmcMessage.getCaseRef()
+            );
+            context.complete();
         }
-        context.complete();
     }
 
     public static boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceId) {
@@ -112,8 +121,9 @@ public class HmcHearingsEventTopicListener {
             .processor()
             .topicName(topicName)
             .subscriptionName(subscriptionName)
-            .processMessage(HmcHearingsEventTopicListener::processMessage)
+            .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
             .disableAutoComplete()
+            .processMessage(HmcHearingsEventTopicListener::processMessage)
             .processError(HmcHearingsEventTopicListener::processError)
             .buildProcessorClient();
 
