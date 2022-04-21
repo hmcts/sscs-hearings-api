@@ -22,6 +22,8 @@ public class PartyDetails {
 
     private IndividualDetails individualDetails;
 
+    private String partyChannelSubType;
+
     private OrganisationDetails organisationDetails;
 
     @JsonProperty("unavailabilityDOW")
