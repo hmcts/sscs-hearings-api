@@ -31,9 +31,14 @@ public class IndividualDetails {
 
     private String vulnerabilityDetails;
 
-    private String hearingChannelEmail;
+    private List<String> hearingChannelEmail;
 
-    private String hearingChannelPhone;
+    private List<String> hearingChannelPhone;
 
     private List<RelatedParty> relatedParties;
+
+    private String custodyStatus;
+
+    private String otherReasonableAdjustmentDetails;
+
 }

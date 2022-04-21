@@ -16,8 +16,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingRequestPayload {
 
-    private RequestDetails requestDetails;
-
     private HearingDetails hearingDetails;
 
     private CaseDetails caseDetails;

@@ -18,4 +18,6 @@ public class UnavailabilityRange {
     private LocalDate unavailableFromDate;
 
     private LocalDate unavailableToDate;
+
+    private String unavailabilityType;
 }
