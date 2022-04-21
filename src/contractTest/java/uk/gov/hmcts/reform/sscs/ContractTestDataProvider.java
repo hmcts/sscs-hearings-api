@@ -331,7 +331,7 @@ public class ContractTestDataProvider {
             .integerType("versionNumber", 123)
             .stringType("hearingRequestID", "hearingRequestID123")
             .stringType("status", "status123")
-            .stringType("timeStamp", date.toString())
+            .stringType("timestamp", date.toString())
             .stringType("hearingGroupRequestId", "hearingGroupRequestId123")
             .stringType("partiesNotified", date.toString())
             .closeObject()
@@ -438,7 +438,7 @@ public class ContractTestDataProvider {
             .closeObject().closeArray()
             .closeObject().closeArray()
             .object("hearingResponse")
-            .integerType("hearingRequestID", 123)
+            .integerType("hearingRequestID", 123L)
             .integerType("versionNumber", 123)
             .stringType("status", "ACTIVE")
             .stringType("timeStamp", date.toString())
@@ -448,6 +448,8 @@ public class ContractTestDataProvider {
             .stringType("laCaseStatus", "ACTIVE")
             .stringType("listingStatus", "ACTIVE")
             .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
+            .stringType("partiesNotified", date.toString())
+            .integerType("requestVersion", 321)
             .minArrayLike("hearingDaySchedule", 0, 1)
             .stringType("listAssistSessionID", "listAssistSessionID123")
             .stringType("hearingVenueId", "hearingVenueId123")
@@ -459,6 +461,8 @@ public class ContractTestDataProvider {
             .stringType("hearingSubChannel", "hearingSubChannel123")
             .closeObject().closeArray()
             .closeObject().closeArray()
+            .object("serviceData")
+            .closeObject()
             .closeObject();
 
 

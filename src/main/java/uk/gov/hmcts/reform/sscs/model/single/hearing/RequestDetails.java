@@ -21,7 +21,7 @@ public class RequestDetails {
 
     private String status;
 
-    private LocalDateTime timeStamp;
+    private LocalDateTime timestamp;
 
     private String hearingGroupRequestId;
 
