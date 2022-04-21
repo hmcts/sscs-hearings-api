@@ -2,7 +2,11 @@ package uk.gov.hmcts.reform.sscs.helper;
 
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 
-public class HearingsMapping {
+public final class HearingsMapping {
+
+    private HearingsMapping() {
+
+    }
 
     public static HearingDeleteRequestPayload buildDeleteHearingPayload(String cancellationReason) {
         return HearingDeleteRequestPayload.builder()
