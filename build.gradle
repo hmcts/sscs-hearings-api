@@ -265,7 +265,7 @@ def versions= [
   springRetry: '1.3.3',
   tomcat: '9.0.58',
   pact : '4.1.7',
-  sscsCommon: '4.8.4-RC-SSCS-10146' ,
+  sscsCommon: '4.8.5' ,
   jacksonDatabind: '2.13.2.1' ,
   jacksonBom: '2.13.2.20220324',
   wiremock: '2.27.2',
