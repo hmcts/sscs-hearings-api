@@ -4,8 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 
@@ -14,6 +17,11 @@ import static java.util.Objects.isNull;
 @Slf4j
 @Service
 public class HearingsService {
+
+
+    private HmcHearingApi hmcHearingApi;
+
+    private IdamService idamService;
 
     public void processHearingRequest(HearingRequest request) throws UnhandleableHearingState {
         HearingWrapper wrapper = HearingWrapper.builder().build();
@@ -43,8 +51,7 @@ public class HearingsService {
                 // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
-                canelHearing(wrapper);
-                // TODO Call hearingDelete method
+                sendDeleteHearingRequest(null); // TODO: Get Reason in Ticket: SSCS-10366
                 break;
             case PARTY_NOTIFIED:
                 partyNotified(wrapper);
@@ -70,8 +77,14 @@ public class HearingsService {
         // TODO implement mapping for the event when a case is updated
     }
 
-    private void canelHearing(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when the hearing is cancelled, might not be needed
+
+    public HearingResponse sendDeleteHearingRequest(String cancellationReason) {
+        return hmcHearingApi.deleteHearingRequest(
+            idamService.getIdamTokens().getIdamOauth2Token(),
+            idamService.getIdamTokens().getServiceAuthorization(),
+            idamService.getIdamTokens().getUserId(),
+            HearingsMapping.buildDeleteHearingPayload(cancellationReason)
+        );
     }
 
     private void partyNotified(HearingWrapper wrapper) {
