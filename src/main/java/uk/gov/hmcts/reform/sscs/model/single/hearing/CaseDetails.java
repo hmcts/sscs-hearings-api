@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -16,8 +15,6 @@ public class CaseDetails {
     private String hmctsServiceCode;
 
     private String caseRef;
-
-    private LocalDateTime requestTimeStamp;
 
     private String externalCaseReference;
 
