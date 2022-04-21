@@ -8,7 +8,6 @@ import au.com.dius.pact.core.model.annotations.Pact;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
@@ -189,12 +189,12 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     @PactTestFor(pactMethod = "getHearingWithBadRequest")
     public void shouldFailGetHearingWithBadRequest() {
 
-        assertThatExceptionOfType(FeignException.class).isThrownBy(
+        assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
                 ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
                 ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 BAD_REQUEST_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST.value());
+            )).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
 
@@ -219,12 +219,12 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     @PactTestFor(pactMethod = "getHearingWithUnauthorized")
     public void shouldFailGetHearingWithUnauthorized() {
 
-        assertThatExceptionOfType(FeignException.class).isThrownBy(
+        assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
                 ContractTestDataProvider.UNAUTHORISED_IDAM_OAUTH2_TOKEN,
                 ContractTestDataProvider.UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
                 UNAUTHORISED_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+            )).extracting("status").isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
@@ -248,12 +248,12 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     @PactTestFor(pactMethod = "getHearingWithForbidden")
     public void shouldFailGetHearingWithForbidden() {
 
-        assertThatExceptionOfType(FeignException.class).isThrownBy(
+        assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
                 ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
                 ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 FORBIDDEN_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.FORBIDDEN.value());
+            )).extracting("status").isEqualTo(HttpStatus.FORBIDDEN);
     }
 
 
@@ -278,11 +278,11 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     @PactTestFor(pactMethod = "getHearingWithNotFound")
     public void shouldFailGetHearingWithNotFound() {
 
-        assertThatExceptionOfType(FeignException.class).isThrownBy(
+        assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
                 ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
                 ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 NOT_FOUND_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.NOT_FOUND.value());
+            )).extracting("status").isEqualTo(HttpStatus.NOT_FOUND);
     }
 }
