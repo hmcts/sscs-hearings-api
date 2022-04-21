@@ -62,11 +62,14 @@ public class HmcHearingsEventTopicListener {
                 );
             } catch (GetCaseException exc) {
                 log.error("Case not found for case id {}, {}", hmctsServiceID, exc);
+                context.abandon();
             } catch (UpdateCaseException exc) {
                 log.error("Case not update for case id {}, {}", hmctsServiceID, exc);
+                context.abandon();
             }
 
         }
+        context.complete();
     }
 
     public static boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceId) {
@@ -110,6 +113,7 @@ public class HmcHearingsEventTopicListener {
             .topicName(topicName)
             .subscriptionName(subscriptionName)
             .processMessage(HmcHearingsEventTopicListener::processMessage)
+            .disableAutoComplete()
             .processError(HmcHearingsEventTopicListener::processError)
             .buildProcessorClient();
 
