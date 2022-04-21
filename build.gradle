@@ -207,6 +207,7 @@ sonarqube {
   properties {
     property "sonar.projectName", "SSCS - Hearings Api"
     property "sonar.projectKey", "SSCSHA"
+    property "sonar.host.url", "https://sonar.reform.hmcts.net/"
     property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
@@ -222,12 +223,19 @@ pitest {
   targetClasses = ['uk.gov.hmcts.reform.sscs.*']
   excludedClasses = [
     'uk.gov.hmcts.reform.sscs.config.*',
-    'uk.gov.hmcts.reform.sscs.HearingsApiApplication'
+    'uk.gov.hmcts.reform.sscs.HearingsApiApplication',
+    'uk.gov.hmcts.reform.sscs.model.*',
+    'uk.gov.hmcts.reform.sscs.exception.*'
   ]
+  excludedMethods = ['equals', 'hashcode']
   threads = 10
   outputFormats = ['XML', 'HTML']
   timestampedReports = false
+  enableDefaultIncrementalAnalysis = true
+  historyInputLocation = 'build/reports/pitest/fastermutationtesting'
+  historyOutputLocation = 'build/reports/pitest/fastermutationtestingoutput'
   mutationThreshold = 80
+  fileExtensionsToFilter.addAll('xml','json')
 }
 
 project.tasks['pitest'].group = "Verification"
@@ -354,6 +362,10 @@ dependencies {
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
   testRuntimeOnly  group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2'
+
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.2.2', classifier: 'all', {
+    exclude group: 'commons-io', module: 'commons-io'
+  }
 
   testImplementation group: 'org.pitest', name: 'pitest', version: '1.7.3'
   testImplementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.5.2'

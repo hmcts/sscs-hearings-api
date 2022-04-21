@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
-import uk.gov.hmcts.reform.sscs.service.exceptions.FeignClientErrorDecoder;
+import uk.gov.hmcts.reform.sscs.exception.FeignClientErrorDecoder;
 
 public class FeignClientConfig {
 

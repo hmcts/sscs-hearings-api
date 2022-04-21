@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import uk.gov.hmcts.reform.sscs.exception.FeignClientErrorDecoder;
 import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 import uk.gov.hmcts.reform.sscs.model.Message;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
