@@ -343,6 +343,9 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
+  testRuntimeOnly group: 'com.github.hmcts', name: 'fortify-client', version: '1.2.2', classifier: 'all', {
+    exclude group: 'commons-io', module: 'commons-io'
+  }
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junitJupiter
   testRuntimeOnly  group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junitJupiter
 
