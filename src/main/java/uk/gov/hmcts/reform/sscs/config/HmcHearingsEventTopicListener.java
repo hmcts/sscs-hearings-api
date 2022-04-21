@@ -11,11 +11,15 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
+import uk.gov.hmcts.reform.sscs.service.ccdupdate.HearingsJourneyService;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -26,39 +30,23 @@ import java.util.Objects;
 @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
 public class HmcHearingsEventTopicListener {
 
+
+    @Autowired
+    private static HearingsJourneyService hearingsJourneyService;
     @Value("${azure.service-bus.hmc-to-hearings-api.connectionString}")
     private String connectionString;
     @Value("${azure.service-bus.hmc-to-hearings-api.topicName}")
     private String topicName;
     @Value("${azure.service-bus.hmc-to-hearings-api.subscriptionName}")
     private String subscriptionName;
-
     @Value("${azure.service-bus.hmc-to-hearings-api.retryTimeout}")
     private Long retryTimeout;
     @Value("${azure.service-bus.hmc-to-hearings-api.retryDelay}")
     private Long retryDelay;
     @Value("${azure.service-bus.hmc-to-hearings-api.maxRetries}")
     private Integer maxRetries;
-
     @Value("${sscs.serviceCode}")
     private String serviceId;
-
-    @Bean
-    @SuppressWarnings("PMD.CloseResource")
-    public void hmcHearingEventProcessorClient() {
-        ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .retryOptions(retryOptions())
-            .connectionString(connectionString)
-            .processor()
-            .topicName(topicName)
-            .subscriptionName(subscriptionName)
-            .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(HmcHearingsEventTopicListener::processError)
-            .buildProcessorClient();
-
-        processorClient.start();
-        log.info("HMC hearing event processor started.");
-    }
 
     public static void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
@@ -66,9 +54,18 @@ public class HmcHearingsEventTopicListener {
         String hmctsServiceID = hmcMessage.getHmctsServiceID();
 
         if (isMessageRelevantForService(hmcMessage, hmctsServiceID)) {
-            //TODO process all messages: SSCS-10286
-            log.info("Processing hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
-                hmcMessage.getCaseRef());
+            try {
+                hearingsJourneyService.process(hmcMessage);
+
+                log.info("Processing hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+                         hmcMessage.getCaseRef()
+                );
+            } catch (GetCaseException exc) {
+                log.error("Case not found for case id {}, {}", hmctsServiceID, exc);
+            } catch (UpdateCaseException exc) {
+                log.error("Case not update for case id {}, {}", hmctsServiceID, exc);
+            }
+
         }
     }
 
@@ -101,6 +98,23 @@ public class HmcHearingsEventTopicListener {
                       reason, context.getException()
             );
         }
+    }
+
+    @Bean
+    @SuppressWarnings("PMD.CloseResource")
+    public void hmcHearingEventProcessorClient() {
+        ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
+            .retryOptions(retryOptions())
+            .connectionString(connectionString)
+            .processor()
+            .topicName(topicName)
+            .subscriptionName(subscriptionName)
+            .processMessage(HmcHearingsEventTopicListener::processMessage)
+            .processError(HmcHearingsEventTopicListener::processError)
+            .buildProcessorClient();
+
+        processorClient.start();
+        log.info("HMC hearing event processor started.");
     }
 
     private AmqpRetryOptions retryOptions() {
