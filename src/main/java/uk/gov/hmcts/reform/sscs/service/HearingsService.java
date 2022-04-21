@@ -4,12 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingState;
+import uk.gov.hmcts.reform.sscs.helper.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.HearingsMapping.buildDeleteHearingPayload;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
@@ -80,7 +80,7 @@ public class HearingsService {
             idamService.getIdamTokens().getIdamOauth2Token(),
             idamService.getIdamTokens().getServiceAuthorization(),
             idamService.getIdamTokens().getUserId(),
-            buildDeleteHearingPayload(cancellationReason)
+            HearingsMapping.buildDeleteHearingPayload(cancellationReason)
         );
     }
 
