@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
@@ -19,8 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_SUB_TYPE;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.*;
 
 class HearingsCaseMappingTest extends HearingsMappingBase {
 
@@ -387,23 +387,23 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     }
 
 
-    @DisplayName("buildCaseCategories Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "001,DD,BBA3-001,BBA3-001DD", // TODO replace with actual values
-    }, nullValues = {"null"})
-    void buildCaseCategories(String benefitCode, String issueCode, String expectedCaseTypeValue,  String expectedCaseSubTypeValue) {
-        // TODO Finish Test when method done
+    @Test
+    void buildCaseCategoriesTest(){
+        ReflectionTestUtils.setField(HearingsCaseMapping.class, "sscsServiceCode", "BBA3");
+        List<CaseCategory> categories = new ArrayList<>();
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(benefitCode)
-                .issueCode(issueCode)
-                .build();
+            .benefitCode(Benefit.CARERS_ALLOWANCE.getBenefitCode())
+            .issueCode("AA")
+            .build();
 
-        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData);
+        CaseCategory caseCategory = CaseCategory.builder().categoryType("caseType").categoryValue("BBA3-070").build();
+        CaseCategory caseCategoryOne = CaseCategory.builder().categoryType("caseSubType").categoryValue("BBA3-070AA").build();
 
-        assertThat(result)
-                .extracting("categoryType", "categoryValue")
-                .contains(tuple(CASE_TYPE, expectedCaseTypeValue), tuple(CASE_SUB_TYPE, expectedCaseSubTypeValue));
+        categories.add(caseCategory);
+        categories.add(caseCategoryOne);
+
+        assertEquals(categories, buildCaseCategories(caseData));
     }
 
     @DisplayName("When a case with a valid CaseManagementLocation is given getCaseManagementLocationCode returns the correct EPIMS ID")

@@ -117,10 +117,19 @@ public final class HearingsCaseMapping {
         // TODO SSCS-10116 - Replace SessionCaseCodeMapping with commons version
         List<CaseCategory> categories = new ArrayList<>();
 
-        SessionCaseCodeMapping sessionCaseCode = getSessionCaseCode(caseData);
+        String benefitCodeValue = String.format("%s-%s", sscsServiceCode, caseData.getBenefitCode());
 
-        categories.addAll(getCaseSubTypes(sessionCaseCode));
-        categories.addAll(getCaseTypes(sessionCaseCode));
+        categories.add(CaseCategory.builder()
+                           .categoryType(CASE_TYPE)
+                           .categoryValue(benefitCodeValue)
+                           .build());
+
+        String issueCodeValue = String.format("%s%s", benefitCodeValue, caseData.getIssueCode());
+
+        categories.add(CaseCategory.builder()
+                           .categoryType(CASE_SUB_TYPE)
+                           .categoryValue(issueCodeValue)
+                           .build());
 
         return categories;
     }

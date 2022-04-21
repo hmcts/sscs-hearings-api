@@ -145,16 +145,30 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data of valid Hearing Channel codes
-        return null;
+            if (hearingType.equals("paper")) {
+                return HearingChannel.NOT_ATTENDING.getKey();
+            }
+
+            if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
+                return HearingChannel.FACE_TO_FACE.getKey();
+            } else if (isYes(hearingSubtype.getWantsHearingTypeVideo())) {
+                return HearingChannel.VIDEO.getKey();
+            } else if (isYes(hearingSubtype.getWantsHearingTypeTelephone())) {
+                return HearingChannel.TELEPHONE.getKey();
+            }
+
+            return null;
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data to convert from SSCS Languages/Sign Languages to Reference languages
-        // if (isYes(hearingOptions.getLanguageInterpreter())) {
-        //     String signLanguageType = hearingOptions.getSignLanguageType();
-        //     String languages = hearingOptions.getLanguages();
-        // }
+        if (hearingOptions.wantsSignLanguageInterpreter()) {
+            String signLanguageType = hearingOptions.getSignLanguageType();
+            return SignLanguage.getSignLanguageByLanguage(signLanguageType).getKey();
+        }
+        if (isYes(hearingOptions.getLanguageInterpreter())) {
+            String languages = hearingOptions.getLanguages();
+            return InterpreterLanguage.getLanguageAndConvert(languages).getKey();
+        }
         return null;
     }
 

@@ -165,14 +165,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,High", "Yes,No,High", "No,Yes,High",
-        "No,No,Normal",
-        "Yes,null,High", "No,null,Normal",
-        "null,Yes,High", "null,No,Normal",
-        "null,null,Normal",
-        "Yes,,High", "No,,Normal",
-        ",Yes,High", ",No,Normal",
-        ",,Normal"
+        "Yes,Yes,high", "Yes,No,high", "No,Yes,high",
+        "No,No,normal",
+        "Yes,null,high", "No,null,normal",
+        "null,Yes,high", "null,No,normal",
+        "null,null,normal",
+        "Yes,,high", "No,,normal",
+        ",Yes,high", ",No,normal",
+        ",,normal"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
@@ -474,6 +474,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build();
         int result = HearingsDetailsMapping.getHearingDuration(caseData);
 
-        assertEquals(expected, result);
+        assertEquals(result, "BBA3-substantive");
     }
 }

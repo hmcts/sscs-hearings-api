@@ -632,4 +632,70 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertNull(result);
     }
+
+    @DisplayName("When language passed in should return correct LOV format")
+    @ParameterizedTest
+    @CsvSource({"Acholi,ach-ach", "Afrikaans,afr-afr", "Akan,aka-aka", "Albanian,alb-alb", "Zaza,zza-zza", "Zulu,zul-zul"})
+    void getIndividualInterpreterLanguageTest(String lang, String expected) {
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages(lang)
+            .build();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @DisplayName("When sign language passed in should return correct LOV format")
+    @ParameterizedTest
+    @CsvSource({"American Sign Language (ASL),americanSignLanguage", "Hands on signing,handsOnSigning", "Deaf Relay,deafRelay", "Palantypist / Speech to text,palantypist"})
+    void getIndividualInterpreterSignLanguageTest(String signLang, String expected) {
+        List<String> arrangements = Collections.singletonList("signLanguageInterpreter");
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .arrangements(arrangements)
+            .signLanguageType(signLang)
+            .build();
+        hearingOptions.wantsSignLanguageInterpreter();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @DisplayName("When hearing type paper then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelPaperTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("paper", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.NOT_ATTENDING.getKey());
+    }
+
+    @DisplayName("When hearing type oral and video then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralVideoTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.VIDEO.getKey());
+    }
+
+    @DisplayName("When hearing type oral and telephone then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralTelephoneTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getKey());
+    }
+
+    @DisplayName("When hearing type oral and face to face then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralFaceToFaceTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getKey());
+    }
+
+    @DisplayName("When hearing type is blank and face to face then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelBlankFaceToFaceTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getKey());
+    }
 }
