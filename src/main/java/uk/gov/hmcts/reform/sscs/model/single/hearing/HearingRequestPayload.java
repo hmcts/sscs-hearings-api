@@ -11,8 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class HearingRequestPayload {
 
-    private RequestDetails requestDetails;
-
     private HearingDetails hearingDetails;
 
     private CaseDetails caseDetails;

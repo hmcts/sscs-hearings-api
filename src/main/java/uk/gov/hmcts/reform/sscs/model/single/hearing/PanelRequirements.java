@@ -18,4 +18,6 @@ public class PanelRequirements {
     private List<PanelPreference> panelPreferences;
 
     private List<String> panelSpecialisms;
+
+    private List<String> authorisationTypes;
 }
