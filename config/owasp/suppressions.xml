@@ -2,9 +2,9 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <suppress>
     <notes><![CDATA[
-          spring-retry-1.3.3.jar
+          CVS incorrectly tagging spring-retry-1.3.3.jar
  ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org.springframework.retry/spring-retry@%24%7Brevision%7D$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.retry/spring\-retry@1.3.[123]$</packageUrl>
     <cve>CVE-2013-4152</cve>
     <cve>CVE-2013-7315</cve>
     <cve>CVE-2014-0054</cve>
