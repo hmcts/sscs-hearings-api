@@ -1,3 +1,4 @@
+#HMC to Hearings API
 module "servicebus-subscription" {
   source                = "git@github.com:hmcts/terraform-module-servicebus-subscription?ref=master"
   name                  = "hmc-to-sscs-subscription-${var.env}"
