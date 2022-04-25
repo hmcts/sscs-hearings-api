@@ -21,7 +21,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.*;
+import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.CANCELLED;
+import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.EXCEPTION;
+import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.LISTED;
+import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.UPDATE_SUBMITTED;
 
 class HearingsJourneyServiceTest {
 
