@@ -86,7 +86,7 @@ public class ContractTestDataProvider {
 
     public static HearingRequestPayload generateHearingRequest() {
         HearingRequestPayload request = new HearingRequestPayload();
-        request.setRequestDetails(requestDetails());
+
         request.setHearingDetails(hearingDetails());
         request.setCaseDetails(caseDetails());
         request.setPartyDetails(partyDetails1());
@@ -98,7 +98,7 @@ public class ContractTestDataProvider {
         HearingRequestPayload request = new HearingRequestPayload();
         request.setHearingDetails(hearingDetails());
         request.setPartyDetails(partyDetails1());
-        request.setRequestDetails(requestDetails());
+
         return request;
     }
 
@@ -165,7 +165,6 @@ public class ContractTestDataProvider {
         CaseDetails caseDetails = new CaseDetails();
         caseDetails.setHmctsServiceCode("ABBA1");
         caseDetails.setCaseRef("ba12");
-        caseDetails.setRequestTimeStamp(LocalDateTime.parse("2022-03-17T14:08:41"));
         caseDetails.setCaseDeepLink("https://www.google.com");
         caseDetails.setHmctsInternalCaseName("Internal case name");
         caseDetails.setPublicCaseName("Public case name");
@@ -195,6 +194,7 @@ public class ContractTestDataProvider {
         authorisationSubType.add("authorisation sub 2");
         authorisationSubType.add("authorisation sub 3");
         authorisationSubType.add("authorisation sub 4");
+
         final PanelPreference panelPreference1 = new PanelPreference();
         panelPreference1.setMemberID("Member 1");
         panelPreference1.setMemberType("Member Type 1");
@@ -223,6 +223,7 @@ public class ContractTestDataProvider {
         panelRequirements.setAuthorisationSubType(authorisationSubType);
         panelRequirements.setPanelPreferences(panelPreferences);
         panelRequirements.setPanelSpecialisms(panelSpecialisms);
+        panelRequirements.setAuthorisationTypes(authorisationTypes);
 
         return panelRequirements;
     }
@@ -250,13 +251,24 @@ public class ContractTestDataProvider {
         individualDetails.setTitle("Master");
         individualDetails.setFirstName("Harry");
         individualDetails.setLastName("Styles");
-        individualDetails.setHearingChannelEmail("harry.styles.neveragin@gmailsss.com");
+        List<String> hearingChannelEmail = new ArrayList<String>();
+        hearingChannelEmail.add("harry.styles.neveragin1@gmailsss.com");
+        hearingChannelEmail.add("harry.styles.neveragin2@gmailsss.com");
+        hearingChannelEmail.add("harry.styles.neveragin3@gmailsss.com");
+        individualDetails.setHearingChannelEmail(hearingChannelEmail);
+        List<String> hearingChannelPhone = new ArrayList<String>();
+        hearingChannelPhone.add("+447398087560");
+        hearingChannelPhone.add("+447398087561");
+        hearingChannelPhone.add("+447398087562");
+        individualDetails.setHearingChannelPhone(hearingChannelPhone);
         individualDetails.setInterpreterLanguage("German");
         individualDetails.setPreferredHearingChannel("CBeebies");
         individualDetails.setReasonableAdjustments(createReasonableAdjustments());
         individualDetails.setRelatedParties(createRelatedParties());
         individualDetails.setVulnerableFlag(false);
         individualDetails.setVulnerabilityDetails("Vulnerability details 1");
+        individualDetails.setCustodyStatus("ACTIVE");
+        individualDetails.setOtherReasonableAdjustmentDetails("Other Reasonable Adjustment Details");
         return individualDetails;
     }
 
@@ -332,7 +344,7 @@ public class ContractTestDataProvider {
             .integerType("versionNumber", 123)
             .stringType("hearingRequestID", "hearingRequestID123")
             .stringType("status", "status123")
-            .stringType("timeStamp", date.toString())
+            .stringType("timestamp", date.toString())
             .stringType("hearingGroupRequestId", "hearingGroupRequestId123")
             .stringType("partiesNotified", date.toString())
             .closeObject()
@@ -395,7 +407,6 @@ public class ContractTestDataProvider {
             .stringType("hmctsInternalCaseName", "hmctsInternalCaseName123")
             .stringType("publicCaseName", "publicCaseName123")
             .stringType("caseManagementLocationCode", "caseManagementLocationCode123")
-            .stringType("requestTimeStamp", date.toString())
             .stringType("caseSLAStartDate", date.toString())
             .minArrayLike("caseCategories", 0, 1)
             .stringType("categoryType", "categoryType123")
@@ -414,9 +425,15 @@ public class ContractTestDataProvider {
             .stringType("preferredHearingChannel", "preferredHearingChannel123")
             .stringType("interpreterLanguage", "interpreterLanguage123")
             .stringType("vulnerabilityDetails", "vulnerabilityDetails123")
-            .stringType("hearingChannelEmail", "hearingChannelEmail123")
-            .stringType("hearingChannelPhone", "07345960795")
+            .stringType("custodyStatus", "custodyStatus123")
+            .stringType("otherReasonableAdjustmentDetails", "otherReasonableAdjustmentDetails123")
             .booleanValue("vulnerableFlag", true)
+            .array("hearingChannelEmail")
+            .string("hearingChannelEmail123@gmaild.com")
+            .closeArray()
+            .array("hearingChannelPhone")
+            .string("07345960795")
+            .closeArray()
             .array("reasonableAdjustments")
             .string("reasonableAdjustments1")
             .closeArray()
@@ -440,7 +457,7 @@ public class ContractTestDataProvider {
             .closeObject().closeArray()
             .closeObject().closeArray()
             .object("hearingResponse")
-            .integerType("hearingRequestID", 123)
+            .integerType("hearingRequestID", 123L)
             .integerType("versionNumber", 123)
             .stringType("status", "ACTIVE")
             .stringType("timeStamp", date.toString())
@@ -450,6 +467,8 @@ public class ContractTestDataProvider {
             .stringType("laCaseStatus", "ACTIVE")
             .stringType("listingStatus", "ACTIVE")
             .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
+            .stringType("partiesNotified", date.toString())
+            .integerType("requestVersion", 321)
             .minArrayLike("hearingDaySchedule", 0, 1)
             .stringType("listAssistSessionID", "listAssistSessionID123")
             .stringType("hearingVenueId", "hearingVenueId123")
@@ -461,6 +480,8 @@ public class ContractTestDataProvider {
             .stringType("hearingSubChannel", "hearingSubChannel123")
             .closeObject().closeArray()
             .closeObject().closeArray()
+            .object("serviceData")
+            .closeObject()
             .closeObject();
 
 

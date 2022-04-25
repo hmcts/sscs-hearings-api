@@ -76,6 +76,12 @@ azure:
       retryTimeout: ${HEARINGS_TOPIC_RETRY_TIMEOUT:1}
       maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
       retryDelay: ${HEARINGS_TOPIC_RETRY_DELAY:1}
+    tribunals-to-hearings-api:
+      connectionString: ${SSCS_SERVICEBUS_CONNECTION_STRING:}
+      queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}
+      retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
+      maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
+      retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
 
 sscs:
   serviceCode: ${SSCS_SERVICE_CODE:BBA3}
@@ -121,5 +127,7 @@ exui:
 
 flags:
   hmc-to-hearings-api:
-    enabled: ${HMC_HEARING_LISTENING_ENABLED:false}
+    enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
+  tribunals-to-hearings-api:
+    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
 

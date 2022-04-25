@@ -17,6 +17,8 @@ java:
         - s2s-micro
         - name: hmc-servicebus-connection-string
           alias: HEARINGS_TOPIC_CONNECTION_STRING
+        - name: sscs-asb-connection-string
+          alias: SSCS_SERVICEBUS_CONNECTION_STRING
   environment:
     SERVER_PORT: 8083
     REFORM_TEAM: sscs
@@ -35,3 +37,5 @@ java:
     HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
     HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARING_LISTENING_ENABLED: false
+    TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
+    TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
