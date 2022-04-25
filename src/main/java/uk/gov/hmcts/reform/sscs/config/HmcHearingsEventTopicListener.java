@@ -56,25 +56,25 @@ public class HmcHearingsEventTopicListener {
 
         if (isMessageRelevantForService(hmcMessage, hmctsServiceID)) {
             try {
-                log.info("Processing hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+                log.info("Processing hearing ID: {} for case reference: {}", hmcMessage.getHearingID(),
                          hmcMessage.getCaseRef()
                 );
 
                 hearingsJourneyService.process(hmcMessage);
 
-                log.info("Complete hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+                log.info("Hearing message {} processed for case reference {}", hmcMessage.getHearingID(),
                          hmcMessage.getCaseRef()
                 );
 
                 context.complete();
             } catch (GetCaseException | UpdateCaseException exc) {
                 log.error("An exception occurred whilst processing hearing event for "
-                              + "HMCTS Service ID {}, case reference: {}", hmcMessage.getHearingID(),
+                              + "hearing ID {}, case reference: {}", hmcMessage.getHearingID(),
                           hmcMessage.getCaseRef(), exc);
                 context.abandon();
             }
         } else {
-            log.info("Nothing updated for hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+            log.info("Nothing updated for hearing ID: {} for case reference: {}", hmcMessage.getHearingID(),
                      hmcMessage.getCaseRef()
             );
             context.complete();
@@ -86,12 +86,12 @@ public class HmcHearingsEventTopicListener {
     }
 
     public static void processError(ServiceBusErrorContext context) {
-        log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'%n",
+        log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'",
                   context.getFullyQualifiedNamespace(), context.getEntityPath()
         );
 
         if (!(context.getException() instanceof ServiceBusException)) {
-            log.error("Non-ServiceBusException occurred: {}%n", context.getException().toString());
+            log.error("Non-ServiceBusException occurred: {}", context.getException().toString());
             return;
         }
 
@@ -100,13 +100,13 @@ public class HmcHearingsEventTopicListener {
         if (Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED)
             || Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND)
             || Objects.equals(reason, ServiceBusFailureReason.UNAUTHORIZED)) {
-            log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}%n",
+            log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}",
                       reason, exception.getMessage()
             );
         } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
-            log.warn("Message lock lost for message: {}%n", context.getException().toString());
+            log.warn("Message lock lost for message: {}", context.getException().toString());
         } else {
-            log.error("Error source {}, reason {}, message: {}%n", context.getErrorSource(),
+            log.error("Error source {}, reason {}, message: {}", context.getErrorSource(),
                       reason, context.getException()
             );
         }

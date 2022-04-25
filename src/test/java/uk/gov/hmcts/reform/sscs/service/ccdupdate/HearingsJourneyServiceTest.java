@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.*;
 
 class HearingsJourneyServiceTest {
 
@@ -80,16 +81,16 @@ class HearingsJourneyServiceTest {
         underTest.process(hmcMessage);
 
         // then
-        if ("LISTED".equals(hmcStatus)) {
+        if (LISTED.equals(hmcStatus)) {
             verify(ccdStateUpdateService).updateListed(hearingResponse, caseData);
             verify(ccdLocationUpdateService).updateVenue(hmcMessage, caseData);
-        } else if ("UPDATE_SUBMITTED".equals(hmcStatus)) {
+        } else if (UPDATE_SUBMITTED.equals(hmcStatus)) {
             verify(ccdStateUpdateService).updateListed(hearingResponse, caseData);
             verify(ccdLocationUpdateService).updateVenue(hmcMessage, caseData);
-        } else if ("CANCELLED".equals(hmcStatus)) {
+        } else if (CANCELLED.equals(hmcStatus)) {
             verify(ccdStateUpdateService).updateCancelled(hearingResponse, caseData);
             verify(ccdLocationUpdateService, never()).updateVenue(hmcMessage, caseData);
-        } else if ("EXCEPTION".equals(hmcStatus)) {
+        } else if (EXCEPTION.equals(hmcStatus)) {
             verify(ccdStateUpdateService).updateFailed(caseData);
             verify(ccdLocationUpdateService, never()).updateVenue(hmcMessage, caseData);
         }
