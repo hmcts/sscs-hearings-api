@@ -104,7 +104,8 @@ class HearingsServiceTest {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingRequest(request));
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
 
     @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an UnhandleableHearingState error")
@@ -125,13 +126,19 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapper() {
-        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
+        given(idamService.getIdamTokens())
+                .willReturn(IdamTokens.builder()
+                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                        .serviceAuthorization(SERVICE_AUTHORIZATION)
+                        .build());
 
-        given(hmcHearingApi.deleteHearingRequest(any(), any(), any(), any())).willReturn(HearingResponse.builder().build());
+        given(hmcHearingApi.deleteHearingRequest(any(), any(), any(), any()))
+                .willReturn(HearingResponse.builder().build());
 
         wrapper.setState(CANCEL_HEARING);
 
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
@@ -141,14 +148,27 @@ class HearingsServiceTest {
         "UPDATED_CASE,UPDATED_CASE",
     }, nullValues = {"null"})
     void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException {
-        given(ccdCaseService.updateCaseData(any(SscsCaseData.class), any(EventType.class), anyString(), anyString())).willReturn(expectedCaseDetails);
+        given(ccdCaseService.updateCaseData(
+                any(SscsCaseData.class),
+                any(EventType.class),
+                anyString(), anyString()))
+                .willReturn(expectedCaseDetails);
 
         wrapper.setState(state);
 
-        HearingResponse response = HearingResponse.builder().versionNumber(VERSION).hearingRequestId(HEARING_REQUEST_ID).build();
-        assertThatNoException().isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
+        HearingResponse response = HearingResponse.builder()
+                .versionNumber(VERSION)
+                .hearingRequestId(HEARING_REQUEST_ID)
+                .build();
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
 
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(event.getEventType()), eq(event.getSummary()), eq(event.getDescription()));
+        verify(ccdCaseService, times(1))
+                .updateCaseData(
+                        any(SscsCaseData.class),
+                        eq(event.getEventType()),
+                        eq(event.getSummary()),
+                        eq(event.getDescription()));
 
         assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
         EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
@@ -161,16 +181,30 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
     @Test
     void updateHearingResponse() throws UpdateCaseException {
-        given(ccdCaseService.updateCaseData(any(SscsCaseData.class), any(EventType.class), anyString(), anyString())).willThrow(UpdateCaseException.class);
+        given(ccdCaseService.updateCaseData(
+                any(SscsCaseData.class),
+                any(EventType.class),
+                anyString(),
+                anyString()))
+                .willThrow(UpdateCaseException.class);
 
-        HearingResponse response = HearingResponse.builder().versionNumber(VERSION).hearingRequestId(HEARING_REQUEST_ID).build();
-        assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
+        HearingResponse response = HearingResponse.builder()
+                .versionNumber(VERSION)
+                .hearingRequestId(HEARING_REQUEST_ID)
+                .build();
+        assertThatExceptionOfType(UpdateCaseException.class)
+                .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
     }
 
     @DisplayName("sendDeleteHearingRequest should send request successfully")
     @Test
     void sendDeleteHearingRequest() {
-        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
+        given(idamService.getIdamTokens())
+                .willReturn(IdamTokens.builder()
+                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                        .serviceAuthorization(SERVICE_AUTHORIZATION)
+                        .build());
+
         HearingDeleteRequestPayload payload = HearingDeleteRequestPayload.builder()
                 // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
                 .build();
