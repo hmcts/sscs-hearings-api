@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.6.6'
+  id 'org.springframework.boot' version '2.6.7'
   id 'uk.gov.hmcts.java' version '0.12.18'
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.42.0'
@@ -182,8 +182,7 @@ sonarqube {
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
             "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
-            "src/main/java/uk/gov/hmcts/reform/sscs/model/**," +
-            "src/main/java/uk/gov/hmcts/reform/sscs/service/HearingsService.java" //Will be removed in SSCS-10321
+            "src/main/java/uk/gov/hmcts/reform/sscs/model/**,"
   }
 }
 
@@ -249,14 +248,14 @@ def versions= [
   jacksonBom: '2.13.2.20220324',
   jacksonDatabind: '2.13.2.1',
   jacksonDatatype: '2.13.2',
-  jsonSchemaValidator: '1.0.66',
   junitJupiter: '5.8.2',
+  jsonSchemaValidator: '1.0.66',
   log4J: '2.17.1',
   logback: '1.2.10',
   reformLogging: '5.1.9',
   lombok: '1.18.22',
   okhttp: '4.9.2',
-  pact : '4.1.7',
+  pact: '4.1.7',
   pactJava8: '4.1.34',
   pactJunit: '4.3.5',
   pitest: '1.7.3',
@@ -320,14 +319,12 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatype
 
-
   implementation group: 'com.networknt', name: 'json-schema-validator', version: versions.jsonSchemaValidator
 
   implementation group: 'com.azure', name: 'azure-core', version: versions.azureCore
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: versions.azureMessagingServicebus
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
-
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: versions.restAssured
@@ -336,7 +333,6 @@ dependencies {
 
   testImplementation group: 'org.projectlombok', name:'lombok', version:versions.lombok
   testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version:versions.lombok
-
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
@@ -356,7 +352,6 @@ dependencies {
   testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
   testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wiremock
-
 
   //pact contract testing
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact

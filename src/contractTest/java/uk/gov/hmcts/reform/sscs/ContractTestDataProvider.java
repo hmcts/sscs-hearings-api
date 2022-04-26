@@ -67,6 +67,7 @@ public class ContractTestDataProvider {
 
     public static final String HEARING_RESPONSE_STATUS = "HEARING_REQUESTED";
     public static final String HEARING_DATE = "2030-08-20T12:40";
+    public static final String ACTIVE = "ACTIVE";
 
     private ContractTestDataProvider() {
 
@@ -130,7 +131,7 @@ public class ContractTestDataProvider {
 
     protected static RequestDetails requestDetails() {
         RequestDetails requestDetails = new RequestDetails();
-        requestDetails.setVersionNumber(123);
+        requestDetails.setVersionNumber(123L);
         return requestDetails;
     }
 
@@ -459,13 +460,12 @@ public class ContractTestDataProvider {
             .object("hearingResponse")
             .integerType("hearingRequestID", 123L)
             .integerType("versionNumber", 123)
-            .stringType("status", "ACTIVE")
+            .stringType("status", ACTIVE)
             .stringType("timeStamp", date.toString())
             .stringType("listAssistTransactionID", "ListAssistTransactionID123123")
             .stringType("receivedDateTime", date.toString())
-            .integerType("responseVersion", 321)
-            .stringType("laCaseStatus", "ACTIVE")
-            .stringType("listingStatus", "ACTIVE")
+            .stringType("laCaseStatus", ACTIVE)
+            .stringType("listingStatus", ACTIVE)
             .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
             .stringType("partiesNotified", date.toString())
             .integerType("requestVersion", 321)
