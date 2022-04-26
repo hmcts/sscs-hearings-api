@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
-import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
@@ -77,7 +76,7 @@ public class TribunalsHearingsEventQueueListener {
             log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                 event, caseId);
 
-            hearingsService.processHearingRequest(HearingsServiceHelper.createWrapper(hearingRequest));
+            hearingsService.processHearingRequest(hearingRequest);
 
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
             context.complete();

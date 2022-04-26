@@ -1,13 +1,9 @@
 package uk.gov.hmcts.reform.sscs.helper.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,15 +12,7 @@ import static java.util.Objects.isNull;
 
 public final class HearingsServiceHelper {
 
-
-    private static CcdCaseService caseService;
-
     private HearingsServiceHelper() {
-    }
-
-    @Autowired
-    public static void setCaseService(CcdCaseService caseService) {
-        HearingsServiceHelper.caseService = caseService;
     }
 
     public static void updateHearingId(HearingWrapper wrapper, HearingResponse response) {
@@ -56,13 +44,5 @@ public final class HearingsServiceHelper {
         caseData.getEvents().add(event);
 
         return hearingEvent;
-    }
-
-    public static HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException {
-
-        return HearingWrapper.builder()
-                .caseData(caseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
-                .state(hearingRequest.getHearingState())
-                .build();
     }
 }
