@@ -51,20 +51,20 @@ public class HearingsJourneyService {
             case LISTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);
                 locationUpdateService.updateVenue(hmcMessage, caseData);
-                ccdCaseService.updateCaseDetails(caseData, NEW_HEARING_BOOKED, CREATED_SUMMARY, CREATED_DESC);
+                ccdCaseService.updateCaseData(caseData, NEW_HEARING_BOOKED, CREATED_SUMMARY, CREATED_DESC);
                 break;
             case UPDATE_SUBMITTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);
                 locationUpdateService.updateVenue(hmcMessage, caseData);
-                ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, UPDATED_SUMMARY, UPDATED_DESC);
+                ccdCaseService.updateCaseData(caseData, UPDATE_CASE_ONLY, UPDATED_SUMMARY, UPDATED_DESC);
                 break;
             case CANCELLED:
                 ccdStateUpdateService.updateCancelled(hearingResponse, caseData);
-                ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, CANCELLED_SUMMARY, CANCELLED_DESC);
+                ccdCaseService.updateCaseData(caseData, UPDATE_CASE_ONLY, CANCELLED_SUMMARY, CANCELLED_DESC);
                 break;
             case EXCEPTION:
                 ccdStateUpdateService.updateFailed(caseData);
-                ccdCaseService.updateCaseDetails(caseData, UPDATE_CASE_ONLY, EXCEPTION_SUMMARY, EXCEPTION_DESC);
+                ccdCaseService.updateCaseData(caseData, UPDATE_CASE_ONLY, EXCEPTION_SUMMARY, EXCEPTION_DESC);
                 break;
             default:
                 log.info("CCD state has not been updated for the hearing Id: {}", hearingId);
