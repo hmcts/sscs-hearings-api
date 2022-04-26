@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import static java.util.Objects.isNull;
 // TODO Unsuppress in future
 @Slf4j
 @Service
+@AllArgsConstructor
 @RequiredArgsConstructor
 public class HearingsService {
 
