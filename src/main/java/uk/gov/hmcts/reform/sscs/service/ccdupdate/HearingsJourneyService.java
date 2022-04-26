@@ -46,7 +46,6 @@ public class HearingsJourneyService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(Long.parseLong(hearingId)).getData();
 
-        // todo review statuses
         switch (hmcMessage.getHearingUpdate().getHmcStatus()) {
             case LISTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);

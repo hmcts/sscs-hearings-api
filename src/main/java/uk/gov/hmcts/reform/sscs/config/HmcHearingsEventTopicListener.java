@@ -4,8 +4,6 @@ import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusErrorContext;
-import com.azure.messaging.servicebus.ServiceBusException;
-import com.azure.messaging.servicebus.ServiceBusFailureReason;
 import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
@@ -23,7 +21,6 @@ import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.ccdupdate.HearingsJourneyService;
 
 import java.time.Duration;
-import java.util.Objects;
 
 @Slf4j
 @Data
@@ -77,7 +74,6 @@ public class HmcHearingsEventTopicListener {
             log.info("Nothing updated for hearing ID: {} for case reference: {}", hmcMessage.getHearingID(),
                      hmcMessage.getCaseRef()
             );
-            context.complete();
         }
     }
 
@@ -85,36 +81,9 @@ public class HmcHearingsEventTopicListener {
         return hmcMessage.getHmctsServiceID().contains(serviceId);
     }
 
-    public static void processError(ServiceBusErrorContext context) {
-        log.error("Error when receiving messages from namespace: '{}'. Entity: '{}'",
-                  context.getFullyQualifiedNamespace(), context.getEntityPath()
-        );
-
-        if (!(context.getException() instanceof ServiceBusException)) {
-            log.error("Non-ServiceBusException occurred: {}", context.getException().toString());
-            return;
-        }
-
-        ServiceBusException exception = (ServiceBusException) context.getException();
-        ServiceBusFailureReason reason = exception.getReason();
-        if (Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_DISABLED)
-            || Objects.equals(reason, ServiceBusFailureReason.MESSAGING_ENTITY_NOT_FOUND)
-            || Objects.equals(reason, ServiceBusFailureReason.UNAUTHORIZED)) {
-            log.error("An unrecoverable error occurred. Stopping processing with reason {}: {}",
-                      reason, exception.getMessage()
-            );
-        } else if (Objects.equals(reason, ServiceBusFailureReason.MESSAGE_LOCK_LOST)) {
-            log.warn("Message lock lost for message: {}", context.getException().toString());
-        } else {
-            log.error("Error source {}, reason {}, message: {}", context.getErrorSource(),
-                      reason, context.getException()
-            );
-        }
-    }
-
     @Bean
     @SuppressWarnings("PMD.CloseResource")
-    public void hmcHearingEventProcessorClient() {
+    public ServiceBusProcessorClient hmcHearingEventProcessorClient() {
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
             .retryOptions(retryOptions())
             .connectionString(connectionString)
@@ -124,11 +93,13 @@ public class HmcHearingsEventTopicListener {
             .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
             .disableAutoComplete()
             .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(HmcHearingsEventTopicListener::processError)
+            .processError(QueueHelper::processError)
             .buildProcessorClient();
 
         processorClient.start();
         log.info("HMC hearing event processor started.");
+
+        return processorClient;
     }
 
     private AmqpRetryOptions retryOptions() {
