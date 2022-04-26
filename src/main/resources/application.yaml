@@ -80,7 +80,7 @@ azure:
       retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
       maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
       retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
-      
+
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
@@ -107,9 +107,6 @@ caseworker-ref:
 common-ref:
   api:
     url: ${COMMON_REF_API_URL:http://localhost:4550}
-
-hmc:
-  url: ${HMC_API_URL:http://localhost:4561}
 
 core_case_data:
   api:

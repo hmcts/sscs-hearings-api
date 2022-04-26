@@ -98,7 +98,7 @@ class HearingsJourneyServiceTest {
             verify(ccdLocationUpdateService, never()).updateVenue(hmcMessage, caseData);
         }
 
-        verify(ccdCaseService).updateCaseDetails(
+        verify(ccdCaseService).updateCaseData(
             caseData,
             EventType.getEventTypeByCcdType(eventType),
             summary,
