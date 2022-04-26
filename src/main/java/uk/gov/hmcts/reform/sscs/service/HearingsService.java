@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping;
@@ -10,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
@@ -18,7 +20,7 @@ import static java.util.Objects.isNull;
 // TODO Unsuppress in future
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class HearingsService {
 
     private final HmcHearingApi hmcHearingApi;
@@ -26,6 +28,10 @@ public class HearingsService {
     private final CcdCaseService ccdCaseService;
 
     private final IdamService idamService;
+
+    public void processHearingRequest(HearingRequest hearingRequest) throws UnhandleableHearingStateException, GetCaseException {
+        processHearingRequest(createWrapper(hearingRequest));
+    }
 
     public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingStateException {
         if (isNull(wrapper.getState())) {
@@ -37,22 +43,18 @@ public class HearingsService {
         switch (wrapper.getState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
-                // TODO Call hearingPost method
                 break;
             case UPDATE_HEARING:
                 updateHearing(wrapper);
-                // TODO Call hearingPut method
                 break;
             case UPDATED_CASE:
                 updatedCase(wrapper);
-                // TODO Call hearingPut method
                 break;
             case CANCEL_HEARING:
                 cancelHearing(wrapper);
                 break;
             case PARTY_NOTIFIED:
                 partyNotified(wrapper);
-                // TODO Call partiesNotifiedPost method
                 break;
             default:
                 UnhandleableHearingStateException err = new UnhandleableHearingStateException(wrapper.getState());
@@ -97,8 +99,19 @@ public class HearingsService {
         HearingsServiceHelper.addEvent(wrapper);
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getState());
-        ccdCaseService.updateCaseData(wrapper.getCaseData(), event.getEventType(), event.getSummary(), event.getDescription());
+        ccdCaseService.updateCaseData(
+                wrapper.getCaseData(),
+                event.getEventType(),
+                event.getSummary(),
+                event.getDescription());
     }
 
 
+    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException {
+
+        return HearingWrapper.builder()
+                .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
+                .state(hearingRequest.getHearingState())
+                .build();
+    }
 }

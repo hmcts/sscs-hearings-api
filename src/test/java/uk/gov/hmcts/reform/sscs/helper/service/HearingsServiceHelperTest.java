@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -92,11 +93,12 @@ class HearingsServiceHelperTest {
         HearingsServiceHelper.addEvent(wrapper);
 
         assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getType()).isEqualTo(event.getEventType().getType());
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDate()).isNotEmpty();
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDateTime()).isAfter(testStart);
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDescription()).isEqualTo(event.getDescription());
+        EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
+        assertThat(eventDetails.getType()).isEqualTo(event.getEventType().getType());
+        assertThat(eventDetails.getDate()).isNotEmpty();
+        assertThat(eventDetails.getDateTime()).isAfter(testStart);
+        assertThat(eventDetails.getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
+        assertThat(eventDetails.getDescription()).isEqualTo(event.getDescription());
     }
 
     @DisplayName("addEvent with null Event List Test")
@@ -109,10 +111,11 @@ class HearingsServiceHelperTest {
         HearingsServiceHelper.addEvent(wrapper);
 
         assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getType()).isEqualTo(HearingEvent.CREATE_HEARING.getEventType().getType());
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDate()).isNotEmpty();
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDateTime()).isAfter(testStart);
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
-        assertThat(wrapper.getCaseData().getEvents().get(0).getValue().getDescription()).isEqualTo(HearingEvent.CREATE_HEARING.getDescription());
+        EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
+        assertThat(eventDetails.getType()).isEqualTo(HearingEvent.CREATE_HEARING.getEventType().getType());
+        assertThat(eventDetails.getDate()).isNotEmpty();
+        assertThat(eventDetails.getDateTime()).isAfter(testStart);
+        assertThat(eventDetails.getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
+        assertThat(eventDetails.getDescription()).isEqualTo(HearingEvent.CREATE_HEARING.getDescription());
     }
 }
