@@ -4,7 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -41,7 +43,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                         .firstName("first")
                                         .lastName("last")
                                         .build())
-                                .relatedParties(new ArrayList<>())
                                 .build())
                         .build())
                 .build();
@@ -79,7 +80,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                         .firstName("first")
                                         .lastName("last")
                                         .build())
-                                .relatedParties(new ArrayList<>())
                                 .build())
                         .build())
                 .build();
@@ -119,7 +119,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                         .firstName("first")
                                         .lastName("last")
                                         .build())
-                                .relatedParties(new ArrayList<>())
                                 .build())
                         .build())
                 .build();
@@ -149,7 +148,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .firstName("first")
                         .lastName("last")
                         .build())
-                .relatedParties(new ArrayList<>())
                 .build()));
         SscsCaseData caseData = SscsCaseData.builder()
                 .otherParties(otherParties)
@@ -162,7 +160,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                         .firstName("first")
                                         .lastName("last")
                                         .build())
-                                .relatedParties(new ArrayList<>())
                                 .build())
                         .build())
                 .build();
@@ -190,13 +187,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @ParameterizedTest
-    @ValueSource(strings = {"Yes", "No"})
-    @NullAndEmptySource
-    void buildHearingPartiesDetailsJointParty(String jointParty) {
+    @EnumSource(value = YesNo.class)
+    @NullSource
+    void buildHearingPartiesDetailsJointParty(YesNo jointParty) {
         // TODO SSCS-10378 - Finish Test
         String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
-                .jointParty(jointParty)
+                .jointParty(JointParty.builder().hasJointParty(jointParty).build())
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .appellant(Appellant.builder()
@@ -206,7 +203,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                         .firstName("first")
                                         .lastName("last")
                                         .build())
-                                .relatedParties(new ArrayList<>())
                                 .build())
                         .build())
                 .build();
@@ -239,7 +235,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                             .firstName("first")
                             .lastName("last")
                             .build())
-                    .relatedParties(new ArrayList<>())
                     .build();
         String appellantId = "1";
         Party party = Appellant.builder()
@@ -251,11 +246,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .lastName("last")
                         .build())
                 .appointee(appointee)
-                .relatedParties(new ArrayList<>())
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null, appellantId);
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
@@ -292,7 +286,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .firstName("first")
                         .lastName("last")
                         .build())
-                .relatedParties(new ArrayList<>())
                 .build();
 
         String appellantId = "1";
@@ -303,11 +296,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .firstName("first")
                         .lastName("last")
                         .build())
-                .relatedParties(new ArrayList<>())
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, rep, hearingOptions, null, null);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, rep, hearingOptions, null, null, appellantId);
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
@@ -342,11 +334,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .firstName("first")
                         .lastName("last")
                         .build())
-                .relatedParties(new ArrayList<>())
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null, appellantId);
 
         PartyDetails partyDetails = partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(null);
         assertThat(partyDetails).isNotNull();
@@ -368,10 +359,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .firstName("first")
                         .lastName("last")
                         .build())
-                .relatedParties(new ArrayList<>())
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        PartyDetails partyDetails = HearingsPartiesMapping.createHearingPartyDetails(entity, hearingOptions, null, null);
+        PartyDetails partyDetails = HearingsPartiesMapping.createHearingPartyDetails(entity, hearingOptions, null, null, "1", "1");
 
         assertNotNull(partyDetails.getPartyID());
         assertNotNull(partyDetails.getPartyType());
@@ -571,15 +561,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("getIndividualRelatedParties Test")
     @Test
     void getIndividualRelatedParties() {
-        List<RelatedParty> relatedParties = new ArrayList<>();
-        relatedParties.add(RelatedParty.builder().relatedPartyId("1").relationshipType("Appellant").build());
-        Entity entity = Appellant.builder().relatedParties(relatedParties).build();
+        Entity entity = Representative.builder().build();
 
-        List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(entity);
+        List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(entity, "1", "2");
 
         assertThat(result)
-                .extracting("relatedPartyID","relationshipType")
-                .contains(tuple("1","Appellant"));
+                .isNotEmpty()
+                .extracting("relatedPartyId","relationshipType")
+                .contains(tuple("1","Representative"));
     }
 
     @DisplayName("getPartyOrganisationDetails Test")

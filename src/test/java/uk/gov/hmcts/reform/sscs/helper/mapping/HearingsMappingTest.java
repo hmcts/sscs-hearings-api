@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
@@ -41,7 +40,6 @@ class HearingsMappingTest extends HearingsMappingBase {
                                         .firstName("first")
                                         .lastName("last")
                                         .build())
-                                .relatedParties(new ArrayList<>())
                                 .build())
                         .build())
                 .caseManagementLocation(CaseManagementLocation.builder()
@@ -152,122 +150,4 @@ class HearingsMappingTest extends HearingsMappingBase {
         assertEquals(expectedId, entity.getId());
         assertEquals(expectedMaxId, result);
     }
-
-    @DisplayName("buildRelatedParties Test")
-    @Test
-    void buildRelatedParties() {
-        // TODO Finish Test when method done
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        otherParties.add(new CcdValue<>(OtherParty.builder().id("2").build()));
-        SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .appellant(Appellant.builder().id("1").build())
-                        .build())
-                .otherParties(otherParties)
-                .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .caseData(caseData)
-                .build();
-
-        HearingsMapping.buildRelatedParties(wrapper);
-
-        assertNotNull(wrapper.getCaseData().getAppeal().getAppellant().getRelatedParties());
-        assertFalse(wrapper.getCaseData().getAppeal().getAppellant().getRelatedParties().isEmpty());
-
-        assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getRelatedParties());
-        assertFalse(wrapper.getCaseData().getOtherParties().get(0).getValue().getRelatedParties().isEmpty());
-    }
-
-    @DisplayName("given otherParties is not null then getAllPartiesIds will return the correct list of ids")
-    @Test
-    void getAllPartiesIds() {
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("1").build()).build());
-        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("5").build()).build());
-        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("6").build()).build());
-        otherParties.add(CcdValue.<OtherParty>builder().value(OtherParty.builder().id("7").build()).build());
-
-        Appellant appellant = Appellant.builder().id("4").build();
-        List<String> result = HearingsMapping.getAllPartiesIds(otherParties, appellant);
-        assertThat(result).contains("4", "1", "5", "6", "7");
-    }
-
-    @DisplayName("given otherParties is null then getAllPartiesIds will return the correct list of ids")
-    @Test
-    void getAllPartiesIdsOtherPartiesNull() {
-        Appellant appellant = Appellant.builder().id("4").build();
-        List<String> result = HearingsMapping.getAllPartiesIds(null, appellant);
-        assertThat(result).contains("4");
-    }
-
-    @DisplayName("buildRelatedPartiesParty when Appointee is not null Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "Yes,true",
-        "No,false",
-        "null,false",
-        ",false",
-    }, nullValues = {"null"})
-    void buildRelatedPartiesPartyAppointee(String isAppointee, boolean expected) {
-        List<String> ids = List.of(new String[]{"1", "2", "3"});
-        Appointee appointee = Appointee.builder().id("5").build();
-        Party party = Appellant.builder().id("4").isAppointee(isAppointee).appointee(appointee).build();
-
-        HearingsMapping.buildRelatedPartiesParty(party, ids, null);
-
-        assertThat(party.getRelatedParties()).isNotNull().isNotEmpty();
-        if (expected) {
-            assertThat(appointee.getRelatedParties()).isNotNull().isNotEmpty();
-        } else {
-            assertThat(appointee.getRelatedParties()).isNull();
-        }
-    }
-
-    @DisplayName("buildRelatedPartiesParty when representative is not null Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "Yes,true",
-        "No,false",
-        "null,false",
-        ",false",
-    }, nullValues = {"null"})
-    void buildRelatedPartiesPartyRepresentative(String hasRepresentative, boolean expected) {
-        List<String> ids = List.of(new String[]{"1", "2", "3"});
-        Party party = Appellant.builder().id("4").build();
-        Representative rep =  Representative.builder().id("6").hasRepresentative(hasRepresentative).build();
-        HearingsMapping.buildRelatedPartiesParty(party, ids, rep);
-
-        assertThat(party.getRelatedParties()).isNotNull().isNotEmpty();
-        if (expected) {
-            assertThat(rep.getRelatedParties()).isNotNull().isNotEmpty();
-        } else {
-            assertThat(rep.getRelatedParties()).isNull();
-        }
-    }
-
-    @DisplayName("buildRelatedPartiesParty when representative and appointee are null Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "Yes",
-        "No",
-    }, nullValues = {"null"})
-    void buildRelatedPartiesPartyAppointeeRepNull(String isAppointee) {
-        List<String> ids = List.of(new String[]{"1", "2", "3"});
-        Party party = Appellant.builder().id("4").isAppointee(isAppointee).build();
-        HearingsMapping.buildRelatedPartiesParty(party, ids, null);
-
-        assertThat(party.getRelatedParties()).isNotNull().isNotEmpty();
-    }
-
-    @DisplayName("updateEntityRelatedParties Test")
-    @Test
-    void updateEntityRelatedParties() {
-        List<String> ids = List.of(new String[]{"1", "2", "3"});
-        Appellant entity = Appellant.builder().build();
-        HearingsMapping.updateEntityRelatedParties(entity, ids);
-        assertNotNull(entity.getRelatedParties());
-        assertFalse(entity.getRelatedParties().isEmpty());
-    }
-
 }

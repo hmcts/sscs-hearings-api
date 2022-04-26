@@ -421,19 +421,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        PanelRequirements expected =  PanelRequirements.builder().build();
-        List<String> roleTypes = new ArrayList<>();
-        expected.setRoleTypes(roleTypes);
-        List<String> authorisationSubTypes = new ArrayList<>();
-        expected.setAuthorisationSubTypes(authorisationSubTypes);
-        List<PanelPreference> panelPreferences = new ArrayList<>();
-        expected.setPanelPreferences(panelPreferences);
-        List<String> panelSpecialisms = new ArrayList<>();
-        expected.setPanelSpecialisms(panelSpecialisms);
-
         PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData);
 
-        assertEquals(expected, result);
+        assertThat(result).isNotNull();
+        assertThat(result.getRoleTypes()).isEmpty();
+        assertThat(result.getAuthorisationTypes()).isEmpty();
+        assertThat(result.getAuthorisationSubTypes()).isEmpty();
+        assertThat(result.getPanelPreferences()).isEmpty();
+        assertThat(result.getPanelSpecialisms()).isEmpty();
     }
 
     @DisplayName("When .. is given getPanelPreferences returns the correct List of PanelPreferences")

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
@@ -8,7 +9,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -32,18 +32,7 @@ public final class HearingsPartiesMapping {
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
 
-        List<PartyDetails> partiesDetails = new ArrayList<>(buildHearingPartiesPartyDetails(
-                appellant, appeal.getRep(), appeal.getHearingOptions(), appeal.getHearingType(), appeal.getHearingSubtype()));
-
-        List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
-
-        if (nonNull(otherParties)) {
-            for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
-                OtherParty otherParty = ccdOtherParty.getValue();
-                partiesDetails.addAll(buildHearingPartiesPartyDetails(
-                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype()));
-            }
-        }
+        List<PartyDetails> partiesDetails = new ArrayList<>();
 
         if (isYes(caseData.getDwpIsOfficerAttending())) { // TODO SSCS-10243 - Might need to change
             partiesDetails.add(createDwpPartyDetails());
@@ -53,17 +42,30 @@ public final class HearingsPartiesMapping {
             partiesDetails.add(createJointPartyDetails(caseData));
         }
 
+        partiesDetails.addAll(buildHearingPartiesPartyDetails(
+                appellant, appeal.getRep(), appeal.getHearingOptions(), appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId()));
+
+        List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
+
+        if (nonNull(otherParties)) {
+            for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
+                OtherParty otherParty = ccdOtherParty.getValue();
+                partiesDetails.addAll(buildHearingPartiesPartyDetails(
+                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId()));
+            }
+        }
+
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype) {
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
         List<PartyDetails> partyDetails = new ArrayList<>();
-        partyDetails.add(createHearingPartyDetails(party, hearingOptions, hearingType, hearingSubtype));
+        partyDetails.add(createHearingPartyDetails(party, hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
         if (nonNull(party.getAppointee()) && isYes(party.getIsAppointee())) {
-            partyDetails.add(createHearingPartyDetails(party.getAppointee(), hearingOptions, hearingType, hearingSubtype));
+            partyDetails.add(createHearingPartyDetails(party.getAppointee(), hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
         }
         if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
-            partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingType, hearingSubtype));
+            partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
         }
         return partyDetails;
     }
@@ -74,7 +76,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyID(getPartyId(entity));
         partyDetails.partyType(getPartyType(entity));
         partyDetails.partyRole(getPartyRole(entity));
-        partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype));
+        partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype, partyId, appellantId));
         partyDetails.partyChannelSubType(getPartyChannelSubType());
         partyDetails.organisationDetails(getPartyOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
@@ -113,7 +115,7 @@ public final class HearingsPartiesMapping {
         return getEntityRoleCode(entity).getKey();
     }
 
-    public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype) {
+    public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String partyId, String appellantId) {
         return IndividualDetails.builder()
                 .title(getIndividualTitle(entity))
                 .firstName(getIndividualFirstName(entity))
@@ -125,7 +127,7 @@ public final class HearingsPartiesMapping {
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(getIndividualHearingChannelEmail(entity))
                 .hearingChannelPhone(getIndividualHearingChannelPhone(entity))
-                .relatedParties(getIndividualRelatedParties(entity))
+                .relatedParties(getIndividualRelatedParties(entity, partyId, appellantId))
                 .custodyStatus(getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
                 .build();
@@ -195,14 +197,29 @@ public final class HearingsPartiesMapping {
         return phoneNumbers;
     }
 
-    public static List<RelatedParty> getIndividualRelatedParties(Entity entity) {
-        return entity.getRelatedParties().stream()
-                .map(o -> RelatedParty.builder()
-                        .relatedPartyID(o.getRelatedPartyId())
-                        .relationshipType(o.getRelationshipType())
-                        .build())
-                .collect(Collectors.toList());
+    public static List<RelatedParty> getIndividualRelatedParties(Entity entity, String partyId, String appellantId) {
+        List<RelatedParty> relatedParties = new ArrayList<>();
+        EntityRoleCode roleCode = getEntityRoleCode(entity);
+        switch (roleCode) {
+            case APPOINTEE:
+            case REPRESENTATIVE:
+                relatedParties.add(getRelatedParty(partyId, roleCode.getParentRole()));
+                break;
+            case OTHER_PARTY:
+            case JOINT_PARTY:
+                relatedParties.add(getRelatedParty(appellantId, roleCode.getParentRole()));
+                break;
+            default:
+                break;
+        }
+        return relatedParties;
+    }
 
+    public static RelatedParty getRelatedParty(String id, String relationshipType) {
+        return RelatedParty.builder()
+                .relatedPartyId(id)
+                .relationshipType(relationshipType)
+                .build();
     }
 
     public static String getIndividualCustodyStatus() {

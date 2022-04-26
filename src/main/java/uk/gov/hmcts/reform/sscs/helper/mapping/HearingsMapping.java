@@ -12,13 +12,13 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.buildHearingCaseDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping.buildHearingRequestDetails;
 import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.APPELLANT;
 import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.JOINT_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.REPRESENTATIVE;
 
@@ -114,64 +114,6 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static void buildRelatedParties(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getCaseData();
-        Appeal appeal = caseData.getAppeal();
-        Appellant appellant = appeal.getAppellant();
-
-        List<String> allPartiesIds = getAllPartiesIds(caseData.getOtherParties(), appellant);
-        allPartiesIds.add("DWP");
-        // TODO SSCS-10378 - Add joint party ID
-
-        if (nonNull(caseData.getOtherParties())) {
-            for (CcdValue<OtherParty> otherPartyCcdValue : caseData.getOtherParties()) {
-                OtherParty otherParty = otherPartyCcdValue.getValue();
-                buildRelatedPartiesParty(otherParty, allPartiesIds, otherParty.getRep());
-            }
-        }
-
-        buildRelatedPartiesParty(appellant, allPartiesIds, appeal.getRep());
-    }
-
-    public static List<String> getAllPartiesIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant) {
-        List<String> currentIds = new ArrayList<>();
-        if (nonNull(otherParties)) {
-            for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
-                currentIds.add(ccdOtherParty.getValue().getId());
-            }
-        }
-
-        currentIds.add(appellant.getId());
-
-        return currentIds;
-    }
-
-    public static void buildRelatedPartiesParty(Party party, List<String> allPartiesIds, Representative rep) {
-        updateEntityRelatedParties(party, allPartiesIds);
-        if (isYes(party.getIsAppointee()) && nonNull(party.getAppointee())) {
-            updateEntityRelatedParties(party.getAppointee(), List.of(party.getId()));
-        }
-        if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
-            updateEntityRelatedParties(rep, List.of(party.getId()));
-        }
-    }
-
-    public static void updateEntityRelatedParties(Entity entity, List<String> ids) {
-        List<RelatedParty> relatedParties = new ArrayList<>();
-        // TODO Depends on SSCS-10273 - EntityRoleCode -> parentRole - Mapping to be confirmed by Andrew
-
-        String partyRole = getEntityRoleCode(entity).getParentRole();
-
-        for (String id : ids) {
-            relatedParties.add(RelatedParty.builder()
-                    .relatedPartyId(id)
-                    .relationshipType(partyRole)
-                    .build());
-        }
-
-        entity.setRelatedParties(relatedParties);
-    }
-
     public static SessionCaseCodeMapping getSessionCaseCode(SscsCaseData caseData) {
         //  TODO SSCS-10116 - replace return with:
         //             return SessionLookupService.getSessionMappingsByCcdKey(caseData.getBenefitCode(), caseData.getIssueCode());
@@ -201,6 +143,9 @@ public final class HearingsMapping {
         }
         if (entity instanceof Representative) {
             return REPRESENTATIVE;
+        }
+        if (entity instanceof JointParty) {
+            return JOINT_PARTY;
         }
         return OTHER_PARTY;
     }
