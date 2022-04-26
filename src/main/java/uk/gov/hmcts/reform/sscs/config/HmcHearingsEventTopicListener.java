@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.sscs.config;
 import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusErrorContext;
+import com.azure.messaging.servicebus.ServiceBusException;
+import com.azure.messaging.servicebus.ServiceBusFailureReason;
 import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
@@ -20,6 +23,7 @@ import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.ccdupdate.HearingsJourneyService;
 
 import java.time.Duration;
+import java.util.Objects;
 
 @Slf4j
 @Data
@@ -44,25 +48,6 @@ public class HmcHearingsEventTopicListener {
     private Integer maxRetries;
     @Value("${sscs.serviceCode}")
     private String serviceId;
-
-    @Bean
-    @SuppressWarnings("PMD.CloseResource")
-    public ServiceBusProcessorClient hmcHearingEventProcessorClient() {
-        ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .retryOptions(retryOptions())
-            .connectionString(connectionString)
-            .processor()
-            .topicName(topicName)
-            .subscriptionName(subscriptionName)
-            .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(QueueHelper::processError)
-            .buildProcessorClient();
-
-        processorClient.start();
-        log.info("HMC hearing event topic processor started.");
-
-        return processorClient;
-    }
 
     public static void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
