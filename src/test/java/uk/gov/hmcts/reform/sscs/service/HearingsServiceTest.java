@@ -9,12 +9,14 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
@@ -29,6 +31,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.openMocks;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
 
@@ -47,6 +50,7 @@ class HearingsServiceTest {
 
     private HearingsService hearingsService;
     private HearingWrapper wrapper;
+    private HearingRequest request;
     private SscsCaseDetails expectedCaseDetails;
 
     @Mock
@@ -57,8 +61,6 @@ class HearingsServiceTest {
 
     @Mock
     private IdamService idamService;
-
-
 
     @BeforeEach
     void setup() {
@@ -74,6 +76,12 @@ class HearingsServiceTest {
             .caseData(caseData)
             .caseData(caseData)
             .build();
+
+        request = HearingRequest
+                .builder(String.valueOf(CASE_ID))
+                .hearingState(CREATE_HEARING)
+                .hearingRoute(LIST_ASSIST)
+                .build();
 
         expectedCaseDetails = SscsCaseDetails.builder()
             .data(SscsCaseData.builder()
@@ -92,21 +100,11 @@ class HearingsServiceTest {
         "UPDATED_CASE",
         "PARTY_NOTIFIED",
     }, nullValues = {"null"})
-    void processHearingRequest(HearingState state) {
-        wrapper.setState(state);
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingRequest(wrapper));
-    }
+    void processHearingRequest(HearingState state) throws GetCaseException {
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
-    @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
-    @Test
-    void processHearingRequest() {
-        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
-
-        given(hmcHearingApi.deleteHearingRequest(any(), any(), any(), any())).willReturn(HearingResponse.builder().build());
-
-        wrapper.setState(CANCEL_HEARING);
-
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingRequest(wrapper));
+        request.setHearingState(state);
+        assertThatNoException().isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
 
     @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an UnhandleableHearingState error")
@@ -115,15 +113,26 @@ class HearingsServiceTest {
         "null",
     }, nullValues = {"null"})
     void processHearingRequestInvalidState(HearingState state) {
-        wrapper.setState(state);
+        request.setHearingState(state);
 
         UnhandleableHearingStateException thrown = assertThrows(UnhandleableHearingStateException.class, () -> {
-            hearingsService.processHearingRequest(wrapper);
+            hearingsService.processHearingRequest(request);
         });
 
         assertThat(thrown.getMessage()).isNotEmpty();
     }
 
+    @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
+    @Test
+    void processHearingWrapper() {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().idamOauth2Token(IDAM_OAUTH2_TOKEN).serviceAuthorization(SERVICE_AUTHORIZATION).build());
+
+        given(hmcHearingApi.deleteHearingRequest(any(), any(), any(), any())).willReturn(HearingResponse.builder().build());
+
+        wrapper.setState(CANCEL_HEARING);
+
+        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
     @ParameterizedTest

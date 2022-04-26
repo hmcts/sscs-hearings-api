@@ -16,30 +16,24 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class HearingsService {
 
-    private final HmcHearingApi hmcHearingApi;
+    private HmcHearingApi hmcHearingApi;
 
-    private final CcdCaseService ccdCaseService;
+    private CcdCaseService ccdCaseService;
 
-    private final IdamService idamService;
+    private IdamService idamService;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws UnhandleableHearingStateException, GetCaseException {
-        processHearingRequest(createWrapper(hearingRequest));
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
+        processHearingWrapper(createWrapper(hearingRequest));
     }
 
-    public void processHearingRequest(HearingWrapper wrapper) throws UnhandleableHearingStateException {
-        if (isNull(wrapper.getState())) {
-            UnhandleableHearingStateException err = new UnhandleableHearingStateException();
-            log.error(err.getMessage(), err);
-            throw err;
-        }
-
+    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException {
         switch (wrapper.getState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
@@ -107,7 +101,12 @@ public class HearingsService {
     }
 
 
-    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException {
+    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
+        if (isNull(hearingRequest.getHearingState())) {
+            UnhandleableHearingStateException err = new UnhandleableHearingStateException();
+            log.error(err.getMessage(), err);
+            throw err;
+        }
 
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
