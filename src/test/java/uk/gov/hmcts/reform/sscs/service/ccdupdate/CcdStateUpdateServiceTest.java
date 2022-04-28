@@ -73,7 +73,8 @@ class CcdStateUpdateServiceTest {
     @Test
     void shouldSetCcdStateForFailedHearingsCorrectly() {
         // given
-        SscsCaseData caseData = SscsCaseData.builder().state(State.UNKNOWN).ccdCaseId("123").build();
+        SscsCaseData caseData = SscsCaseData.builder()
+            .state(State.UNKNOWN).ccdCaseId("123").build();
 
         // when
         underTest.updateFailed(caseData);

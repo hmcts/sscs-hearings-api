@@ -95,7 +95,7 @@ public class CcdLocationUpdateService {
     private Optional<HearingDetails> getHearingDetailsFromHearingList(HmcMessage hmcMessage, SscsCaseData caseData) {
         return caseData.getHearings().stream()
             .map(Hearing::getValue)
-            .filter(h -> hmcMessage.getHearingID().equals(h.getHearingId()))
+            .filter(hearingDetails -> hmcMessage.getHearingID().equals(hearingDetails.getHearingId()))
             .findFirst();
     }
 

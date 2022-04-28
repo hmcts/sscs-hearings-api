@@ -7,6 +7,8 @@ import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 public class VenueRpcDetails {
 
     private final VenueDetails venueDetails;
+
+    // rpc = RegionalProcessingCentre
     private final String rpc;
 
     public VenueRpcDetails(VenueDetails venueDetails) {

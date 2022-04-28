@@ -1,6 +1,10 @@
 package uk.gov.hmcts.reform.sscs.service.ccdupdate;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
@@ -17,13 +21,19 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CcdLocationUpdateServiceTest {
 
-    private final VenueRpcDetailsService venueRpcDetailsService = mock(VenueRpcDetailsService.class);
-    private final CcdLocationUpdateService underTest = new CcdLocationUpdateService(venueRpcDetailsService);
+    @Mock
+    private VenueRpcDetailsService venueRpcDetailsService;
+    private CcdLocationUpdateService underTest;
+
+    @BeforeEach
+    void setUp() {
+        underTest = new CcdLocationUpdateService(venueRpcDetailsService);
+    }
 
     @Test
     void shouldFindVenueByVenueId() {
