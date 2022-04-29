@@ -43,10 +43,12 @@ public final class HearingsMapping {
         SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
+        Appointee appointee = appellant.getAppointee();
 
-        int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep());
+        int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep(), appointee);
 
-        maxId = updatePartyIds(appellant, appeal.getRep(), maxId);
+        maxId = updateNonAppointeeEntityIds(appellant, appeal.getRep(), maxId);
+        maxId = updateEntityId(appointee, maxId);
         updateOtherPartiesIds(caseData.getOtherParties(), maxId);
     }
 
@@ -55,17 +57,18 @@ public final class HearingsMapping {
         if (nonNull(otherParties)) {
             for (CcdValue<OtherParty> otherPartyCcdValue : otherParties) {
                 OtherParty otherParty = otherPartyCcdValue.getValue();
-                newMaxId = updatePartyIds(otherParty, otherParty.getRep(), newMaxId);
+                newMaxId = updateNonAppointeeEntityIds(otherParty, otherParty.getRep(), newMaxId);
+                if (nonNull(otherParty.getAppointee())) {
+                    newMaxId = updateEntityId(otherParty.getAppointee(), newMaxId);
+                }
             }
         }
     }
 
-    private static int updatePartyIds(Party party, Representative rep, int maxId) {
+
+    private static int updateNonAppointeeEntityIds(Entity entity, Representative rep, int maxId) {
         int newMaxId = maxId;
-        newMaxId = updateEntityId(party, newMaxId);
-        if (nonNull(party.getAppointee())) {
-            newMaxId = updateEntityId(party.getAppointee(), newMaxId);
-        }
+        newMaxId = updateEntityId(entity, newMaxId);
         if (nonNull(rep)) {
             newMaxId = updateEntityId(rep, newMaxId);
         }
@@ -81,32 +84,38 @@ public final class HearingsMapping {
         return newMaxId;
     }
 
-    public static int getMaxId(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
-        return getAllIds(otherParties, appellant, rep).stream().max(Comparator.naturalOrder()).orElse(0);
+    public static int getMaxId(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep,
+                               Appointee appointee) {
+        return getAllIds(otherParties, appellant, rep, appointee).stream().max(Comparator.naturalOrder()).orElse(0);
     }
 
-    public static List<Integer> getAllIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep) {
+    public static List<Integer> getAllIds(List<CcdValue<OtherParty>> otherParties, Appellant appellant, Representative rep,
+                                          Appointee appointee) {
         List<Integer> currentIds = new ArrayList<>();
         if (nonNull(otherParties)) {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
-                currentIds.addAll(getAllPartyIds(ccdOtherParty.getValue(), ccdOtherParty.getValue().getRep()));
+                OtherParty otherParty = ccdOtherParty.getValue();
+                currentIds.addAll(getAppellantAndRepresentativeIds(otherParty, otherParty.getRep()));
+                if (nonNull(otherParty.getAppointee())) {
+                    currentIds.add(Integer.parseInt(otherParty.getId()));
+                }
             }
         }
 
-        currentIds.addAll(getAllPartyIds(appellant, rep));
-
+        currentIds.addAll(getAppellantAndRepresentativeIds(appellant, rep));
+        if (nonNull(appointee) && appointee.getId() != null) {
+            currentIds.add(Integer.parseInt(appointee.getId()));
+        }
         return currentIds;
     }
 
-    public static List<Integer> getAllPartyIds(Party party, Representative rep) {
+    public static List<Integer> getAppellantAndRepresentativeIds(Entity entity, Representative rep) {
         List<Integer> currentIds = new ArrayList<>();
 
-        if (party.getId() != null) {
-            currentIds.add(Integer.parseInt(party.getId()));
+        if (entity.getId() != null) {
+            currentIds.add(Integer.parseInt(entity.getId()));
         }
-        if (party.getAppointee() != null && party.getAppointee().getId() != null) {
-            currentIds.add(Integer.parseInt(party.getAppointee().getId()));
-        }
+
         if (rep != null && rep.getId() != null) {
             currentIds.add(Integer.parseInt(rep.getId()));
         }

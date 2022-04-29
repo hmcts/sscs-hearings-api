@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_SUB_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_TYPE;
 
@@ -131,20 +130,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,YES,YES,true",
-        "Yes,YES,NO,true",
-        "Yes,NO,YES,true",
-        "Yes,NO,NO,true",
-        "No,YES,YES,true",
-        "No,YES,NO,true",
-        "No,NO,YES,true",
-        "No,NO,NO,false",
-        "null,YES,YES,true",
-        "null,YES,NO,true",
-        "null,NO,YES,true",
-        "null,NO,NO,false",
+        "Yes,YES,true",
+        "Yes,NO,true",
+        "No,YES,true",
+        "No,NO,false",
+        "null,YES,true",
+        "null,NO,false",
     }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityFlag(String dwpUcbFlag, YesNo appellantUcb, YesNo otherPartiesUcb, boolean expected) {
+    void shouldBeAdditionalSecurityFlag(String dwpUcbFlag, YesNo otherPartiesUcb, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
@@ -155,9 +148,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
                 .dwpUcb(dwpUcbFlag)
                 .appeal(Appeal.builder()
-                        .appellant(Appellant.builder()
-                                .unacceptableCustomerBehaviour(appellantUcb)
-                                .build())
                         .build())
                 .otherParties(otherParties)
                 .build();
@@ -192,88 +182,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityOtherParties(null);
 
         assertThat(result).isFalse();
-    }
-
-
-    @DisplayName("shouldBeAdditionalSecurityParty when Appointee isn't null Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "YES,Yes,true",
-        "YES,No,false",
-        "YES,null,false",
-        "NO,Yes,false",
-        "NO,No,false",
-        "NO,null,false",
-        "null,Yes,false",
-        "null,No,false",
-        "null,null,false",
-    }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityPartyAppointee(YesNo ucb, String isAppointee, boolean expected) {
-        Appointee appointee = Appointee.builder()
-                .unacceptableCustomerBehaviour(ucb)
-                .build();
-        Appellant appellant = Appellant.builder()
-                .unacceptableCustomerBehaviour(NO)
-                .isAppointee(isAppointee)
-                .appointee(appointee)
-                .build();
-
-        boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityParty(appellant, null);
-
-        assertEquals(expected, result);
-    }
-
-    @DisplayName("shouldBeAdditionalSecurityParty when Rep isn't null Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "YES,Yes,true",
-        "YES,No,false",
-        "YES,null,false",
-        "NO,Yes,false",
-        "NO,No,false",
-        "NO,null,false",
-        "null,Yes,false",
-        "null,No,false",
-        "null,null,false",
-    }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityPartyRepresentative(YesNo ucb, String hasRepresentative, boolean expected) {
-        Representative rep = Representative.builder()
-                .hasRepresentative(hasRepresentative)
-                .unacceptableCustomerBehaviour(ucb)
-                .build();
-        Appellant appellant = Appellant.builder()
-                .unacceptableCustomerBehaviour(NO)
-                .isAppointee("No")
-                .appointee(null)
-                .build();
-
-        boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityParty(appellant, rep);
-
-        assertEquals(expected, result);
-    }
-
-    @DisplayName("shouldBeAdditionalSecurityParty when Appointee and Rep are both null Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "YES,Yes,true",
-        "YES,No,true",
-        "YES,null,true",
-        "NO,Yes,false",
-        "NO,No,false",
-        "NO,null,false",
-        "null,Yes,false",
-        "null,No,false",
-        "null,null,false",
-    }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityPartyNullAppointeeRep(YesNo ucb, String isAppointee, boolean expected) {
-        Appellant appellant = Appellant.builder()
-                .unacceptableCustomerBehaviour(ucb)
-                .isAppointee(isAppointee)
-                .appointee(null)
-                .build();
-        boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityParty(appellant, null);
-
-        assertEquals(expected, result);
     }
 
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")

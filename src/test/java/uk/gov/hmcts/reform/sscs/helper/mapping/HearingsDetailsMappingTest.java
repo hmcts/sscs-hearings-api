@@ -345,39 +345,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .lastName("Appellant")
                         .build())
                 .build();
-        String result = HearingsDetailsMapping.getPartyName(party);
+        String result = HearingsDetailsMapping.getEntityName(party);
 
         assertThat(result).isEqualTo("Mx Test Appellant");
-    }
-
-    @DisplayName("getPartyName with Appointee Test")
-    @Test
-    void getPartyNameAppointee() {
-        Party party = Appellant.builder()
-                .isAppointee("Yes")
-                .appointee(Appointee.builder()
-                        .name(Name.builder()
-                                .title("Mx")
-                                .firstName("Test")
-                                .lastName("Appointee")
-                                .build())
-                        .build())
-                .name(Name.builder()
-                        .title("Mx")
-                        .firstName("Test")
-                        .lastName("Appellant")
-                        .build())
-                .build();
-        String result = HearingsDetailsMapping.getPartyName(party);
-
-        assertThat(result).isEqualTo("Mx Test Appointee");
     }
 
     @DisplayName("getPartyName No Appointee Test")
     @ParameterizedTest
     @ValueSource(strings = {"No"})
     @NullAndEmptySource
-    void getPartyNameAppointee(String isAppointee) {
+    void getPartyNameAppellant(String isAppointee) {
         Party party = Appellant.builder()
                 .isAppointee(isAppointee)
                 .appointee(Appointee.builder()
@@ -393,7 +370,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .lastName("Appellant")
                         .build())
                 .build();
-        String result = HearingsDetailsMapping.getPartyName(party);
+        String result = HearingsDetailsMapping.getEntityName(party);
 
         assertThat(result).isEqualTo("Mx Test Appellant");
     }

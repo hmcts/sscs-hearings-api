@@ -98,12 +98,13 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("getMaxId Test")
     @Test
     void getMaxId() {
-        Appellant appellant = Appellant.builder().id("1").appointee(Appointee.builder().id("6").build()).build();
+        Appointee appointee = Appointee.builder().id("6").build();
+        Appellant appellant = Appellant.builder().id("1").appointee(appointee).build();
         Representative rep = Representative.builder().id("3").build();
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder().id("2").build()));
 
-        int result = HearingsMapping.getMaxId(otherParties, appellant, rep);
+        int result = HearingsMapping.getMaxId(otherParties, appellant, rep, appointee);
 
         assertEquals(6, result);
     }
@@ -111,12 +112,13 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("getAllIds Test")
     @Test
     void getAllIds() {
-        Appellant appellant = Appellant.builder().id("1").appointee(Appointee.builder().id("6").build()).build();
         Representative rep = Representative.builder().id("3").build();
+        Appointee appointee = Appointee.builder().id("6").build();
+        Appellant appellant = Appellant.builder().id("1").appointee(appointee).build();
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder().id("2").build()));
 
-        List<Integer> result = HearingsMapping.getAllIds(otherParties, appellant, rep);
+        List<Integer> result = HearingsMapping.getAllIds(otherParties, appellant, rep, appointee);
         List<Integer> expected = List.of(1,2,3,6);
 
         assertEquals(expected, result.stream().sorted().collect(Collectors.toList()));
@@ -125,11 +127,11 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("getAllPartyIds Test")
     @Test
     void getAllPartyIds() {
-        Party party = Appellant.builder().id("1").appointee(Appointee.builder().id("2").build()).build();
+        Party party = Appellant.builder().id("1").build();
         Representative rep = Representative.builder().id("3").build();
 
-        List<Integer> result = HearingsMapping.getAllPartyIds(party, rep);
-        List<Integer> expected = List.of(1,2,3);
+        List<Integer> result = HearingsMapping.getAppellantAndRepresentativeIds(party, rep);
+        List<Integer> expected = List.of(1, 3);
 
         assertEquals(expected, result.stream().sorted().collect(Collectors.toList()));
     }

@@ -176,7 +176,7 @@ public final class HearingsDetailsMapping {
     public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
         List<String> listingComments = new ArrayList<>();
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
-            listingComments.add(getComment(appeal.getAppellant(),appeal.getHearingOptions().getOther()));
+            listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
         }
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
             listingComments.addAll(otherParties.stream()
@@ -194,7 +194,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static String getCommentSubheader(Party party) {
-        return String.format("%s - %s:", getPartyRole(party), getPartyName(party));
+        return String.format("%s - %s:", getPartyRole(party), getEntityName(party));
     }
 
     public static String getPartyRole(Party party) {
@@ -203,8 +203,8 @@ public final class HearingsDetailsMapping {
                 : HearingsMapping.getEntityRoleCode(party).getValueEN();
     }
 
-    public static String getPartyName(Party party) {
-        return isYes(party.getIsAppointee()) && nonNull(party.getAppointee()) ? party.getAppointee().getName().getFullName() : party.getName().getFullName();
+    public static String getEntityName(Entity entity) {
+        return  entity.getName().getFullName();
     }
 
     public static String getHearingRequester() {

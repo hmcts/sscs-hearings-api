@@ -78,22 +78,14 @@ public final class HearingsCaseMapping {
     }
 
     public static boolean shouldBeAdditionalSecurityFlag(SscsCaseData caseData) {
-        Appeal appeal = caseData.getAppeal();
         return isYes(caseData.getDwpUcb())
-                || shouldBeAdditionalSecurityParty(appeal.getAppellant(), appeal.getRep())
                 || shouldBeAdditionalSecurityOtherParties(caseData.getOtherParties());
     }
 
     public static boolean shouldBeAdditionalSecurityOtherParties(List<CcdValue<OtherParty>> otherParties) {
         return nonNull(otherParties) && otherParties.stream()
                 .map(CcdValue::getValue)
-                .anyMatch(o -> shouldBeAdditionalSecurityParty(o, o.getRep()));
-    }
-
-    public static boolean shouldBeAdditionalSecurityParty(Party party, Representative rep) {
-        return  isYes(party.getUnacceptableCustomerBehaviour())
-                || isYes(party.getIsAppointee()) && nonNull(party.getAppointee()) && isYes(party.getAppointee().getUnacceptableCustomerBehaviour())
-                || nonNull(rep) && isYes(rep.getHasRepresentative()) && isYes(rep.getUnacceptableCustomerBehaviour());
+                .anyMatch(o -> isYes(o.getUnacceptableCustomerBehaviour()));
     }
 
     public static boolean isInterpreterRequired(SscsCaseData caseData) {

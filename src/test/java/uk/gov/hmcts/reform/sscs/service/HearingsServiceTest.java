@@ -34,7 +34,6 @@ import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
@@ -130,42 +129,6 @@ class HearingsServiceTest {
         });
 
         assertThat(thrown.getMessage()).isNotEmpty();
-    }
-
-    @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
-    @Test
-    void processHearingWrapperCreate() {
-        given(idamService.getIdamTokens())
-                .willReturn(IdamTokens.builder()
-                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                        .serviceAuthorization(SERVICE_AUTHORIZATION)
-                        .build());
-
-        given(hmcHearingApi.createHearingRequest(any(), any(), any()))
-                .willReturn(HearingResponse.builder().build());
-
-        wrapper.setState(CREATE_HEARING);
-
-        assertThatNoException()
-                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-    }
-
-    @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
-    @Test
-    void processHearingWrapperUpdate() {
-        given(idamService.getIdamTokens())
-                .willReturn(IdamTokens.builder()
-                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                        .serviceAuthorization(SERVICE_AUTHORIZATION)
-                        .build());
-
-        given(hmcHearingApi.updateHearingRequest(any(), any(), any(), any()))
-                .willReturn(HearingResponse.builder().build());
-
-        wrapper.setState(UPDATE_HEARING);
-
-        assertThatNoException()
-                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
