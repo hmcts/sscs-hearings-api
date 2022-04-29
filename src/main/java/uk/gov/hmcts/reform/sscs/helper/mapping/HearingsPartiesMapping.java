@@ -31,6 +31,7 @@ public final class HearingsPartiesMapping {
         SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
+
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
         if (isYes(caseData.getDwpIsOfficerAttending())) { // TODO SSCS-10243 - Might need to change
@@ -44,13 +45,6 @@ public final class HearingsPartiesMapping {
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
                 appellant, appeal.getRep(), appeal.getHearingOptions(), appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId()));
 
-        if (nonNull(appellant.getAppointee())) {
-            Appointee appointee = appellant.getAppointee();
-            partiesDetails.add(createHearingPartyDetails(
-                appointee, appeal.getHearingOptions(), appeal.getHearingType(),
-                appeal.getHearingSubtype(), appointee.getId(), appellant.getId()));
-        }
-
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
         if (nonNull(otherParties)) {
@@ -58,27 +52,18 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId()));
-                addOtherPartyAppointeeDetails(otherParty.getAppointee(), partiesDetails,
-                    appeal, appellant);
             }
         }
 
         return partiesDetails;
     }
 
-    private static void addOtherPartyAppointeeDetails(Appointee otherPartyAppointee,
-                                                      List<PartyDetails> partiesDetails, Appeal appeal,
-                                                      Appellant appellant) {
-        if (nonNull(otherPartyAppointee)) {
-            partiesDetails.add(createHearingPartyDetails(
-                otherPartyAppointee, appeal.getHearingOptions(), appeal.getHearingType(),
-                appeal.getHearingSubtype(), otherPartyAppointee.getId(), appellant.getId()));
-        }
-    }
-
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Entity party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
         List<PartyDetails> partyDetails = new ArrayList<>();
         partyDetails.add(createHearingPartyDetails(party, hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
+        if (nonNull(party.getAppointee()) && isYes(party.getIsAppointee())) {
+            partyDetails.add(createHearingPartyDetails(party.getAppointee(), hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
+        }
         if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
             partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
         }
