@@ -248,7 +248,6 @@ public class ContractTestDataProvider {
 
     private static IndividualDetails createIndividualDetails() {
         IndividualDetails individualDetails = new IndividualDetails();
-        individualDetails.setTitle("Master");
         individualDetails.setFirstName("Harry");
         individualDetails.setLastName("Styles");
         List<String> hearingChannelEmail = new ArrayList<String>();
@@ -418,7 +417,6 @@ public class ContractTestDataProvider {
             .stringType("partyType", "partyType123")
             .stringType("partyRole", "partyRole")
             .object("individualDetails")
-            .stringType("title", "title123")
             .stringType("firstName", "firstName123")
             .stringType("lastName", "lastName123")
             .stringType("preferredHearingChannel", "preferredHearingChannel123")
