@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +30,14 @@ public class HearingsMappingBase {
     public static final String ISSUE_CODE = "DD";
     public static final String REGION = "Test Region";
     public static final String EPIMS_ID = "239585";
+    public static final String SSCS_SERVICE_CODE = "BBA3";
+    public static final String EX_UI_URL = "http://localhost:3455";
 
-    @Value("${exui.url}")
-    public static String SSCS_SERVICE_CODE;
-
-    @Value("${sscs.serviceCode}")
-    public static String EX_UI_URL;
+    @BeforeAll
+    static void setup() {
+        HearingsCaseMapping.setExUiUrl(EX_UI_URL);
+        HearingsCaseMapping.setSscsServiceCode(SSCS_SERVICE_CODE);
+    }
 
     @NotNull
     public static List<String> splitCsvParamArray(String expected) {

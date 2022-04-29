@@ -30,11 +30,11 @@ public class HearingsService {
 
     private final IdamService idamService;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException {
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
-    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException {
+    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException, UpdateCaseException {
         switch (wrapper.getState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
@@ -58,17 +58,17 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) {
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException {
         updateIds(wrapper);
-        sendCreateHearingRequest(wrapper);
-        // TODO Store response with SSCS-10274
+        HearingResponse response = sendCreateHearingRequest(wrapper);
+        hearingResponseUpdate(wrapper, response);
     }
 
 
-    private void updateHearing(HearingWrapper wrapper) {
+    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException {
         updateIds(wrapper);
-        sendUpdateHearingRequest(wrapper);
-        // TODO Store response with SSCS-10274
+        HearingResponse response = sendUpdateHearingRequest(wrapper);
+        hearingResponseUpdate(wrapper, response);
     }
 
     private void updatedCase(HearingWrapper wrapper) {
@@ -77,6 +77,7 @@ public class HearingsService {
 
     private void cancelHearing(HearingWrapper wrapper) {
         sendCancelHearingRequest(wrapper); // TODO: Get Reason in Ticket: SSCS-10366
+        // TODO process hearing response
     }
 
     private void partyNotified(HearingWrapper wrapper) {
