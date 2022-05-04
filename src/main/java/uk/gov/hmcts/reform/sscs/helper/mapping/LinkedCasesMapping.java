@@ -21,6 +21,7 @@ public final class LinkedCasesMapping {
     public static List<LinkedCase> getLinkedCases(SscsCaseData caseData) {
         return Optional.ofNullable(caseData.getLinkedCase())
                 .orElseGet(Collections::emptyList).stream()
+                .filter(Objects::nonNull)
                 .map(CaseLink::getValue)
                 .filter(Objects::nonNull)
                 .map(CaseLinkDetails::getCaseReference)

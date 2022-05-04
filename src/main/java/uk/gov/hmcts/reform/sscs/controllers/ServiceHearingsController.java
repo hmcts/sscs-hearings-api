@@ -63,8 +63,7 @@ public class ServiceHearingsController {
             @Parameter(name = "Case ID", description = "CCD Case ID of the case the Hearing Values will be generated for", in = QUERY, example = "99250807409918", required = true)
             @RequestParam("caseReference") String caseReference) {
         try {
-            // This is just the skeleton for the serviceHearingValues endpoint and will need to be
-            // implemented fully along with this endpoint
+            // TODO This is just the skeleton for the serviceHearingValues endpoint and will need to be implemented fully along with this endpoint
 
             authorisationService.authorise(serviceAuthHeader);
 
@@ -80,7 +79,7 @@ public class ServiceHearingsController {
                     .build();
 
             return status(HttpStatus.OK).body(model);
-            // the following errors are temporary and will need to be implemented fully along with this endpoint
+            // TODO the following errors are temporary and will need to be implemented fully along with this endpoint
         } catch (GetCaseException exc) {
             log.error("Case not found for case id {}, {}", caseReference, exc);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

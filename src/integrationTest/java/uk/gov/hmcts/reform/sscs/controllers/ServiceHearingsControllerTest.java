@@ -15,16 +15,19 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.WorkAllocationFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
+import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.AuthorisationService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,6 +49,7 @@ import static uk.gov.hmcts.reform.sscs.service.AuthorisationService.SERVICE_AUTH
 class ServiceHearingsControllerTest {
 
     private static final long CASE_ID = 1625080769409918L;
+    private static final long CASE_ID_LINKED = 3456385374124L;
     private static final long MISSING_CASE_ID = 99250807409918L;
     private static final String BAD_CASE_ID = "ABCASDEF";
     private static final String AUTHORIZATION = "Bearer eyJhbGciOiJIUzUxMiL7.eyJzdWIiOiJzc2NzIiwiZXhwIjoxNjQ2NDA5MjM5fQ"
@@ -53,11 +57,15 @@ class ServiceHearingsControllerTest {
     private static final String BAD_AUTHORIZATION = "eyJhbGciOiJIUzUxMiL7.eyJzdWIiOiJzc2NzIiwiZXhwIjoxNjQ2NDA5MjM5fQ"
             + ".zSEbvMJedOGo16yBOXecLgucWyavnoVu023cterreUF0sxPlmV-Qu8Y7OloJUKrLGlNweUr8mVpYWPzE0iNyYw";
     private static final String NOT_AUTHORIZATION = "Bearer notauthed";
+    private static final long HEARING_ID = 123L;
     private static final String CASE_REFERENCE = "caseReference";
+    private static final String CASE_REFERENCE_PARAM = "hearingId";
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
+    private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
     private static final String CASE_NAME = "Test Case Name";
 
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,11 +83,21 @@ class ServiceHearingsControllerTest {
     private CcdService ccdService;
 
     @BeforeEach
-    public void setUp() throws AuthorisationException, InvalidHeaderException {
-        SscsCaseDetails caseDetails =
-                SscsCaseDetails.builder().data(SscsCaseData.builder()
-                        .workAllocationFields(WorkAllocationFields.builder().caseNamePublic(CASE_NAME).build())
-                                .build()).build();
+    void setUp() throws AuthorisationException, InvalidHeaderException {
+        List<CaseLink> linkedCases = new ArrayList<>();
+        linkedCases.add(CaseLink.builder()
+                .value(CaseLinkDetails.builder()
+                        .caseReference(String.valueOf(CASE_ID_LINKED))
+                        .build())
+                .build());
+        SscsCaseDetails caseDetails = SscsCaseDetails.builder()
+                .data(SscsCaseData.builder()
+                        .workAllocationFields(WorkAllocationFields.builder()
+                                .caseNamePublic(CASE_NAME)
+                                .build())
+                        .linkedCase(linkedCases)
+                        .build())
+                .build();
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
@@ -90,12 +108,12 @@ class ServiceHearingsControllerTest {
         willDoNothing().given(authorisationService).authorise(AUTHORIZATION);
     }
 
-    // These are holder tests that will need to be implemented alongside service hearing controller
+    // TODO These are holder tests that will need to be implemented alongside service hearing controller
 
     @DisplayName("When Authorization and Case ID valid "
             + "should return the case name with a with 200 response code")
     @Test
-    public void testPostRequestServiceHearingValues() throws Exception {
+    void testPostRequestServiceHearingValues() throws Exception {
         ServiceHearingValues model = ServiceHearingValues.builder().caseName(CASE_NAME).build();
         String json = asJsonString(model);
 
@@ -109,7 +127,7 @@ class ServiceHearingsControllerTest {
 
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")
     @Test
-    public void testPostRequestServiceHearingValues_badCaseID() throws Exception {
+    void testPostRequestServiceHearingValues_badCaseID() throws Exception {
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .header(SERVICE_AUTHORISATION_HEADER, AUTHORIZATION)
@@ -120,7 +138,7 @@ class ServiceHearingsControllerTest {
 
     @DisplayName("When Authorization is incorrectly formatted should return a with 400 response code")
     @Test
-    public void testPostRequestServiceHearingValues_badAuthHeader() throws Exception {
+    void testPostRequestServiceHearingValues_badAuthHeader() throws Exception {
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .header(SERVICE_AUTHORISATION_HEADER, BAD_AUTHORIZATION)
@@ -131,7 +149,7 @@ class ServiceHearingsControllerTest {
 
     @DisplayName("When not Authorized should return a with 403 response code")
     @Test
-    public void testPostRequestServiceHearingValues_unauthorised() throws Exception {
+    void testPostRequestServiceHearingValues_unauthorised() throws Exception {
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .header(SERVICE_AUTHORISATION_HEADER, NOT_AUTHORIZATION)
@@ -142,7 +160,7 @@ class ServiceHearingsControllerTest {
 
     @DisplayName("When Case Not Found should return a with 404 response code")
     @Test
-    public void testPostRequestServiceHearingValues_missingCase() throws Exception {
+    void testPostRequestServiceHearingValues_missingCase() throws Exception {
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .header(SERVICE_AUTHORISATION_HEADER, AUTHORIZATION)
@@ -151,6 +169,70 @@ class ServiceHearingsControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
+    @Test
+    void testPostRequestServiceLinkedCases() throws Exception {
+        List<LinkedCase> linkedCases = new ArrayList<>();
+        linkedCases.add(LinkedCase.builder().ccdCaseId(String.valueOf(CASE_ID_LINKED)).build());
+        ServiceLinkedCases model = ServiceLinkedCases.builder().linkedCases(linkedCases).build();
+        String json = asJsonString(model);
+
+        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
+                        .header(SERVICE_AUTHORISATION_HEADER, AUTHORIZATION)
+                        .param(CASE_REFERENCE, String.valueOf(CASE_ID))
+                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(json));
+    }
+
+    @DisplayName("When Case Reference is Invalid should return a with 400 response code")
+    @Test
+    void testPostRequestServiceLinkedCases_badCaseID() throws Exception {
+
+        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
+                        .header(SERVICE_AUTHORISATION_HEADER, AUTHORIZATION)
+                        .param(CASE_REFERENCE,BAD_CASE_ID)
+                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("When Authorization is incorrectly formatted should return a with 400 response code")
+    @Test
+    void testPostRequestServiceLinkedCases_badAuthHeader() throws Exception {
+
+        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
+                        .header(SERVICE_AUTHORISATION_HEADER, BAD_AUTHORIZATION)
+                        .param(CASE_REFERENCE, String.valueOf(CASE_ID))
+                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("When not Authorized should return a with 403 response code")
+    @Test
+    void testPostRequestServiceLinkedCases_unauthorised() throws Exception {
+
+        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
+                        .header(SERVICE_AUTHORISATION_HEADER, NOT_AUTHORIZATION)
+                        .param(CASE_REFERENCE, String.valueOf(CASE_ID))
+                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @DisplayName("When Case Not Found should return a with 404 response code")
+    @Test
+    void testPostRequestServiceLinkedCases_missingCase() throws Exception {
+
+        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
+                        .header(SERVICE_AUTHORISATION_HEADER, AUTHORIZATION)
+                        .param(CASE_REFERENCE, String.valueOf(MISSING_CASE_ID))
+                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 
     public static String asJsonString(final Object obj) throws JsonProcessingException {
         return mapper.writeValueAsString(obj);
