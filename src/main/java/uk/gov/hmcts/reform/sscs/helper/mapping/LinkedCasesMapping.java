@@ -26,7 +26,7 @@ public final class LinkedCasesMapping {
                 .filter(Objects::nonNull)
                 .map(CaseLinkDetails::getCaseReference)
                 .filter(StringUtils::isNotBlank)
-                .map(x -> LinkedCase.builder().ccdCaseId(x).build())
+                .map(caseReference -> LinkedCase.builder().ccdCaseId(caseReference).build())
                 .collect(Collectors.toList());
     }
 }
