@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingService;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.NEW_HEARING_BOOKED;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.HEARING_BOOKED;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 
 @Slf4j
@@ -50,7 +50,7 @@ public class HearingsJourneyService {
             case LISTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);
                 locationUpdateService.updateVenue(hmcMessage, caseData);
-                ccdCaseService.updateCaseData(caseData, NEW_HEARING_BOOKED, CREATED_SUMMARY, CREATED_DESC);
+                ccdCaseService.updateCaseData(caseData, HEARING_BOOKED, CREATED_SUMMARY, CREATED_DESC);
                 break;
             case UPDATE_SUBMITTED:
                 ccdStateUpdateService.updateListed(hearingResponse, caseData);
