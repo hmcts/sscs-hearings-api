@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.AuthorisationException;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHeaderException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
@@ -61,13 +62,12 @@ public class ServiceHearingsController {
             @Parameter(name = "Service Authorisation Token", description = "Service authorisation token to authorise access, must be prefixed with 'Bearer '", in = HEADER, example = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdW", required = true)
             @RequestHeader(SERVICE_AUTHORISATION_HEADER) String serviceAuthHeader,
             @Parameter(name = "Case ID", description = "CCD Case ID of the case the Hearing Values will be generated for", in = QUERY, example = "99250807409918", required = true)
-            @RequestParam("caseReference") String caseReference) {
+            @RequestParam("caseReference") String caseId)
+            throws AuthorisationException, InvalidHeaderException, GetCaseException, InvalidIdException {
         try {
             // TODO This is just the skeleton for the serviceHearingValues endpoint and will need to be implemented fully along with this endpoint
 
             authorisationService.authorise(serviceAuthHeader);
-
-            long caseId = Long.parseLong(caseReference);
 
             log.info("Retrieving case details using Case id : {}, for use in generating Service Hearing Values",
                     caseId);
@@ -80,18 +80,9 @@ public class ServiceHearingsController {
 
             return status(HttpStatus.OK).body(model);
             // TODO the following errors are temporary and will need to be implemented fully along with this endpoint
-        } catch (GetCaseException exc) {
-            log.error("Case not found for case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (InvalidHeaderException exc) {
-            log.error("Incorrect service authorisation header format for case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (AuthorisationException exc) {
-            log.error("Incorrect service authorisation for case case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (NumberFormatException exc) {
-            log.error("Invalid case id format case id case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception exc) {
+            logException(exc, caseId);
+            throw exc;
         }
     }
 
@@ -108,14 +99,13 @@ public class ServiceHearingsController {
             @Parameter(name = "Service Authorisation Token", description = "Service authorisation token to authorise access, must be prefixed with 'Bearer '", in = HEADER, example = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdW", required = true)
             @RequestHeader(SERVICE_AUTHORISATION_HEADER) String serviceAuthHeader,
             @Parameter(name = "Case ID", description = "CCD Case ID of the case for which linked cases are to be found", in = QUERY, example = "99250807409918", required = true)
-            @RequestParam("caseReference") String caseReference,
+            @RequestParam("caseReference") String caseId,
             @Parameter(name = "Hearing ID", description = "Hearing ID related to the Case", in = QUERY, example = "1234", required = false)
-            @RequestParam("hearingId") String hearingId) {
+            @RequestParam("hearingId") String hearingId)
+            throws AuthorisationException, InvalidHeaderException, GetCaseException, InvalidIdException {
         try {
 
             authorisationService.authorise(serviceAuthHeader);
-
-            long caseId = Long.parseLong(caseReference);
 
             log.info("Retrieving case details using Case id : {}, for use in generating Service Hearing Values", caseId);
 
@@ -128,19 +118,24 @@ public class ServiceHearingsController {
                     .build();
 
             return status(HttpStatus.OK).body(model);
-        } catch (GetCaseException exc) {
-            log.error("Case not found for case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (InvalidHeaderException exc) {
-            log.error("Incorrect service authorisation header format for case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (AuthorisationException exc) {
-            log.error("Incorrect service authorisation for case case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } catch (NumberFormatException exc) {
-            log.error("Invalid case id format case id case id {}, {}", caseReference, exc);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception exc) {
+            logException(exc, caseId);
+            throw exc;
         }
     }
 
+    private void logException(Exception exc, String caseId) {
+        if (exc instanceof GetCaseException) {
+            log.error("Case not found for case id {}, {}", caseId, exc);
+        }
+        if (exc instanceof InvalidHeaderException) {
+            log.error("Incorrect service authorisation header format for case id {}, {}", caseId, exc);
+        }
+        if (exc instanceof AuthorisationException) {
+            log.error("Incorrect service authorisation for case case id {}, {}", caseId, exc);
+        }
+        if (exc instanceof InvalidIdException) {
+            log.error("Invalid case id format case id case id {}, {}", caseId, exc);
+        }
+    }
 }

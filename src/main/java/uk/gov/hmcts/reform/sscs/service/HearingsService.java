@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping;
@@ -30,7 +31,7 @@ public class HearingsService {
 
     private final IdamService idamService;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
@@ -123,7 +124,7 @@ public class HearingsService {
                 event.getDescription());
     }
 
-    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
+    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, InvalidIdException {
         if (isNull(hearingRequest.getHearingState())) {
             UnhandleableHearingStateException err = new UnhandleableHearingStateException();
             log.error(err.getMessage(), err);
