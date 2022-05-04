@@ -430,19 +430,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo("BBA3-representative");
     }
 
-    @DisplayName("getIndividualTitle Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "test,test",
-        "null,null",
-    }, nullValues = {"null"})
-    void getIndividualTitle(String value, String expected) {
-        Entity entity = Appellant.builder().name(Name.builder().title(value).build()).build();
-        String result = HearingsPartiesMapping.getIndividualTitle(entity);
-
-        assertEquals(expected, result);
-    }
-
     @DisplayName("getIndividualFirstName Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {

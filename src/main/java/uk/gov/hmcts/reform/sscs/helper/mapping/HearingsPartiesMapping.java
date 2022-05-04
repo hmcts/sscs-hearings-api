@@ -117,7 +117,6 @@ public final class HearingsPartiesMapping {
 
     public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String partyId, String appellantId) {
         return IndividualDetails.builder()
-                .title(getIndividualTitle(entity))
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype))
@@ -131,10 +130,6 @@ public final class HearingsPartiesMapping {
                 .custodyStatus(getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
                 .build();
-    }
-
-    public static String getIndividualTitle(Entity entity) {
-        return entity.getName().getTitle();
     }
 
     public static String getIndividualFirstName(Entity entity) {
