@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,14 +15,14 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.DISABLED_ACCESS;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.DWP_PHME;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.DWP_UCB;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.HEARING_LOOP;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
-import static uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyFlagsMap.URGENT_CASE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_PHME;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_UCB;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
 
 public final class PartyFlagsMapping {
 
