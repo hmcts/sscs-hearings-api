@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:src/main/java/uk/gov/hmcts/reform/sscs/model/service/hearingvalues/ServiceHearingValues.java
 package uk.gov.hmcts.reform.sscs.model.service.hearingvalues;
-========
-package uk.gov.hmcts.reform.sscs.model.single.hearing;
->>>>>>>> 01e19bc (SSCS-10245 Delete similar object HearingLocation and refactor the code):src/main/java/uk/gov/hmcts/reform/sscs/model/single/hearing/ServiceHearingValues.java
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,10 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
 import java.util.List;
 
