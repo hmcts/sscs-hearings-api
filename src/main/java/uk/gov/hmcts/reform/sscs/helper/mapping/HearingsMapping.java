@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -22,6 +23,7 @@ import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.JOINT_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.REPRESENTATIVE;
 
+@Slf4j
 public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
@@ -40,6 +42,9 @@ public final class HearingsMapping {
     }
 
     public static void updateIds(HearingWrapper wrapper) {
+
+        log.info("Updating entity IDs for Case ID {}", wrapper.getCaseData().getCcdCaseId());
+
         SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
