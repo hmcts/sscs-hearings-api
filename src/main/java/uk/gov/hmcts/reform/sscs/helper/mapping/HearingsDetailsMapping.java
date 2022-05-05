@@ -26,7 +26,10 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30; // TODO find out default
 
+    private static final SessionLookupService sessionLookupService;
+
     private HearingsDetailsMapping() {
+        this.sessionLookupService = new SessionLookupService();
 
     }
 
@@ -116,7 +119,11 @@ public final class HearingsDetailsMapping {
         }
         if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
             // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
-            return 45;
+            //      depends on session category, logic to be built (manual override needed)
+            int result = sessionLookupService.getDuration(caseData.getBenefitCode(), caseData.getIssueCode());
+            if (result != 0) {
+                return result;
+            }
         }
         return DURATION_DEFAULT;
     }
@@ -222,6 +229,10 @@ public final class HearingsDetailsMapping {
         List<String> roleTypes = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
         //      find out what role types there are and how these are determined
+
+        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
+            roleTypes.addAll(sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode()));
+        }
 
         panelRequirementsBuilder.roleTypes(roleTypes);
 
