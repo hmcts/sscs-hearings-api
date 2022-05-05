@@ -19,7 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDeleteRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
@@ -38,7 +38,7 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 @SpringBootTest
 @PactTestFor(port = "10000")
 @PactFolder("pacts")
-public class HearingDeleteConsumerTest extends BasePactTest {
+class HearingDeleteConsumerTest extends BasePactTest {
 
     private static final String RESPONSE_STATUS = "CANCELLATION_REQUESTED";
 
@@ -51,7 +51,7 @@ public class HearingDeleteConsumerTest extends BasePactTest {
     private HmcHearingApi hmcHearingApi;
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
+    RequestResponsePact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully deleting a hearing request ")
             .uponReceiving("Request to delete hearing request")
             .path(ContractTestDataProvider.HEARING_PATH)
@@ -145,8 +145,8 @@ public class HearingDeleteConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "deleteHearingRequestForValidRequest")
-    public void shouldSuccessfullyDeleteHearingRequest() {
-        HearingResponse hearingResponse = hmcHearingApi.deleteHearingRequest(
+    void shouldSuccessfullyDeleteHearingRequest() {
+        HearingResponse hearingResponse = hmcHearingApi.cancelHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID,
@@ -162,7 +162,7 @@ public class HearingDeleteConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "badRequestErrorFromDeleteHearing")
-    public void shouldReturn400BadRequestForDeleteHearing(MockServer mockServer) {
+    void shouldReturn400BadRequestForDeleteHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders, VALID_CASE_ID,
                     ContractTestDataProvider.generateInvalidHearingDeleteRequest(), HttpStatus.BAD_REQUEST
         );
@@ -170,7 +170,7 @@ public class HearingDeleteConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "unauthorisedRequestErrorFromDeleteHearing")
-    public void shouldReturn401UnauthorisedRequestForDeleteHearing(MockServer mockServer) {
+    void shouldReturn401UnauthorisedRequestForDeleteHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.unauthorisedHeaders, VALID_CASE_ID,
                     ContractTestDataProvider.generateHearingDeleteRequest(), HttpStatus.UNAUTHORIZED
         );
@@ -178,7 +178,7 @@ public class HearingDeleteConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "forbiddenRequestErrorFromDeleteHearing")
-    public void shouldReturn403ForbiddenRequestForDeleteHearing(MockServer mockServer) {
+    void shouldReturn403ForbiddenRequestForDeleteHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders, FORBIDDEN_CASE_ID,
                     ContractTestDataProvider.generateHearingDeleteRequest(), HttpStatus.FORBIDDEN
         );
@@ -186,14 +186,14 @@ public class HearingDeleteConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "notFoundRequestErrorFromDeleteHearing")
-    public void shouldReturn404NotFoundRequestForDeleteHearing(MockServer mockServer) {
+    void shouldReturn404NotFoundRequestForDeleteHearing(MockServer mockServer) {
         executeCall(mockServer, ContractTestDataProvider.authorisedHeaders, NOT_FOUND_CASE_ID,
                     ContractTestDataProvider.generateHearingDeleteRequest(), HttpStatus.NOT_FOUND
         );
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers, String caseId,
-                             HearingDeleteRequestPayload payload, HttpStatus status) {
+                             HearingCancelRequestPayload payload, HttpStatus status) {
         RestAssured.given().headers(headers)
             .contentType(ContentType.JSON)
             .queryParam(ID, caseId)

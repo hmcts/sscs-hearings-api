@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.hearing.mapping;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

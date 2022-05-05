@@ -9,7 +9,7 @@ public enum DayOfWeekUnavailabilityType {
 
     AM("AM"),
     PM("PM"),
-    ALLDAY("All Day");
+    ALL_DAY("All Day");
 
     private final String label;
 }

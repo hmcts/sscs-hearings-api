@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
-public class HearingDeleteRequestPayload {
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class HearingCancelRequestPayload {
 
     private String cancellationReasonCode;
 

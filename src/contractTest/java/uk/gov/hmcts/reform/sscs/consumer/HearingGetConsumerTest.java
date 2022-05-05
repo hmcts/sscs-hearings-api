@@ -5,6 +5,7 @@ import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -27,8 +28,8 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 
@@ -37,7 +38,7 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("contract")
 @PactTestFor(port = "10000")
-public class GetHearingPactConsumerTest extends BasePactTest {
+class HearingGetConsumerTest extends BasePactTest {
 
     private static final String PATH_HEARING = "/hearing";
     private static final String FIELD_ID = "id";
@@ -51,6 +52,8 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     private static final String NOT_FOUND_CASE_ID = "404";
 
     private static final LocalDateTime date = LocalDateTime.now();
+    public static final String STATUS = "status";
+    public static final String STATE = "sscs hearing api successfully returns case";
 
     @Autowired
     private HmcHearingApi hmcHearingApi;
@@ -65,7 +68,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     public RequestResponsePact getHearing(PactDslWithProvider builder) {
 
         return builder
-            .given("sscs hearing api successfully returns case")
+            .given(STATE)
             .uponReceiving("Request to GET hearing for given valid case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
@@ -79,7 +82,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearing")
-    public void shouldSuccessfullyGetHearing() throws Exception {
+    void shouldSuccessfullyGetHearing() throws JsonProcessingException {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
@@ -118,7 +121,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithRefCheck")
-    public void shouldSuccessfullyGetHearingWithRefCheck() throws Exception {
+    void shouldSuccessfullyGetHearingWithRefCheck() throws JsonProcessingException {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
@@ -156,7 +159,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithNoContent")
-    public void shouldSuccessfullyGetHearingWithNoContent() {
+    void shouldSuccessfullyGetHearingWithNoContent() {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
@@ -187,7 +190,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithBadRequest")
-    public void shouldFailGetHearingWithBadRequest() {
+    void shouldFailGetHearingWithBadRequest() {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
@@ -202,7 +205,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     public RequestResponsePact getHearingWithUnauthorized(PactDslWithProvider builder) {
 
         return builder
-            .given("sscs hearing api successfully returns case")
+            .given(STATE)
             .uponReceiving("Request to GET hearing for with unauthorized case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
@@ -217,7 +220,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithUnauthorized")
-    public void shouldFailGetHearingWithUnauthorized() {
+    void shouldFailGetHearingWithUnauthorized() {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
@@ -231,7 +234,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     public RequestResponsePact getHearingWithForbidden(PactDslWithProvider builder) {
 
         return builder
-            .given("sscs hearing api successfully returns case")
+            .given(STATE)
             .uponReceiving("Request to GET hearing for with forbidden case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
@@ -246,7 +249,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithForbidden")
-    public void shouldFailGetHearingWithForbidden() {
+    void shouldFailGetHearingWithForbidden() {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
@@ -261,7 +264,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
     public RequestResponsePact getHearingWithNotFound(PactDslWithProvider builder) {
 
         return builder
-            .given("sscs hearing api successfully returns case")
+            .given(STATE)
             .uponReceiving("Request to GET hearing for with not found case id")
             .path(PATH_HEARING)
             .method(HttpMethod.GET.toString())
@@ -276,7 +279,7 @@ public class GetHearingPactConsumerTest extends BasePactTest {
 
     @Test
     @PactTestFor(pactMethod = "getHearingWithNotFound")
-    public void shouldFailGetHearingWithNotFound() {
+    void shouldFailGetHearingWithNotFound() {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
@@ -284,5 +287,6 @@ public class GetHearingPactConsumerTest extends BasePactTest {
                 ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
                 NOT_FOUND_CASE_ID
             )).extracting("status").isEqualTo(HttpStatus.NOT_FOUND);
+
     }
 }

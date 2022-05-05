@@ -60,7 +60,7 @@ class FeignClientErrorDecoderTest {
         feignClientErrorDecoder = new FeignClientErrorDecoder(appInsightsService);
         hearingRequestPayload = new HearingRequestPayload();
         hearingRequestPayload.setCaseDetails(new CaseDetails());
-        hearingRequestPayload.getCaseDetails().setCaseRef(String.valueOf(CASE_ID));
+        hearingRequestPayload.getCaseDetails().setCaseId(String.valueOf(CASE_ID));
         argument = ArgumentCaptor.forClass(HmcFailureMessage.class);
     }
 

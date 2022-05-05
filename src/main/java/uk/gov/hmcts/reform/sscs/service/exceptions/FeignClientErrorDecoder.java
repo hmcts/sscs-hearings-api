@@ -68,7 +68,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
             if (payload != null) {
                 failMsg = HmcFailureMessage.builder()
                     .requestType(httpMethod.toString())
-                    .caseID(Long.valueOf(payload.getCaseDetails().getCaseRef()))
+                    .caseID(Long.valueOf(payload.getCaseDetails().getCaseId()))
                     .timeStamp(LocalDateTime.now())
                     .errorCode(String.valueOf(response.status()))
                     .errorMessage(response.reason())

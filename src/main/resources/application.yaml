@@ -63,6 +63,10 @@ feign:
       maxPeriod: 2000
       maxAttempts: 3
 
+jackson:
+  serialization:
+    WRITE_DATES_AS_TIMESTAMPS: false
+
 azure:
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
@@ -80,7 +84,7 @@ azure:
       retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
       maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
       retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
-      
+
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
@@ -111,8 +115,8 @@ common-ref:
 core_case_data:
   api:
     url: ${CORE_CASE_DATA_API_URL:http://localhost:4452}
-  jurisdictionId: SSCS
-  caseTypeId: Benefit
+  caseTypeId: ${CORE_CASE_DATA_CASE_TYPE_ID:Benefit}
+  jurisdictionId: ${CORE_CASE_DATA_JURISDICTION_ID:SSCS}
 
 judicial-ref:
   api:
