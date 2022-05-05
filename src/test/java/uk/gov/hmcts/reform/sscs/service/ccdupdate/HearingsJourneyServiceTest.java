@@ -56,7 +56,7 @@ class HearingsJourneyServiceTest {
 
     @ParameterizedTest
     @CsvSource({
-        "LISTED,newHearingBooked,SSCS - new case sent to HMC,SSCS - new case sent to HMC",
+        "LISTED,hearingBooked,SSCS - new case sent to HMC,SSCS - new case sent to HMC",
         "UPDATE_SUBMITTED,updateCaseOnly,SSCS - updated case sent to HMC,SSCS - updated case sent to HMC",
         "CANCELLED,updateCaseOnly,SSCS - case cancelled,SSCS - case cancelled",
         "EXCEPTION,updateCaseOnly,SSCS - exception occurred,SSCS - exception occurred"
