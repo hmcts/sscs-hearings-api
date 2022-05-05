@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.single.hearing;
+package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
 import java.util.List;
 
