@@ -29,7 +29,7 @@ public class HmcHearingsEventTopicListener {
 
 
     @Autowired
-    private static HearingsJourneyService hearingsJourneyService;
+    private HearingsJourneyService hearingsJourneyService;
     @Value("${azure.service-bus.hmc-to-hearings-api.connectionString}")
     private String connectionString;
     @Value("${azure.service-bus.hmc-to-hearings-api.topicName}")
@@ -45,7 +45,7 @@ public class HmcHearingsEventTopicListener {
     @Value("${sscs.serviceCode}")
     private String serviceId;
 
-    public static void processMessage(ServiceBusReceivedMessageContext context) {
+    public void processMessage(ServiceBusReceivedMessageContext context) {
         ServiceBusReceivedMessage message = context.getMessage();
         HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
         String hmctsServiceID = hmcMessage.getHmctsServiceID();
@@ -91,7 +91,7 @@ public class HmcHearingsEventTopicListener {
             .subscriptionName(subscriptionName)
             .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
             .disableAutoComplete()
-            .processMessage(HmcHearingsEventTopicListener::processMessage)
+            .processMessage(this::processMessage)
             .processError(QueueHelper::processError)
             .buildProcessorClient();
 

@@ -8,12 +8,11 @@ public class VenueRpcDetails {
 
     private final VenueDetails venueDetails;
 
-    // rpc = RegionalProcessingCentre
-    private final String rpc;
+    private final String regionalProcessingCentre;
 
     public VenueRpcDetails(VenueDetails venueDetails) {
         this.venueDetails = venueDetails;
-        this.rpc = venueDetails.getRegionalProcessingCentre().substring(5);
+        this.regionalProcessingCentre = venueDetails.getRegionalProcessingCentre().substring(5);
     }
 
     public String getEpimsId() {
