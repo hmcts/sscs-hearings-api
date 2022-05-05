@@ -48,6 +48,7 @@ spring:
       - "/v3/api-docs/**"
       - "/favicon.ico"
       - "/serviceHearingValues"
+      - "/serviceLinkedCases"
 
 feign:
   httpclient:

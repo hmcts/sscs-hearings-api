@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
+package uk.gov.hmcts.reform.sscs.model.service.hearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,19 +7,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class PanelRequirements {
+public class Navigation {
 
-    private List<String> roleType;
-    private List<String> authorisationTypes;
-    private List<String> authorisationSubType;
-    private List<PanelPreference> panelPreferences;
-    private List<String> panelSpecialisms;
+    private String conditionOperator;
+    private String conditionValue;
+    private String resultValue;
 }

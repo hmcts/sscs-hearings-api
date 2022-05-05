@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
+package uk.gov.hmcts.reform.sscs.model.service.hearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,12 +15,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Judiciary {
-
-    private List<String> roleType;
-    private List<String> authorisationTypes;
-    private List<String> authorisationSubType;
-    private List<PanelComposition> panelComposition;
-    private List<PanelPreference> judiciaryPreferences;
-    private List<String> judiciarySpecialisms;
+public class ScreenNavigation {
+    private String screenName;
+    private String conditionKey;
+    private List<Navigation> navigation;
 }
