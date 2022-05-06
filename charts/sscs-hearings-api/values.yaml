@@ -10,7 +10,7 @@ java:
       resourceGroup: sscs
       secrets:
         - name: AppInsightsInstrumentationKey
-          alias: s2s-secret-sscs-hearings-api
+          alias: azure.application-insights.instrumentation-key
         - s2s-micro
         - sscs-s2s-secret
         - idam-sscs-systemupdate-user

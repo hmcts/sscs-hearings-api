@@ -72,7 +72,7 @@ jackson:
 
 azure:
   application-insights:
-    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATION_KEY:}
   service-bus:
     hmc-to-hearings-api:
       connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
