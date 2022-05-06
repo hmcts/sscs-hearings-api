@@ -39,7 +39,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
+                .caseManagementLocation(CaseManagementLocation.builder()
+                                            .baseLocation(EPIMS_ID)
+                                            .region(REGION)
+                                            .build())
                 .build();
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .build();

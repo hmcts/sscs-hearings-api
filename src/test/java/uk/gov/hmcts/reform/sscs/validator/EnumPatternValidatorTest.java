@@ -29,31 +29,6 @@ public class EnumPatternValidatorTest {
         validator = factory.getValidator();
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    void given_LocationIdIsNullOrEmpty_thenGiveUnsupportedErrorMessage(String locationId) {
-        HearingLocations location = getHearingLocation();
-        location.setLocationId(locationId);
-        Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
-        assertFalse(violations.isEmpty());
-        assertEquals(1, violations.size());
-        assertEquals(
-            "Unsupported type for locationId",
-            violations.stream().collect(Collectors.toList()).get(0).getMessage()
-        );
-    }
-
-    @Test
-    void given_LocationIdIsInvalid_ThenGiveUnsupportedErrorMessage() {
-        HearingLocations location = new HearingLocations();
-        location.setLocationId("Loc");
-        location.setLocationType("LocType");
-        Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
-        assertFalse(violations.isEmpty());
-        assertEquals(1, violations.size());
-        assertThat(violations).extracting(ConstraintViolation::getMessage).contains("Unsupported type for locationId");
-    }
-
     @Test
     void given_LocationIdIsValid_ThenSetEnumValue() {
         HearingLocations location = new HearingLocations();
