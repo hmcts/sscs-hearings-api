@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
+package uk.gov.hmcts.reform.sscs.model.service.hearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
