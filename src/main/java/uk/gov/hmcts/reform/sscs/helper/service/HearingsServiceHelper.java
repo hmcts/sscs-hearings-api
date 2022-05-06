@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
@@ -44,5 +45,13 @@ public final class HearingsServiceHelper {
         caseData.getEvents().add(event);
 
         return hearingEvent;
+    }
+
+    public static String getHearingId(HearingWrapper wrapper) {
+        return Optional.of(wrapper)
+            .map(HearingWrapper::getCaseData)
+            .map(SscsCaseData::getSchedulingAndListingFields)
+            .map(SchedulingAndListingFields::getActiveHearingId)
+            .map(Object::toString).orElse(null);
     }
 }

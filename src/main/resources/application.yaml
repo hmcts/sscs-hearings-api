@@ -7,6 +7,8 @@ logging:
       gov:
         hmcts:
           fortifyclient: INFO
+          reform:
+            sscs: ${SSCS_LOG_LEVEL:INFO}
 
 management:
   endpoint:
@@ -48,6 +50,7 @@ spring:
       - "/v3/api-docs/**"
       - "/favicon.ico"
       - "/serviceHearingValues"
+      - "/serviceLinkedCases"
 
 feign:
   httpclient:
@@ -62,6 +65,10 @@ feign:
       period: 500
       maxPeriod: 2000
       maxAttempts: 3
+
+jackson:
+  serialization:
+    WRITE_DATES_AS_TIMESTAMPS: false
 
 azure:
   application-insights:
@@ -111,8 +118,8 @@ common-ref:
 core_case_data:
   api:
     url: ${CORE_CASE_DATA_API_URL:http://localhost:4452}
-  jurisdictionId: SSCS
-  caseTypeId: Benefit
+  caseTypeId: ${CORE_CASE_DATA_CASE_TYPE_ID:Benefit}
+  jurisdictionId: ${CORE_CASE_DATA_JURISDICTION_ID:SSCS}
 
 judicial-ref:
   api:

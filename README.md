@@ -1,12 +1,13 @@
 # sscs-hearings-api
 
-[![Build Status](https://travis-ci.org/hmcts/sscs-hearings-api.svg?branch=master)](https://travis-ci.org/hmcts/sscs-hearings-api)
-
-## Notes
-
-Since Spring Boot 2.1 bean overriding is disabled. If you want to enable it you will need to set `spring.main.allow-bean-definition-overriding` to `true`.
-
-JUnit 5 is now enabled by default in the project. Please refrain from using JUnit4 and use the next generation
+[![Build Status](https://travis-ci.com/hmcts/sscs-hearings-api.svg?branch=master)](https://travis-ci.org/hmcts/sscs-hearings-api)
+[![Coverage Status](https://coveralls.io/repos/github/hmcts/sscs-hearings-api/badge.svg?branch=master)](https://coveralls.io/github/hmcts/sscs-hearings-api?branch=master) 
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=coverage)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
 
 ## Building and deploying the application
 

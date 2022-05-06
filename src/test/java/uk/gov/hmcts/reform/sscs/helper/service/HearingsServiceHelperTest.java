@@ -17,6 +17,10 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 class HearingsServiceHelperTest {
 
@@ -101,21 +105,38 @@ class HearingsServiceHelperTest {
         assertThat(eventDetails.getDescription()).isEqualTo(event.getDescription());
     }
 
-    @DisplayName("addEvent with null Event List Test")
     @Test
-    void addEvent() {
-        testStart = ZonedDateTime.now().minusMinutes(65);
+    void shouldReturnHearingId_givenValidWrapper() {
+        HearingWrapper wrapper = activeHearingIdFixture(12345L);
 
-        wrapper.setState(HearingState.CREATE_HEARING);
+        final String actualHearingId = getHearingId(wrapper);
 
-        HearingsServiceHelper.addEvent(wrapper);
+        assertThat(actualHearingId, is("12345"));
+    }
 
-        assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
-        EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
-        assertThat(eventDetails.getType()).isEqualTo(HearingEvent.CREATE_HEARING.getEventType().getType());
-        assertThat(eventDetails.getDate()).isNotEmpty();
-        assertThat(eventDetails.getDateTime()).isAfter(testStart);
-        assertThat(eventDetails.getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
-        assertThat(eventDetails.getDescription()).isEqualTo(HearingEvent.CREATE_HEARING.getDescription());
+    @Test
+    void shouldReturnNullHearingId_givenNullValue() {
+        HearingWrapper wrapper = activeHearingIdFixture(null);
+
+        final String actualHearingId = getHearingId(wrapper);
+
+        assertNull(actualHearingId);
+    }
+
+    @Test
+    void shouldReturnNull_givenInvalidWrapper() {
+        final String actualHearingId = getHearingId(new HearingWrapper());
+
+        assertNull(actualHearingId);
+    }
+
+    private HearingWrapper activeHearingIdFixture(final Long hearingId) {
+        return HearingWrapper.builder()
+            .caseData(SscsCaseData.builder()
+                    .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                            .activeHearingId(hearingId)
+                            .build())
+                    .build())
+            .build();
     }
 }

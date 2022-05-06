@@ -1,19 +1,27 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingRequestPayload {
+
+    private RequestDetails requestDetails;
 
     private HearingDetails hearingDetails;
 
     private CaseDetails caseDetails;
 
-    private List<PartyDetails> partyDetails;
+    @JsonProperty("partyDetails")
+    private List<PartyDetails> partiesDetails;
 }
