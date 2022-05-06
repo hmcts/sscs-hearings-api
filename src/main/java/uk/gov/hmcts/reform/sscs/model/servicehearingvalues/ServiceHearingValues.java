@@ -6,10 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
 import java.util.List;
