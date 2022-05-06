@@ -7,6 +7,8 @@ logging:
       gov:
         hmcts:
           fortifyclient: INFO
+          reform:
+            sscs: ${SSCS_LOG_LEVEL:INFO}
 
 management:
   endpoint:
@@ -48,6 +50,7 @@ spring:
       - "/v3/api-docs/**"
       - "/favicon.ico"
       - "/serviceHearingValues"
+      - "/serviceLinkedCases"
 
 feign:
   httpclient:

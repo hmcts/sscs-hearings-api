@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -26,12 +27,12 @@ public class CcdCaseService {
         this.idamService = idamService;
     }
 
-    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException {
+    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException, InvalidIdException {
         try {
             long caseIdLong = Long.parseLong(caseId);
             return getCaseDetails(caseIdLong);
         } catch (NumberFormatException e) {
-            throw new GetCaseException(String.format("Invalid case id format for %s", caseId), e);
+            throw new InvalidIdException(String.format("Invalid case id format for %s", caseId), e);
         }
     }
 

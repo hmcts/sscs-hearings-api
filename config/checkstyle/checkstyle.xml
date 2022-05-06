@@ -53,7 +53,7 @@
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.ccd.domain"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.model.single.hearing"/>
-      <property name="excludes" value="uk.gov.hmcts.reform.sscs.model.servicehearingvalues"/>
+      <property name="excludes" value="uk.gov.hmcts.reform.sscs.model.service.hearingvalues"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.ContractTestDataProvider"/>
     </module>
     <module name="OneTopLevelClass"/>

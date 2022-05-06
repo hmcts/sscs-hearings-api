@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -109,7 +110,7 @@ class HearingsServiceTest {
         "UPDATED_CASE",
         "PARTY_NOTIFIED",
     }, nullValues = {"null"})
-    void processHearingRequest(HearingState state) throws GetCaseException {
+    void processHearingRequest(HearingState state) throws GetCaseException, InvalidIdException {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
