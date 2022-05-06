@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 
@@ -92,10 +91,9 @@ public final class HearingsCaseMapping {
 
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
-        // TODO SSCS-10116 - Replace SessionCaseCodeMapping with commons version
         List<CaseCategory> categories = new ArrayList<>();
 
-        SessionCaseCodeMapping sessionCaseCode = getSessionCaseCode(caseData);
+        SessionCategoryMap sessionCaseCode = getSessionCaseCode(caseData);
 
         categories.addAll(getCaseSubTypes(sessionCaseCode));
         categories.addAll(getCaseTypes(sessionCaseCode));
@@ -103,7 +101,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCaseCodeMapping sessionCaseCode) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
@@ -112,7 +110,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCaseCodeMapping sessionCaseCode) {
+    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)

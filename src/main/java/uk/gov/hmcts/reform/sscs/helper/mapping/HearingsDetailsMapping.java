@@ -9,14 +9,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember.MQPM1;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember.MQPM2;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull"})
 // TODO Unsuppress in future
@@ -26,10 +32,7 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30; // TODO find out default
 
-    private static final SessionLookupService sessionLookupService;
-
     private HearingsDetailsMapping() {
-        this.sessionLookupService = new SessionLookupService();
 
     }
 
@@ -103,8 +106,37 @@ public final class HearingsDetailsMapping {
     public static int getHearingDuration(SscsCaseData caseData) {
         // TODO Adjournments - Check this is the correct logic for Adjournments
         // TODO Future Work - Manual Override
-        // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
 
+        int duration = getHearingDurationAdjournment(caseData);
+        if (duration > 0) {
+            return duration;
+        }
+
+        duration = getHearingDurationBenefitIssueCodes(caseData);
+        if (duration > 0) {
+            return duration;
+        }
+
+        return DURATION_DEFAULT;
+    }
+
+    private static int getHearingDurationBenefitIssueCodes(SscsCaseData caseData) {
+        HearingDuration hearingDuration = HearingDuration.getHearingDuration(caseData.getBenefitCode(),caseData.getIssueCode(),getElementsDisputed(caseData));
+        if (nonNull(hearingDuration)) {
+            if (isPaperHearing(caseData)) {
+                return hearingDuration.getDurationPaper();
+            }
+            if (isFaceToFaceHearing(caseData)) {
+                return hearingDuration.getDurationFaceToFace();
+            }
+            if (hasInterpreter(caseData)) {
+                return hearingDuration.getDurationInterpreter();
+            }
+        }
+        return -1;
+    }
+
+    private static int getHearingDurationAdjournment(SscsCaseData caseData) {
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
                 && caseData.getAdjournCaseNextHearingListingDuration().matches("\\d+")
                 && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
@@ -117,15 +149,65 @@ public final class HearingsDetailsMapping {
                 return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_HOURS_MULTIPLIER;
             }
         }
-        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
-            // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
-            //      depends on session category, logic to be built (manual override needed)
-            int result = sessionLookupService.getDuration(caseData.getBenefitCode(), caseData.getIssueCode());
-            if (result != 0) {
-                return result;
-            }
+        return -1;
+    }
+
+    private static boolean hasInterpreter(SscsCaseData caseData) {
+        return isYes(caseData.getAppeal().getHearingOptions().getLanguageInterpreter())
+                || caseData.getAppeal().getHearingOptions().wantsSignLanguageInterpreter();
+    }
+
+    public static boolean isFaceToFaceHearing(SscsCaseData caseData) {
+        return isYes(caseData.getAppeal().getHearingSubtype().getWantsHearingTypeTelephone())
+                || isYes(caseData.getAppeal().getHearingSubtype().getWantsHearingTypeVideo())
+                || isYes(caseData.getAppeal().getHearingSubtype().getWantsHearingTypeFaceToFace());
+    }
+
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
+    public static List<String> getElementsDisputed(SscsCaseData caseData) {
+        List<ElementDisputed> elementDisputed = new ArrayList<>();
+        if (isNotEmpty(caseData.getElementsDisputedGeneral())) {
+            elementDisputed.addAll(caseData.getElementsDisputedGeneral());
         }
-        return DURATION_DEFAULT;
+        if (isNotEmpty(caseData.getElementsDisputedSanctions())) {
+            elementDisputed.addAll(caseData.getElementsDisputedSanctions());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedOverpayment())) {
+            elementDisputed.addAll(caseData.getElementsDisputedOverpayment());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedHousing())) {
+            elementDisputed.addAll(caseData.getElementsDisputedHousing());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedChildCare())) {
+            elementDisputed.addAll(caseData.getElementsDisputedChildCare());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedCare())) {
+            elementDisputed.addAll(caseData.getElementsDisputedCare());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedChildElement())) {
+            elementDisputed.addAll(caseData.getElementsDisputedChildElement());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedChildDisabled())) {
+            elementDisputed.addAll(caseData.getElementsDisputedChildDisabled());
+        }
+        if (isNotEmpty(caseData.getElementsDisputedLimitedWork())) {
+            elementDisputed.addAll(caseData.getElementsDisputedLimitedWork());
+        }
+        return elementDisputed.stream()
+                .map(ElementDisputed::getValue)
+                .map(ElementDisputedDetails::getIssueCode)
+                .collect(Collectors.toList());
+    }
+
+    public static boolean isPaperHearing(SscsCaseData caseData) {
+        return isNoOrNull(caseData.getAppeal().getHearingOptions().getWantsToAttend())
+                || caseData.getOtherParties().stream()
+                .map(CcdValue::getValue)
+                .map(OtherParty::getHearingOptions)
+                .filter(Objects::nonNull)
+                .map(HearingOptions::getWantsToAttend)
+                .allMatch(YesNo::isNoOrNull)
+                || isNoOrNull(caseData.getDwpIsOfficerAttending());
     }
 
     public static List<String> getNonStandardHearingDurationReasons() {
@@ -168,7 +250,7 @@ public final class HearingsDetailsMapping {
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
         List<String> facilitiesRequired = new ArrayList<>();
-        // TODO Dependant on SSCS-10116 - find out how to work this out and implement
+        // TODO Dependant on SSCS-10273 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
         return facilitiesRequired;
@@ -226,14 +308,9 @@ public final class HearingsDetailsMapping {
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData) {
         var panelRequirementsBuilder = PanelRequirements.builder();
 
+        // TODO Dependant on SSCS-10116 and SSCS-10273 - Will be linked to Session Category Reference Data,
+        //      find out what types there are and how these are determined
         List<String> roleTypes = new ArrayList<>();
-        // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
-        //      find out what role types there are and how these are determined
-
-        if (nonNull(caseData.getBenefitCode()) && nonNull(caseData.getIssueCode())) {
-            roleTypes.addAll(sessionLookupService.getPanelMembers(caseData.getBenefitCode() + caseData.getIssueCode()));
-        }
-
         panelRequirementsBuilder.roleTypes(roleTypes);
 
         List<String> authorisationTypes = new ArrayList<>();
@@ -249,8 +326,20 @@ public final class HearingsDetailsMapping {
 
         panelRequirementsBuilder.panelPreferences(getPanelPreferences(caseData));
 
+        SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData);
+
         List<String> panelSpecialisms = new ArrayList<>();
-        // TODO Dependant on SSCS-10116 - Will be linked to PanelMemberSpecialism, need to find out how this is worked out
+        if (nonNull(sessionCategoryMap)) {
+            String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
+            String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
+            for (PanelMember member : sessionCategoryMap.getCategory().getPanelMembers()) {
+                if (MQPM1.equals(member)) {
+                    panelSpecialisms.add(member.getReference(doctorSpecialism));
+                } else if (MQPM2.equals(member)) {
+                    panelSpecialisms.add(member.getReference(doctorSpecialismSecond));
+                }
+            }
+        }
         panelRequirementsBuilder.panelSpecialisms(panelSpecialisms);
 
         return panelRequirementsBuilder.build();

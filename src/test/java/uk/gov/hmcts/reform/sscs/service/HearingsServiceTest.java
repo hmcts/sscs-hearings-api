@@ -69,19 +69,17 @@ class HearingsServiceTest {
         openMocks(this);
 
         SscsCaseData caseData = SscsCaseData.builder()
-            .ccdCaseId(String.valueOf(CASE_ID))
-                .caseManagementLocation(CaseManagementLocation.builder()
+                .ccdCaseId(String.valueOf(CASE_ID))
+                .benefitCode("002")
+                .issueCode("CD")
+                .caseManagementLocation(CaseManagementLocation.builder().build())
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .appellant(Appellant.builder()
+                                .name(Name.builder().build())
+                                .build())
                         .build())
-            .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                            .build())
-                    .appellant(Appellant.builder()
-                            .name(Name.builder()
-                                    .build())
-                            .build())
-                    .build())
-
-            .build();
+                .build();
 
         wrapper = HearingWrapper.builder()
             .state(CREATE_HEARING)

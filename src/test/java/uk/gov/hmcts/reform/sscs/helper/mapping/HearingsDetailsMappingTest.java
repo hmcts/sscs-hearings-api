@@ -426,10 +426,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "061,null,null,null,30",
         "null,IssueCode,null,null,30",
         "061,FR,null,null,30",
-        "037,IssueCode,null,60,30",
-        "061,IssueCode,2,hours,120",
+        "013,EC,null,60,30",
+        "003,CE,2,hours,120",
         "061,WI,1,sessions,165",
-        "null,IssueCode,2,hours,120",
+        "null,XA,2,hours,120",
     }, nullValues = {"null"})
     void getHearingDuration(String benefitCode, String issueCode, String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
         // TODO Finish Test when method done
@@ -438,6 +438,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .issueCode(issueCode)
                 .adjournCaseNextHearingListingDuration(adjournCaseDuration)
                 .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
                 .build();
         int result = HearingsDetailsMapping.getHearingDuration(caseData);
 
