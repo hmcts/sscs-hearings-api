@@ -33,7 +33,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   config:
-    import: "optional:configtree:/mnt/secrets/"
+    import: "optional:configtree:/mnt/secrets/sscs/"
   application:
     name: SSCS Hearings API
   security:
@@ -93,12 +93,14 @@ idam:
     url: ${IDAM_API_URL:http://localhost:5000}
   s2s-auth:
     url: ${IDAM_S2S_URL:http://localhost:4502}
-    secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
     totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
-    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
+    microservice: sscs
   s2s-authorised:
-    services: ${SSCS_S2S_AUTHORIZED_SERVICES:sscs,ccd,ccd_data,ccd_gw,ccd_ps}
+    services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs}
+  client:
+    id: ${IDAM_OAUTH2_CLIENT_ID:}
+    secret: ${IDAM_OAUTH2_CLIENT_SECRET:}
   oauth2:
     user:
       email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
