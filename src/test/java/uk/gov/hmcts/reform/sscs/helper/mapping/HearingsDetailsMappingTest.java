@@ -429,6 +429,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "013,EC,null,60,30",
         "003,CE,2,hours,120",
         "061,WI,1,sessions,165",
+        "061,FR,1,test,30",
         "null,XA,2,hours,120",
     }, nullValues = {"null"})
     void getHearingDuration(String benefitCode, String issueCode, String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
@@ -445,5 +446,126 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         int result = HearingsDetailsMapping.getHearingDuration(caseData);
 
         assertEquals(expected, result);
+    }
+
+    @DisplayName("getHearingDurationBenefitIssueCodes Paper Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,null,-1",
+        "061,null,-1",
+        "null,XA,-1",
+        "061,FR,-1",
+        "999,EC,-1",
+        "013,EC,30",
+        "003,CE,30",
+        "061,WI,30",
+    }, nullValues = {"null"})
+    void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode, int expected) {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(benefitCode)
+                .issueCode(issueCode)
+                .appeal(Appeal.builder()
+                        .hearingType("paper")
+                        .hearingSubtype(HearingSubtype.builder().build())
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+                .build();
+
+        int result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+
+        assertEquals(expected, result);
+    }
+
+    @DisplayName("getHearingDurationBenefitIssueCodes FaceToFace Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,null,-1",
+        "061,null,-1",
+        "null,XA,-1",
+        "061,FR,-1",
+        "999,EC,-1",
+        "013,EC,45",
+        "003,CE,60",
+        "061,WI,45",
+    }, nullValues = {"null"})
+    void getHearingDurationBenefitIssueCodesFaceToFace(String benefitCode, String issueCode, int expected) {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(benefitCode)
+                .issueCode(issueCode)
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                .wantsToAttend("Yes")
+                                .build())
+                        .build())
+                .build();
+
+        int result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+
+        assertEquals(expected, result);
+    }
+
+    @DisplayName("getHearingDurationBenefitIssueCodes Interpreter Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,null,-1",
+        "061,null,-1",
+        "null,XA,-1",
+        "061,FR,-1",
+        "999,EC,-1",
+        "013,EC,75",
+        "003,CE,90",
+        "061,WI,75",
+    }, nullValues = {"null"})
+    void getHearingDurationBenefitIssueCodesInterpreter(String benefitCode, String issueCode, int expected) {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(benefitCode)
+                .issueCode(issueCode)
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                .wantsToAttend("Yes")
+                                .languageInterpreter("Yes")
+                                .build())
+                        .build())
+                .build();
+
+        int result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+
+        assertEquals(expected, result);
+    }
+
+    @DisplayName("getElementsDisputed when elementDisputed is Null Test")
+    @Test
+    void getElementsDisputedNull() {
+        SscsCaseData caseData = SscsCaseData.builder().build();
+        List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
+
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("getElementsDisputed Test")
+    @Test
+    void getElementsDisputed() {
+        ElementDisputed elementDisputed = ElementDisputed.builder()
+                .value(ElementDisputedDetails.builder()
+                        .issueCode("WC")
+                        .outcome("Test")
+                        .build())
+                .build();
+        SscsCaseData caseData = SscsCaseData.builder()
+                .elementsDisputedGeneral(List.of(elementDisputed))
+                .elementsDisputedSanctions(List.of(elementDisputed))
+                .elementsDisputedOverpayment(List.of(elementDisputed))
+                .elementsDisputedHousing(List.of(elementDisputed))
+                .elementsDisputedChildCare(List.of(elementDisputed))
+                .elementsDisputedCare(List.of(elementDisputed))
+                .elementsDisputedChildElement(List.of(elementDisputed))
+                .elementsDisputedChildDisabled(List.of(elementDisputed))
+                .elementsDisputedLimitedWork(List.of(elementDisputed))
+                .build();
+        List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
+
+        assertThat(result)
+                .hasSize(9)
+                .containsOnly("WC");
     }
 }
