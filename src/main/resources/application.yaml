@@ -98,6 +98,9 @@ idam:
     microservice: sscs
   s2s-authorised:
     services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs}
+  client:
+    id: ${IDAM_OAUTH2_CLIENT_ID:}
+    secret: ${IDAM_OAUTH2_CLIENT_SECRET:}
   oauth2:
     user:
       email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
