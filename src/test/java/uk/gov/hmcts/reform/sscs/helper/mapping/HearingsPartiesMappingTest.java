@@ -14,9 +14,11 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
@@ -26,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
 
@@ -427,7 +430,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getPartyRoleRepresentative() {
         String result = HearingsPartiesMapping.getPartyRole(Representative.builder().build());
 
-        assertThat(result).isEqualTo("BBA3-representative");
+        assertThat(result).isEqualTo(REPRESENTATIVE.getKey());
     }
 
     @DisplayName("getIndividualFirstName Parameterised Tests")
@@ -467,14 +470,70 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-    @DisplayName("getIndividualInterpreterLanguage Test")
-    @Test
-    void getIndividualInterpreterLanguage() {
-        // TODO Finish Test when method done
-        HearingOptions hearingOptions = HearingOptions.builder().build();
+    @DisplayName("When language passed in should return correct LOV format")
+    @ParameterizedTest
+    @CsvSource({"Acholi,ach", "Afrikaans,afr", "Akan,aka", "Albanian,alb", "Zaza,zza", "Zulu,zul"})
+    void getIndividualInterpreterLanguageTest(String lang, String expected) {
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages(lang)
+            .build();
         String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
+        assertThat(result).isEqualTo(expected);
+    }
 
-        assertNull(result);
+    @DisplayName("When sign language passed in should return correct LOV format")
+    @ParameterizedTest
+    @CsvSource({"American Sign Language (ASL),americanSignLanguage", "Hands on signing,handsOnSigning", "Deaf Relay,deafRelay", "Palantypist / Speech to text,palantypist"})
+    void getIndividualInterpreterSignLanguageTest(String signLang, String expected) {
+        List<String> arrangements = Collections.singletonList("signLanguageInterpreter");
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .arrangements(arrangements)
+            .signLanguageType(signLang)
+            .build();
+        hearingOptions.wantsSignLanguageInterpreter();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @DisplayName("When hearing type paper then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelPaperTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("paper", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
+    }
+
+    @DisplayName("When hearing type oral and video then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralVideoTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.VIDEO.getHmcReference());
+    }
+
+    @DisplayName("When hearing type oral and telephone then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralTelephoneTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
+    }
+
+    @DisplayName("When hearing type oral and face to face then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelOralFaceToFaceTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("oral", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
+    }
+
+    @DisplayName("When hearing type is blank and face to face then return LOV not attending")
+    @Test
+    void getIndividualPreferredHearingChannelBlankFaceToFaceTest() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("", hearingSubtype);
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
     @DisplayName("getIndividualReasonableAdjustments Test")

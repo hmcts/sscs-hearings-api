@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,9 +17,9 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMB.LawOfDemeter","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
@@ -90,7 +93,7 @@ public final class HearingsPartiesMapping {
 
         partyDetails.partyID(DWP_ID);
         partyDetails.partyType(ORG.name());
-        partyDetails.partyRole(RESPONDENT.getKey()); // TODO Depends on SSCS-10273 - replace with common object
+        partyDetails.partyRole(RESPONDENT.getKey());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(getDwpUnavailabilityRange());
@@ -141,16 +144,31 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data of valid Hearing Channel codes
+        if (hearingType != null || hearingSubtype != null) {
+            if (hearingType.equals("paper")) {
+                return HearingChannel.NOT_ATTENDING.getHmcReference();
+            }
+
+            if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
+                return HearingChannel.FACE_TO_FACE.getHmcReference();
+            } else if (isYes(hearingSubtype.getWantsHearingTypeVideo())) {
+                return HearingChannel.VIDEO.getHmcReference();
+            } else if (isYes(hearingSubtype.getWantsHearingTypeTelephone())) {
+                return HearingChannel.TELEPHONE.getHmcReference();
+            }
+        }
         return null;
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data to convert from SSCS Languages/Sign Languages to Reference languages
-        // if (isYes(hearingOptions.getLanguageInterpreter())) {
-        //     String signLanguageType = hearingOptions.getSignLanguageType();
-        //     String languages = hearingOptions.getLanguages();
-        // }
+        if (hearingOptions.wantsSignLanguageInterpreter()) {
+            String signLanguageType = hearingOptions.getSignLanguageType();
+            return SignLanguage.getSignLanguageKeyByCcdReference(signLanguageType).getHmcReference();
+        }
+        if (isYes(hearingOptions.getLanguageInterpreter())) {
+            String languages = hearingOptions.getLanguages();
+            return InterpreterLanguage.getLanguageAndConvert(languages).getHmcReference();
+        }
         return null;
     }
 
