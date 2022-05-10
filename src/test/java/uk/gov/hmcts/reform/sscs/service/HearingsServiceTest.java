@@ -64,6 +64,9 @@ class HearingsServiceTest {
     @Mock
     private IdamService idamService;
 
+    @Mock
+    private HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
+
     @BeforeEach
     void setup() {
         openMocks(this);
@@ -101,7 +104,7 @@ class HearingsServiceTest {
                 .build())
             .build();
 
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService);
+        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, hmcHearingPartiesNotifiedApi);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")

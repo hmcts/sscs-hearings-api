@@ -19,6 +19,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping.getVersionNumber;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.TooManyMethods"})
@@ -32,6 +34,8 @@ public class HearingsService {
     private final CcdCaseService ccdCaseService;
 
     private final IdamService idamService;
+
+    private final HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
@@ -112,7 +116,7 @@ public class HearingsService {
     }
 
     private void partyNotified(HearingWrapper wrapper) {
-        // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
+        sendPartiesNotifiedUpdateRequest(wrapper);
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
@@ -190,5 +194,16 @@ public class HearingsService {
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
                 .build();
+    }
+
+    private void sendPartiesNotifiedUpdateRequest(HearingWrapper wrapper) {
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                getHearingId(wrapper),
+                getVersionNumber(wrapper),
+                buildUpdatePartiesNotifiedPayload(wrapper)
+
+        );
     }
 }

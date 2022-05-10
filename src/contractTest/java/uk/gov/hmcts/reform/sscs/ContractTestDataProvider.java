@@ -3,10 +3,12 @@ package uk.gov.hmcts.reform.sscs;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -68,6 +70,7 @@ public class ContractTestDataProvider {
     public static final String HEARING_RESPONSE_STATUS = "HEARING_REQUESTED";
     public static final String HEARING_DATE = "2030-08-20T12:40";
     public static final String ACTIVE = "ACTIVE";
+    public static final String PARTIES_NOTIFIED_PATH = "/partiesNotified";
 
     private ContractTestDataProvider() {
 
@@ -481,6 +484,25 @@ public class ContractTestDataProvider {
 
 
         return result;
+    }
+
+    public static PartiesNotified generatePartiesPutRequest() throws JsonProcessingException {
+        PartiesNotified partiesNotified = new PartiesNotified();
+        partiesNotified.setRequestVersion("123");
+        String json = "{ \"Test Data\" : \"Test Data\" } ";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        JsonNode jsonNode = objectMapper.readTree(json);
+        partiesNotified.setServiceData(jsonNode);
+        return partiesNotified;
+    }
+
+    public static PartiesNotified generateInvalidPartiesPutRequest() {
+
+        PartiesNotified partiesNotified = new PartiesNotified();
+        partiesNotified.setRequestVersion("123");
+        return partiesNotified;
     }
 
 }
