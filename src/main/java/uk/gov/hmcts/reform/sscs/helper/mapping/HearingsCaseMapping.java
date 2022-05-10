@@ -11,7 +11,6 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
 @RestController
@@ -93,7 +92,7 @@ public final class HearingsCaseMapping {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         List<CaseCategory> categories = new ArrayList<>();
 
-        SessionCategoryMap sessionCaseCode = getSessionCaseCode(caseData);
+        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData);
 
         categories.addAll(getCaseSubTypes(sessionCaseCode));
         categories.addAll(getCaseTypes(sessionCaseCode));

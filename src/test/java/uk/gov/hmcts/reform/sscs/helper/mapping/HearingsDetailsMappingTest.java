@@ -390,7 +390,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-    @DisplayName("When .. is given getPanelRequirements returns the valid PanelRequirements")
+    @DisplayName("When no data is given getPanelRequirements returns the valid but empty PanelRequirements")
     @Test
     void getPanelRequirements() {
         // TODO Finish Test when method done
@@ -404,6 +404,39 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getAuthorisationSubTypes()).isEmpty();
         assertThat(result.getPanelPreferences()).isEmpty();
         assertThat(result.getPanelSpecialisms()).isEmpty();
+    }
+
+    @DisplayName("When a industrial case is given getPanelRequirements returns the valid PanelRequirements with second specialist doctor")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "031,EX,cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003",
+        "036,DD,null,carer,BBA3-MQPM1|BBA3-MQPM2-002",
+        "031,RC,generalPractitioner,null,BBA3-MQPM1-004",
+        "067,OK,null,null,BBA3-MQPM1",
+    }, nullValues = {"null"})
+    void getPanelRequirements(String benefitCode, String issueCode, String doctorSpecialism, String doctorSpecialismSecond, String expected) {
+        // TODO Finish Test when method done
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(benefitCode)
+                .issueCode(issueCode)
+                .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                        .panelDoctorSpecialism(doctorSpecialism)
+                        .secondPanelDoctorSpecialism(doctorSpecialismSecond)
+                        .build())
+                .build();
+
+        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRoleTypes()).isEmpty();
+        assertThat(result.getAuthorisationTypes()).isEmpty();
+        assertThat(result.getAuthorisationSubTypes()).isEmpty();
+        assertThat(result.getPanelPreferences()).isEmpty();
+
+        List<String> expectedList = splitCsvParamArray(expected);
+        assertThat(result.getPanelSpecialisms())
+                .containsExactlyInAnyOrderElementsOf(expectedList);
+
     }
 
     @DisplayName("When .. is given getPanelPreferences returns the correct List of PanelPreferences")
@@ -424,7 +457,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @CsvSource(value = {
         "null,null,null,null,30",
         "061,null,null,null,30",
-        "null,IssueCode,null,null,30",
+        "null,CP,null,null,30",
         "061,FR,null,null,30",
         "013,EC,null,60,30",
         "003,CE,2,hours,120",

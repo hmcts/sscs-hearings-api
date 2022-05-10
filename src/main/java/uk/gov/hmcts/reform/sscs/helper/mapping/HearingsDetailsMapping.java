@@ -107,16 +107,13 @@ public final class HearingsDetailsMapping {
         // TODO Future Work - Manual Override
 
         int duration = getHearingDurationAdjournment(caseData);
-        if (duration > 0) {
-            return duration;
+        if (duration <= 0) {
+            duration = getHearingDurationBenefitIssueCodes(caseData);
+            if (duration <= 0) {
+                duration = DURATION_DEFAULT;
+            }
         }
-
-        duration = getHearingDurationBenefitIssueCodes(caseData);
-        if (duration > 0) {
-            return duration;
-        }
-
-        return DURATION_DEFAULT;
+        return duration;
     }
 
     public static int getHearingDurationAdjournment(SscsCaseData caseData) {
@@ -136,15 +133,15 @@ public final class HearingsDetailsMapping {
     }
 
     public static int getHearingDurationBenefitIssueCodes(SscsCaseData caseData) {
-        HearingDuration hearingDuration = HearingDuration.getHearingDuration(caseData.getBenefitCode(),caseData.getIssueCode(),getElementsDisputed(caseData));
+        HearingDuration hearingDuration = HearingDuration.getHearingDuration(caseData.getBenefitCode(),caseData.getIssueCode());
 
-        if (nonNull(hearingDuration) && isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
+        if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend()) && nonNull(hearingDuration)) {
             if (HearingsCaseMapping.isInterpreterRequired(caseData)) {
-                return hearingDuration.getDurationInterpreter();
+                return hearingDuration.getDurationInterpreter(getElementsDisputed(caseData));
             } else {
-                return hearingDuration.getDurationFaceToFace();
+                return hearingDuration.getDurationFaceToFace(getElementsDisputed(caseData));
             }
-        } else if (nonNull(hearingDuration) && PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
+        } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType()) && nonNull(hearingDuration)) {
             return hearingDuration.getDurationPaper();
         } else {
             return -1;
