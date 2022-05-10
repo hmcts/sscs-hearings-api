@@ -4,6 +4,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,10 +65,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static String getHearingType(SscsCaseData caseData) {
-        String hearingType = null;
-        // TODO Dependant on SSCS-10273 - find out what logic is needed here
-        // Assuming key is what is required.
-        return hearingType;
+        return HearingTypeLov.SUBSTANTIVE.getHmcReference();
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -133,15 +132,11 @@ public final class HearingsDetailsMapping {
         // Flag to Lauren - how  can this be captured in HMC queue?
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
-        String hearingPriorityType = NORMAL;
-
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        // TODO Dependant on SSCS-10273 - Needed for enum values and logic
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCaseCanCaseBeListedRightAway())) {
-            hearingPriorityType = HIGH;
+        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCaseCanCaseBeListedRightAway() /* Confirm This Value */)) {
+            return HearingPriority.HIGH.getKey();
         }
-
-        return hearingPriorityType;
+        return HearingPriority.NORMAL.getKey();
     }
 
     public static Number getNumberOfPhysicalAttendees() {
@@ -200,7 +195,7 @@ public final class HearingsDetailsMapping {
     public static String getPartyRole(Party party) {
         return nonNull(party.getRole()) && isNotBlank(party.getRole().getName())
                 ? party.getRole().getName()
-                : HearingsMapping.getEntityRoleCode(party).getValueEN();
+                : HearingsMapping.getEntityRoleCode(party).getValueEn();
     }
 
     public static String getEntityName(Entity entity) {
