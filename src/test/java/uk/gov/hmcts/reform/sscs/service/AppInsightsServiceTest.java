@@ -24,6 +24,8 @@ public class AppInsightsServiceTest {
     private static final String ERROR_CODE = "error code";
     private static final String ERROR_MESSAGE = "error message";
 
+    private static final String ERROR_BODY = "error body";
+
     private Message message;
 
     @BeforeEach
@@ -55,6 +57,6 @@ public class AppInsightsServiceTest {
     }
 
     private Message messageInit() {
-        return new HmcFailureMessage(REQUEST_TYPE, CASE_ID, TIME_STAMP, ERROR_CODE, ERROR_MESSAGE);
+        return new HmcFailureMessage(REQUEST_TYPE, CASE_ID, TIME_STAMP, ERROR_CODE, ERROR_MESSAGE, ERROR_BODY);
     }
 }
