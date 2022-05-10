@@ -72,6 +72,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                     .timeStamp(LocalDateTime.now())
                     .errorCode(String.valueOf(response.status()))
                     .errorMessage(response.reason())
+                    .body(response.body().toString())
                     .build();
             }
         } else {

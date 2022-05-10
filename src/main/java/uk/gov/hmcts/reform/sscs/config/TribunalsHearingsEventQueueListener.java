@@ -3,17 +3,17 @@ package uk.gov.hmcts.reform.sscs.config;
 import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusProcessorClient;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.azure.messaging.servicebus.ServiceBusReceiverClient;
+import com.azure.messaging.servicebus.ServiceBusSessionReceiverClient;
 import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
@@ -21,8 +21,7 @@ import uk.gov.hmcts.reform.sscs.service.HearingsService;
 import java.time.Duration;
 
 @Slf4j
-@Data
-@Configuration
+@Component
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 public class TribunalsHearingsEventQueueListener {
 
@@ -45,45 +44,49 @@ public class TribunalsHearingsEventQueueListener {
         this.hearingsService = hearingsService;
     }
 
-    @Bean
+    @Async
+    @EventListener(ApplicationReadyEvent.class)
     @SuppressWarnings("PMD.CloseResource")
-    public ServiceBusProcessorClient tribunalsHearingsEventProcessorClient() {
-        ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
+    public void tribunalsHearingsEventProcessorClient() {
+        ServiceBusSessionReceiverClient  receiverClient = new ServiceBusClientBuilder()
             .retryOptions(retryOptions())
             .connectionString(connectionString)
-            .sessionProcessor()
+            .sessionReceiver()
             .queueName(queueName)
             .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
             .disableAutoComplete()
-            .processMessage(this::processMessage)
-            .processError(QueueHelper::processError)
-            .buildProcessorClient();
+            .buildClient();
 
-        processorClient.start();
+        log.info("Tribunals hearings event queue receiver starting.");
 
-        log.info("Tribunals hearings event queue processor started.");
-
-        return processorClient;
+        while (true) {
+            processMessage(receiverClient);
+        }
     }
 
-    private void processMessage(ServiceBusReceivedMessageContext context) {
-        ServiceBusReceivedMessage message = context.getMessage();
-        HearingRequest hearingRequest = message.getBody().toObject(HearingRequest.class);
-        String caseId = hearingRequest.getCcdCaseId();
-        HearingState event = hearingRequest.getHearingState();
+    private void processMessage(ServiceBusSessionReceiverClient  receiverClient) {
 
-        try {
-            log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
-                event, caseId);
+        try (ServiceBusReceiverClient receiver = receiverClient.acceptNextSession()) {
+            receiver.receiveMessages(1).forEach(message -> {
+                try {
+                    HearingRequest hearingRequest = message.getBody().toObject(HearingRequest.class);
+                    String caseId = hearingRequest.getCcdCaseId();
+                    HearingState event = hearingRequest.getHearingState();
+                    log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
+                        event, caseId);
 
-            hearingsService.processHearingRequest(hearingRequest);
+                    hearingsService.processHearingRequest(hearingRequest);
 
-            log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
-            context.complete();
+                    receiver.complete(message);
+                    log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
+                } catch (Exception ex) {
+                    log.error("An exception occurred whilst processing hearing event for case ID {}."
+                        + " Abandoning message", message.getMessageId(), ex);
+                    receiver.abandon(message);
+                }
+            });
         } catch (Exception ex) {
-            log.error("An exception occurred whilst processing hearing event for case ID {}, event: {}. "
-                    + "Abandoning message", caseId, event, ex);
-            context.abandon();
+            log.error("Error occurred while closing the session", ex);
         }
     }
 
