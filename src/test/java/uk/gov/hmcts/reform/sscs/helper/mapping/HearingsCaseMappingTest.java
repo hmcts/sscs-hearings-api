@@ -90,8 +90,13 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("When case ID is given getCaseDeepLink returns the correct link")
     @Test
     void getCaseDeepLink() {
-        SscsCaseData caseData = SscsCaseData.builder().ccdCaseId(String.valueOf(CASE_ID)).build();
-        String result = HearingsCaseMapping.getCaseDeepLink(caseData);
+        HearingWrapper wrapper = HearingWrapper.builder()
+                .caseData(SscsCaseData.builder()
+                        .ccdCaseId(String.valueOf(CASE_ID))
+                        .build())
+                .exUiUrl(EX_UI_URL)
+                .build();
+        String result = HearingsCaseMapping.getCaseDeepLink(wrapper);
         String expected = String.format("%s/cases/case-details/%s", EX_UI_URL, CASE_ID);
 
         assertEquals(expected, result);
