@@ -110,10 +110,27 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
     @ParameterizedTest
     @CsvSource(value = {
-        "UPDATED_CASE",
-        "PARTY_NOTIFIED",
+        "UPDATED_CASE"
     }, nullValues = {"null"})
     void processHearingRequest(HearingState state) throws GetCaseException, InvalidIdException {
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+
+        request.setHearingState(state);
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingRequest(request));
+    }
+
+    @DisplayName("When wrapper with a PARTY_NOTIFIED Hearing State is given partyNotified should run without error")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "PARTY_NOTIFIED"
+    }, nullValues = {"null"})
+    void partyNotified(HearingState state) throws GetCaseException, InvalidIdException {
+        given(idamService.getIdamTokens())
+                .willReturn(IdamTokens.builder()
+                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                        .serviceAuthorization(SERVICE_AUTHORIZATION)
+                        .build());
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
