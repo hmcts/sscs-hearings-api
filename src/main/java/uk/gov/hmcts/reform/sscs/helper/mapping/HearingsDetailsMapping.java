@@ -120,7 +120,6 @@ public final class HearingsDetailsMapping {
 
     public static int getHearingDurationAdjournment(SscsCaseData caseData) {
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
-                && caseData.getAdjournCaseNextHearingListingDuration().matches("\\d+")
                 && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
 
             if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
