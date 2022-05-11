@@ -99,27 +99,12 @@ public final class HearingsPartiesMapping {
     }
 
     public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
-        // TODO SSCS-10378 - Add joint party logic
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
-        partyDetails.partyID(getPartyId(caseData.getJointParty()));
-        partyDetails.partyType(getPartyType(caseData.getJointParty()));
-        partyDetails.partyRole(getPartyRole(caseData.getJointParty()));
-        partyDetails.individualDetails(getPartyIndividualDetails(caseData.getJointParty(),
-                                                                 caseData.getAppeal().getHearingOptions(),
-                                                                 caseData.getAppeal().getHearingType(),
-                                                                 caseData.getAppeal().getHearingSubtype(),
-                                                                 caseData.getJointParty().getId(),
-                                                                 caseData.getAppeal().getAppellant().getId()
-        ));
-        partyDetails.partyChannelSubType(getPartyChannelSubType());
-        partyDetails.organisationDetails(getOrganisationDetails(
-            caseData.getJointParty().getOrganisation(),
-            caseData.getJointParty().getHasJointParty().getValue(),
-            caseData.getJointParty().getId()
-        ));
-        partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(caseData.getAppeal().getHearingOptions()));
+        buildHearingPartiesPartyDetails(caseData.getJointParty(),caseData.getAppeal().getRep(),caseData.getAppeal().getHearingOptions()
+                                        ,caseData.getAppeal().getHearingType(),caseData.getAppeal().getHearingSubtype(),
+                                        caseData.getAppeal().getAppellant().getId());
+
         return PartyDetails.builder().build();
     }
 
