@@ -22,7 +22,7 @@ import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
 // TODO Unsuppress in future
 @Slf4j
 @Service

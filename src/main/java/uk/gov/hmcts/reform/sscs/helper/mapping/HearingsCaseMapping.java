@@ -14,8 +14,7 @@ import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn"})
-// TODO Unsuppress in future
+
 @RestController
 public final class HearingsCaseMapping {
 
