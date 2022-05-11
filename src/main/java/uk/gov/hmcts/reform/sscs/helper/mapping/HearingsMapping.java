@@ -53,6 +53,7 @@ public final class HearingsMapping {
 
         maxId = updatePartyIds(appellant, appeal.getRep(), maxId);
         updateOtherPartiesIds(caseData.getOtherParties(), maxId);
+        updateJointPartyIds(caseData.getJointParty(), appeal.getRep(), maxId);
     }
 
     private static void updateOtherPartiesIds(List<CcdValue<OtherParty>> otherParties, int maxId) {
@@ -70,6 +71,18 @@ public final class HearingsMapping {
         newMaxId = updateEntityId(party, newMaxId);
         if (nonNull(party.getAppointee())) {
             newMaxId = updateEntityId(party.getAppointee(), newMaxId);
+        }
+        if (nonNull(rep)) {
+            newMaxId = updateEntityId(rep, newMaxId);
+        }
+        return newMaxId;
+    }
+
+    private static int updateJointPartyIds(JointParty jointParty, Representative rep, int maxId) {
+        int newMaxId = maxId;
+        newMaxId = updateEntityId(jointParty, newMaxId);
+        if (nonNull(jointParty.getAppointee())) {
+            newMaxId = updateEntityId(jointParty.getAppointee(), newMaxId);
         }
         if (nonNull(rep)) {
             newMaxId = updateEntityId(rep, newMaxId);
