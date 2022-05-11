@@ -4,8 +4,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,13 +14,14 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
-    public static final String NORMAL = "Normal";
-    public static final String HIGH = "High";
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30; // TODO find out default
@@ -65,7 +64,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static String getHearingType(SscsCaseData caseData) {
-        return HearingTypeLov.SUBSTANTIVE.getHmcReference();
+        return SUBSTANTIVE.getHmcReference();
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -134,9 +133,9 @@ public final class HearingsDetailsMapping {
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
         if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCaseCanCaseBeListedRightAway() /* Confirm This Value */)) {
-            return HearingPriority.HIGH.getKey();
+            return HIGH.getKey();
         }
-        return HearingPriority.NORMAL.getKey();
+        return NORMAL.getKey();
     }
 
     public static Number getNumberOfPhysicalAttendees() {

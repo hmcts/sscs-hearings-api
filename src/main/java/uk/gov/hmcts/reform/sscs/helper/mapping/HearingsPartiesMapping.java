@@ -5,7 +5,6 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
@@ -20,10 +19,16 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NOT_ATTENDING;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMB.LawOfDemeter","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
+
+    private static final String HEARING_TYPE_PAPER = "paper";
 
     private HearingsPartiesMapping() {
 
@@ -145,16 +150,16 @@ public final class HearingsPartiesMapping {
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
         if (hearingType != null || hearingSubtype != null) {
-            if (hearingType.equals("paper")) {
-                return HearingChannel.NOT_ATTENDING.getHmcReference();
+            if (HEARING_TYPE_PAPER.equals(hearingType)) {
+                return NOT_ATTENDING.getHmcReference();
             }
 
             if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
-                return HearingChannel.FACE_TO_FACE.getHmcReference();
+                return FACE_TO_FACE.getHmcReference();
             } else if (isYes(hearingSubtype.getWantsHearingTypeVideo())) {
-                return HearingChannel.VIDEO.getHmcReference();
+                return VIDEO.getHmcReference();
             } else if (isYes(hearingSubtype.getWantsHearingTypeTelephone())) {
-                return HearingChannel.TELEPHONE.getHmcReference();
+                return TELEPHONE.getHmcReference();
             }
         }
         return null;
