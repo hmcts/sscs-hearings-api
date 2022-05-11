@@ -69,8 +69,6 @@ jackson:
     WRITE_DATES_AS_TIMESTAMPS: false
 
 azure:
-  application-insights:
-    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATION_KEY:}
   service-bus:
     hmc-to-hearings-api:
       connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}

@@ -16,5 +16,4 @@ public class HmcFailureMessage implements Message {
     private LocalDateTime timeStamp;
     private String errorCode;
     private String errorMessage;
-    private String body;
 }
