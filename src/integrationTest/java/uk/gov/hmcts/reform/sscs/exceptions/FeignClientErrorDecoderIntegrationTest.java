@@ -80,10 +80,11 @@ public class FeignClientErrorDecoderIntegrationTest {
     @MethodSource("parameters")
     void testMockReturnBadRequest400(int statusCode, HttpStatus expectedHttpStatus, String expectedErrorMessage)
             throws JsonProcessingException {
-        wireMockServer.stubFor(WireMock.get(urlEqualTo(PATH_HEARING + FIELD_ID + "=" + CASE_ID))
-                                   .willReturn(aResponse()
-                                       .withStatus(statusCode)
-                                       .withBody(expectedErrorMessage.getBytes(StandardCharsets.UTF_8))));
+        wireMockServer.stubFor(WireMock.get(
+                urlEqualTo(PATH_HEARING + FIELD_ID + "=" + CASE_ID))
+            .willReturn(aResponse()
+                .withStatus(statusCode)
+                .withBody(expectedErrorMessage.getBytes(StandardCharsets.UTF_8))));
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
                 () -> hmcHearingApi.getHearingRequest(
