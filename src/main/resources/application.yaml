@@ -49,8 +49,6 @@ spring:
       - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
-      - "/serviceHearingValues"
-      - "/serviceLinkedCases"
 
 feign:
   httpclient:
