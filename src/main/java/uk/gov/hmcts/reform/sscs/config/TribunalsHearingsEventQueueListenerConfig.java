@@ -12,18 +12,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
-public class TribunalsHearingsEventQueueListener {
+public class TribunalsHearingsEventQueueListenerConfig {
 
     private final HearingsService hearingsService;
 
@@ -40,11 +40,10 @@ public class TribunalsHearingsEventQueueListener {
     private Integer maxRetries;
 
     @Autowired
-    public TribunalsHearingsEventQueueListener(HearingsService hearingsService) {
+    public TribunalsHearingsEventQueueListenerConfig(HearingsService hearingsService) {
         this.hearingsService = hearingsService;
     }
 
-    @Async
     @EventListener(ApplicationReadyEvent.class)
     @SuppressWarnings("PMD.CloseResource")
     public void tribunalsHearingsEventProcessorClient() {
@@ -59,9 +58,11 @@ public class TribunalsHearingsEventQueueListener {
 
         log.info("Tribunals hearings event queue receiver starting.");
 
-        while (true) {
-            processMessage(receiverClient);
-        }
+        CompletableFuture.runAsync(() -> {
+            while (true) {
+                processMessage(receiverClient);
+            }
+        });
     }
 
     private void processMessage(ServiceBusSessionReceiverClient  receiverClient) {
