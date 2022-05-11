@@ -25,6 +25,7 @@ import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -77,10 +78,12 @@ public class FeignClientErrorDecoderIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void testMockReturnBadRequest400(int statusCode,
-                                            HttpStatus expectedHttpStatus) throws JsonProcessingException {
+    void testMockReturnBadRequest400(int statusCode, HttpStatus expectedHttpStatus, String expectedErrorMessage)
+            throws JsonProcessingException {
         wireMockServer.stubFor(WireMock.get(urlEqualTo(PATH_HEARING + FIELD_ID + "=" + CASE_ID))
-                                   .willReturn(aResponse().withStatus(statusCode)));
+                                   .willReturn(aResponse()
+                                       .withStatus(statusCode)
+                                       .withBody(expectedErrorMessage.getBytes(StandardCharsets.UTF_8))));
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
                 () -> hmcHearingApi.getHearingRequest(
@@ -94,15 +97,15 @@ public class FeignClientErrorDecoderIntegrationTest {
         assertEquals(Request.HttpMethod.GET.name(), argument.getValue().getRequestType());
         assertEquals(Long.parseLong(CASE_ID), argument.getValue().getCaseID());
         assertEquals(String.valueOf(expectedHttpStatus.value()), argument.getValue().getErrorCode());
-        assertEquals(expectedHttpStatus.getReasonPhrase(), argument.getValue().getErrorMessage());
+        assertEquals(expectedErrorMessage, argument.getValue().getErrorMessage());
     }
 
     private static Stream<Arguments> parameters() {
         return Stream.of(
-            Arguments.of(400, HttpStatus.BAD_REQUEST),
-            Arguments.of(401, HttpStatus.UNAUTHORIZED),
-            Arguments.of(403, HttpStatus.FORBIDDEN),
-            Arguments.of(404, HttpStatus.NOT_FOUND)
+            Arguments.of(400, HttpStatus.BAD_REQUEST, "{ \"errors\" : \"Bad Request data\" }"),
+            Arguments.of(401, HttpStatus.UNAUTHORIZED, "{ \"errors\" : \"Authorization failed\" }"),
+            Arguments.of(403, HttpStatus.FORBIDDEN, "{ \"errors\" : \"Forbidden access\" }"),
+            Arguments.of(404, HttpStatus.NOT_FOUND, "{ \"errors\" : \"No data found\" }")
         );
     }
 }

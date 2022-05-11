@@ -13,7 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,11 +26,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,7 +53,7 @@ class FeignClientErrorDecoderTest {
 
     private FeignClientErrorDecoder feignClientErrorDecoder;
     private HearingRequestPayload hearingRequestPayload;
-    private ArgumentCaptor<HmcFailureMessage> argument;
+    private ArgumentCaptor<HmcFailureMessage> hmcFailureMessageArgumentCaptor;
 
     @Mock
     private AppInsightsService appInsightsService;
@@ -61,12 +64,12 @@ class FeignClientErrorDecoderTest {
         hearingRequestPayload = new HearingRequestPayload();
         hearingRequestPayload.setCaseDetails(new CaseDetails());
         hearingRequestPayload.getCaseDetails().setCaseId(String.valueOf(CASE_ID));
-        argument = ArgumentCaptor.forClass(HmcFailureMessage.class);
+        hmcFailureMessageArgumentCaptor = ArgumentCaptor.forClass(HmcFailureMessage.class);
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {400, 401, 403, 404})
-    void should_handle_4xx_post_put_error(int statusCode) throws JsonProcessingException {
+    @MethodSource("get4xxErrorCodeTestArguments")
+    void should_handle_4xx_post_put_error(int statusCode, String expected) throws IOException {
         Request request =
             Request.create(Request.HttpMethod.POST, "url",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
@@ -74,32 +77,22 @@ class FeignClientErrorDecoderTest {
         Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
-        verify(appInsightsService, times(1)).sendAppInsightsEvent(argument.capture());
+        verify(appInsightsService, times(1))
+            .sendAppInsightsEvent(hmcFailureMessageArgumentCaptor.capture());
 
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
-        assertEquals(request.httpMethod().toString(), argument.getValue().getRequestType());
-        assertEquals(CASE_ID, argument.getValue().getCaseID());
-        assertEquals(String.valueOf(statusCode), argument.getValue().getErrorCode());
-        assertEquals(response.reason(), argument.getValue().getErrorMessage());
+        assertEquals(request.httpMethod().toString(), hmcFailureMessageArgumentCaptor.getValue().getRequestType());
+        assertEquals(CASE_ID, hmcFailureMessageArgumentCaptor.getValue().getCaseID());
+        assertEquals(String.valueOf(statusCode), hmcFailureMessageArgumentCaptor.getValue().getErrorCode());
+        assertEquals(new String(response.body().asInputStream().readAllBytes(), StandardCharsets.UTF_8),
+            hmcFailureMessageArgumentCaptor.getValue().getErrorMessage());
 
-        if (statusCode == 400) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.BAD_REQUEST + ERROR_MSG);
-        } else if (statusCode == 401) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.UNAUTHORIZED + ERROR_MSG);
-        } else if (statusCode == 403) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.FORBIDDEN + ERROR_MSG);
-        } else if (statusCode == 404) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.NOT_FOUND + ERROR_MSG);
-        }
+        assertThat(throwable.getMessage()).contains(expected);
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {400, 401, 403, 404})
-    void should_handle_4xx_get_delete_error(int statusCode) throws JsonProcessingException {
+    @MethodSource("get4xxErrorCodeTestArguments")
+    void should_handle_4xx_get_delete_error(int statusCode, String expected) throws IOException {
         Map<String, Collection<String>> queries = new HashMap<>();
         queries.computeIfAbsent(ID, k -> new ArrayList<>()).add(String.valueOf(CASE_ID));
         RequestTemplate requestTemplate = new RequestTemplate();
@@ -111,27 +104,16 @@ class FeignClientErrorDecoderTest {
         Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
-        verify(appInsightsService, times(1)).sendAppInsightsEvent(argument.capture());
+        verify(appInsightsService, times(1)).sendAppInsightsEvent(hmcFailureMessageArgumentCaptor.capture());
 
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
-        assertEquals(request.httpMethod().toString(), argument.getValue().getRequestType());
-        assertEquals(CASE_ID, argument.getValue().getCaseID());
-        assertEquals(String.valueOf(statusCode), argument.getValue().getErrorCode());
-        assertEquals(response.reason(), argument.getValue().getErrorMessage());
+        assertEquals(request.httpMethod().toString(), hmcFailureMessageArgumentCaptor.getValue().getRequestType());
+        assertEquals(CASE_ID, hmcFailureMessageArgumentCaptor.getValue().getCaseID());
+        assertEquals(String.valueOf(statusCode), hmcFailureMessageArgumentCaptor.getValue().getErrorCode());
+        assertEquals(new String(response.body().asInputStream().readAllBytes(), StandardCharsets.UTF_8),
+            hmcFailureMessageArgumentCaptor.getValue().getErrorMessage());
 
-        if (statusCode == 400) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.BAD_REQUEST + ERROR_MSG);
-        } else if (statusCode == 401) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.UNAUTHORIZED + ERROR_MSG);
-        } else if (statusCode == 403) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.FORBIDDEN + ERROR_MSG);
-        } else if (statusCode == 404) {
-            assertThat(throwable.getMessage())
-                .contains(HttpStatus.NOT_FOUND + ERROR_MSG);
-        }
+        assertThat(throwable.getMessage()).contains(expected);
     }
 
     @Test
@@ -167,7 +149,7 @@ class FeignClientErrorDecoderTest {
     }
 
     @Test
-    void testShouldThrowMappingException() throws JsonProcessingException {
+    void testShouldThrowMappingException() {
         Request request =
             Request.create(Request.HttpMethod.POST, "url",
                            headers, Request.Body.create(toJsonString(new CaseDetails())), null);
@@ -192,22 +174,32 @@ class FeignClientErrorDecoderTest {
         return jsonString;
     }
 
+
+    private static Stream<Arguments> get4xxErrorCodeTestArguments() {
+        return Stream.of(
+            Arguments.of(400, HttpStatus.BAD_REQUEST + ERROR_MSG),
+            Arguments.of(401, HttpStatus.UNAUTHORIZED + ERROR_MSG),
+            Arguments.of(403, HttpStatus.FORBIDDEN + ERROR_MSG),
+            Arguments.of(404, HttpStatus.NOT_FOUND + ERROR_MSG)
+        );
+    }
+
     private Response buildResponse(Request req, int statusCode) {
         String reason = "";
         String bodyMsg = "";
 
         if (statusCode == 400) {
             reason = HttpStatus.BAD_REQUEST.name();
-            bodyMsg = "Bad Request data";
+            bodyMsg = "{ \"errors\" : \"Bad Request data\" }";
         } else if (statusCode == 401) {
             reason = HttpStatus.UNAUTHORIZED.name();
-            bodyMsg = "Authorization failed";
+            bodyMsg = "{ \"errors\" : \"Authorization failed\" }";
         } else if (statusCode == 403) {
             reason = HttpStatus.FORBIDDEN.name();
-            bodyMsg = "Forbidden access";
+            bodyMsg = "{ \"errors\" : \"Forbidden access\" }";
         } else if (statusCode == 404) {
             reason = HttpStatus.NOT_FOUND.name();
-            bodyMsg = "No data found";
+            bodyMsg = "{ \"errors\" : \"No data found\" }";
         }
 
         return Response.builder()
