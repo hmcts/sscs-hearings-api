@@ -97,7 +97,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .exUiUrl(EX_UI_URL)
                 .build();
         String result = HearingsCaseMapping.getCaseDeepLink(wrapper);
-        String expected = String.format("%s/cases/case-details/%s", EX_UI_URL, CASE_ID);
+        String expected = String.format(HearingsCaseMapping.CASE_DETAILS_URL, EX_UI_URL, CASE_ID);
 
         assertEquals(expected, result);
     }

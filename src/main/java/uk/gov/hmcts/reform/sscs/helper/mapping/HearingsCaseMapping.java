@@ -20,6 +20,7 @@ public final class HearingsCaseMapping {
 
     public static final String CASE_TYPE = "caseType";
     public static final String CASE_SUB_TYPE = "caseSubType";
+    public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
 
     private HearingsCaseMapping() {
 
@@ -51,7 +52,7 @@ public final class HearingsCaseMapping {
     }
 
     public static String getCaseDeepLink(HearingWrapper wrapper) {
-        return String.format("%s/cases/case-details/%s", wrapper.getExUiUrl(), getCaseID(wrapper.getCaseData()));
+        return String.format(CASE_DETAILS_URL, wrapper.getExUiUrl(), getCaseID(wrapper.getCaseData()));
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
