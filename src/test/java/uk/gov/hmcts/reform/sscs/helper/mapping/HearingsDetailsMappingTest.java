@@ -175,7 +175,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         ",,normal"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
-        // TODO Finish Test when method donegetAdjournCasePanelMembersExcluded
+        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .urgentCase(isUrgentCase)
                 .adjournCasePanelMembersExcluded(isAdjournCase)
