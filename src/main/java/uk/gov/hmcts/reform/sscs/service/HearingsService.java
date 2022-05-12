@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
@@ -21,7 +22,7 @@ import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.LawOfDemeter", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
@@ -32,6 +33,11 @@ public class HearingsService {
     private final CcdCaseService ccdCaseService;
 
     private final IdamService idamService;
+
+    @Value("${exui.url}")
+    private String exUiUrl;
+    @Value("${sscs.serviceCode}")
+    private String sscsServiceCode;
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
@@ -189,6 +195,8 @@ public class HearingsService {
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
+                .exUiUrl(exUiUrl)
+                .sscsServiceCode(sscsServiceCode)
                 .build();
     }
 }

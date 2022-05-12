@@ -21,7 +21,6 @@ import javax.servlet.ServletContextListener;
 
 @SpringBootApplication
 @EnableScheduling
-@SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
 @ComponentScan(basePackages = {"uk.gov.hmcts.reform"})
 @EnableFeignClients(basePackages =
     {
