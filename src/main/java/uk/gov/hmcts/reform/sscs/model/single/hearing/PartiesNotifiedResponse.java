@@ -13,12 +13,12 @@ import org.joda.time.DateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PartiesNotifiedResponse {
+    
+    private DateTime partiesNotified;
 
     private int requestVersion;
 
     private DateTime responseReceivedDateTime;
-
-    private DateTime partiesNotified;
 
     private Object serviceData;
 }
