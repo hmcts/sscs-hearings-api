@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
@@ -150,38 +151,34 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        if (hearingType != null || hearingSubtype != null) {
-            if (HEARING_TYPE_PAPER.equals(hearingType)) {
-                return NOT_ATTENDING.getHmcReference();
-            }
-
-            if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
-                return FACE_TO_FACE.getHmcReference();
-            } else if (isYes(hearingSubtype.getWantsHearingTypeVideo())) {
-                return VIDEO.getHmcReference();
-            } else if (isYes(hearingSubtype.getWantsHearingTypeTelephone())) {
-                return TELEPHONE.getHmcReference();
-            }
+        if(hearingType == null || hearingSubtype == null) {
+            return null;
         }
-        return null;
+
+        return HEARING_TYPE_PAPER.equals(hearingType) ? NOT_ATTENDING.getHmcReference() :
+            isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE.getHmcReference() :
+                isYes(hearingSubtype.getWantsHearingTypeVideo()) ? VIDEO.getHmcReference() :
+                    isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? TELEPHONE.getHmcReference() :
+                        null;
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
-            String signLanguageType = hearingOptions.getSignLanguageType();
-            SignLanguage signLanguage = SignLanguage.getSignLanguageKeyByCcdReference(signLanguageType);
-            if (nonNull(signLanguage)) {
-                return signLanguage.getHmcReference();
-            }
+            return getSignLanguage(hearingOptions)
+                .map(SignLanguage::getHmcReference).orElse(null);
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
-            String languages = hearingOptions.getLanguages();
-            InterpreterLanguage interpreterLanguage = InterpreterLanguage.getLanguageAndConvert(languages);
-            if (nonNull(interpreterLanguage)) {
-                return interpreterLanguage.getHmcReference();
-            }
+            return getInterpreterLanguage(hearingOptions)
+                .map(InterpreterLanguage::getHmcReference).orElse(null);
         }
         return null;
+    }
+
+    private static Optional<SignLanguage> getSignLanguage(HearingOptions hearingOptions) {
+        return Optional.ofNullable(SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType()));
+    }
+    private static Optional<InterpreterLanguage> getInterpreterLanguage(HearingOptions hearingOptions) {
+        return Optional.ofNullable(InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages()));
     }
 
     public static List<String> getIndividualReasonableAdjustments(HearingOptions hearingOptions) {

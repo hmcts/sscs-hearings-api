@@ -132,7 +132,7 @@ public final class HearingsDetailsMapping {
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCaseCanCaseBeListedRightAway() /* Confirm This Value */)) {
+        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
             return HIGH.getKey();
         }
         return NORMAL.getKey();
