@@ -14,11 +14,11 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public interface HmcHearingPartiesNotifiedApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
-    String PARTY_NOTIFIED_ENDPOINT = "/partiesNotified";
+    String PARTIES_NOTIFIED_ENDPOINT = "/partiesNotified";
     String ID = "id";
 
-    @GetMapping(value = PARTY_NOTIFIED_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    PartiesNotified getPartyNotifiedRequest(
+    @GetMapping(value = PARTIES_NOTIFIED_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    PartiesNotified getPartiesNotifiedRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam(ID) String id
