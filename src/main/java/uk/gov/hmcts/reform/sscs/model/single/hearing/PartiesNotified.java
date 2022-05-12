@@ -15,8 +15,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PartiesNotified {
 
-    private Long partiesNotifiedRequestId;
+    private Long hearingID;
 
-    private List<PartiesNotifiedResponse> partiesNotifiedResponse;
+    private List<PartiesNotifiedResponse> responses;
 
 }
