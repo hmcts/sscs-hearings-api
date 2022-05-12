@@ -18,7 +18,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.H
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
