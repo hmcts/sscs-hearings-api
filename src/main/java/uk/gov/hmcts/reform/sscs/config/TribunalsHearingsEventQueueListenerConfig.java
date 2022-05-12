@@ -7,8 +7,8 @@ import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusReceiverClient;
 import com.azure.messaging.servicebus.ServiceBusSessionReceiverClient;
 import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @Component
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+@RequiredArgsConstructor
 public class TribunalsHearingsEventQueueListenerConfig {
 
     private final HearingsService hearingsService;
@@ -40,15 +41,10 @@ public class TribunalsHearingsEventQueueListenerConfig {
     @Value("${azure.service-bus.tribunals-to-hearings-api.maxRetries}")
     private Integer maxRetries;
 
-    @Autowired
-    public TribunalsHearingsEventQueueListenerConfig(HearingsService hearingsService) {
-        this.hearingsService = hearingsService;
-    }
-
     @EventListener(ApplicationReadyEvent.class)
     @SuppressWarnings("PMD.CloseResource")
     public void tribunalsHearingsEventProcessorClient() {
-        ServiceBusSessionReceiverClient  receiverClient = new ServiceBusClientBuilder()
+        ServiceBusSessionReceiverClient receiverClient = new ServiceBusClientBuilder()
             .retryOptions(retryOptions())
             .connectionString(connectionString)
             .sessionReceiver()

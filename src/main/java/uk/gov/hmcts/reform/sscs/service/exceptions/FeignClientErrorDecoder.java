@@ -68,20 +68,30 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                 log.error("Error details: {}", new String(originalRequest.body(), StandardCharsets.UTF_8));
             }
             if (payload != null) {
-                failMsg = buildFailureMessage(httpMethod.toString(), Long.valueOf(payload.getCaseDetails().getCaseId()),
-                    LocalDateTime.now(), String.valueOf(response.status()), getOriginalErrorMessage(response));
+                failMsg = buildFailureMessage(httpMethod.toString(),
+                    Long.valueOf(payload.getCaseDetails().getCaseId()),
+                    LocalDateTime.now(),
+                    String.valueOf(response.status()),
+                    getOriginalErrorMessage(response));
             }
         } else {
             Long caseId = getQueryId(response);
-            failMsg = buildFailureMessage(httpMethod.toString(), caseId, LocalDateTime.now(),
-                String.valueOf(response.status()), getOriginalErrorMessage(response));
+            failMsg = buildFailureMessage(httpMethod.toString(),
+                caseId,
+                LocalDateTime.now(),
+                String.valueOf(response.status()),
+                getOriginalErrorMessage(response));
         }
 
         return failMsg;
     }
 
     private long getQueryId(Response response) {
-        return Long.parseLong(response.request().requestTemplate().queries().get("id").iterator().next());
+        return Long.parseLong(response.request()
+            .requestTemplate()
+            .queries().get("id")
+            .iterator()
+            .next());
     }
 
     private String getOriginalErrorMessage(Response response) {

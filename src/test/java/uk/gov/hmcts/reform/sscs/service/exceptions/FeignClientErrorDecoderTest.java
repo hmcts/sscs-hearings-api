@@ -77,7 +77,7 @@ class FeignClientErrorDecoderTest {
         Response response = buildResponse(request, statusCode);
 
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
-        verify(appInsightsService, times(1))
+        verify(appInsightsService)
             .sendAppInsightsEvent(hmcFailureMessageArgumentCaptor.capture());
 
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
