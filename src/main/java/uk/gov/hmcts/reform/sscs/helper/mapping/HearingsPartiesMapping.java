@@ -170,12 +170,16 @@ public final class HearingsPartiesMapping {
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguageType = hearingOptions.getSignLanguageType();
             SignLanguage signLanguage = SignLanguage.getSignLanguageKeyByCcdReference(signLanguageType);
-            if (nonNull(signLanguage)) return signLanguage.getHmcReference();
+            if (nonNull(signLanguage)) {
+                return signLanguage.getHmcReference();
+            }
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             String languages = hearingOptions.getLanguages();
             InterpreterLanguage interpreterLanguage = InterpreterLanguage.getLanguageAndConvert(languages);
-            if (nonNull(interpreterLanguage)) return interpreterLanguage.getHmcReference();
+            if (nonNull(interpreterLanguage)) {
+                return interpreterLanguage.getHmcReference();
+            }
         }
         return null;
     }
