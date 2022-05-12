@@ -39,7 +39,7 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.add(createJointPartyDetails(caseData));
+            partiesDetails.addAll(buildHearingPartiesPartyDetails(caseData.getJointParty(),null,null,null,null,appellant.getId()));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -98,15 +98,6 @@ public final class HearingsPartiesMapping {
         return partyDetails.build();
     }
 
-    public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
-        PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
-
-        buildHearingPartiesPartyDetails(caseData.getJointParty(),caseData.getAppeal().getRep(),caseData.getAppeal().getHearingOptions()
-                                        ,caseData.getAppeal().getHearingType(),caseData.getAppeal().getHearingSubtype(),
-                                        caseData.getAppeal().getAppellant().getId());
-
-        return PartyDetails.builder().build();
-    }
 
     public static String getPartyId(Entity entity) {
         return entity.getId();
