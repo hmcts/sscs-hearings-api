@@ -15,7 +15,7 @@ public interface HmcHearingPartiesNotifiedApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     String PARTIES_NOTIFIED_ENDPOINT = "/partiesNotified";
-    String ID = "hearingID";
+    String ID = "id";
 
     @GetMapping(value = PARTIES_NOTIFIED_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     PartiesNotified getPartiesNotifiedRequest(
