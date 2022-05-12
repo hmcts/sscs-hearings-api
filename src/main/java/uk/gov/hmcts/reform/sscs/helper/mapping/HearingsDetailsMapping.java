@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -40,29 +41,27 @@ public final class HearingsDetailsMapping {
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getCaseData();
 
-        HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
-
         boolean autoListed = shouldBeAutoListed();
 
-        hearingDetailsBuilder.autolistFlag(autoListed);
-        hearingDetailsBuilder.hearingType(getHearingType());
-        hearingDetailsBuilder.hearingWindow(buildHearingWindow(caseData, autoListed));
-        hearingDetailsBuilder.duration(getHearingDuration(caseData));
-        hearingDetailsBuilder.nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons());
-        hearingDetailsBuilder.hearingPriorityType(getHearingPriority(caseData));
-        hearingDetailsBuilder.numberOfPhysicalAttendees(getNumberOfPhysicalAttendees());
-        hearingDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag());
-        hearingDetailsBuilder.hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
-        hearingDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
-        hearingDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
-        hearingDetailsBuilder.hearingRequester(getHearingRequester());
-        hearingDetailsBuilder.privateHearingRequiredFlag(getPrivateHearingRequiredFlag());
-        hearingDetailsBuilder.leadJudgeContractType(getLeadJudgeContractType());
-        hearingDetailsBuilder.panelRequirements(getPanelRequirements(caseData));
-        hearingDetailsBuilder.hearingIsLinkedFlag(isCaseLinked());
-        hearingDetailsBuilder.amendReasonCode(getAmendReasonCode());
-
-        return hearingDetailsBuilder.build();
+        return HearingDetails.builder()
+            .autolistFlag(autoListed)
+            .hearingType(getHearingType())
+            .hearingWindow(buildHearingWindow(caseData, autoListed))
+            .duration(getHearingDuration(caseData))
+            .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
+            .hearingPriorityType(getHearingPriority(caseData))
+            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees())
+            .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
+            .hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()))
+            .facilitiesRequired(getFacilitiesRequired(caseData))
+            .listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
+            .hearingRequester(getHearingRequester())
+            .privateHearingRequiredFlag(getPrivateHearingRequiredFlag())
+            .leadJudgeContractType(getLeadJudgeContractType())
+            .panelRequirements(getPanelRequirements(caseData))
+            .hearingIsLinkedFlag(isCaseLinked())
+            .amendReasonCode(getAmendReasonCode())
+            .build();
     }
 
     public static boolean shouldBeAutoListed() {
@@ -108,17 +107,17 @@ public final class HearingsDetailsMapping {
         // TODO Adjournments - Check this is the correct logic for Adjournments
         // TODO Future Work - Manual Override
 
-        int duration = getHearingDurationAdjournment(caseData);
-        if (duration <= 0) {
+        Integer duration = getHearingDurationAdjournment(caseData);
+        if (isNull(duration)) {
             duration = getHearingDurationBenefitIssueCodes(caseData);
-            if (duration <= 0) {
+            if (isNull(duration)) {
                 duration = DURATION_DEFAULT;
             }
         }
         return duration;
     }
 
-    public static int getHearingDurationAdjournment(SscsCaseData caseData) {
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
                 && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
 
@@ -130,24 +129,28 @@ public final class HearingsDetailsMapping {
                 return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_HOURS_MULTIPLIER;
             }
         }
-        return -1;
+
+        return null;
     }
 
-    public static int getHearingDurationBenefitIssueCodes(SscsCaseData caseData) {
-        HearingDuration hearingDuration = HearingDuration.getHearingDuration(caseData.getBenefitCode(),caseData.getIssueCode());
+    public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData) {
+        HearingDuration hearingDuration = HearingDuration.getHearingDuration(
+            caseData.getBenefitCode(), caseData.getIssueCode());
 
-        if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend()) && nonNull(hearingDuration)) {
-            if (HearingsCaseMapping.isInterpreterRequired(caseData)) {
-                return hearingDuration.getDurationInterpreter(getElementsDisputed(caseData));
-            } else {
-                return hearingDuration.getDurationFaceToFace(getElementsDisputed(caseData));
+        if (nonNull(hearingDuration)) {
+
+            if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
+                return HearingsCaseMapping.isInterpreterRequired(caseData)
+                    ? hearingDuration.getDurationInterpreter(getElementsDisputed(caseData))
+                    : hearingDuration.getDurationFaceToFace(getElementsDisputed(caseData));
             }
-        } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType()) && nonNull(hearingDuration)) {
-            return hearingDuration.getDurationPaper();
-        } else {
-            return -1;
+
+            if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
+                return hearingDuration.getDurationPaper();
+            }
         }
 
+        return null;
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
