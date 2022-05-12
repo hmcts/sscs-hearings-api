@@ -151,25 +151,27 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        if(hearingType == null || hearingSubtype == null) {
+        if (hearingType == null || hearingSubtype == null) {
             return null;
         }
 
-        return HEARING_TYPE_PAPER.equals(hearingType) ? NOT_ATTENDING.getHmcReference() :
-            isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE.getHmcReference() :
-                isYes(hearingSubtype.getWantsHearingTypeVideo()) ? VIDEO.getHmcReference() :
-                    isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? TELEPHONE.getHmcReference() :
-                        null;
+        return HEARING_TYPE_PAPER.equals(hearingType) ? NOT_ATTENDING.getHmcReference()
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE.getHmcReference()
+            : isYes(hearingSubtype.getWantsHearingTypeVideo()) ? VIDEO.getHmcReference()
+            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? TELEPHONE.getHmcReference()
+            : null;
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             return getSignLanguage(hearingOptions)
-                .map(SignLanguage::getHmcReference).orElse(null);
+                .map(SignLanguage::getHmcReference)
+                .orElse(null);
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             return getInterpreterLanguage(hearingOptions)
-                .map(InterpreterLanguage::getHmcReference).orElse(null);
+                .map(InterpreterLanguage::getHmcReference)
+                .orElse(null);
         }
         return null;
     }
@@ -177,6 +179,7 @@ public final class HearingsPartiesMapping {
     private static Optional<SignLanguage> getSignLanguage(HearingOptions hearingOptions) {
         return Optional.ofNullable(SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType()));
     }
+
     private static Optional<InterpreterLanguage> getInterpreterLanguage(HearingOptions hearingOptions) {
         return Optional.ofNullable(InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages()));
     }
