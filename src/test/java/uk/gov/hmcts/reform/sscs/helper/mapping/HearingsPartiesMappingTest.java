@@ -484,7 +484,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When sign language passed in should return correct LOV format")
     @ParameterizedTest
-    @CsvSource({"American Sign Language (ASL),americanSignLanguage", "Hands on signing,handsOnSigning", "Deaf Relay,deafRelay", "Palantypist / Speech to text,palantypist"})
+    @CsvSource({"American Sign Language (ASL),americanSignLanguage",
+                "Hands on signing,handsOnSigning",
+                "Deaf Relay,deafRelay",
+                "Palantypist / Speech to text,palantypist"})
     void getIndividualInterpreterSignLanguageTest(String signLang, String expected) {
         List<String> arrangements = Collections.singletonList("signLanguageInterpreter");
         HearingOptions hearingOptions = HearingOptions.builder()
@@ -502,6 +505,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel("paper", hearingSubtype);
         assertThat(result).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
+    }
+
+    @DisplayName("When hearingType and hearingSubType is null")
+    @Test
+    void whenHearingTypeAndHearingSubTypeIsNull() {
+        String result = HearingsPartiesMapping.getIndividualPreferredHearingChannel(null, null);
+        assertThat(result).isNull();
     }
 
     @DisplayName("When hearing type oral and video then return LOV not attending")

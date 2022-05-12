@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
@@ -166,13 +167,15 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        if (hearingOptions.wantsSignLanguageInterpreter()) {
+        if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguageType = hearingOptions.getSignLanguageType();
-            return SignLanguage.getSignLanguageKeyByCcdReference(signLanguageType).getHmcReference();
+            SignLanguage signLanguage = SignLanguage.getSignLanguageKeyByCcdReference(signLanguageType);
+            if (nonNull(signLanguage)) return signLanguage.getHmcReference();
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             String languages = hearingOptions.getLanguages();
-            return InterpreterLanguage.getLanguageAndConvert(languages).getHmcReference();
+            InterpreterLanguage interpreterLanguage = InterpreterLanguage.getLanguageAndConvert(languages);
+            if (nonNull(interpreterLanguage)) return interpreterLanguage.getHmcReference();
         }
         return null;
     }
