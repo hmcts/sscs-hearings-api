@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.config;
 
 import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
+import com.azure.core.amqp.exception.AmqpException;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusReceiverClient;
 import com.azure.messaging.servicebus.ServiceBusSessionReceiverClient;
@@ -86,8 +87,10 @@ public class TribunalsHearingsEventQueueListenerConfig {
                     receiver.abandon(message);
                 }
             });
-        } catch (Exception ex) {
-            log.error("Error occurred while closing the session", ex);
+        } catch (UnsupportedOperationException ex) {
+            log.error("This queue does not have sessions enabled.", ex);
+        } catch (AmqpException ex) {
+            log.error("Receiver timed out accepting next session.", ex);
         }
     }
 

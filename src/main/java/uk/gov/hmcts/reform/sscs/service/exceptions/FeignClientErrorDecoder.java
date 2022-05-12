@@ -72,12 +72,16 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                     LocalDateTime.now(), String.valueOf(response.status()), getOriginalErrorMessage(response));
             }
         } else {
-            Long caseId = Long.parseLong(response.request().requestTemplate().queries().get("id").iterator().next());
+            Long caseId = getQueryId(response);
             failMsg = buildFailureMessage(httpMethod.toString(), caseId, LocalDateTime.now(),
                 String.valueOf(response.status()), getOriginalErrorMessage(response));
         }
 
         return failMsg;
+    }
+
+    private long getQueryId(Response response) {
+        return Long.parseLong(response.request().requestTemplate().queries().get("id").iterator().next());
     }
 
     private String getOriginalErrorMessage(Response response) {
