@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
@@ -66,26 +68,49 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                 log.error("Error details: {}", new String(originalRequest.body(), StandardCharsets.UTF_8));
             }
             if (payload != null) {
-                failMsg = HmcFailureMessage.builder()
-                    .requestType(httpMethod.toString())
-                    .caseID(Long.valueOf(payload.getCaseDetails().getCaseId()))
-                    .timeStamp(LocalDateTime.now())
-                    .errorCode(String.valueOf(response.status()))
-                    .errorMessage(response.reason())
-                    .build();
+                failMsg = buildFailureMessage(httpMethod.toString(),
+                    Long.valueOf(payload.getCaseDetails().getCaseId()),
+                    LocalDateTime.now(),
+                    String.valueOf(response.status()),
+                    getOriginalErrorMessage(response));
             }
         } else {
-            Long caseId = Long.parseLong(response.request().requestTemplate().queries().get("id").iterator().next());
-            failMsg = HmcFailureMessage.builder()
-                .requestType(httpMethod.toString())
-                .caseID(caseId)
-                .timeStamp(LocalDateTime.now())
-                .errorCode(String.valueOf(response.status()))
-                .errorMessage(response.reason())
-                .build();
+            Long caseId = getQueryId(response);
+            failMsg = buildFailureMessage(httpMethod.toString(),
+                caseId,
+                LocalDateTime.now(),
+                String.valueOf(response.status()),
+                getOriginalErrorMessage(response));
         }
 
         return failMsg;
+    }
+
+    private long getQueryId(Response response) {
+        return Long.parseLong(response.request()
+            .requestTemplate()
+            .queries().get("id")
+            .iterator()
+            .next());
+    }
+
+    private String getOriginalErrorMessage(Response response) {
+        try (InputStream bodyIs = response.body().asInputStream()) {
+            return new String(bodyIs.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return String.format("Unable to resolve original error message: %s", e.getMessage());
+        }
+    }
+
+    private HmcFailureMessage buildFailureMessage(String method, Long caseId, LocalDateTime timestamp,
+                                                  String errorCode, String errorMessage) {
+        return HmcFailureMessage.builder()
+            .requestType(method)
+            .caseID(caseId)
+            .timeStamp(timestamp)
+            .errorCode(errorCode)
+            .errorMessage(errorMessage)
+            .build();
     }
 
     private HearingRequestPayload mapToPostHearingRequest(Request request) throws JsonProcessingException {
