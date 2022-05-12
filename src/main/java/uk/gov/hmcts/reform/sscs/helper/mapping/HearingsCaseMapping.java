@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -15,37 +14,24 @@ import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn"})
-// TODO Unsuppress in future
+
 @RestController
 public final class HearingsCaseMapping {
 
     public static final String CASE_TYPE = "caseType";
     public static final String CASE_SUB_TYPE = "caseSubType";
-
-    private static String exUiUrl;
-    private static String sscsServiceCode;
+    public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
 
     private HearingsCaseMapping() {
 
     }
 
-    @Value("${exui.url}")
-    public static void setExUiUrl(String value) {
-        exUiUrl = value;
-    }
-
-    @Value("${sscs.serviceCode}")
-    public static void setSscsServiceCode(String value) {
-        sscsServiceCode = value;
-    }
-
     public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
-                .hmctsServiceCode(getServiceCode())
+                .hmctsServiceCode(getServiceCode(wrapper))
                 .caseId(getCaseID(caseData))
-                .caseDeepLink(getCaseDeepLink(caseData))
+                .caseDeepLink(getCaseDeepLink(wrapper))
                 .hmctsInternalCaseName(getInternalCaseName(caseData))
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
@@ -57,16 +43,16 @@ public final class HearingsCaseMapping {
                 .build();
     }
 
-    public static String getServiceCode() {
-        return sscsServiceCode;
+    public static String getServiceCode(HearingWrapper wrapper) {
+        return wrapper.getSscsServiceCode();
     }
 
     public static String getCaseID(SscsCaseData caseData) {
         return caseData.getCcdCaseId();
     }
 
-    public static String getCaseDeepLink(SscsCaseData caseData) {
-        return String.format("%s/cases/case-details/%s", exUiUrl, getCaseID(caseData));
+    public static String getCaseDeepLink(HearingWrapper wrapper) {
+        return String.format(CASE_DETAILS_URL, wrapper.getExUiUrl(), getCaseID(wrapper.getCaseData()));
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
