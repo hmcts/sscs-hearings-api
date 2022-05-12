@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,5 +16,7 @@ import lombok.NoArgsConstructor;
 public class PartiesNotified {
 
     private Long partiesNotifiedRequestId;
+
+    private List<PartiesNotifiedResponse> partiesNotifiedResponse;
 
 }
