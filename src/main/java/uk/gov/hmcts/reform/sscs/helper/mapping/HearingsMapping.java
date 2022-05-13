@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapsComponent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,6 +31,8 @@ public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
     public static final String DWP_ORGANISATION_TYPE = "OGD";
+
+    public static final SessionCategoryMapsComponent SESSION_CATEGORY_MAPS = new SessionCategoryMapsComponent();
 
     private HearingsMapping() {
     }
@@ -124,7 +127,7 @@ public final class HearingsMapping {
     public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return SessionCategoryMap.getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(), doctorSpecialistSecond, fqpmRequired);
+        return SESSION_CATEGORY_MAPS.getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(), doctorSpecialistSecond, fqpmRequired);
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {

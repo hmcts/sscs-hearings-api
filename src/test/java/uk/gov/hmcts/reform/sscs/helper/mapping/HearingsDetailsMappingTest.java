@@ -415,7 +415,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "067,OK,null,null,BBA3-MQPM1",
     }, nullValues = {"null"})
     void getPanelRequirements(String benefitCode, String issueCode, String doctorSpecialism, String doctorSpecialismSecond, String expected) {
-        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
                 .issueCode(issueCode)
@@ -452,7 +451,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
 
-    @DisplayName("getHearingDuration Parameterized Tests")
+    @DisplayName("when a valid SscsCaseData is given getHearingDuration returns the correct duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null,null,null,30",
@@ -481,7 +480,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getHearingDurationBenefitIssueCodes Paper Parameterized Tests")
+    @DisplayName("When wantsToAttend for the Appeal is null and the hearing type is paper "
+            + "getHearingDurationBenefitIssueCodes return the correct paper durations Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null,null",
@@ -509,7 +509,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getHearingDurationBenefitIssueCodes FaceToFace Parameterized Tests")
+    @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
+            + "getHearingDurationBenefitIssueCodes return the correct face to face durations Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null,null",
@@ -537,7 +538,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getHearingDurationBenefitIssueCodes Interpreter Parameterized Tests")
+    @DisplayName("When wantsToAttend for the Appeal is Yes "
+            + "getHearingDurationBenefitIssueCodes return the correct interpreter durations Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null,null",
@@ -576,7 +578,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isEmpty();
     }
 
-    @DisplayName("getElementsDisputed Test")
+    @DisplayName("getElementsDisputed returns a List of elements of all elements in each of the elementDisputed fields in SscsCaseData")
     @Test
     void getElementsDisputed() {
         ElementDisputed elementDisputed = ElementDisputed.builder()
