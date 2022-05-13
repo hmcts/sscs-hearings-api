@@ -12,6 +12,7 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.SESSION_CATEGORY_MAPS;
 
 
 @RestController
@@ -105,7 +106,7 @@ public final class HearingsCaseMapping {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(sessionCaseCode.getCategoryTypeValue())
+                .categoryValue(SESSION_CATEGORY_MAPS.getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
@@ -114,7 +115,7 @@ public final class HearingsCaseMapping {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
-                .categoryValue(sessionCaseCode.getCategorySubTypeValue())
+                .categoryValue(SESSION_CATEGORY_MAPS.getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }

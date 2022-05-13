@@ -6,7 +6,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsComponent;
+import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,7 +35,7 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30;
 
-    public static final HearingDurationsComponent HEARING_DURATIONS = new HearingDurationsComponent();
+    public static final HearingDurationsService HEARING_DURATIONS = new HearingDurationsService();
 
     private HearingsDetailsMapping() {
 
@@ -143,9 +143,10 @@ public final class HearingsDetailsMapping {
         if (nonNull(hearingDuration)) {
 
             if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-                return HearingsCaseMapping.isInterpreterRequired(caseData)
-                    ? hearingDuration.getDurationInterpreter(getElementsDisputed(caseData))
-                    : hearingDuration.getDurationFaceToFace(getElementsDisputed(caseData));
+                Integer duration = HearingsCaseMapping.isInterpreterRequired(caseData)
+                    ? hearingDuration.getDurationInterpreter()
+                    : hearingDuration.getDurationFaceToFace();
+                return HEARING_DURATIONS.addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(), getElementsDisputed(caseData));
             } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
                 return hearingDuration.getDurationPaper();
             }
