@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.ReferenceData;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
@@ -12,7 +13,6 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.SESSION_CATEGORY_MAPS;
 
 
 @RestController
@@ -26,7 +26,7 @@ public final class HearingsCaseMapping {
 
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper) {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceData referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
                 .hmctsServiceCode(getServiceCode(wrapper))
@@ -36,7 +36,7 @@ public final class HearingsCaseMapping {
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .caseCategories(buildCaseCategories(caseData))
+                .caseCategories(buildCaseCategories(caseData, referenceData))
                 .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
                 .caseRestrictedFlag(shouldBeSensitiveFlag())
                 .caseSlaStartDate(getCaseCreated(caseData))
@@ -90,32 +90,32 @@ public final class HearingsCaseMapping {
         return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
-    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData) {
+    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceData referenceData) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         List<CaseCategory> categories = new ArrayList<>();
 
-        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData);
+        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceData);
 
-        categories.addAll(getCaseSubTypes(sessionCaseCode));
-        categories.addAll(getCaseTypes(sessionCaseCode));
+        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceData));
+        categories.addAll(getCaseTypes(sessionCaseCode, referenceData));
 
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(SESSION_CATEGORY_MAPS.getCategoryTypeValue(sessionCaseCode))
+                .categoryValue(referenceData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode) {
+    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
-                .categoryValue(SESSION_CATEGORY_MAPS.getCategorySubTypeValue(sessionCaseCode))
+                .categoryValue(referenceData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }

@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.ReferenceData;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -39,8 +41,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
-
-
     private static final long HEARING_REQUEST_ID = 12345;
     private static final String HMC_STATUS = "TestStatus";
     private static final long VERSION = 1;
@@ -63,6 +63,9 @@ class HearingsServiceTest {
 
     @Mock
     private IdamService idamService;
+
+    @Autowired
+    private ReferenceData referenceData;
 
     @BeforeEach
     void setup() {
@@ -98,8 +101,8 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService);
+        referenceData = new ReferenceData(new HearingDurationsService(), new SessionCategoryMapService());
+        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceData);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")

@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.jetbrains.annotations.NotNull;
+import uk.gov.hmcts.reform.sscs.model.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +13,10 @@ public class HearingsMappingBase {
 
     public static final String CASE_CREATED = "2022-04-01";
 
-    protected HearingsMappingBase() {
+    public final ReferenceData referenceData;
 
+    protected HearingsMappingBase() {
+        referenceData = new ReferenceData(new HearingDurationsService(), new SessionCategoryMapService());
     }
 
     public static final long HEARING_REQUEST_ID = 12345;

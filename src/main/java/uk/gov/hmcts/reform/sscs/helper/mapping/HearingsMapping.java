@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.ReferenceData;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
@@ -33,16 +34,14 @@ public final class HearingsMapping {
     public static final String DWP_ID = "DWP";
     public static final String DWP_ORGANISATION_TYPE = "OGD";
 
-    public static final SessionCategoryMapService SESSION_CATEGORY_MAPS = new SessionCategoryMapService();
-
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceData referenceData) {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
-            .hearingDetails(buildHearingDetails(wrapper))
-            .caseDetails(buildHearingCaseDetails(wrapper))
+            .hearingDetails(buildHearingDetails(wrapper, referenceData))
+            .caseDetails(buildHearingCaseDetails(wrapper, referenceData))
             .partiesDetails(buildHearingPartiesDetails(wrapper))
             .build();
     }
@@ -125,10 +124,10 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData) {
+    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceData referenceData) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return SESSION_CATEGORY_MAPS.getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(), doctorSpecialistSecond, fqpmRequired);
+        return referenceData.getSessionCategoryMaps().getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(), doctorSpecialistSecond, fqpmRequired);
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {

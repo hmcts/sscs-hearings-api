@@ -50,7 +50,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper);
+        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, referenceData);
 
         assertNotNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
@@ -396,7 +396,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData);
+        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRoleTypes()).isEmpty();
@@ -424,7 +424,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData);
+        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRoleTypes()).isEmpty();
@@ -475,7 +475,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
                 .build();
-        int result = HearingsDetailsMapping.getHearingDuration(caseData);
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceData);
 
         assertEquals(expected, result);
     }
@@ -504,7 +504,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
 
         assertEquals(expected, result);
     }
@@ -533,7 +533,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
 
         assertEquals(expected, result);
     }
@@ -563,7 +563,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
 
         assertEquals(expected, result);
     }

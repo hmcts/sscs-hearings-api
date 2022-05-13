@@ -13,13 +13,15 @@ import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.ReferenceData;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
@@ -34,10 +36,13 @@ public class HearingsService {
 
     private final IdamService idamService;
 
+    private final ReferenceData referenceData;
+
     @Value("${exui.url}")
     private String exUiUrl;
     @Value("${sscs.serviceCode}")
     private String sscsServiceCode;
+
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
@@ -122,7 +127,7 @@ public class HearingsService {
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         log.debug("Sending Create Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
@@ -135,7 +140,7 @@ public class HearingsService {
     }
 
     private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         log.debug("Sending Update Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),

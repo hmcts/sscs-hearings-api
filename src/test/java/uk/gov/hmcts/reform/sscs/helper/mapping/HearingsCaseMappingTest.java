@@ -65,7 +65,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper);
+        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceData);
 
         assertNotNull(caseDetails.getCaseId());
         assertNotNull(caseDetails.getCaseDeepLink());
@@ -312,7 +312,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .issueCode(issueCode)
                 .build();
 
-        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData);
+        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceData);
 
         assertThat(result)
                 .extracting("categoryType", "categoryValue")
