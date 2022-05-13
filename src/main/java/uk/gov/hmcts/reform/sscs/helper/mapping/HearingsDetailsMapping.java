@@ -319,9 +319,10 @@ public final class HearingsDetailsMapping {
                 }
             }
         }
-        panelRequirementsBuilder.panelSpecialisms(panelSpecialisms);
 
-        return panelRequirementsBuilder.build();
+        return panelRequirementsBuilder
+            .panelSpecialisms(panelSpecialisms)
+            .build();
     }
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
