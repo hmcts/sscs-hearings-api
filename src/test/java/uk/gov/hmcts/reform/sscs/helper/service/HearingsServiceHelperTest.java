@@ -139,6 +139,4 @@ class HearingsServiceHelperTest {
                     .build())
             .build();
     }
-
-
 }

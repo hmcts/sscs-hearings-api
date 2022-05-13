@@ -17,7 +17,6 @@ class PartiesNotifiedMappingTest extends HearingsMappingBase {
     @Test
     void buildUpdatePartiesNotifiedPayload() {
 
-        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .schedulingAndListingFields(SchedulingAndListingFields.builder()
                         .activeHearingVersionNumber(VERSION)
@@ -37,7 +36,7 @@ class PartiesNotifiedMappingTest extends HearingsMappingBase {
     @DisplayName("getVersionNumber Test")
     @Test
     void getVersionNumber() {
-        // TODO Finish Test when method done
+
         SscsCaseData caseData = SscsCaseData.builder()
                 .schedulingAndListingFields(SchedulingAndListingFields.builder()
                         .activeHearingVersionNumber(VERSION)
