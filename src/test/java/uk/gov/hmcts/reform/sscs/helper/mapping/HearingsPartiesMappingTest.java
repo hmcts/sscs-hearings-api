@@ -461,10 +461,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getIndividualPreferredHearingChannel Test")
+    @DisplayName("When hearingType and hearingSubType not set then return null")
     @Test
     void getIndividualPreferredHearingChannelTest() {
-        // TODO Finish Test when method done
         String hearingType = "HearingType";
         HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         String result = getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null);
