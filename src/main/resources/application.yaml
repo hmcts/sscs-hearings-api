@@ -3,12 +3,10 @@ server:
 
 logging:
   level:
-    uk:
-      gov:
-        hmcts:
-          fortifyclient: INFO
-          reform:
-            sscs: ${SSCS_LOG_LEVEL:INFO}
+    uk.gov.hmcts.reform.sscs: ${SSCS_LOG_LEVEL:INFO}
+    com.microsoft.azure.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.messaging.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.core.amqp: ${SERVICE_BUS_LOG_LEVEL:ERROR}
 
 management:
   endpoint:
