@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -186,14 +185,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     }
 
     @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
-    @ParameterizedTest
-    @EnumSource(value = YesNo.class)
+    @Test
     @NullSource
-    void buildHearingPartiesDetailsJointParty(YesNo jointParty) {
+    void buildHearingPartiesDetailsJointParty() {
 
         String jointPartyId = "2";
         String appellantId = "1";
-        JointParty jointParty1Party = JointParty.builder().id(jointPartyId)
+        JointParty jointParty = JointParty.builder().id(jointPartyId)
             .name(Name.builder()
                       .title("title")
                       .firstName("first")
@@ -202,7 +200,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .jointParty(jointParty1Party)
+                .jointParty(jointParty)
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .appellant(Appellant.builder()
