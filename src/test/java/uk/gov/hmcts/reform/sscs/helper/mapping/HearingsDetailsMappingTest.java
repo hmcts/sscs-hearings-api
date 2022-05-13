@@ -87,11 +87,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertFalse(result);
     }
 
-    @DisplayName("When .. is given getHearingType returns the correct Hearing Type")
+    @DisplayName("Hearing type should be substantive.")
     @Test
     void getHearingType() {
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        String result = HearingsDetailsMapping.getHearingType(caseData);
+        String result = HearingsDetailsMapping.getHearingType();
 
         assertEquals(result, HearingTypeLov.SUBSTANTIVE.getHmcReference());
     }

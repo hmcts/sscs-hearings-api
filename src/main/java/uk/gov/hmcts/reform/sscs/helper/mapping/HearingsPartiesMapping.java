@@ -100,7 +100,7 @@ public final class HearingsPartiesMapping {
 
         partyDetails.partyID(DWP_ID);
         partyDetails.partyType(ORG.name());
-        partyDetails.partyRole(RESPONDENT.getKey());
+        partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(getDwpUnavailabilityRange());
@@ -122,7 +122,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getPartyRole(Entity entity) {
-        return getEntityRoleCode(entity).getKey();
+        return getEntityRoleCode(entity).getHmcReference();
     }
 
     public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String partyId, String appellantId) {

@@ -432,7 +432,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getPartyRoleRepresentative() {
         String result = HearingsPartiesMapping.getPartyRole(Representative.builder().build());
 
-        assertThat(result).isEqualTo(REPRESENTATIVE.getKey());
+        assertThat(result).isEqualTo(REPRESENTATIVE.getHmcReference());
     }
 
     @DisplayName("getIndividualFirstName Parameterised Tests")
