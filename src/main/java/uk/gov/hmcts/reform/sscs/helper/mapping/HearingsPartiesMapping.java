@@ -98,7 +98,6 @@ public final class HearingsPartiesMapping {
         return partyDetails.build();
     }
 
-
     public static String getPartyId(Entity entity) {
         return entity.getId();
     }
@@ -129,7 +128,6 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualFirstName(Entity entity) {
-
         return entity.getName().getFirstName();
     }
 

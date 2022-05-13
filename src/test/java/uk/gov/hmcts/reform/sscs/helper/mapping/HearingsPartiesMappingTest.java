@@ -190,10 +190,19 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @EnumSource(value = YesNo.class)
     @NullSource
     void buildHearingPartiesDetailsJointParty(YesNo jointParty) {
-        // TODO SSCS-10378 - Finish Test
+
+        String jointPartyId = "2";
         String appellantId = "1";
+        JointParty jointParty1Party = JointParty.builder().id(jointPartyId)
+            .name(Name.builder()
+                      .title("title")
+                      .firstName("first")
+                      .lastName("last")
+                      .build())
+            .build();
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .jointParty(JointParty.builder().hasJointParty(jointParty).build())
+                .jointParty(jointParty1Party)
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .appellant(Appellant.builder()
