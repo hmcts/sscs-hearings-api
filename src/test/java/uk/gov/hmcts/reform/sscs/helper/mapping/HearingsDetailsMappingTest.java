@@ -566,10 +566,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getElementsDisputed when elementDisputed is Null Test")
+    @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
     @Test
     void getElementsDisputedNull() {
         SscsCaseData caseData = SscsCaseData.builder().build();
+
         List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
 
         assertThat(result).isEmpty();
