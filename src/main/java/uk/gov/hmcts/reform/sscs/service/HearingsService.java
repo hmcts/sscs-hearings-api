@@ -167,6 +167,16 @@ public class HearingsService {
         );
     }
 
+    private void sendPartiesNotifiedUpdateRequest(HearingWrapper wrapper) {
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
+                receiveIdamToken().getIdamOauth2Token(),
+                receiveIdamToken().getServiceAuthorization(),
+                getHearingId(wrapper),
+                getVersionNumber(wrapper),
+                buildUpdatePartiesNotifiedPayload(wrapper)
+        );
+    }
+
     public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response) throws UpdateCaseException {
 
         log.info("Updating Case with Hearing Response for Case ID {} and Hearing State {}",
@@ -203,17 +213,6 @@ public class HearingsService {
                 .exUiUrl(exUiUrl)
                 .sscsServiceCode(sscsServiceCode)
                 .build();
-    }
-
-    private void sendPartiesNotifiedUpdateRequest(HearingWrapper wrapper) {
-        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
-                receiveIdamToken().getIdamOauth2Token(),
-                receiveIdamToken().getServiceAuthorization(),
-                getHearingId(wrapper),
-                getVersionNumber(wrapper),
-                buildUpdatePartiesNotifiedPayload(wrapper)
-
-        );
     }
 
     private IdamTokens receiveIdamToken() {
