@@ -484,16 +484,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingDurationBenefitIssueCodes Paper Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "null,null,-1",
-        "061,null,-1",
-        "null,XA,-1",
-        "061,FR,-1",
-        "999,EC,-1",
+        "null,null,null",
+        "061,null,null",
+        "null,XA,null",
+        "061,FR,null",
+        "999,EC,null",
         "013,EC,30",
         "003,CE,30",
         "061,WI,30",
     }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode, int expected) {
+    void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode, Integer expected) {
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
                 .issueCode(issueCode)
@@ -504,7 +504,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        int result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
 
         assertEquals(expected, result);
     }
@@ -512,16 +512,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingDurationBenefitIssueCodes FaceToFace Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "null,null,-1",
-        "061,null,-1",
-        "null,XA,-1",
-        "061,FR,-1",
-        "999,EC,-1",
+        "null,null,null",
+        "061,null,null",
+        "null,XA,null",
+        "061,FR,null",
+        "999,EC,null",
         "013,EC,45",
         "003,CE,60",
         "061,WI,45",
     }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesFaceToFace(String benefitCode, String issueCode, int expected) {
+    void getHearingDurationBenefitIssueCodesFaceToFace(String benefitCode, String issueCode, Integer expected) {
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
                 .issueCode(issueCode)
@@ -532,7 +532,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        int result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
 
         assertEquals(expected, result);
     }
@@ -540,16 +540,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingDurationBenefitIssueCodes Interpreter Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "null,null,-1",
-        "061,null,-1",
-        "null,XA,-1",
-        "061,FR,-1",
-        "999,EC,-1",
+        "null,null,null",
+        "061,null,null",
+        "null,XA,null",
+        "061,FR,null",
+        "999,EC,null",
         "013,EC,75",
         "003,CE,90",
         "061,WI,75",
     }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesInterpreter(String benefitCode, String issueCode, int expected) {
+    void getHearingDurationBenefitIssueCodesInterpreter(String benefitCode, String issueCode, Integer expected) {
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
                 .issueCode(issueCode)
@@ -561,7 +561,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        int result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData);
 
         assertEquals(expected, result);
     }
