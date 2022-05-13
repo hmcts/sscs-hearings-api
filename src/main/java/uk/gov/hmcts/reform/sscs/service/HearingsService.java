@@ -133,8 +133,8 @@ public class HearingsService {
                 wrapper.getState().getState(),
                 hearingPayload.toString());
         return hmcHearingApi.createHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
+                receiveIdamToken().getIdamOauth2Token(),
+                receiveIdamToken().getServiceAuthorization(),
                 hearingPayload
         );
     }
@@ -146,8 +146,8 @@ public class HearingsService {
                 wrapper.getState().getState(),
                 hearingPayload.toString());
         return hmcHearingApi.updateHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
+                receiveIdamToken().getIdamOauth2Token(),
+                receiveIdamToken().getServiceAuthorization(),
                 getHearingId(wrapper),
                 hearingPayload
         );
@@ -160,8 +160,8 @@ public class HearingsService {
                 wrapper.getState().getState(),
                 hearingPayload.toString());
         return hmcHearingApi.cancelHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
+                receiveIdamToken().getIdamOauth2Token(),
+                receiveIdamToken().getServiceAuthorization(),
                 String.valueOf(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingId()),
                 hearingPayload
         );

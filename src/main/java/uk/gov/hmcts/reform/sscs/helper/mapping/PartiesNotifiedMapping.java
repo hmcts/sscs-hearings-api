@@ -18,11 +18,11 @@ public final class PartiesNotifiedMapping {
         return partiesNotifiedBuilder.build();
     }
 
-    public static String getVersionNumber(HearingWrapper wrapper) {
+    public static Long getVersionNumber(HearingWrapper wrapper) {
         return Optional.of(wrapper)
                 .map(HearingWrapper::getUpdatedCaseData)
                 .map(SscsCaseData::getSchedulingAndListingFields)
                 .map(SchedulingAndListingFields::getActiveHearingVersionNumber)
-                .map(Object::toString).orElse(null);
+                .orElse(null);
     }
 }

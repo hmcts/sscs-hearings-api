@@ -488,7 +488,7 @@ public class ContractTestDataProvider {
 
     public static PartiesNotified generatePartiesPutRequest() throws JsonProcessingException {
         PartiesNotified partiesNotified = new PartiesNotified();
-        partiesNotified.setRequestVersion("123");
+        partiesNotified.setRequestVersion(123L);
         String json = "{ \"Test Data\" : \"Test Data\" } ";
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -501,7 +501,7 @@ public class ContractTestDataProvider {
     public static PartiesNotified generateInvalidPartiesPutRequest() {
 
         PartiesNotified partiesNotified = new PartiesNotified();
-        partiesNotified.setRequestVersion("123");
+        partiesNotified.setRequestVersion(123L);
         return partiesNotified;
     }
 

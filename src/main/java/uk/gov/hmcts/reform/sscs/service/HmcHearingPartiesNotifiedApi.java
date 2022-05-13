@@ -27,7 +27,7 @@ public interface HmcHearingPartiesNotifiedApi {
             @RequestHeader(AUTHORIZATION) String authorisation,
             @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
             @RequestParam(ID) String id,
-            @RequestParam(VERSION) String responseVersion,
+            @RequestParam(VERSION) Long responseVersion,
             @RequestBody PartiesNotified partiesNotified
     );
 

@@ -56,7 +56,7 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.unauthorisedHead
 @PactFolder("pacts")
 class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
     private static final String VERSION = "version";
-    private static final String VERSION_NUMBER = "123";
+    private static final Long VERSION_NUMBER = 123L;
     private static final String FORBIDDEN_CASE_ID = "456";
     private static final String NOT_FOUND_CASE_ID = "789";
 
@@ -203,7 +203,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers, String caseId,
-                             String version, PartiesNotified payload, HttpStatus status) {
+                             Long version, PartiesNotified payload, HttpStatus status) {
         RestAssured.given().headers(headers)
                 .contentType(ContentType.JSON)
                 .queryParam(FIELD_ID, caseId)

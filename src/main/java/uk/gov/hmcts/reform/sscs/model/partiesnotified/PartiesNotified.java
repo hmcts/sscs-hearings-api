@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class PartiesNotified {
-    private String requestVersion;
+    private Long requestVersion;
     private JsonNode serviceData;
 }
