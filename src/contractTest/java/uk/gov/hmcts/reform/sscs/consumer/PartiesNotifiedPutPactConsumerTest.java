@@ -3,17 +3,23 @@ package uk.gov.hmcts.reform.sscs.consumer;
 import au.com.dius.pact.consumer.MockServer;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
+import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import au.com.dius.pact.core.model.annotations.PactFolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingPartiesNotifiedApi;
@@ -27,6 +33,12 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.FIELD_ID;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.VALID_CASE_ID;
 
+@ExtendWith(PactConsumerTestExt.class)
+@EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
+@ActiveProfiles("contract")
+@SpringBootTest
+@PactTestFor(port = "10000")
+@PactFolder("pacts")
 class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
     private static final String VERSION = "version";
     private static final String VERSION_NUMBER = "123";
@@ -47,8 +59,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to put PartiesNotified request")
                 .path(ContractTestDataProvider.PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(FIELD_ID + "=" + VALID_CASE_ID)
-                .query(VERSION + "=" + VERSION_NUMBER)
+                .query(FIELD_ID + "=" + VALID_CASE_ID + "&" + VERSION + "=" + VERSION_NUMBER)
                 .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generatePartiesPutRequest()))
                 .headers(ContractTestDataProvider.authorisedHeaders)
                 .willRespondWith()
@@ -63,8 +74,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for bad PartiesNotified request")
                 .path(ContractTestDataProvider.PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(FIELD_ID + "=" + VALID_CASE_ID)
-                .query(VERSION + "=" + VERSION_NUMBER)
+                .query(FIELD_ID + "=" + VALID_CASE_ID + "&" + VERSION + "=" + VERSION_NUMBER)
                 .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidPartiesPutRequest()))
                 .headers(ContractTestDataProvider.authorisedHeaders)
                 .willRespondWith()
@@ -85,8 +95,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for unauthorised PartiesNotified request")
                 .path(ContractTestDataProvider.PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(FIELD_ID + "=" + VALID_CASE_ID)
-                .query(VERSION + "=" + VERSION_NUMBER)
+                .query(FIELD_ID + "=" + VALID_CASE_ID + "&" + VERSION + "=" + VERSION_NUMBER)
                 .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generatePartiesPutRequest()))
                 .headers(ContractTestDataProvider.unauthorisedHeaders)
                 .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
@@ -105,8 +114,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for forbidden PartiesNotified request")
                 .path(ContractTestDataProvider.PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
-                .query(VERSION + "=" + VERSION_NUMBER)
+                .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID + "&" + VERSION + "=" + VERSION_NUMBER)
                 .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generatePartiesPutRequest()))
                 .headers(ContractTestDataProvider.authorisedHeaders)
                 .willRespondWith().status(HttpStatus.FORBIDDEN.value())
@@ -125,8 +133,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for not found PartiesNotified request")
                 .path(ContractTestDataProvider.PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
-                .query(VERSION + "=" + VERSION_NUMBER)
+                .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID + "&" + VERSION + "=" + VERSION_NUMBER)
                 .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generatePartiesPutRequest()))
                 .headers(ContractTestDataProvider.authorisedHeaders)
                 .willRespondWith().status(HttpStatus.NOT_FOUND.value())
