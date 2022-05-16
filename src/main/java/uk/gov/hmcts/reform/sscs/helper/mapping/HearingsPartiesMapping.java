@@ -39,7 +39,7 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.addAll(buildHearingPartiesPartyDetails(caseData.getJointParty(),null,null,null,null,appellant.getId()));
+            partiesDetails.addAll(buildHearingPartiesPartyJointDetails(caseData.getJointParty(),appellant.getId()));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -56,6 +56,10 @@ public final class HearingsPartiesMapping {
         }
 
         return partiesDetails;
+    }
+
+    public static List<PartyDetails> buildHearingPartiesPartyJointDetails(Party party, String appellantId) {
+        return buildHearingPartiesPartyDetails(party,null,null,null,null,appellantId);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
@@ -96,11 +100,6 @@ public final class HearingsPartiesMapping {
         partyDetails.unavailabilityRanges(getDwpUnavailabilityRange());
 
         return partyDetails.build();
-    }
-
-    public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
-        // TODO SSCS-10378 - Add joint party logic
-        return PartyDetails.builder().build();
     }
 
     public static String getPartyId(Entity entity) {

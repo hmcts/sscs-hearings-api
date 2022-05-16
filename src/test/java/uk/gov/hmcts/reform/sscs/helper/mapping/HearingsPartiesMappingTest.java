@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -225,6 +226,108 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
         assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
     }
+
+    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @ParameterizedTest
+    @EnumSource(value = YesNo.class)
+    @NullSource
+    void buildHearingPartiesDetailsJointParty(YesNo jointParty) {
+
+        String appellantId = "1";
+        String jointPartyId = "2";
+        SscsCaseData caseData = SscsCaseData.builder()
+            .jointParty(JointParty.builder().hasJointParty(jointParty).build())
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .appellant(Appellant.builder()
+                                       .id(appellantId)
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .build();
+
+        JointParty jointPartyD = JointParty.builder().id(jointPartyId)
+            .name(Name.builder()
+                      .title("title")
+                      .firstName("first")
+                      .lastName("last")
+                      .build())
+            .build();
+
+        SscsCaseData caseDataName = SscsCaseData.builder()
+            .jointParty(jointPartyD)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .appellant(Appellant.builder()
+                                       .id(appellantId)
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(caseData)
+            .caseData(caseDataName)
+            .build();
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
+
+        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+
+        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+
+    }
+
+    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @Test
+    @NullSource
+    void buildHearingPartiesDetailsJointPartyYes() {
+
+        String jointPartyId = "2";
+        String appellantId = "1";
+        JointParty jointParty = JointParty.builder().id(jointPartyId)
+            .name(Name.builder()
+                      .title("title")
+                      .firstName("first")
+                      .lastName("last")
+                      .build())
+            .build();
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .jointParty(jointParty)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .appellant(Appellant.builder()
+                                       .id(appellantId)
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
+
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
+
+        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+
+        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
+    }
+
+
+
 
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")
     @ParameterizedTest
