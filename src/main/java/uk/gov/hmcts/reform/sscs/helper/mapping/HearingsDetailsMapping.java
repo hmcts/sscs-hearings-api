@@ -35,10 +35,10 @@ public final class HearingsDetailsMapping {
 
         HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
 
-        boolean autoListed = shouldBeAutoListed();
+        boolean autoListed = shouldBeAutoListed(caseData);
 
         hearingDetailsBuilder.autolistFlag(autoListed);
-        hearingDetailsBuilder.hearingType(getHearingType(caseData));
+        hearingDetailsBuilder.hearingType(getHearingType());
         hearingDetailsBuilder.hearingWindow(buildHearingWindow(caseData, autoListed));
         hearingDetailsBuilder.duration(getHearingDuration(caseData));
         hearingDetailsBuilder.nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons());
@@ -58,9 +58,11 @@ public final class HearingsDetailsMapping {
         return hearingDetailsBuilder.build();
     }
 
-    public static boolean shouldBeAutoListed() {
-        // TODO Future Work
-        return true;
+    public static boolean shouldBeAutoListed(SscsCaseData caseData) {
+        // TODO Future Work - Account for additional conditions
+
+        Appeal appeal = caseData.getAppeal();
+        return appeal.getHearingOptions().isWantsToAttendHearing();
     }
 
     public static String getHearingType() {

@@ -61,13 +61,31 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getPanelRequirements());
     }
 
-    @DisplayName("shouldBeAutoListed Parameterized Tests")
+    @DisplayName("shouldBeAutoListed flag is TRUE when HearingOptions.wantsToAttend is yes")
     @Test
     void shouldBeAutoListed() {
         // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed();
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .build())
+            .build();
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
 
         assertTrue(result);
+    }
+
+    @DisplayName("shouldBeAutoListed flag is FALSE when HearingOptions.wantsToAttend is no")
+    @Test
+    void shouldNotBeAutoListed() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("no").build())
+                        .build())
+            .build();
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+
+        assertFalse(result);
     }
 
     @DisplayName("shouldBeHearingsInWelshFlag Test")

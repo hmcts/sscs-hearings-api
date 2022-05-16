@@ -129,7 +129,7 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions).orElse(null))
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
@@ -150,15 +150,15 @@ public final class HearingsPartiesMapping {
         return entity.getName().getLastName();
     }
 
-    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
+    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype, HearingOptions hearingOptions) {
         if (hearingType == null || hearingSubtype == null) {
             return Optional.empty();
         }
 
-        return HEARING_TYPE_PAPER.equals(hearingType) ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
+        return HEARING_TYPE_PAPER.equals(hearingType) || !hearingOptions.isWantsToAttendHearing() ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
             : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(FACE_TO_FACE.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeVideo()) ? Optional.ofNullable(VIDEO.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? Optional.ofNullable(TELEPHONE.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeVideo()) && nonNull(hearingSubtype.getHearingVideoEmail()) ? Optional.ofNullable(VIDEO.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber()) ? Optional.ofNullable(TELEPHONE.getHmcReference())
             : Optional.empty();
     }
 
