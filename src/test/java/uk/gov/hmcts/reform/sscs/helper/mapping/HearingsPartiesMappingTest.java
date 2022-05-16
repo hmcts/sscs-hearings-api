@@ -218,7 +218,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(wrapper.getCaseData().getJointParty(), appellantId);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
+
+        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
         assertThat(partiesDetails).isNotNull();
         partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(null);
         partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyType())).findFirst().orElse(null);
@@ -227,7 +229,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
     }
 
-    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details with other null values")
     @Test
     @NullSource
     void buildHearingPartiesDetailsJointPartyWithNull() {

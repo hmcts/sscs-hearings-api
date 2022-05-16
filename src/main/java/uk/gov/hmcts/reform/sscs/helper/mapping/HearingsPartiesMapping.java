@@ -18,7 +18,7 @@ import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMB.LawOfDemeter","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
@@ -39,7 +39,7 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.addAll(buildHearingPartiesPartyDetails(caseData.getJointParty(),appellant.getId()));
+            partiesDetails.addAll(buildHearingPartiesPartyDetails(caseData.getJointParty(),null,null,null,null,appellant.getId()));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -56,10 +56,6 @@ public final class HearingsPartiesMapping {
         }
 
         return partiesDetails;
-    }
-
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) {
-        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
