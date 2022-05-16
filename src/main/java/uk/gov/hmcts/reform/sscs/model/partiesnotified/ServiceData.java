@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class PartiesNotified {
-    private Long requestVersion;
-    private ServiceData serviceData;
+public class ServiceData {
+    private String testData;
 }

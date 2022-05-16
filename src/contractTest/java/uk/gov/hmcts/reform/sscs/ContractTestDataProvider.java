@@ -3,12 +3,12 @@ package uk.gov.hmcts.reform.sscs;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.ServiceData;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -60,7 +60,6 @@ public class ContractTestDataProvider {
     public static final String BAD_REQUEST = "BAD_REQUEST";
     public static final String FIELD_MESSAGE = "message";
     public static final String FIELD_ERRORS = "errors";
-    public static final int ZERO_LENGTH = 0;
     public static final Number ZERO_NUMBER_LENGTH = 0;
     public static final String FIELD_ID = "id";
     public static final String VALID_CASE_ID = "123";
@@ -489,12 +488,7 @@ public class ContractTestDataProvider {
     public static PartiesNotified generatePartiesPutRequest() throws JsonProcessingException {
         PartiesNotified partiesNotified = new PartiesNotified();
         partiesNotified.setRequestVersion(123L);
-        String json = "{ \"Test Data\" : \"Test Data\" } ";
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        JsonNode jsonNode = objectMapper.readTree(json);
-        partiesNotified.setServiceData(jsonNode);
+        partiesNotified.setServiceData(ServiceData.builder().testData("Test Data").build());
         return partiesNotified;
     }
 
