@@ -223,6 +223,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
         assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
     }
 
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")
