@@ -144,7 +144,9 @@ public final class HearingsDetailsMapping {
                 Integer duration = HearingsCaseMapping.isInterpreterRequired(caseData)
                     ? hearingDuration.getDurationInterpreter()
                     : hearingDuration.getDurationFaceToFace();
-                return referenceData.getHearingDurations().addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(), getElementsDisputed(caseData));
+                return referenceData.getHearingDurations()
+                        .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
+                                getElementsDisputed(caseData));
             } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
                 return hearingDuration.getDurationPaper();
             }

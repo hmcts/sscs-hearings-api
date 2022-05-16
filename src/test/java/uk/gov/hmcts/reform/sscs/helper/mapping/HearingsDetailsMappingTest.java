@@ -7,7 +7,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
@@ -27,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
@@ -35,8 +40,20 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
     void buildHearingDetails() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
@@ -394,6 +411,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getPanelRequirements() {
         // TODO Finish Test when method done
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         SscsCaseData caseData = SscsCaseData.builder().build();
 
         PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
@@ -406,21 +426,62 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getPanelSpecialisms()).isEmpty();
     }
 
-    @DisplayName("When a industrial case is given getPanelRequirements returns the valid PanelRequirements with second specialist doctor")
+    @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "031,EX,cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003",
-        "036,DD,null,carer,BBA3-MQPM1|BBA3-MQPM2-002",
-        "031,RC,generalPractitioner,null,BBA3-MQPM1-004",
-        "067,OK,null,null,BBA3-MQPM1",
+        "cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003",
+        "null,carer,BBA3-MQPM1|BBA3-MQPM2-002",
     }, nullValues = {"null"})
-    void getPanelRequirements(String benefitCode, String issueCode, String doctorSpecialism, String doctorSpecialismSecond, String expected) {
+    void getPanelRequirements(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,true,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        true,false,SessionCategory.CATEGORY_06,null));
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(benefitCode)
-                .issueCode(issueCode)
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
                         .panelDoctorSpecialism(doctorSpecialism)
                         .secondPanelDoctorSpecialism(doctorSpecialismSecond)
+                        .build())
+                .build();
+
+        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRoleTypes()).isEmpty();
+        assertThat(result.getAuthorisationTypes()).isEmpty();
+        assertThat(result.getAuthorisationSubTypes()).isEmpty();
+        assertThat(result.getPanelPreferences()).isEmpty();
+
+        List<String> expectedList = splitCsvParamArray(expected);
+        assertThat(result.getPanelSpecialisms())
+                .containsExactlyInAnyOrderElementsOf(expectedList);
+
+    }
+
+    @DisplayName("When a case is given with no second doctor getPanelRequirements returns the valid PanelRequirements")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "generalPractitioner,BBA3-MQPM1-004",
+        "null,BBA3-MQPM1",
+    }, nullValues = {"null"})
+    void getPanelRequirements(String doctorSpecialism,String expected) {
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_05,null));
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
+                .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                        .panelDoctorSpecialism(doctorSpecialism)
                         .build())
                 .build();
 
@@ -450,25 +511,47 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-
-    @DisplayName("when a valid SscsCaseData is given getHearingDuration returns the correct duration Parameterized Tests")
+    @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "null,null,null,null,30",
-        "061,null,null,null,30",
-        "null,CP,null,null,30",
-        "061,FR,null,null,30",
-        "013,EC,null,60,30",
-        "003,CE,2,hours,120",
-        "061,WI,1,sessions,165",
-        "061,FR,1,test,30",
-        "null,XA,2,hours,120",
+        "null,null",
+        "null,60",
+        "1,test",
     }, nullValues = {"null"})
-    void getHearingDuration(String benefitCode, String issueCode, String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
+    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(benefitCode)
-                .issueCode(issueCode)
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
+                .adjournCaseNextHearingListingDuration(adjournCaseDuration)
+                .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+                .build();
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceData);
+
+        assertEquals(30, result);
+    }
+
+    @DisplayName("when a valid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration returns the correct duration Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "2,hours,120",
+        "1,sessions,165",
+    }, nullValues = {"null"})
+    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
+        // TODO Finish Test when method done
+
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .adjournCaseNextHearingListingDuration(adjournCaseDuration)
                 .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
                 .appeal(Appeal.builder()
@@ -480,23 +563,47 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When wantsToAttend for the Appeal is null and the hearing type is paper "
-            + "getHearingDurationBenefitIssueCodes return the correct paper durations Parameterized Tests")
+    @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "null,null,null",
-        "061,null,null",
-        "null,XA,null",
-        "061,FR,null",
-        "999,EC,null",
-        "013,EC,30",
-        "003,CE,30",
-        "061,WI,30",
+        "null,null",
+        "002,null",
+        "null,DD",
     }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode, Integer expected) {
+    void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode) {
+
+        given(hearingDurations.getHearingDuration(benefitCode,issueCode)).willReturn(null);
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
                 .issueCode(issueCode)
+                .appeal(Appeal.builder()
+                        .hearingSubtype(HearingSubtype.builder().build())
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+                .build();
+
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When wantsToAttend for the Appeal is null and the hearing type is paper "
+            + "getHearingDurationBenefitIssueCodes return the correct paper durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesPaper() {
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+
+        SscsCaseData caseData = SscsCaseData.builder()
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .appeal(Appeal.builder()
                         .hearingType("paper")
                         .hearingSubtype(HearingSubtype.builder().build())
@@ -506,26 +613,25 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(30);
     }
 
     @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
-            + "getHearingDurationBenefitIssueCodes return the correct face to face durations Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "null,null,null",
-        "061,null,null",
-        "null,XA,null",
-        "061,FR,null",
-        "999,EC,null",
-        "013,EC,45",
-        "003,CE,60",
-        "061,WI,45",
-    }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesFaceToFace(String benefitCode, String issueCode, Integer expected) {
+            + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesFaceToFace() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(hearingDurations.addExtraTimeIfNeeded(eq(60),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
+                .willReturn(60);
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(benefitCode)
-                .issueCode(issueCode)
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder()
                                 .wantsToAttend("Yes")
@@ -535,26 +641,25 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(60);
     }
 
     @DisplayName("When wantsToAttend for the Appeal is Yes "
-            + "getHearingDurationBenefitIssueCodes return the correct interpreter durations Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "null,null,null",
-        "061,null,null",
-        "null,XA,null",
-        "061,FR,null",
-        "999,EC,null",
-        "013,EC,75",
-        "003,CE,90",
-        "061,WI,75",
-    }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesInterpreter(String benefitCode, String issueCode, Integer expected) {
+            + "getHearingDurationBenefitIssueCodes return the correct interpreter durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesInterpreter() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(hearingDurations.addExtraTimeIfNeeded(eq(75),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
+                .willReturn(75);
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(benefitCode)
-                .issueCode(issueCode)
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder()
                                 .wantsToAttend("Yes")
@@ -565,7 +670,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(75);
     }
 
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")

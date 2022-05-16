@@ -16,9 +16,7 @@ import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.model.HearingEvent;
-import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.ReferenceData;
+import uk.gov.hmcts.reform.sscs.model.*;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -49,6 +47,8 @@ class HearingsServiceTest {
     private static final String CANCEL_REASON_TEMP = "AWAITING_LISTING";
     private static final String IDAM_OAUTH2_TOKEN = "TestOauth2Token";
     private static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
+    private static final String BENEFIT_CODE = "002";
+    private static final String ISSUE_CODE = "DD";
 
     private HearingsService hearingsService;
     private HearingWrapper wrapper;
@@ -64,8 +64,14 @@ class HearingsServiceTest {
     @Mock
     private IdamService idamService;
 
-    @Autowired
-    private ReferenceData referenceData;
+    @Mock
+    public HearingDurationsService hearingDurations;
+
+    @Mock
+    public SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    public ReferenceData referenceData;
 
     @BeforeEach
     void setup() {
@@ -73,8 +79,8 @@ class HearingsServiceTest {
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
-                .benefitCode("002")
-                .issueCode("CD")
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .caseManagementLocation(CaseManagementLocation.builder().build())
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -101,7 +107,6 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-        referenceData = new ReferenceData(new HearingDurationsService(), new SessionCategoryMapService());
         hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceData);
     }
 
@@ -137,6 +142,17 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCreate() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
                         .idamOauth2Token(IDAM_OAUTH2_TOKEN)
@@ -155,6 +171,19 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperUpdate() {
+
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
                         .idamOauth2Token(IDAM_OAUTH2_TOKEN)
