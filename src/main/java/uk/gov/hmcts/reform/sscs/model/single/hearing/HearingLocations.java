@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 public class HearingLocations {
 
     private String locationType;
-
     @EnumPattern(enumClass = LocationType.class, fieldName = "locationId")
     private String locationId;
 }

@@ -4,6 +4,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.service.AirLookupService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -154,6 +155,30 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
+    private static List<HearingLocations> getMultipleLocationDetails(CaseManagementLocation caseManagementLocation){
+        String processingCenter = caseManagementLocation.getRegion();
+        List<HearingLocations> multipleVenues = new ArrayList<>();
+        HearingLocations hearingLocations = new HearingLocations();
+
+        switch (processingCenter){
+            case "Manchester":
+                hearingLocations.setLocationType();
+                hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+                     multipleVenues.add(hearingLocations);
+                break;
+            case "Chester":
+                hearingLocations.setLocationType("Chester");
+                multipleVenues.add(hearingLocations);
+                break;
+            case "Plymouth":
+                hearingLocations.setLocationType("Plymouth");
+                multipleVenues.add(hearingLocations);
+                break;
+            default:
+                break;
+        }
+        return multipleVenues;
+    }
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         // locationType - from reference data - processing venue to venue type/epims
         // locationId - epims
@@ -161,8 +186,19 @@ public final class HearingsDetailsMapping {
         // if paper case - display all venues in that region
         // locations where there is more than one venue
         // Normally one location, but can be two in some cities.
+        List<HearingLocations> locationCenter = getMultipleLocationDetails(caseManagementLocation);
+        HearingLocations hearingLocations = new HearingLocations();
+
+        if(locationCenter.size() == 0){
+            hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+            hearingLocations.setLocationType("court");
+            locationCenter.add(hearingLocations);
+        }
+
+//        List<HearingLocations> hearingLocationsList = new ArrayList<>();
+//        hearingLocationsList.add(hearingLocations);
         // TODO Implementation to be done by SSCS-10245 - work out what venues to choose and get epims/locationType info from Reference Data
-        return new ArrayList<>();
+        return locationCenter;
     }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
