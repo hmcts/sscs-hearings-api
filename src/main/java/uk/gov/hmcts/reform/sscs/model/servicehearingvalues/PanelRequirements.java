@@ -21,7 +21,7 @@ public class PanelRequirements {
     private List<String> roleType;
     private List<String> authorisationTypes;
     private List<String> authorisationSubType;
-    @JsonProperty("SvhPanelPreferences")
-    private List<PanelPreference> panelPreferences;
+    @JsonProperty("panelPreferences")
+    private List<panelPreference> shvPanelPreferences;
     private List<String> panelSpecialisms;
 }

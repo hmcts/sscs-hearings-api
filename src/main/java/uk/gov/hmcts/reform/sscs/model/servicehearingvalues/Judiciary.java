@@ -21,9 +21,9 @@ public class Judiciary {
     private List<String> roleType;
     private List<String> authorisationTypes;
     private List<String> authorisationSubType;
-    @JsonProperty("SvhPanelComposition")
-    private List<PanelComposition> panelComposition;
-    @JsonProperty("SvhPanelPreference")
-    private List<PanelPreference> judiciaryPreferences;
+    @JsonProperty("panelComposition")
+    private List<PanelComposition> shvPanelComposition;
+    @JsonProperty("judiciaryPreferences")
+    private List<PanelPreference> shvJudiciaryPreferences;
     private List<String> judiciarySpecialisms;
 }

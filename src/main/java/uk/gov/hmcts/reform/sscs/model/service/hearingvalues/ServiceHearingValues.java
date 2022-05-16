@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.model.service.hearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,23 +24,32 @@ public class ServiceHearingValues {
     private String hearingType;
     private String caseType;
     private List<String> caseSubTypes;
-    private HearingWindow hearingWindow;
+    @JsonProperty("hearingWindow")
+   private HearingWindow hearingWindow;
     private Integer duration;
     private String hearingPriorityType;
     private Integer numberOfPhysicalAttendees;
     private boolean hearingInWelshFlag;
+    @JsonProperty("hearingLocations")
     private List<HearingLocation> hearingLocations;
     private Boolean caseAdditionalSecurityFlag;
     private List<String> facilitiesRequired;
     private String listingComments;
     private String hearingRequester;
     private boolean privateHearingRequiredFlag;
+    @JsonProperty("panelRequirements")
     private PanelRequirements panelRequirements;
     private String leadJudgeContractType;
+    @JsonProperty("judiciary")
     private Judiciary judiciary;
     private boolean hearingIsLinkedFlag;
+    @JsonProperty("parties")
     private List<PartyDetails> parties;
+    @JsonProperty("caseFlags")
     private CaseFlags caseFlags;
+    @JsonProperty("screenFlow")
     private List<ScreenNavigation> screenFlow;
+    @JsonProperty("vocabulary")
     private List<Vocabulary> vocabulary;
+    private String hmctsServiceID;
 }
