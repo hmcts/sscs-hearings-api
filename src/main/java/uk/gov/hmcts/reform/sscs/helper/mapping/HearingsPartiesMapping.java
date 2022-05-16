@@ -98,6 +98,11 @@ public final class HearingsPartiesMapping {
         return partyDetails.build();
     }
 
+    public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
+        // TODO SSCS-10378 - Add joint party logic
+        return PartyDetails.builder().build();
+    }
+
     public static String getPartyId(Entity entity) {
         return entity.getId();
     }

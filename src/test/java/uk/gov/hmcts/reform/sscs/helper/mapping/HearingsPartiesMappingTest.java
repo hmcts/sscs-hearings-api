@@ -221,53 +221,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
-        assertThat(partiesDetails).isNotNull();
-        partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(null);
-        partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyType())).findFirst().orElse(null);
-        partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyRole())).findFirst().orElse(null);
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
-        assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
-    }
 
-    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details with other null values")
-    @Test
-    @NullSource
-    void buildHearingPartiesDetailsJointPartyWithNull() {
-
-        String jointPartyId = "2";
-        String appellantId = "1";
-        JointParty jointParty = JointParty.builder().id(jointPartyId)
-            .name(Name.builder()
-                      .title("title")
-                      .firstName("first")
-                      .lastName("last")
-                      .build())
-            .build();
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .jointParty(jointParty)
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .appellant(Appellant.builder()
-                                       .id(appellantId)
-                                       .name(Name.builder()
-                                                 .title("title")
-                                                 .firstName("first")
-                                                 .lastName("last")
-                                                 .build())
-                                       .build())
-                        .build())
-            .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-            .caseData(caseData)
-            .caseData(caseData)
-            .build();
-
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(wrapper.getCaseData().getJointParty(),null, null, null, null, appellantId);
-        assertThat(partiesDetails).isNotNull();
-        partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(null);
-        partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyType())).findFirst().orElse(null);
-        partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyRole())).findFirst().orElse(null);
         assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
         assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
     }
