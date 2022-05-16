@@ -432,13 +432,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003",
         "null,carer,BBA3-MQPM1|BBA3-MQPM2-002",
     }, nullValues = {"null"})
-    void getPanelRequirements(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
+    void getPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
 
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,true,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        true,false,SessionCategory.CATEGORY_06,null));
-
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                true,false,SessionCategory.CATEGORY_06,null);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -449,16 +446,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getRoleTypes()).isEmpty();
-        assertThat(result.getAuthorisationTypes()).isEmpty();
-        assertThat(result.getAuthorisationSubTypes()).isEmpty();
-        assertThat(result.getPanelPreferences()).isEmpty();
+        List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
 
         List<String> expectedList = splitCsvParamArray(expected);
-        assertThat(result.getPanelSpecialisms())
+        assertThat(result)
                 .containsExactlyInAnyOrderElementsOf(expectedList);
 
     }
@@ -469,13 +460,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "generalPractitioner,BBA3-MQPM1-004",
         "null,BBA3-MQPM1",
     }, nullValues = {"null"})
-    void getPanelRequirements(String doctorSpecialism,String expected) {
+    void getPanelSpecialisms(String doctorSpecialism,String expected) {
 
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_05,null));
-
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false,false,SessionCategory.CATEGORY_05,null);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -485,16 +473,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getRoleTypes()).isEmpty();
-        assertThat(result.getAuthorisationTypes()).isEmpty();
-        assertThat(result.getAuthorisationSubTypes()).isEmpty();
-        assertThat(result.getPanelPreferences()).isEmpty();
+        List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
 
         List<String> expectedList = splitCsvParamArray(expected);
-        assertThat(result.getPanelSpecialisms())
+        assertThat(result)
                 .containsExactlyInAnyOrderElementsOf(expectedList);
 
     }

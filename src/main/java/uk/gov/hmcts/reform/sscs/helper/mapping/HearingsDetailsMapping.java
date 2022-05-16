@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -308,22 +309,35 @@ public final class HearingsDetailsMapping {
 
         SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
 
+        return panelRequirementsBuilder
+            .panelSpecialisms(getPanelSpecialisms(caseData, sessionCategoryMap))
+            .build();
+    }
+
+    public static List<String> getPanelSpecialisms(SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
         List<String> panelSpecialisms = new ArrayList<>();
-        if (nonNull(sessionCategoryMap)) {
-            String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
-            String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
-            for (PanelMember member : sessionCategoryMap.getCategory().getPanelMembers()) {
-                if (MQPM1.equals(member)) {
-                    panelSpecialisms.add(member.getReference(doctorSpecialism));
-                } else if (MQPM2.equals(member)) {
-                    panelSpecialisms.add(member.getReference(doctorSpecialismSecond));
-                }
-            }
+        if (isNull(sessionCategoryMap)) {
+            return panelSpecialisms;
         }
 
-        return panelRequirementsBuilder
-            .panelSpecialisms(panelSpecialisms)
-            .build();
+        String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
+        String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
+        panelSpecialisms = sessionCategoryMap.getCategory().getPanelMembers().stream()
+                .map(panelMember -> getPanelMemberSpecialism(panelMember, doctorSpecialism, doctorSpecialismSecond))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return panelSpecialisms;
+    }
+
+    public static String getPanelMemberSpecialism(PanelMember panelMember,
+                                                    String doctorSpecialism, String doctorSpecialismSecond) {
+        if (MQPM1 == panelMember) {
+            return panelMember.getReference(doctorSpecialism);
+        }
+        if (MQPM2 == panelMember) {
+            return panelMember.getReference(doctorSpecialismSecond);
+        }
+        return null;
     }
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
