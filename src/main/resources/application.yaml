@@ -3,12 +3,10 @@ server:
 
 logging:
   level:
-    uk:
-      gov:
-        hmcts:
-          fortifyclient: INFO
-          reform:
-            sscs: ${SSCS_LOG_LEVEL:INFO}
+    uk.gov.hmcts.reform.sscs: ${SSCS_LOG_LEVEL:INFO}
+    com.microsoft.azure.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.messaging.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.core.amqp: ${SERVICE_BUS_LOG_LEVEL:ERROR}
 
 management:
   endpoint:
@@ -49,8 +47,6 @@ spring:
       - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
-      - "/serviceHearingValues"
-      - "/serviceLinkedCases"
 
 feign:
   httpclient:
@@ -71,8 +67,6 @@ jackson:
     WRITE_DATES_AS_TIMESTAMPS: false
 
 azure:
-  application-insights:
-    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATION_KEY:}
   service-bus:
     hmc-to-hearings-api:
       connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
@@ -87,7 +81,6 @@ azure:
       retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
       maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
       retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
-
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
