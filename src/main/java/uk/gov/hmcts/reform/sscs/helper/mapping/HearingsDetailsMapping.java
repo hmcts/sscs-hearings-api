@@ -63,7 +63,7 @@ public final class HearingsDetailsMapping {
         return true;
     }
 
-    public static String getHearingType(SscsCaseData caseData) {
+    public static String getHearingType() {
         return SUBSTANTIVE.getHmcReference();
     }
 
@@ -133,9 +133,9 @@ public final class HearingsDetailsMapping {
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
         if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
-            return HIGH.getKey();
+            return HIGH.getHmcReference();
         }
-        return NORMAL.getKey();
+        return NORMAL.getHmcReference();
     }
 
     public static Number getNumberOfPhysicalAttendees() {
