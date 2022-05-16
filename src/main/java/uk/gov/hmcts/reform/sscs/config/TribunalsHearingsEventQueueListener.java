@@ -2,11 +2,9 @@ package uk.gov.hmcts.reform.sscs.config;
 
 import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
-import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusProcessorClient;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.azure.messaging.servicebus.*;
 import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
+import com.azure.messaging.servicebus.models.SubQueue;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,22 +21,18 @@ import java.time.Duration;
 @Slf4j
 @Data
 @Configuration
-@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
 
-    @Value("${azure.service-bus.tribunals-to-hearings-api.connectionString}")
-    private String connectionString;
-    @Value("${azure.service-bus.tribunals-to-hearings-api.queueName}")
-    private String queueName;
 
-    @Value("${azure.service-bus.tribunals-to-hearings-api.retryTimeout}")
-    private Long retryTimeout;
-    @Value("${azure.service-bus.tribunals-to-hearings-api.retryDelay}")
-    private Long retryDelay;
-    @Value("${azure.service-bus.tribunals-to-hearings-api.maxRetries}")
-    private Integer maxRetries;
+
+    private String connectionString = "[Hidden String]";
+    private String queueName = "[Hidden String]";
+
+    private Long retryTimeout = 1L;
+    private Long retryDelay = 1L;
+    private Integer maxRetries = 1;
 
     @Autowired
     public TribunalsHearingsEventQueueListener(HearingsService hearingsService) {
@@ -64,6 +58,34 @@ public class TribunalsHearingsEventQueueListener {
         log.info("Tribunals hearings event queue processor started.");
 
         return processorClient;
+    }
+
+    public ServiceBusReceiverClient tribunalsHearingsEventProcessorClientDeadLetter() {
+        log.info("Creating Events Dead Letter Queue Session receiver");
+        ServiceBusReceiverClient client = new ServiceBusClientBuilder()
+            .retryOptions(retryOptions())
+            .connectionString(connectionString)
+            .receiver()
+            .queueName(queueName)
+            .subQueue(SubQueue.DEAD_LETTER_QUEUE)
+            .buildClient();
+
+        log.info("Dead Letter Queue Session receiver created, successfully");
+        return client;
+    }
+
+    void sendMessage()
+    {
+        // create a Service Bus Sender client for the queue
+        ServiceBusSenderClient senderClient = new ServiceBusClientBuilder()
+            .connectionString(connectionString)
+            .sender()
+            .queueName(queueName)
+            .buildClient();
+
+        // send one message to the queue
+        senderClient.sendMessage(new ServiceBusMessage("Hello, World!"));
+        System.out.println("Sent a single message to the queue: " + queueName);
     }
 
     private void processMessage(ServiceBusReceivedMessageContext context) {
