@@ -111,11 +111,9 @@ public final class HearingsDetailsMapping {
         Integer duration = getHearingDurationAdjournment(caseData);
         if (isNull(duration)) {
             duration = getHearingDurationBenefitIssueCodes(caseData, referenceData);
-            if (isNull(duration)) {
-                duration = DURATION_DEFAULT;
-            }
         }
-        return duration;
+
+        return nonNull(duration) ? duration : DURATION_DEFAULT;
     }
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
@@ -138,21 +136,22 @@ public final class HearingsDetailsMapping {
         HearingDuration hearingDuration = referenceData.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
-        if (nonNull(hearingDuration)) {
-
-            if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-                Integer duration = HearingsCaseMapping.isInterpreterRequired(caseData)
-                    ? hearingDuration.getDurationInterpreter()
-                    : hearingDuration.getDurationFaceToFace();
-                return referenceData.getHearingDurations()
-                        .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
-                                getElementsDisputed(caseData));
-            } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
-                return hearingDuration.getDurationPaper();
-            }
+        if (isNull(hearingDuration)) {
+            return null;
         }
 
-        return null;
+        if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
+            Integer duration = HearingsCaseMapping.isInterpreterRequired(caseData)
+                    ? hearingDuration.getDurationInterpreter()
+                    : hearingDuration.getDurationFaceToFace();
+            return referenceData.getHearingDurations()
+                    .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
+                            getElementsDisputed(caseData));
+        } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
+            return hearingDuration.getDurationPaper();
+        } else {
+            return null;
+        }
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})

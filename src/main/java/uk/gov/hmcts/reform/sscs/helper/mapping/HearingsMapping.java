@@ -127,7 +127,9 @@ public final class HearingsMapping {
     public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceData referenceData) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return referenceData.getSessionCategoryMaps().getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(), doctorSpecialistSecond, fqpmRequired);
+        return referenceData.getSessionCategoryMaps()
+                .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
+                        doctorSpecialistSecond, fqpmRequired);
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {
