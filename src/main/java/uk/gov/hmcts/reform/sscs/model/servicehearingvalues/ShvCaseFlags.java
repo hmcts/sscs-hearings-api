@@ -17,7 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShvCaseFlags {
-    //@JsonProperty("flags")
+
+    @JsonProperty("flags")
     private List<ShvPartyFlags> shvFlags;
     @JsonProperty("flagAmendURL")
     private String flagAmendUrl;

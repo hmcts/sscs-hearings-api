@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,32 +24,32 @@ public class ServiceHearingValues {
     private String hearingType;
     private String caseType;
     private List<String> caseSubTypes;
-    //@JsonProperty("hearingWindow")
+    @JsonProperty("hearingWindow")
     private ShvHearingWindow shvHearingWindow;
     private Integer duration;
     private String hearingPriorityType;
     private Integer numberOfPhysicalAttendees;
     private boolean hearingInWelshFlag;
-    //@JsonProperty("hearingLocations")
+    @JsonProperty("hearingLocations")
     private List<ShvHearingLocation> shvHearingLocations;
     private Boolean caseAdditionalSecurityFlag;
     private List<String> facilitiesRequired;
     private String listingComments;
     private String hearingRequester;
     private boolean privateHearingRequiredFlag;
-    //@JsonProperty("panelRequirements")
+    @JsonProperty("panelRequirements")
     private ShvPanelRequirements shvPanelRequirements;
     private String leadJudgeContractType;
-    //@JsonProperty("judiciary")
+    @JsonProperty("judiciary")
     private ShvJudiciary shvJudiciary;
     private boolean hearingIsLinkedFlag;
-    //@JsonProperty("parties")
+    @JsonProperty("parties")
     private List<ShvPartyDetails> shvParties;
-    //@JsonProperty("caseFlags")
+    @JsonProperty("caseFlags")
     private ShvCaseFlags shvCaseFlags;
-    //@JsonProperty("screenFlow")
+    @JsonProperty("screenFlow")
     private List<ShvScreenNavigation> shvScreenFlow;
-    //@JsonProperty("vocabulary")
+    @JsonProperty("vocabulary")
     private List<ShvVocabulary> shvVocabulary;
     private String hmctsServiceID;
 }
