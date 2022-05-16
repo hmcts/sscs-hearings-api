@@ -39,7 +39,7 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.addAll(buildHearingPartiesPartyJointDetails(caseData.getJointParty(),appellant.getId()));
+            partiesDetails.addAll(buildHearingPartiesPartyDetails(caseData.getJointParty(),appellant.getId()));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -58,7 +58,7 @@ public final class HearingsPartiesMapping {
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyJointDetails(Party party, String appellantId) {
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) {
         return buildHearingPartiesPartyDetails(party,null,null,null,null,appellantId);
     }
 
