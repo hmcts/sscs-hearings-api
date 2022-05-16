@@ -276,10 +276,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .caseData(caseData)
             .caseData(caseDataName)
             .build();
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
-
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
-
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyJointDetails(wrapper.getCaseData().getJointParty(), appellantId);
+        assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
         assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
 
     }
