@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.model.ReferenceData;
 import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
