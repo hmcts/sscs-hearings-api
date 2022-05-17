@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
@@ -29,6 +30,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -45,8 +47,6 @@ class ServiceHearingsControllerTest {
     private static final long MISSING_CASE_ID = 99250807409918L;
     private static final String BAD_CASE_ID = "ABCASDEF";
     private static final long HEARING_ID = 123L;
-    private static final String CASE_REFERENCE = "caseReference";
-    private static final String CASE_REFERENCE_PARAM = "hearingId";
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
     private static final String CASE_NAME = "Test Case Name";
@@ -97,8 +97,13 @@ class ServiceHearingsControllerTest {
         ServiceHearingValues model = ServiceHearingValues.builder().caseName(CASE_NAME).build();
         String json = asJsonString(model);
 
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+                .caseId(String.valueOf(CASE_ID))
+                .build();
+
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                    .param(CASE_REFERENCE, String.valueOf(CASE_ID)))
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
@@ -107,9 +112,13 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")
     @Test
     void testPostRequestServiceHearingValues_badCaseID() throws Exception {
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+                .caseId(BAD_CASE_ID)
+                .build();
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .param(CASE_REFERENCE,BAD_CASE_ID))
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -117,9 +126,13 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Case Not Found should return a with 404 response code")
     @Test
     void testPostRequestServiceHearingValues_missingCase() throws Exception {
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+                .caseId(String.valueOf(MISSING_CASE_ID))
+                .build();
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .param(CASE_REFERENCE, String.valueOf(MISSING_CASE_ID)))
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -132,9 +145,14 @@ class ServiceHearingsControllerTest {
         ServiceLinkedCases model = ServiceLinkedCases.builder().linkedCases(linkedCases).build();
         String json = asJsonString(model);
 
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+                .caseId(String.valueOf(CASE_ID))
+                .hearingId(String.valueOf(HEARING_ID))
+                .build();
+
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .param(CASE_REFERENCE, String.valueOf(CASE_ID))
-                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
@@ -143,22 +161,28 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")
     @Test
     void testPostRequestServiceLinkedCases_badCaseID() throws Exception {
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+                .caseId(String.valueOf(BAD_CASE_ID))
+                .hearingId(String.valueOf(HEARING_ID))
+                .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .param(CASE_REFERENCE,BAD_CASE_ID)
-                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
-
-    @DisplayName("When Case Not Found should return a with 404 response code")
     @Test
     void testPostRequestServiceLinkedCases_missingCase() throws Exception {
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+                .caseId(String.valueOf(MISSING_CASE_ID))
+                .hearingId(String.valueOf(HEARING_ID))
+                .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .param(CASE_REFERENCE, String.valueOf(MISSING_CASE_ID))
-                        .param(CASE_REFERENCE_PARAM, String.valueOf(HEARING_ID)))
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
