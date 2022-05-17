@@ -64,6 +64,7 @@ class HearingsMappingTest extends HearingsMappingBase {
     @Test
     void updateIds() {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        JointParty jointParty = JointParty.builder().id("3").appointee(Appointee.builder().build()).build();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .id("2")
                 .appointee(Appointee.builder().build())
@@ -76,7 +77,9 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .rep(Representative.builder().build())
                         .build())
                 .otherParties(otherParties)
+                .jointParty(jointParty)
                 .build();
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .caseData(caseData)
