@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class HearingUtils {
+    //TODO Need to be replaced with HearingChannel statics once SSCS-10273 is done.
     public static final String FACE_TO_FACE = "faceToFace";
     public static final String TELEPHONE = "telephone";
     public static final String VIDEO = "video";
