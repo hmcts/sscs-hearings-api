@@ -206,9 +206,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build();
         List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
 
-        assertEquals(1, result.size());
-        assertEquals("219164", result.get(0).getLocationId());
-        assertEquals("court", result.get(0).getLocationType());
+        assertEquals(1, result.size(), "Expected 1");
+        assertEquals("219164", result.get(0).getLocationId(), "Expected 219164");
+        assertEquals("court", result.get(0).getLocationType(), "Expected type to be court");
     }
 
     @DisplayName("getHearingLocations Parameterized Tests")

@@ -29,6 +29,9 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30; // TODO find out default
+    public static final String Manchester = "Manchester";
+    public static final String Chester = "Chester";
+    public static final String Plymouth = "Plymouth";
 
     private HearingsDetailsMapping() {
 
@@ -165,9 +168,9 @@ public final class HearingsDetailsMapping {
         List<String> manchesterId = new ArrayList<>(List.of("512401", "701411"));
         List<String> plymouthId = new ArrayList<>(List.of("764728", "235590"));
 
-        epimMap.put("Manchester", manchesterId);
-        epimMap.put("Chester", chesterId);
-        epimMap.put("Plymouth", plymouthId);
+        epimMap.put(Manchester, manchesterId);
+        epimMap.put(Chester, chesterId);
+        epimMap.put(Plymouth, plymouthId);
 
         List<HearingLocations> locationId = new ArrayList<>();
         String processingCenter = caseManagementLocation.getRegion();
@@ -175,11 +178,11 @@ public final class HearingsDetailsMapping {
         hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
         hearingLocations.setLocationType(processingCenter);
         switch (processingCenter) {
-            case "Manchester": locationId.addAll(getEpims(epimMap, "Manchester", hearingLocations));
+            case "Manchester": locationId.addAll(getEpims(epimMap, Manchester, hearingLocations));
                 break;
-            case "Chester": locationId.addAll(getEpims(epimMap, "Chester", hearingLocations));
+            case "Chester": locationId.addAll(getEpims(epimMap, Chester, hearingLocations));
                 break;
-            case "Plymouth": locationId.addAll(getEpims(epimMap, "Plymouth", hearingLocations));
+            case "Plymouth": locationId.addAll(getEpims(epimMap, Plymouth, hearingLocations));
                 break;
             default: break;
         }
@@ -196,8 +199,7 @@ public final class HearingsDetailsMapping {
             .stream()
             .filter(e -> Objects.equals((e.getKey()), locationName))
             .map(Map.Entry::getValue)
-            .collect(Collectors.toList()
-        );
+            .collect(Collectors.toList());
 
         epims.forEach(epimId -> {
             if (epimId.contains(hearingLocations.getLocationId())) {
@@ -210,8 +212,8 @@ public final class HearingsDetailsMapping {
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         HearingLocations hearingLocations = new HearingLocations();
-        List<HearingLocations> location = new ArrayList<>();
-        List<String> multipleLocationList = new ArrayList<>(List.of("Manchester", "Chester", "Plymouth"));
+        List<HearingLocations> location;
+        List<String> multipleLocationList = new ArrayList<>(List.of(Manchester, Chester, Plymouth));
 
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
