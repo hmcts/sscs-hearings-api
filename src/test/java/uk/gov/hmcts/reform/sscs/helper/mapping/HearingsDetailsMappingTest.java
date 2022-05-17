@@ -222,9 +222,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
         if (!result.get(0).getLocationType().equalsIgnoreCase("court")) {
             result.forEach(it -> {
-                assertEquals("764728", it.getMultipleLocationId().get(0));
-                assertEquals("235590", it.getMultipleLocationId().get(1));
-                assertEquals("Plymouth", it.getLocationType());
+                assertEquals("764728", it.getMultipleLocationId().get(0), "Expected 764728");
+                assertEquals("235590", it.getMultipleLocationId().get(1), "Expected 235590");
+                assertEquals("Plymouth", it.getLocationType(), "Expected Location as Plymouth");
             });
         }
     }

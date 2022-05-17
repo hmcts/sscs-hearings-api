@@ -188,7 +188,7 @@ public final class HearingsDetailsMapping {
 
     @NotNull
     private static List<HearingLocations> getEpims(Map<String, List<String>> epimLists, String locationName, HearingLocations hearingLocations) {
-        List<List<String>> epims = new ArrayList<>();
+        List<List<String>> epims;
         List<HearingLocations> epimss = new ArrayList<>();
 
         epims = epimLists
