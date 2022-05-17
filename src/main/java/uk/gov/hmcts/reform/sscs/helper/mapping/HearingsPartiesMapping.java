@@ -59,7 +59,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) {
-        return buildHearingPartiesPartyDetails(party,null,null,null,null,appellantId);
+        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {

@@ -186,47 +186,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     }
 
-    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
-    @Test
-    @NullSource
-    void buildHearingPartiesDetailsJointParty() {
-
-        String jointPartyId = "2";
-        String appellantId = "1";
-        JointParty jointParty = JointParty.builder().id(jointPartyId)
-            .name(Name.builder()
-                      .title("title")
-                      .firstName("first")
-                      .lastName("last")
-                      .build())
-            .build();
-
-        SscsCaseData caseData = SscsCaseData.builder()
-                .jointParty(jointParty)
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .appellant(Appellant.builder()
-                                .id(appellantId)
-                                .name(Name.builder()
-                                        .title("title")
-                                        .firstName("first")
-                                        .lastName("last")
-                                        .build())
-                                .build())
-                        .build())
-                .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .caseData(caseData)
-                .build();
-
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(wrapper.getCaseData().getJointParty(), appellantId);
-
-
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
-        assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
-
-    }
 
     @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @ParameterizedTest
@@ -237,7 +196,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         String appellantId = "1";
         String jointPartyId = "2";
 
-        JointParty jointPartyD = JointParty.builder().id(jointPartyId)
+        JointParty jointPartyDetails = JointParty.builder().id(jointPartyId)
             .hasJointParty(jointParty)
             .name(Name.builder()
                       .title("title")
@@ -246,8 +205,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                       .build())
             .build();
 
-        SscsCaseData caseDataName = SscsCaseData.builder()
-            .jointParty(jointPartyD)
+        SscsCaseData caseData = SscsCaseData.builder()
+            .jointParty(jointPartyDetails)
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .appellant(Appellant.builder()
@@ -261,13 +220,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .build())
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-            .caseData(caseDataName)
-            .caseData(caseDataName)
+            .caseData(caseData)
+            .caseData(caseData)
             .build();
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
-        assertThat(partiesDetails.stream().filter(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())).findAny());
+        assertThat(partiesDetails.stream().anyMatch(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())));
         assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
 
     }
