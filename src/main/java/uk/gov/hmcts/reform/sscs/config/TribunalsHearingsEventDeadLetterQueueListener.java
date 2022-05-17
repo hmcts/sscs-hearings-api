@@ -1,32 +1,58 @@
 package uk.gov.hmcts.reform.sscs.config;
 
+import com.azure.core.amqp.AmqpRetryMode;
+import com.azure.core.amqp.AmqpRetryOptions;
+import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusReceiverClient;
+import com.azure.messaging.servicebus.models.SubQueue;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
+
 @Slf4j
 @Configuration
-public class TribunalsHearingsEventDeadLetterQueueListener implements Runnable{
+//@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+public class TribunalsHearingsEventDeadLetterQueueListener {
 
-    private final TribunalsHearingsEventQueueListener tribunalsHearingsEventQueueListener;
     private boolean keepRun = true;
 
-    public TribunalsHearingsEventDeadLetterQueueListener(TribunalsHearingsEventQueueListener tribunalsHearingsEventQueueListener) {
-        this.tribunalsHearingsEventQueueListener = tribunalsHearingsEventQueueListener;
+    private final TribunalsHearingEventQueueProperties tribunalsHearingEventQueueProperties;
+
+    @Autowired
+    public TribunalsHearingsEventDeadLetterQueueListener(TribunalsHearingEventQueueProperties tribunalsHearingEventQueueProperties) {
+        this.tribunalsHearingEventQueueProperties = tribunalsHearingEventQueueProperties;
     }
 
     @Bean
-    public void run(){
-        try(ServiceBusReceiverClient sessionReceiver = tribunalsHearingsEventQueueListener.tribunalsHearingsEventProcessorClientDeadLetter()){
+    public void processDeadLetterQueue(){
+        try(ServiceBusReceiverClient sessionReceiver = tribunalsHearingsEventProcessorClientDeadLetter()){
             while(keepRun){
-                System.out.println("RUNNING");
                 consumeMessage(sessionReceiver);
             }
+        }catch(Exception ex){
+            log.error("Error Processing Queue: "+ex);
         }
     }
 
+    public ServiceBusReceiverClient tribunalsHearingsEventProcessorClientDeadLetter() {
+        log.info("Creating Events Dead Letter Queue Session receiver");
+        ServiceBusReceiverClient client = new ServiceBusClientBuilder()
+            .retryOptions(retryOptions())
+            .connectionString(tribunalsHearingEventQueueProperties.getConnectionString())
+            .receiver()
+            .queueName(tribunalsHearingEventQueueProperties.getQueueName())
+            .subQueue(SubQueue.DEAD_LETTER_QUEUE)
+            .buildClient();
+
+        log.info("Dead Letter Queue Session receiver created, successfully");
+        return client;
+    }
+
     protected void consumeMessage(ServiceBusReceiverClient receiver) {
+        log.info("Starting to cosume message");
         try {
             receiver.receiveMessages(1).forEach(
                 message -> {
@@ -37,18 +63,28 @@ public class TribunalsHearingsEventDeadLetterQueueListener implements Runnable{
                         log.info("Dead Letter Queue message with id '{}' handled successfully", messageId);
                     }catch(Exception ex){
                         log.error("Error processing Dead Letter Queue message with id '{}' - "
-                                      + "abandon the processing and ASB will re-deliver it", messageId);
+                                      + "abandon the processing", messageId);
                         receiver.abandon(message);
                     }
                 }
             );
         } catch (Exception ex) {
-
+            log.info("Failed to consume message with error {}",ex);
         }
     }
 
     public void stop() {
         keepRun = false;
+    }
+
+    private AmqpRetryOptions retryOptions() {
+        AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
+        amqpRetryOptions.setMode(AmqpRetryMode.EXPONENTIAL);
+        amqpRetryOptions.setTryTimeout(Duration.ofMinutes(tribunalsHearingEventQueueProperties.getRetryTimeout()));
+        amqpRetryOptions.setMaxRetries(tribunalsHearingEventQueueProperties.getMaxRetries());
+        amqpRetryOptions.setDelay(Duration.ofSeconds(tribunalsHearingEventQueueProperties.getRetryDelay()));
+
+        return amqpRetryOptions;
     }
 
 }

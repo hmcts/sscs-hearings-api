@@ -1,52 +1,39 @@
 package uk.gov.hmcts.reform.sscs.config;
 
-import com.azure.core.amqp.AmqpRetryMode;
-import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.messaging.servicebus.*;
 import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
-import com.azure.messaging.servicebus.models.SubQueue;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
-import java.time.Duration;
-
 @Slf4j
 @Data
 @Configuration
+//@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
-
-
-
-    private String connectionString = "[Hidden String]";
-    private String queueName = "[Hidden String]";
-
-    private Long retryTimeout = 1L;
-    private Long retryDelay = 1L;
-    private Integer maxRetries = 1;
+    private final TribunalsHearingEventQueueProperties tribunalsHearingEventQueueProperties;
 
     @Autowired
-    public TribunalsHearingsEventQueueListener(HearingsService hearingsService) {
+    public TribunalsHearingsEventQueueListener(HearingsService hearingsService, TribunalsHearingEventQueueProperties tribunalsHearingEventQueueProperties) {
         this.hearingsService = hearingsService;
+        this.tribunalsHearingEventQueueProperties = tribunalsHearingEventQueueProperties;
     }
 
     @Bean
     @SuppressWarnings("PMD.CloseResource")
     public ServiceBusProcessorClient tribunalsHearingsEventProcessorClient() {
         ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .retryOptions(retryOptions())
-            .connectionString(connectionString)
+            .retryOptions(tribunalsHearingEventQueueProperties.retryOptions())
+            .connectionString(tribunalsHearingEventQueueProperties.getConnectionString())
             .sessionProcessor()
-            .queueName(queueName)
+            .queueName(tribunalsHearingEventQueueProperties.getQueueName())
             .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
             .disableAutoComplete()
             .processMessage(this::processMessage)
@@ -58,34 +45,6 @@ public class TribunalsHearingsEventQueueListener {
         log.info("Tribunals hearings event queue processor started.");
 
         return processorClient;
-    }
-
-    public ServiceBusReceiverClient tribunalsHearingsEventProcessorClientDeadLetter() {
-        log.info("Creating Events Dead Letter Queue Session receiver");
-        ServiceBusReceiverClient client = new ServiceBusClientBuilder()
-            .retryOptions(retryOptions())
-            .connectionString(connectionString)
-            .receiver()
-            .queueName(queueName)
-            .subQueue(SubQueue.DEAD_LETTER_QUEUE)
-            .buildClient();
-
-        log.info("Dead Letter Queue Session receiver created, successfully");
-        return client;
-    }
-
-    void sendMessage()
-    {
-        // create a Service Bus Sender client for the queue
-        ServiceBusSenderClient senderClient = new ServiceBusClientBuilder()
-            .connectionString(connectionString)
-            .sender()
-            .queueName(queueName)
-            .buildClient();
-
-        // send one message to the queue
-        senderClient.sendMessage(new ServiceBusMessage("Hello, World!"));
-        System.out.println("Sent a single message to the queue: " + queueName);
     }
 
     private void processMessage(ServiceBusReceivedMessageContext context) {
@@ -107,15 +66,5 @@ public class TribunalsHearingsEventQueueListener {
                     + "Abandoning message", caseId, event, ex);
             context.abandon();
         }
-    }
-
-    private AmqpRetryOptions retryOptions() {
-        AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
-        amqpRetryOptions.setMode(AmqpRetryMode.EXPONENTIAL);
-        amqpRetryOptions.setTryTimeout(Duration.ofMinutes(retryTimeout));
-        amqpRetryOptions.setMaxRetries(maxRetries);
-        amqpRetryOptions.setDelay(Duration.ofSeconds(retryDelay));
-
-        return amqpRetryOptions;
     }
 }
