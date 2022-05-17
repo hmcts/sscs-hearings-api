@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindow;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindowDateRange;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyDetails;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -78,11 +78,11 @@ public final class SscsCaseDataUtils {
      * @param sscsCaseData an SscsCaseDate object
      * @return List of ShvPartyDetails
      */
-    public static List<ShvPartyDetails> getParties(SscsCaseData sscsCaseData) { // + appellant
+    public static List<PartyDetails> getParties(SscsCaseData sscsCaseData) { // + appellant
         if (Objects.nonNull(sscsCaseData.getOtherParties())) {
             return sscsCaseData.getOtherParties().stream()
                     .map(CcdValue::getValue)
-                    .map(party -> ShvPartyDetails.builder()
+                    .map(party -> PartyDetails.builder()
                             .partyID(party.getId())
                             .partyType(PartyDetailsUtils.getPartyType(party))
                             .partyChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
@@ -104,7 +104,7 @@ public final class SscsCaseDataUtils {
      * @param caseData SscsCaseData
      * @return an ShvHearingWindow.
      */
-    public static ShvHearingWindow getHearingWindow(SscsCaseData caseData) {
+    public static HearingWindow getHearingWindow(SscsCaseData caseData) {
         String hearingWindowStart = null;
         if (Objects.nonNull(caseData.getEvents())) {
             Event dwpResponded = caseData.getEvents().stream()
@@ -126,9 +126,9 @@ public final class SscsCaseDataUtils {
             }
         }
 
-        return ShvHearingWindow.builder()
+        return HearingWindow.builder()
                 .hearingWindowFirstDate(null)
-                .shvHearingWindowDateRange(ShvHearingWindowDateRange.builder()
+                .hearingWindowDateRange(HearingWindowDateRange.builder()
                         .hearingWindowStartDateRange(hearingWindowStart)
                         .hearingWindowEndDateRange(null)
                         .build())

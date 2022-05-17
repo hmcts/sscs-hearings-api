@@ -13,19 +13,22 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
-import uk.gov.hmcts.reform.sscs.hearing.mapping.PartyFlagsMapping;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvCaseFlags;
 import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getPartyType;
+import static uk.gov.hmcts.reform.sscs.utils.HearingUtils.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.utils.HearingUtils.PAPER;
+import static uk.gov.hmcts.reform.sscs.utils.HearingUtils.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.utils.HearingUtils.VIDEO;
 
 @Component
 public class ServiceHearingValuesMapper {
@@ -91,33 +94,6 @@ public class ServiceHearingValuesMapper {
         return securityFlag.get();
     }
 
-    private String getHearingType(SscsCaseData caseData) {
-        return Optional.ofNullable(caseData.getAppeal())
-            .map(Appeal::getHearingType)
-            .orElse("");
-    }
-
-    private List<String> getIssueCode(SscsCaseData caseData) {
-        if (Objects.nonNull(caseData.getIssueCode())) {
-            return List.of(caseData.getIssueCode());
-        }
-        return new ArrayList<>();
-    }
-
-    public static List<String> getFacilitiesRequired(SscsCaseData sscsCaseData) {
-        return Optional.ofNullable(sscsCaseData.getAppeal())
-            .map(Appeal::getHearingOptions)
-            .map(HearingOptions::getArrangements)
-            .orElse(new ArrayList<>());
-    }
-
-    private String getCaseName(SscsCaseData sscsCaseData) {
-        return Optional.ofNullable(sscsCaseData.getAppeal())
-            .map(Appeal::getAppellant)
-            .map(Appellant::getName)
-            .map(Name::getFullName)
-            .orElse("");
-    }
 
     public static HearingWindow getHearingWindow(SscsCaseData caseData) {
         String hearingWindowStart = null;
@@ -160,32 +136,7 @@ public class ServiceHearingValuesMapper {
         return hearingPriorityType;
     }
 
-    // TODO if(face to face) appalents + dwp atendee (1) + judge (1) + panel members + representitive (1)
-    private static Integer getNumberOfPhysicalAttendees(SscsCaseData sscsCaseData) {
-        int numberOfAttendees = 0;
-        // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
-        if (Objects.nonNull(sscsCaseData.getAppeal())
-            && Objects.nonNull(sscsCaseData.getAppeal().getHearingSubtype())
-            && Objects.nonNull(sscsCaseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
-            && sscsCaseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
-            //appalents + dwp atendee (1) + judge (1) + panel members + representitive (1)
-            numberOfAttendees = 1;
-            if (YesNo.isYes(sscsCaseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-                numberOfAttendees++;
-            }
 
-            if (YesNo.isYes(sscsCaseData.getAppeal().getRep().getHasRepresentative())) {
-                numberOfAttendees++;
-            }
-            // TODO get it from SSCS-10243, when it is finished
-            numberOfAttendees += 0;
-
-            // TODO when panelMembers is created in caseData you will map it with the size of this value
-            //  (SSCS-10116)
-            numberOfAttendees += 0;
-        }
-        return numberOfAttendees;
-    }
 
 
     private static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
@@ -227,11 +178,6 @@ public class ServiceHearingValuesMapper {
         return new ArrayList<>();
     }
 
-    /* TODO use this one when Entity is merged and has organisatuon field
-    public static String getPartyType(Entity entity) {
-        return isNotBlank(entity.getOrganisation()) ? ORG.name() : IND.name();
-    }
-    */
 
     private static List<UnavailabilityRange> getPartyUnavailabilityRange(HearingOptions hearingOptions) {
         if (Objects.nonNull(hearingOptions.getExcludeDates())) {
@@ -274,9 +220,9 @@ public class ServiceHearingValuesMapper {
 
     // TODO check with what is done in SSCS-10321-Create-Hearing-POST-Mapping when it is merged
     private static IndividualDetails getIndividualDetails(OtherParty party, SscsCaseData sscsCaseData) {
-        // put this line to suppress PMD error, sscsCaseData would be needed to get realatedParties
+        // put this line to suppress PMD error, sscsCaseData would be needed to get relatedParties
         sscsCaseData.getAppeal();
-        if (getPartyType(party).equals(PartyType.IND)) {
+        if (PartyType.valueOf(getPartyType(party)).equals(PartyType.IND)) {
             return IndividualDetails.builder()
                 .firstName(party.getName() == null ? null : party.getName().getFirstName())
                 .lastName(party.getName() == null ? null :  party.getName().getLastName())
@@ -287,9 +233,9 @@ public class ServiceHearingValuesMapper {
                 .vulnerableFlag(false)
                 .vulnerabilityDetails(null)
                 .hearingChannelEmail(party.getHearingSubtype() == null ? null
-                                         : party.getHearingSubtype().getHearingVideoEmail())
+                                         : Collections.singletonList(party.getHearingSubtype().getHearingVideoEmail()))
                 .hearingChannelPhone(party.getHearingSubtype() == null ? null
-                                         : party.getHearingSubtype().getHearingTelephoneNumber())
+                                         : Collections.singletonList(party.getHearingSubtype().getHearingTelephoneNumber()))
 
                 // TODO missing mapping et them from the method  in SSCS-10245-send-epimsID-to-HMC,
                 // call with the order HearingsMapping ->  updateIds(wrapper), buildRelatedParties(wrapper)
@@ -303,16 +249,7 @@ public class ServiceHearingValuesMapper {
     // TODO right now we assume all parties are Individuals,
     //  keeping the method as we may have a logic for organisations in the future
     private static OrganisationDetails getOrganisationDetails(OtherParty party) {
-        /*
-        if(getPartyType(party).equals(PartyType.ORG)) {
-            return OrganisationDetails.builder()
-                .name("")
-                .cftOrganisationID("")
-                .organisationType("")
-                .build();
-        }
-        */
-        // put this line to suppress PMD error
+        // add this line to suppress PMD error
         party.getHearingOptions();
         return OrganisationDetails.builder()
             .build();

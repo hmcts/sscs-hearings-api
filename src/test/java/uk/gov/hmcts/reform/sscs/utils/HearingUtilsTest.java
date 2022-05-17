@@ -6,7 +6,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
 
 import java.util.ArrayList;
 import java.util.List;

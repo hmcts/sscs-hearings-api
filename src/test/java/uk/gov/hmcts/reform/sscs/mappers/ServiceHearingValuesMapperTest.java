@@ -104,10 +104,8 @@ class ServiceHearingValuesMapperTest {
     void shouldMapServiceHearingValuesSuccessfully() {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
-
         // when
         final ServiceHearingValues serviceHearingValues = mapper.mapServiceHearingValues(sscsCaseDetails);
-
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
             .hearingWindowFirstDate(null)
             .hearingWindowDateRange(HearingWindowDateRange.builder()
@@ -115,17 +113,15 @@ class ServiceHearingValuesMapperTest {
                                         .hearingWindowEndDateRange(null)
                                         .build())
             .build();
-
         //then
         assertEquals(serviceHearingValues.getCaseName(), sscsCaseData.getAppeal().getAppellant().getName().getFullName());
         assertFalse(serviceHearingValues.isAutoListFlag()); //
         assertEquals(0, serviceHearingValues.getDuration());
-        assertEquals(serviceHearingValues.getHearingType(), sscsCaseData.getAppeal().getHearingType());
-        assertEquals(serviceHearingValues.getCaseType(), sscsCaseData.getBenefitCode());
-        assertEquals(String.join("", serviceHearingValues.getCaseSubTypes()), sscsCaseData.getIssueCode());
-        assertEquals(serviceHearingValues.getHearingWindow(), expectedHearingWindow);
-
-        assertEquals(serviceHearingValues.getHearingPriorityType(), HearingPriorityType.HIGH.getType());
+        assertEquals(sscsCaseData.getAppeal().getHearingType(), serviceHearingValues.getHearingType());
+        assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
+        assertEquals(sscsCaseData.getIssueCode(), String.join("", serviceHearingValues.getCaseSubTypes()));
+        assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
+        assertEquals(HearingPriorityType.HIGH.getType(), serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(0, serviceHearingValues.getHearingLocations().size());
@@ -134,7 +130,7 @@ class ServiceHearingValuesMapperTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertEquals(serviceHearingValues.getListingComments(),  NOTE_FROM_OTHER_APPELLANT + "\n" + NOTE_FROM_OTHER_PARTY);
+        assertEquals(NOTE_FROM_OTHER_APPELLANT + "\n" + NOTE_FROM_OTHER_PARTY, serviceHearingValues.getListingComments());
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());

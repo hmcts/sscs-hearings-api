@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.sscs.utils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvHearingWindow;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.ShvPartyDetails;
-import uk.gov.hmcts.reform.sscs.model.servicehearingvalues.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 
@@ -47,7 +47,7 @@ class SscsCaseDataUtilsTest {
         // when
         Mockito.when(sscsCaseData.getIssueCode()).thenReturn("DD");
         //then
-        assertEquals(1, SscsCaseDataUtils.getIssueCode(sscsCaseData).size());;
+        assertEquals(1, SscsCaseDataUtils.getIssueCode(sscsCaseData).size());
         assertEquals("DD", SscsCaseDataUtils.getIssueCode(sscsCaseData).stream().findFirst().orElseThrow());
     }
 
@@ -58,7 +58,7 @@ class SscsCaseDataUtilsTest {
         // when
         Mockito.when(sscsCaseData.getIssueCode()).thenReturn(null);
         //then
-        assertTrue(SscsCaseDataUtils.getIssueCode(sscsCaseData).isEmpty());;
+        assertTrue(SscsCaseDataUtils.getIssueCode(sscsCaseData).isEmpty());
     }
 
     @Test
@@ -74,7 +74,7 @@ class SscsCaseDataUtilsTest {
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         //then
         List<String> facilitiesRequired = SscsCaseDataUtils.getFacilitiesRequired(sscsCaseData);
-        assertEquals(3, facilitiesRequired.size());;
+        assertEquals(3, facilitiesRequired.size());
         assertEquals("signLanguageInterpreter", facilitiesRequired.stream().findFirst().orElseThrow());
         assertEquals("disabledAccess", facilitiesRequired.stream().skip(2).findFirst().orElseThrow());
     }
@@ -162,9 +162,9 @@ class SscsCaseDataUtilsTest {
         Mockito.when(ccdValue.getValue()).thenReturn(otherParty);
         Mockito.when(sscsCaseData.getOtherParties()).thenReturn(otherPartyList);
         //then
-        List<ShvPartyDetails> partyDetailsList = SscsCaseDataUtils.getParties(sscsCaseData);
+        List<PartyDetails> partyDetailsList = SscsCaseDataUtils.getParties(sscsCaseData);
         assertEquals(1, partyDetailsList.size());
-        ShvPartyDetails partyDetails = partyDetailsList.stream().findFirst().orElseThrow();
+        PartyDetails partyDetails = partyDetailsList.stream().findFirst().orElseThrow();
         assertEquals("party_id_1", partyDetails.getPartyID());
         assertEquals(PartyType.IND, partyDetails.getPartyType());
         assertEquals(HearingUtils.FACE_TO_FACE, partyDetails.getPartyChannel());
@@ -196,9 +196,9 @@ class SscsCaseDataUtilsTest {
         Mockito.when(sscsCaseData.getEvents()).thenReturn(getEventsOfCaseData());
         Mockito.when(sscsCaseData.getUrgentCase()).thenReturn((YesNo.YES.getValue()));
         //then
-        ShvHearingWindow hearingWindow = SscsCaseDataUtils.getHearingWindow(sscsCaseData);
-        assertEquals("2022-02-26", hearingWindow.getShvHearingWindowDateRange().getHearingWindowStartDateRange());
-        assertNull(hearingWindow.getShvHearingWindowDateRange().getHearingWindowEndDateRange());
+        HearingWindow hearingWindow = SscsCaseDataUtils.getHearingWindow(sscsCaseData);
+        assertEquals("2022-02-26", hearingWindow.getHearingWindowDateRange().getHearingWindowStartDateRange());
+        assertNull(hearingWindow.getHearingWindowDateRange().getHearingWindowEndDateRange());
     }
 
     @Test
@@ -209,9 +209,9 @@ class SscsCaseDataUtilsTest {
         Mockito.when(sscsCaseData.getEvents()).thenReturn(getEventsOfCaseData());
         Mockito.when(sscsCaseData.getUrgentCase()).thenReturn((YesNo.NO.getValue()));
         //then
-        ShvHearingWindow hearingWindow = SscsCaseDataUtils.getHearingWindow(sscsCaseData);
-        assertEquals("2022-03-12", hearingWindow.getShvHearingWindowDateRange().getHearingWindowStartDateRange());
-        assertNull(hearingWindow.getShvHearingWindowDateRange().getHearingWindowEndDateRange());
+        HearingWindow hearingWindow = SscsCaseDataUtils.getHearingWindow(sscsCaseData);
+        assertEquals("2022-03-12", hearingWindow.getHearingWindowDateRange().getHearingWindowStartDateRange());
+        assertNull(hearingWindow.getHearingWindowDateRange().getHearingWindowEndDateRange());
     }
 
     @Test
@@ -222,9 +222,9 @@ class SscsCaseDataUtilsTest {
         Mockito.when(sscsCaseData.getEvents()).thenReturn(getOverdueEventsOfCaseData());
         Mockito.when(sscsCaseData.getUrgentCase()).thenReturn((YesNo.YES.getValue()));
         //then
-        ShvHearingWindow hearingWindow = SscsCaseDataUtils.getHearingWindow(sscsCaseData);
-        assertNull(hearingWindow.getShvHearingWindowDateRange().getHearingWindowStartDateRange());
-        assertNull(hearingWindow.getShvHearingWindowDateRange().getHearingWindowEndDateRange());
+        HearingWindow hearingWindow = SscsCaseDataUtils.getHearingWindow(sscsCaseData);
+        assertNull(hearingWindow.getHearingWindowDateRange().getHearingWindowStartDateRange());
+        assertNull(hearingWindow.getHearingWindowDateRange().getHearingWindowEndDateRange());
     }
 
     private List<ExcludeDate> getExcludeDates() {

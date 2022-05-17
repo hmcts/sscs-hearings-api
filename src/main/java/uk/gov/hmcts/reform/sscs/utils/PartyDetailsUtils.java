@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +24,6 @@ public final class PartyDetailsUtils {
         sscsCaseData.getAppeal();
         if (PartyDetailsUtils.getPartyType(party).equals(PartyType.IND)) {
             return IndividualDetails.builder()
-                    .title(party.getName() == null ? null : party.getName().getTitle())
                     .firstName(party.getName() == null ? null : party.getName().getFirstName())
                     .lastName(party.getName() == null ? null :  party.getName().getLastName())
                     .preferredHearingChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
@@ -33,9 +33,9 @@ public final class PartyDetailsUtils {
                     .vulnerableFlag(false)
                     .vulnerabilityDetails(null)
                     .hearingChannelEmail(party.getHearingSubtype() == null ? null
-                            : party.getHearingSubtype().getHearingVideoEmail())
+                            : Collections.singletonList(party.getHearingSubtype().getHearingVideoEmail()))
                     .hearingChannelPhone(party.getHearingSubtype() == null ? null
-                            : party.getHearingSubtype().getHearingTelephoneNumber())
+                            : Collections.singletonList(party.getHearingSubtype().getHearingTelephoneNumber()))
 
                     // TODO missing mapping et them from the method  in SSCS-10245-send-epimsID-to-HMC,
                     // call with the order HearingsMapping ->  updateIds(wrapper), buildRelatedParties(wrapper)

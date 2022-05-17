@@ -88,7 +88,6 @@ class PartyDetailsUtilsTest {
         Mockito.when(reasonableAdjustmentDetails.getReasonableAdjustmentRequirements()).thenReturn(adjustments);
         //then
         IndividualDetails individualDetails = PartyDetailsUtils.getIndividualDetails(otherParty, sscsCaseData);
-        assertEquals("Mr", individualDetails.getTitle());
         assertEquals("Barny", individualDetails.getFirstName());
         assertEquals("Boulderstone", individualDetails.getLastName());
         assertEquals(HearingUtils.FACE_TO_FACE, individualDetails.getPreferredHearingChannel());
@@ -98,7 +97,7 @@ class PartyDetailsUtilsTest {
                 individualDetails.getReasonableAdjustments().stream().findFirst().orElseThrow());
         assertFalse(individualDetails.isVulnerableFlag());
         assertNull(individualDetails.getVulnerabilityDetails());
-        assertEquals("test2@gmail.com", individualDetails.getHearingChannelEmail());
-        assertEquals("0999733735", individualDetails.getHearingChannelPhone());
+        assertEquals("test2@gmail.com", individualDetails.getHearingChannelEmail().stream().findFirst().orElseThrow());
+        assertEquals("0999733735", individualDetails.getHearingChannelPhone().stream().findFirst().orElseThrow());
     }
 }
