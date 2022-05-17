@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletContextListener;
 
+@SuppressWarnings("checkstyle:Indentation")
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan(basePackages = {"uk.gov.hmcts.reform"})

@@ -1,13 +1,11 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.apache.commons.collections.ArrayStack;
-import org.apache.commons.collections4.MultiValuedMap;
+
 import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.service.AirLookupService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -66,10 +64,9 @@ public final class HearingsDetailsMapping {
     }
 
     public static String getHearingType(SscsCaseData caseData) {
-        String hearingType = null;
         // TODO Dependant on SSCS-10273 - find out what logic is needed here
         // Assuming key is what is required.
-        return hearingType;
+        return null;
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -160,12 +157,9 @@ public final class HearingsDetailsMapping {
     private static List<HearingLocations> getMultipleLocationDetails(CaseManagementLocation caseManagementLocation) {
 
         Map<String, List<String>> epimMap = new HashMap<String, List<String>>();
-        List<String> manchesterId = new ArrayList<>();
-        List<String> chesterId = new ArrayList<>();
-        List<String> plymouthId = new ArrayList<>();
-        chesterId.addAll(List.of( "226511", "443014"));
-        manchesterId.addAll(List.of( "512401", "701411"));
-        plymouthId.addAll(List.of( "764728", "235590"));
+        List<String> chesterId = new ArrayList<>(List.of("226511", "443014"));
+        List<String> manchesterId = new ArrayList<>(List.of("512401", "701411"));
+        List<String> plymouthId = new ArrayList<>(List.of("764728", "235590"));
 
         epimMap.put("Manchester", manchesterId);
         epimMap.put("Chester", chesterId);
@@ -176,20 +170,16 @@ public final class HearingsDetailsMapping {
         HearingLocations hearingLocations = new HearingLocations();
         hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
         hearingLocations.setLocationType(processingCenter);
-            switch (processingCenter) {
-                case "Manchester":
-                    locationId.addAll(getEpims(epimMap, "Manchester", hearingLocations));
-                    break;
-                case "Chester":
-                    locationId.addAll(getEpims(epimMap, "Chester", hearingLocations));
-                    break;
-                case "Plymouth":
-                    locationId.addAll(getEpims(epimMap, "Plymouth", hearingLocations));
-                    break;
-                default:
-                    break;
-            }
-            return locationId;
+        switch (processingCenter) {
+            case "Manchester": locationId.addAll(getEpims(epimMap, "Manchester", hearingLocations));
+                break;
+            case "Chester": locationId.addAll(getEpims(epimMap, "Chester", hearingLocations));
+                break;
+            case "Plymouth": locationId.addAll(getEpims(epimMap, "Plymouth", hearingLocations));
+                break;
+            default: break;
+        }
+        return locationId;
     }
 
     @NotNull
@@ -219,25 +209,22 @@ public final class HearingsDetailsMapping {
         List<HearingLocations> location = getMultipleLocationDetails(caseManagementLocation);
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
-        if(location.size() == 0){
+        if (location.size() == 0) {
             hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
             hearingLocations.setLocationType("court");
             hearingLocationsList.add(hearingLocations);
-        }else{
-            location.forEach(id -> {
-                hearingLocationsList.add(id);
-            });
+        } else {
+            hearingLocationsList.addAll(location);
         }
 
         return hearingLocationsList;
     }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        List<String> facilitiesRequired = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return facilitiesRequired;
+        return new ArrayList<>();
     }
 
     public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
