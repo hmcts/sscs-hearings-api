@@ -211,17 +211,17 @@ public final class HearingsDetailsMapping {
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         HearingLocations hearingLocations = new HearingLocations();
         List<HearingLocations> location = new ArrayList<>();
-        if (!Objects.equals(caseManagementLocation.getBaseLocation(), "Null")) {
-            location = getMultipleLocationDetails(caseManagementLocation);
-        }
+        List<String> multipleLocationList = new ArrayList<>(List.of("Manchester", "Chester", "Plymouth"));
+
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
-        if (location.size() == 0) {
+        if (multipleLocationList.contains(caseManagementLocation.getBaseLocation())) {
+            location = getMultipleLocationDetails(caseManagementLocation);
+            hearingLocationsList.addAll(location);
+        } else {
             hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
             hearingLocations.setLocationType("court");
             hearingLocationsList.add(hearingLocations);
-        } else {
-            hearingLocationsList.addAll(location);
         }
 
         return hearingLocationsList;
