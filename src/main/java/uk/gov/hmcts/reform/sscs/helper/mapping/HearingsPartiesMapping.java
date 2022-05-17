@@ -26,7 +26,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NO
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
@@ -150,16 +150,31 @@ public final class HearingsPartiesMapping {
         return entity.getName().getLastName();
     }
 
-    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype, HearingOptions hearingOptions) {
+    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType,
+                                                                        HearingSubtype hearingSubtype,
+                                                                        HearingOptions hearingOptions) {
         if (hearingType == null || hearingSubtype == null) {
             return Optional.empty();
         }
 
-        return HEARING_TYPE_PAPER.equals(hearingType) || !hearingOptions.isWantsToAttendHearing() ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
+        return shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
             : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(FACE_TO_FACE.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeVideo()) && nonNull(hearingSubtype.getHearingVideoEmail()) ? Optional.ofNullable(VIDEO.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber()) ? Optional.ofNullable(TELEPHONE.getHmcReference())
+            : shouldPreferVideoHearingChannel(hearingSubtype) ? Optional.ofNullable(VIDEO.getHmcReference())
+            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? Optional.ofNullable(TELEPHONE.getHmcReference())
             : Optional.empty();
+    }
+
+    private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {
+        return HEARING_TYPE_PAPER.equals(hearingType) || !hearingOptions.isWantsToAttendHearing();
+    }
+
+    private static boolean shouldPreferTelephoneHearingChannel(HearingSubtype hearingSubtype) {
+        return isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber());
+    }
+
+    private static boolean shouldPreferVideoHearingChannel(HearingSubtype hearingSubtype) {
+        return isYes(hearingSubtype.getWantsHearingTypeVideo())
+            && nonNull(hearingSubtype.getHearingVideoEmail());
     }
 
     public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
