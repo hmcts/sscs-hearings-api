@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+//import java.util.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -156,7 +157,7 @@ public final class HearingsDetailsMapping {
 
     private static List<HearingLocations> getMultipleLocationDetails(CaseManagementLocation caseManagementLocation) {
 
-        Map<String, List<String>> epimMap = new HashMap<String, List<String>>();
+        Map<String, List<String>> epimMap = new HashMap<>();
         List<String> chesterId = new ArrayList<>(List.of("226511", "443014"));
         List<String> manchesterId = new ArrayList<>(List.of("512401", "701411"));
         List<String> plymouthId = new ArrayList<>(List.of("764728", "235590"));
@@ -196,7 +197,7 @@ public final class HearingsDetailsMapping {
         );
 
         epims.forEach(epimId -> {
-            if(epimId.contains(hearingLocations.getLocationId())) {
+            if (epimId.contains(hearingLocations.getLocationId())) {
                 hearingLocations.setMultipleLocationId(epimId);
                 epimss.add(hearingLocations);
             }
