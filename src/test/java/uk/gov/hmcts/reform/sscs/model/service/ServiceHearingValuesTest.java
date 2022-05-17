@@ -10,9 +10,9 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ResourceLoader;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 
 import java.util.Set;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
