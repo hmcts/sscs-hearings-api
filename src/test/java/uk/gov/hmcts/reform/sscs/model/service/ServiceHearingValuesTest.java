@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.servicehearingvalues;
+package uk.gov.hmcts.reform.sscs.model.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ResourceLoader;
 
 import java.util.Set;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
