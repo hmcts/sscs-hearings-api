@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
@@ -52,7 +53,7 @@ public class ServiceHearingValuesMapper {
                 //  SSCS-10321-Create-Hearing-POST-Mapping, HearingsCaseMapping ->  shouldBeAdditionalSecurityFlag
                 .caseAdditionalSecurityFlag(getAdditionalSecurityFlag(caseData.getOtherParties(), caseData.getDwpUcb()))
                 .facilitiesRequired(SscsCaseDataUtils.getFacilitiesRequired(caseData))
-                .listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
+                .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
                 .hearingRequester(null)
                 .privateHearingRequiredFlag(false)
                 .leadJudgeContractType(null) // TODO ref data isn't availible yet. List Assist may handle this value
@@ -91,23 +92,7 @@ public class ServiceHearingValuesMapper {
         return hearingPriorityType;
     }
 
-    private static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
-        List<String> listingComments = new ArrayList<>();
-        if (Objects.nonNull(appeal)
-            && Objects.nonNull(appeal.getHearingOptions())
-            && Objects.nonNull(appeal.getHearingOptions().getOther())) {
-            listingComments.add(appeal.getHearingOptions().getOther());
-        }
 
-        if (Objects.nonNull(otherParties)) {
-            listingComments.addAll(otherParties.stream()
-                                       .map(o -> o.getValue().getHearingOptions().getOther())
-                                       .filter(StringUtils::isNotBlank)
-                                       .collect(Collectors.toList()));
-        }
-
-        return listingComments.isEmpty() ? null : String.join("\n", listingComments);
-    }
 
 
 }
