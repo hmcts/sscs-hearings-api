@@ -18,7 +18,7 @@ import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMB.LawOfDemeter","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 

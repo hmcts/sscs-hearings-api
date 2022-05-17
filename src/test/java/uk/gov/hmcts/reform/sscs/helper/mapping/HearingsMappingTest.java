@@ -96,6 +96,10 @@ class HearingsMappingTest extends HearingsMappingBase {
         assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getRep().getId());
 
         assertNotNull(wrapper.getCaseData().getOtherParties().get(1).getValue().getId());
+
+        assertNotNull(wrapper.getCaseData().getJointParty().getId());
+        assertNotNull(wrapper.getCaseData().getJointParty().getAppointee().getId());
+
     }
 
     @DisplayName("getMaxId Test")
