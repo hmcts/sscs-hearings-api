@@ -237,7 +237,7 @@ repositories {
 
 def versions= [
   assertJ: '3.22.0',
-  azureCore: '1.28.0',
+  azureCore: '1.27.0',
   azureMessagingServicebus: '7.8.0',
   commonsIo: '2.11.0',
   fortify: '1.2.2',
