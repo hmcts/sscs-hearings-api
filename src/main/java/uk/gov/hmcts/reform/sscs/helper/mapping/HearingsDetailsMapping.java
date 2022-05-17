@@ -210,7 +210,10 @@ public final class HearingsDetailsMapping {
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         HearingLocations hearingLocations = new HearingLocations();
-        List<HearingLocations> location = getMultipleLocationDetails(caseManagementLocation);
+        List<HearingLocations> location = new ArrayList<>();
+        if (!Objects.equals(caseManagementLocation.getBaseLocation(), "Null")) {
+            location = getMultipleLocationDetails(caseManagementLocation);
+        }
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
         if (location.size() == 0) {
