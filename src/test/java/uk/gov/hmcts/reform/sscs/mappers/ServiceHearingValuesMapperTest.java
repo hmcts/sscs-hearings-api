@@ -307,6 +307,7 @@ class ServiceHearingValuesMapperTest {
                     .flagDescription("Urgent flag")
                     .flagStatus(null)
                     .build());
-            }};
+            }
+        };
     }
 }

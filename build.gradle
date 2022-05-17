@@ -240,6 +240,7 @@ def versions= [
   azureCore: '1.26.0',
   azureMessagingServicebus: '7.7.0',
   commonsIo: '2.11.0',
+  elasticsearch: '7.16.3',
   fortify: '1.2.2',
   feign: '11.7',
   gradlePiTestPlugin: '1.5.2',
