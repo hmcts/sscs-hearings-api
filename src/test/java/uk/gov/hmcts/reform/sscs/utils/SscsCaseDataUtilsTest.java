@@ -1,10 +1,14 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
@@ -15,6 +19,14 @@ import java.util.List;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_PHME;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_UCB;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
 
 class SscsCaseDataUtilsTest {
 
@@ -227,6 +239,20 @@ class SscsCaseDataUtilsTest {
         assertNull(hearingWindow.getHearingWindowDateRange().getHearingWindowEndDateRange());
     }
 
+    @Test
+    void shouldGetCaseFlags() {
+        // given
+        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
+        MockedStatic<PartyFlagsMapping> partyFlagsMapping = Mockito.mockStatic(PartyFlagsMapping.class);
+        // when
+        partyFlagsMapping.when(() -> PartyFlagsMapping.getPartyFlags(sscsCaseData)).thenReturn(getPartyFlags());
+        // then
+        CaseFlags caseFlags = SscsCaseDataUtils.getCaseFlags(sscsCaseData);
+        assertNull(caseFlags.getFlagAmendUrl());
+        assertEquals(8, caseFlags.getFlags().size());
+        assertEquals(SIGN_LANGUAGE_TYPE.getFlagId(), caseFlags.getFlags().stream().findFirst().orElseThrow().getFlagId());
+    }
+
     private List<ExcludeDate> getExcludeDates() {
         return new ArrayList<>() {
             {
@@ -264,6 +290,47 @@ class SscsCaseDataUtilsTest {
                                 .description("Dwp response overdue")
                                 .build())
                         .build());
+            }
+        };
+    }
+
+    private List<PartyFlags> getPartyFlags() {
+        return new ArrayList<>() {
+            {
+                add(PartyFlags.builder()
+                        .flagId(SIGN_LANGUAGE_TYPE.getFlagId())
+                        .flagDescription(SIGN_LANGUAGE_TYPE.getFlagDescription())
+                        .flagParentId(SIGN_LANGUAGE_TYPE.getParentId())
+                        .build());
+                add(PartyFlags.builder()
+                        .flagId(DISABLED_ACCESS.getFlagId())
+                        .flagDescription(DISABLED_ACCESS.getFlagDescription())
+                        .flagParentId(DISABLED_ACCESS.getParentId()).build());
+                add(PartyFlags.builder()
+                        .flagId(HEARING_LOOP.getFlagId())
+                        .flagDescription(HEARING_LOOP.getFlagDescription())
+                        .flagParentId(HEARING_LOOP.getParentId()).build());
+                add(PartyFlags.builder()
+                        .flagId(IS_CONFIDENTIAL_CASE.getFlagId())
+                        .flagDescription(IS_CONFIDENTIAL_CASE.getFlagDescription())
+                        .flagParentId(IS_CONFIDENTIAL_CASE.getParentId())
+                        .build());
+                add(PartyFlags.builder()
+                        .flagId(DWP_UCB.getFlagId())
+                        .flagDescription(DWP_UCB.getFlagDescription())
+                        .flagParentId(DWP_UCB.getParentId()).build());
+                add(PartyFlags.builder()
+                        .flagId(DWP_PHME.getFlagId())
+                        .flagDescription(DWP_PHME.getFlagDescription())
+                        .flagParentId(DWP_PHME.getParentId()).build());
+                add(PartyFlags.builder()
+                        .flagId(URGENT_CASE.getFlagId())
+                        .flagDescription(URGENT_CASE.getFlagDescription())
+                        .flagParentId(URGENT_CASE.getParentId()).build());
+                add(PartyFlags.builder()
+                        .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
+                        .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
+                        .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build());
             }
         };
     }

@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
@@ -132,6 +134,16 @@ public final class SscsCaseDataUtils {
                         .hearingWindowStartDateRange(hearingWindowStart)
                         .hearingWindowEndDateRange(null)
                         .build())
+                .build();
+    }
+
+
+    public static CaseFlags getCaseFlags(SscsCaseData sscsCaseData) {
+        return CaseFlags.builder()
+                .flags(PartyFlagsMapping.getPartyFlags(sscsCaseData).stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()))
+                .flagAmendUrl(null)
                 .build();
     }
 }
