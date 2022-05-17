@@ -24,8 +24,8 @@ class ServiceHearingValuesMapperTest {
     private static final ServiceHearingValuesMapper mapper = new ServiceHearingValuesMapper();
     private static SscsCaseDetails sscsCaseDetails;
 
-    private static final String NOTE_FROM_OTHER_PARTY = "Yes, this is from other party";
-    private static final String NOTE_FROM_OTHER_APPELLANT = "Yes, this is from appellant";
+    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
+    private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:\n";
     public static final String FACE_TO_FACE = "faceToFace";
 
     @BeforeEach
@@ -130,7 +130,7 @@ class ServiceHearingValuesMapperTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertEquals(NOTE_FROM_OTHER_APPELLANT + "\n" + NOTE_FROM_OTHER_PARTY, serviceHearingValues.getListingComments());
+        assertEquals(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY, serviceHearingValues.getListingComments());
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
