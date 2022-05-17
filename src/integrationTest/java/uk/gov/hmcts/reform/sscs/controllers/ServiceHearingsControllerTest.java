@@ -77,7 +77,7 @@ class ServiceHearingsControllerTest {
                 .build());
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(SscsCaseData.builder()
-                        .workAllocationFields(WorkAllocationFields.builder()
+                        .caseAccessManagementFields(CaseAccessManagementFields.builder()
                                 .caseNamePublic(CASE_NAME)
                                 .build())
                         .linkedCase(linkedCases)
