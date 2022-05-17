@@ -9,8 +9,11 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-//import java.util.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
