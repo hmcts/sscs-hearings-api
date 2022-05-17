@@ -1,14 +1,17 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.apache.commons.collections.ArrayStack;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.service.AirLookupService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -154,13 +157,77 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
+    private static List<HearingLocations> getMultipleLocationDetails(CaseManagementLocation caseManagementLocation) {
+
+        Map<String, List<String>> epimMap = new HashMap<String, List<String>>();
+        List<String> manchesterId = new ArrayList<>();
+        List<String> chesterId = new ArrayList<>();
+        List<String> plymouthId = new ArrayList<>();
+        chesterId.addAll(List.of( "226511", "443014"));
+        manchesterId.addAll(List.of( "512401", "701411"));
+        plymouthId.addAll(List.of( "764728", "235590"));
+
+        epimMap.put("Manchester", manchesterId);
+        epimMap.put("Chester", chesterId);
+        epimMap.put("Plymouth", plymouthId);
+
+        List<HearingLocations> locationId = new ArrayList<>();
+        String processingCenter = caseManagementLocation.getRegion();
         HearingLocations hearingLocations = new HearingLocations();
         hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
-        hearingLocations.setLocationType("court");
+        hearingLocations.setLocationType(processingCenter);
+            switch (processingCenter) {
+                case "Manchester":
+                    locationId.addAll(getEpims(epimMap, "Manchester", hearingLocations));
+                    break;
+                case "Chester":
+                    locationId.addAll(getEpims(epimMap, "Chester", hearingLocations));
+                    break;
+                case "Plymouth":
+                    locationId.addAll(getEpims(epimMap, "Plymouth", hearingLocations));
+                    break;
+                default:
+                    break;
+            }
+            return locationId;
+    }
 
+    @NotNull
+    private static List<HearingLocations> getEpims(Map<String, List<String>> epimLists, String locationName, HearingLocations hearingLocations) {
+        List<List<String>> epims = new ArrayList<>();
+        List<HearingLocations> epimss = new ArrayList<>();
+
+        epims = epimLists
+            .entrySet()
+            .stream()
+            .filter(e -> Objects.equals((e.getKey()), locationName))
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toList()
+        );
+
+        epims.forEach(epimId -> {
+            if(epimId.contains(hearingLocations.getLocationId())) {
+                hearingLocations.setMultipleLocationId(epimId);
+                epimss.add(hearingLocations);
+            }
+        });
+        return epimss;
+    }
+
+    public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
+        HearingLocations hearingLocations = new HearingLocations();
+        List<HearingLocations> location = getMultipleLocationDetails(caseManagementLocation);
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
-        hearingLocationsList.add(hearingLocations);
+
+        if(location.size() == 0){
+            hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+            hearingLocations.setLocationType("court");
+            hearingLocationsList.add(hearingLocations);
+        }else{
+            location.forEach(id -> {
+                hearingLocationsList.add(id);
+            });
+        }
 
         return hearingLocationsList;
     }

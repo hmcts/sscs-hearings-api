@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +20,5 @@ public class HearingLocations {
     private String locationId;
     private String locationName;
     private String region;
+    private List<String> multipleLocationId;
 }

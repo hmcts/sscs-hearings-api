@@ -211,6 +211,24 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals("court", result.get(0).getLocationType());
     }
 
+    @DisplayName("getHearingLocations Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {"764728,Plymouth"}, nullValues = {"null"})
+    void getMultipleHearingLocations(String baseLocation, String region) {
+        CaseManagementLocation managementLocation = CaseManagementLocation.builder()
+            .baseLocation(baseLocation)
+            .region(region)
+            .build();
+        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
+        if(!result.get(0).getLocationType().equalsIgnoreCase("court")){
+            result.forEach(it -> {
+                assertEquals("764728", it.getMultipleLocationId().get(0));
+                assertEquals("235590", it.getMultipleLocationId().get(1));
+                assertEquals("Plymouth", it.getLocationType());
+            });
+        }
+    }
+
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")
     @Test
     void getFacilitiesRequired() {
