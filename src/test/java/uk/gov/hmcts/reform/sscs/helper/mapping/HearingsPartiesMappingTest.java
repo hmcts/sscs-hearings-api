@@ -471,6 +471,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
+    @DisplayName("When hearingSubType not set then return null")
+    @Test
+    void getIndividualPreferredHearingChannelNullHearingSubtypeTest() {
+        HearingOptions hearingOptions = HearingOptions.builder().build();
+        String result = getIndividualPreferredHearingChannel("TEST", null, hearingOptions);
+
+        assertNull(result);
+    }
+
     @DisplayName("When language passed in should return correct LOV format")
     @ParameterizedTest
     @CsvSource({"Acholi,ach", "Afrikaans,afr", "Akan,aka", "Albanian,alb", "Zaza,zza", "Zulu,zul"})
@@ -551,6 +560,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
         String result = getIndividualPreferredHearingChannel("", hearingSubtype, hearingOptions);
         assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
+    }
+
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set return null")
+    @Test
+    void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsVideoExample() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
+        assertNull(result);
     }
 
     @DisplayName("getIndividualReasonableAdjustments Test")
