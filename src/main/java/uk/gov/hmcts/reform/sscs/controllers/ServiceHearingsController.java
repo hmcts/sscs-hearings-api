@@ -61,7 +61,7 @@ public class ServiceHearingsController {
             SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
             ServiceHearingValues model = ServiceHearingValues.builder()
-                    .caseName(caseDetails.getData().getWorkAllocationFields().getCaseNamePublic())
+                    .caseName(caseDetails.getData().getCaseAccessManagementFields().getCaseNamePublic())
                     .build();
 
             return status(HttpStatus.OK).body(model);
