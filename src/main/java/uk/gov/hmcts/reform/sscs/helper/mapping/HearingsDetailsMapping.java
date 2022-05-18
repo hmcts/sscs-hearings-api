@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.helper.mappingutils.GetVenueMultipleEpims;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -15,7 +17,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", })
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -63,10 +65,9 @@ public final class HearingsDetailsMapping {
     }
 
     public static String getHearingType(SscsCaseData caseData) {
-        String hearingType = null;
         // TODO Dependant on SSCS-10273 - find out what logic is needed here
         // Assuming key is what is required.
-        return hearingType;
+        return null;
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -155,22 +156,29 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        // locationType - from reference data - processing venue to venue type/epims
-        // locationId - epims
-        // manual over-ride e.g. if a judge wants to change venue
-        // if paper case - display all venues in that region
-        // locations where there is more than one venue
-        // Normally one location, but can be two in some cities.
-        // TODO Implementation to be done by SSCS-10245 - work out what venues to choose and get epims/locationType info from Reference Data
-        return new ArrayList<>();
+        HearingLocations hearingLocations = new HearingLocations();
+        List<HearingLocations> location;
+        List<String> multipleLocationList = new ArrayList<>(List.of("Manchester", "Chester", "Plymouth"));
+
+        List<HearingLocations> hearingLocationsList = new ArrayList<>();
+
+        if (multipleLocationList.contains(caseManagementLocation.getRegion())) {
+            location = GetVenueMultipleEpims.getMultipleLocationDetails(caseManagementLocation);
+            hearingLocationsList.addAll(location);
+        } else {
+            hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+            hearingLocations.setLocationType("court");
+            hearingLocationsList.add(hearingLocations);
+        }
+
+        return hearingLocationsList;
     }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        List<String> facilitiesRequired = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return facilitiesRequired;
+        return new ArrayList<>();
     }
 
     public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {

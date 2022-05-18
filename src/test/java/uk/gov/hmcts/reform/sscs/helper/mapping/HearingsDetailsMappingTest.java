@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +39,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
+                .caseManagementLocation(CaseManagementLocation.builder()
+                                            .baseLocation(EPIMS_ID)
+                                            .region(REGION)
+                                            .build())
                 .build();
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .build();
@@ -193,23 +196,38 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-    @Disabled
     @DisplayName("getHearingLocations Parameterized Tests")
     @ParameterizedTest
-    @CsvSource(value = {"TBD,TBD,[{CLUSTER,TBD}]"}, nullValues = {"null"})
-    void getHearingLocations(String baseLocation, String region,
-                             List<Pair<String,String>> expectedParams) {
-        // TODO Finish Test when method done
-
+    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    void getHearingLocations(String baseLocation, String region) {
         CaseManagementLocation managementLocation = CaseManagementLocation.builder()
                 .baseLocation(baseLocation)
                 .region(region)
                 .build();
         List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
-        List<HearingLocations> expected = new ArrayList<>();
 
-        assertEquals(0, result.size());
-        assertEquals(expected, result);
+        assertEquals(1, result.size(), "Expected 1");
+        assertEquals("219164", result.get(0).getLocationId(), "Expected 219164");
+        assertEquals("court", result.get(0).getLocationType(), "Expected type to be court");
+    }
+
+    @DisplayName("getHearingLocations Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {"764728,Plymouth"}, nullValues = {"null"})
+    void multipleHearingLocations(String baseLocation, String region) {
+        final String courtLocation = "court";
+        CaseManagementLocation managementLocation = CaseManagementLocation.builder()
+            .baseLocation(baseLocation)
+            .region(region)
+            .build();
+        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
+        if (!courtLocation.equalsIgnoreCase(result.get(0).getLocationType())) {
+            result.forEach(it -> {
+                assertEquals("764728", it.getMultipleLocationId().get(0), "Expected 764728");
+                assertEquals("235590", it.getMultipleLocationId().get(1), "Expected 235590");
+                assertEquals("Plymouth", it.getLocationType(), "Expected Location as Plymouth");
+            });
+        }
     }
 
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")
