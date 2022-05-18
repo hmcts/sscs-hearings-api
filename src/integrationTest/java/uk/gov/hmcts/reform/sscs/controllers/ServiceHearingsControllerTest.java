@@ -75,12 +75,14 @@ class ServiceHearingsControllerTest {
                         .caseReference(String.valueOf(CASE_ID_LINKED))
                         .build())
                 .build());
+        Appeal appeal = Appeal.builder().build();
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(SscsCaseData.builder()
                         .workAllocationFields(WorkAllocationFields.builder()
                                 .caseNamePublic(CASE_NAME)
                                 .build())
                         .linkedCase(linkedCases)
+                        .appeal(appeal)
                         .build())
                 .build();
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);

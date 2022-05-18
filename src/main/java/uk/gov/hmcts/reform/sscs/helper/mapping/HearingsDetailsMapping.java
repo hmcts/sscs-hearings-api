@@ -175,7 +175,7 @@ public final class HearingsDetailsMapping {
 
     public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
         List<String> listingComments = new ArrayList<>();
-        if (nonNull(appeal) && nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
+        if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
             listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
         }
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
