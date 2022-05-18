@@ -149,14 +149,14 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        // locationType - from reference data - processing venue to venue type/epims
-        // locationId - epims
-        // manual over-ride e.g. if a judge wants to change venue
-        // if paper case - display all venues in that region
-        // locations where there is more than one venue
-        // Normally one location, but can be two in some cities.
-        // TODO Implementation to be done by SSCS-10245 - work out what venues to choose and get epims/locationType info from Reference Data
-        return new ArrayList<>();
+        HearingLocations hearingLocations = new HearingLocations();
+        hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+        hearingLocations.setLocationType("court");
+
+        List<HearingLocations> hearingLocationsList = new ArrayList<>();
+        hearingLocationsList.add(hearingLocations);
+
+        return hearingLocationsList;
     }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
