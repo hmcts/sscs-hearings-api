@@ -30,7 +30,7 @@ public final class PartyDetailsUtils {
                     .preferredHearingChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
                     .interpreterLanguage(party.getHearingOptions() == null ? null
                             : party.getHearingOptions().getLanguages())
-                    .reasonableAdjustments(getReasonableAdjustments(party))
+                    .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(party.getHearingOptions()))
                     .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
                     .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
                     .hearingChannelEmail(party.getHearingSubtype() == null ? null
@@ -64,20 +64,6 @@ public final class PartyDetailsUtils {
                 .build();
     }
 
-    /**
-     * Returning the List of reasonable adjustments for an OtherParty.
-     *
-     * @param party an OtherParty
-     * @return a List of Strings representing reasonable adjustments
-     */
-    public static List<String> getReasonableAdjustments(OtherParty party) {
-        List<String> reasonableAdjustments = new ArrayList<>();
-        if (Objects.nonNull(party.getReasonableAdjustment())
-                && YesNo.isYes(party.getReasonableAdjustment().getWantsReasonableAdjustment())) {
-            reasonableAdjustments.add(party.getReasonableAdjustment().getReasonableAdjustmentRequirements());
-        }
-        return reasonableAdjustments;
-    }
 
     /**
      * Presuming Individual for now.

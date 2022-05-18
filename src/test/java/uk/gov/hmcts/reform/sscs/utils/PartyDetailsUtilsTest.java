@@ -28,22 +28,6 @@ class PartyDetailsUtilsTest {
         assertEquals(PartyType.IND, PartyDetailsUtils.getPartyType(otherParty));
     }
 
-    @Test
-    void shouldGetReasonableAdjustments() {
-        // given otherParty
-        OtherParty otherParty = Mockito.mock(OtherParty.class);
-        ReasonableAdjustmentDetails reasonableAdjustmentDetails = Mockito.mock(ReasonableAdjustmentDetails.class);
-        String adjustments = "Some adjustments...";
-        // when
-        Mockito.when(otherParty.getReasonableAdjustment()).thenReturn(reasonableAdjustmentDetails);
-        Mockito.when(reasonableAdjustmentDetails.getWantsReasonableAdjustment()).thenReturn(YesNo.YES);
-        Mockito.when(reasonableAdjustmentDetails.getReasonableAdjustmentRequirements()).thenReturn(adjustments);
-        //then
-        List<String> reasonableAdjustments = PartyDetailsUtils.getReasonableAdjustments(otherParty);
-        assertFalse(reasonableAdjustments.isEmpty());
-        assertEquals(1, reasonableAdjustments.size());
-        assertEquals("Some adjustments...", reasonableAdjustments.stream().findFirst().orElseThrow());
-    }
 
     @Test
     void shouldGetOrganisationDetails() {
