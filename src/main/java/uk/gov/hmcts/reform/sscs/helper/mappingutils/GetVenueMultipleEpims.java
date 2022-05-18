@@ -4,10 +4,18 @@ import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class GetVenueMultipleEpims {
+
+    private GetVenueMultipleEpims(){
+
+    }
 
     public static final String MANCHESTER = "Manchester";
     public static final String CHESTER = "Chester";
