@@ -2,11 +2,17 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.service.AirLookupService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +21,25 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
-
+@ExtendWith(MockitoExtension.class)
 class HearingsMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private ReferenceData referenceData;
+
+    @Mock
+    private AirLookupService airLookupService;
+
+    @Mock
+    private VenueDataLoader venueDataLoader;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
     void buildHearingPayload() {
+        when(referenceData.getAirLookupService()).thenReturn(airLookupService);
+        when(referenceData.getVenueDataLoader()).thenReturn(venueDataLoader);
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .benefitCode(BENEFIT_CODE)
@@ -51,7 +69,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .caseData(caseData)
                 .build();
-        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper);
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRequestDetails()).isNotNull();
