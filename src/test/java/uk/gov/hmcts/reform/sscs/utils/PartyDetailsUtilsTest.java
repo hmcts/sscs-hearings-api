@@ -86,6 +86,8 @@ class PartyDetailsUtilsTest {
         Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn("Telugu");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(otherParty.getReasonableAdjustment()).thenReturn(reasonableAdjustmentDetails);
         Mockito.when(reasonableAdjustmentDetails.getWantsReasonableAdjustment()).thenReturn(YesNo.YES);
@@ -93,7 +95,7 @@ class PartyDetailsUtilsTest {
         Mockito.when(reasonableAdjustmentDetails.getReasonableAdjustmentRequirements()).thenReturn(adjustments);
         //then
         IndividualDetails individualDetails = PartyDetailsUtils.getIndividualDetails(otherParty, sscsCaseData);
-        assertNull(individualDetails.getFirstName());
+        assertEquals("Barny", individualDetails.getFirstName());
         assertEquals("Boulderstone", individualDetails.getLastName());
         assertEquals(HearingUtils.FACE_TO_FACE, individualDetails.getPreferredHearingChannel());
         assertEquals("Telugu", individualDetails.getInterpreterLanguage());

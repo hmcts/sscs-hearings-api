@@ -23,7 +23,7 @@ public final class PartyDetailsUtils {
         if (PartyDetailsUtils.getPartyType(party).equals(PartyType.IND)) {
             return IndividualDetails.builder()
                     .firstName(HearingsPartiesMapping.getIndividualFirstName(party))
-                    .lastName(party.getName() == null ? null :  party.getName().getLastName())
+                    .lastName(HearingsPartiesMapping.getIndividualLastName(party))
                     .preferredHearingChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
                     .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(party.getHearingOptions()))
                     .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(party.getHearingOptions()))
