@@ -157,14 +157,13 @@ public final class HearingsDetailsMapping {
 
     public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
         HearingLocations hearingLocations = new HearingLocations();
-        GetVenueMultipleEpims venueMultipleEpims = new GetVenueMultipleEpims();
         List<HearingLocations> location;
         List<String> multipleLocationList = new ArrayList<>(List.of("Manchester", "Chester", "Plymouth"));
 
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
         if (multipleLocationList.contains(caseManagementLocation.getRegion())) {
-            location = venueMultipleEpims.getMultipleLocationDetails(caseManagementLocation);
+            location = GetVenueMultipleEpims.getMultipleLocationDetails(caseManagementLocation);
             hearingLocationsList.addAll(location);
         } else {
             hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
