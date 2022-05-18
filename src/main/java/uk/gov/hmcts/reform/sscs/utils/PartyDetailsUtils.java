@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.utils;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
@@ -10,8 +9,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 
 public final class PartyDetailsUtils {
 
