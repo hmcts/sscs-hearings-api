@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,10 +33,10 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceData referenceData) {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
-            .hearingDetails(buildHearingDetails(wrapper))
+            .hearingDetails(buildHearingDetails(wrapper, referenceData))
             .caseDetails(buildHearingCaseDetails(wrapper))
             .partiesDetails(buildHearingPartiesDetails(wrapper))
             .build();

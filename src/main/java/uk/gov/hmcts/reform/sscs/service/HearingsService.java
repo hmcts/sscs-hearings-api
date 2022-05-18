@@ -34,6 +34,8 @@ public class HearingsService {
 
     private final IdamService idamService;
 
+    private final ReferenceData referenceData;
+
     @Value("${exui.url}")
     private String exUiUrl;
     @Value("${sscs.serviceCode}")
@@ -122,7 +124,7 @@ public class HearingsService {
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         log.debug("Sending Create Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
@@ -135,7 +137,7 @@ public class HearingsService {
     }
 
     private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         log.debug("Sending Update Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
