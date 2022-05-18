@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 
 public class GetVenueMultipleEpims {
 
-    private GetVenueMultipleEpims(){
-
+    private GetVenueMultipleEpims() {
     }
 
     public static final String MANCHESTER = "Manchester";
