@@ -55,10 +55,12 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.unauthorisedHead
 @PactTestFor(port = "10000")
 @PactFolder("pacts")
 class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
+    public static final String FIELD_STATUS_FORMAT = "%d %s";
     private static final String VERSION = "version";
     private static final Long VERSION_NUMBER = 123L;
     private static final String FORBIDDEN_CASE_ID = "456";
     private static final String NOT_FOUND_CASE_ID = "789";
+    public static final String QUERY_FORMAT = "%s=%s&%s=%s";
 
     @Autowired
     private HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
@@ -74,7 +76,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to put PartiesNotified request")
                 .path(PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(String.format("%s=%s&%s=%s", FIELD_ID, VALID_CASE_ID, VERSION, VERSION_NUMBER))
+                .query(String.format(QUERY_FORMAT, FIELD_ID, VALID_CASE_ID, VERSION, VERSION_NUMBER))
                 .body(toJsonString(generatePartiesPutRequest()))
                 .headers(authorisedHeaders)
                 .willRespondWith()
@@ -89,15 +91,14 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for bad PartiesNotified request")
                 .path(PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(String.format("%s=%s&%s=%s", FIELD_ID, VALID_CASE_ID, VERSION, VERSION_NUMBER))
+                .query(String.format(QUERY_FORMAT, FIELD_ID, VALID_CASE_ID, VERSION, VERSION_NUMBER))
                 .body(toJsonString(generateInvalidPartiesPutRequest()))
                 .headers(authorisedHeaders)
                 .willRespondWith()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .body(new PactDslJsonBody()
                         .stringType(FIELD_MESSAGE, MSG_400_HEARING)
-                        .stringValue(FIELD_STATUS, HttpStatus.BAD_REQUEST.value()
-                                + " " + HttpStatus.BAD_REQUEST.getReasonPhrase())
+                        .stringValue(FIELD_STATUS, String.format(FIELD_STATUS_FORMAT, HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase()))
                         .eachLike(FIELD_ERRORS, 1)
                         .closeArray())
                 .toPact();
@@ -110,13 +111,12 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for unauthorised PartiesNotified request")
                 .path(PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(String.format("%s=%s&%s=%s", FIELD_ID, VALID_CASE_ID, VERSION, VERSION_NUMBER))
+                .query(String.format(QUERY_FORMAT, FIELD_ID, VALID_CASE_ID, VERSION, VERSION_NUMBER))
                 .body(toJsonString(generatePartiesPutRequest()))
                 .headers(unauthorisedHeaders)
                 .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
                 .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_401_HEARING)
-                        .stringValue(FIELD_STATUS, HttpStatus.UNAUTHORIZED.value()
-                                + " " + HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                        .stringValue(FIELD_STATUS, String.format(FIELD_STATUS_FORMAT, HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase()))
                         .eachLike(FIELD_ERRORS, 1)
                         .closeArray())
                 .toPact();
@@ -129,13 +129,12 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for forbidden PartiesNotified request")
                 .path(PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(String.format("%s=%s&%s=%s", FIELD_ID, FORBIDDEN_CASE_ID, VERSION, VERSION_NUMBER))
+                .query(String.format(QUERY_FORMAT, FIELD_ID, FORBIDDEN_CASE_ID, VERSION, VERSION_NUMBER))
                 .body(toJsonString(generatePartiesPutRequest()))
                 .headers(authorisedHeaders)
                 .willRespondWith().status(HttpStatus.FORBIDDEN.value())
                 .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_403_HEARING)
-                        .stringValue(FIELD_STATUS, HttpStatus.FORBIDDEN.value()
-                                + " " + HttpStatus.FORBIDDEN.getReasonPhrase())
+                        .stringValue(FIELD_STATUS, String.format(FIELD_STATUS_FORMAT, HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase()))
                         .eachLike(FIELD_ERRORS, 1)
                         .closeArray())
                 .toPact();
@@ -148,13 +147,12 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
                 .uponReceiving("Request to PUT PartiesNotified for not found PartiesNotified request")
                 .path(PARTIES_NOTIFIED_PATH)
                 .method(HttpMethod.PUT.toString())
-                .query(String.format("%s=%s&%s=%s", FIELD_ID, NOT_FOUND_CASE_ID, VERSION, VERSION_NUMBER))
+                .query(String.format(QUERY_FORMAT, FIELD_ID, NOT_FOUND_CASE_ID, VERSION, VERSION_NUMBER))
                 .body(toJsonString(generatePartiesPutRequest()))
                 .headers(authorisedHeaders)
                 .willRespondWith().status(HttpStatus.NOT_FOUND.value())
                 .body(new PactDslJsonBody().stringType(FIELD_MESSAGE, MSG_404_HEARING)
-                        .stringValue(FIELD_STATUS, HttpStatus.NOT_FOUND.value()
-                                + " " + HttpStatus.NOT_FOUND.getReasonPhrase())
+                        .stringValue(FIELD_STATUS, String.format(FIELD_STATUS_FORMAT, HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase()))
                         .eachLike(FIELD_ERRORS, 1)
                         .closeArray())
                 .toPact();
