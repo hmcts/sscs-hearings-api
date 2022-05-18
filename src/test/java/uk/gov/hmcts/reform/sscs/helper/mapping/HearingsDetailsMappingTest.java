@@ -220,7 +220,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .region(region)
             .build();
         List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
-        if (!result.get(0).getLocationType().equalsIgnoreCase("court")) {
+        if (!"court".equalsIgnoreCase(result.get(0).getLocationType())) {
             result.forEach(it -> {
                 assertEquals("764728", it.getMultipleLocationId().get(0), "Expected 764728");
                 assertEquals("235590", it.getMultipleLocationId().get(1), "Expected 235590");
