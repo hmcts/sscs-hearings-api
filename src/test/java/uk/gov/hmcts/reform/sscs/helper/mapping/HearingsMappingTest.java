@@ -2,14 +2,20 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.service.AirLookupService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +26,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 
-
+@ExtendWith(MockitoExtension.class)
 class HearingsMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private ReferenceData referenceData;
+
+    @Mock
+    private AirLookupService airLookupService;
+
+    @Mock
+    private VenueDataLoader venueDataLoader;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
@@ -36,6 +51,8 @@ class HearingsMappingTest extends HearingsMappingBase {
         given(referenceData.getHearingDurations()).willReturn(hearingDurations);
         given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
+        given(referenceData.getAirLookupService()).willReturn(airLookupService);
+        given(referenceData.getVenueDataLoader()).willReturn(venueDataLoader);
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .benefitCode(BENEFIT_CODE)
