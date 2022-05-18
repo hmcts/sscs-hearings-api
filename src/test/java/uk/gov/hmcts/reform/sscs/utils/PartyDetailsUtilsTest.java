@@ -93,7 +93,7 @@ class PartyDetailsUtilsTest {
         Mockito.when(reasonableAdjustmentDetails.getReasonableAdjustmentRequirements()).thenReturn(adjustments);
         //then
         IndividualDetails individualDetails = PartyDetailsUtils.getIndividualDetails(otherParty, sscsCaseData);
-        assertEquals("Barny", individualDetails.getFirstName());
+        assertNull(individualDetails.getFirstName());
         assertEquals("Boulderstone", individualDetails.getLastName());
         assertEquals(HearingUtils.FACE_TO_FACE, individualDetails.getPreferredHearingChannel());
         assertEquals("Telugu", individualDetails.getInterpreterLanguage());

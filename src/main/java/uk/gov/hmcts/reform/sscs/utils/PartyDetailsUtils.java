@@ -22,7 +22,7 @@ public final class PartyDetailsUtils {
         sscsCaseData.getAppeal();
         if (PartyDetailsUtils.getPartyType(party).equals(PartyType.IND)) {
             return IndividualDetails.builder()
-                    .firstName(party.getName() == null ? null : party.getName().getFirstName())
+                    .firstName(HearingsPartiesMapping.getIndividualFirstName(party))
                     .lastName(party.getName() == null ? null :  party.getName().getLastName())
                     .preferredHearingChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
                     .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(party.getHearingOptions()))
