@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
+@AllArgsConstructor
 public class ReferenceData {
     @Autowired
     private HearingDurationsService hearingDurations;

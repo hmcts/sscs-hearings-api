@@ -2,22 +2,27 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
+import uk.gov.hmcts.reform.sscs.service.AirLookupService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,8 +41,23 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
+@ExtendWith(MockitoExtension.class)
 class HearingsDetailsMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private ReferenceData referenceData;
+
+    @Mock
+    private AirLookupService airLookupService;
+
+    @Mock
+    private VenueDataLoader venueDataLoader;
+
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
@@ -53,17 +73,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         // TODO Finish Test when method done
+        when(referenceData.getAirLookupService()).thenReturn(airLookupService);
+        when(referenceData.getVenueDataLoader()).thenReturn(venueDataLoader);
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
-                .caseManagementLocation(CaseManagementLocation.builder()
-                                            .baseLocation(EPIMS_ID)
-                                            .region(REGION)
-                                            .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
+            .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
@@ -302,21 +319,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         //then
         assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
-    }
-
-    @DisplayName("getHearingLocations Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations(String baseLocation, String region) {
-        CaseManagementLocation managementLocation = CaseManagementLocation.builder()
-                .baseLocation(baseLocation)
-                .region(region)
-                .build();
-        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
-
-        assertEquals(1, result.size());
-        assertEquals("219164", result.get(0).getLocationId());
-        assertEquals("court", result.get(0).getLocationType());
     }
 
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")

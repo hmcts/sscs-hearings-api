@@ -263,16 +263,6 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        HearingLocations hearingLocations = new HearingLocations();
-        hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
-        hearingLocations.setLocationType("court");
-
-        List<HearingLocations> hearingLocationsList = new ArrayList<>();
-        hearingLocationsList.add(hearingLocations);
-
-        return hearingLocationsList;
-    }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
