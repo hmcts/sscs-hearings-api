@@ -129,7 +129,7 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions).orElse(null))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions))
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
@@ -150,18 +150,18 @@ public final class HearingsPartiesMapping {
         return entity.getName().getLastName();
     }
 
-    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType,
+    public static String getIndividualPreferredHearingChannel(String hearingType,
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
         if (hearingType == null || hearingSubtype == null) {
-            return Optional.empty();
+            return null;
         }
 
-        return shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(FACE_TO_FACE.getHmcReference())
-            : shouldPreferVideoHearingChannel(hearingSubtype) ? Optional.ofNullable(VIDEO.getHmcReference())
-            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? Optional.ofNullable(TELEPHONE.getHmcReference())
-            : Optional.empty();
+        return shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING.getHmcReference()
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE.getHmcReference()
+            : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO.getHmcReference()
+            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE.getHmcReference()
+            : null;
     }
 
     private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {

@@ -461,12 +461,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When hearingType and hearingSubType not set then return null")
+    @DisplayName("When hearingType not set then return null")
     @Test
-    void getIndividualPreferredHearingChannelTest() {
+    void getIndividualPreferredHearingChannelNullHearingTypeTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel(null, hearingSubtype, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel(null, hearingSubtype, hearingOptions);
 
         assertNull(result);
     }
@@ -505,7 +505,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelPaperTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel("paper", hearingSubtype, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel("paper", hearingSubtype, hearingOptions);
         assertThat(result).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
     }
 
@@ -513,7 +513,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void whenHearingTypeAndHearingSubTypeIsNull() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel(null, null, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel(null, null, hearingOptions);
         assertThat(result).isNull();
     }
 
@@ -522,7 +522,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelOralVideoTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").hearingVideoEmail("test@email.com").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
         assertThat(result).isEqualTo(HearingChannel.VIDEO.getHmcReference());
     }
 
@@ -531,7 +531,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelOralTelephoneTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").hearingTelephoneNumber("01111234567").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
         assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
 
@@ -540,7 +540,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelOralFaceToFaceTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
         assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
@@ -549,7 +549,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelBlankFaceToFaceTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        String result = getIndividualPreferredHearingChannel("", hearingSubtype, hearingOptions).orElse(null);
+        String result = getIndividualPreferredHearingChannel("", hearingSubtype, hearingOptions);
         assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
