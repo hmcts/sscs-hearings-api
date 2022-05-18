@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.utils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
@@ -30,8 +31,8 @@ public final class PartyDetailsUtils {
                     .interpreterLanguage(party.getHearingOptions() == null ? null
                             : party.getHearingOptions().getLanguages())
                     .reasonableAdjustments(getReasonableAdjustments(party))
-                    .vulnerableFlag(false)
-                    .vulnerabilityDetails(null)
+                    .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
+                    .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
                     .hearingChannelEmail(party.getHearingSubtype() == null ? null
                             : Collections.singletonList(party.getHearingSubtype().getHearingVideoEmail()))
                     .hearingChannelPhone(party.getHearingSubtype() == null ? null
