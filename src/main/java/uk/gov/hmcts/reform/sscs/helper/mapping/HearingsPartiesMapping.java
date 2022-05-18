@@ -1,26 +1,36 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NOT_ATTENDING;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
+
+    private static final String HEARING_TYPE_PAPER = "paper";
 
     private HearingsPartiesMapping() {
 
@@ -90,7 +100,7 @@ public final class HearingsPartiesMapping {
 
         partyDetails.partyID(DWP_ID);
         partyDetails.partyType(ORG.name());
-        partyDetails.partyRole(RESPONDENT.getKey()); // TODO Depends on SSCS-10273 - replace with common object
+        partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(getDwpUnavailabilityRange());
@@ -112,15 +122,15 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getPartyRole(Entity entity) {
-        return getEntityRoleCode(entity).getKey();
+        return getEntityRoleCode(entity).getHmcReference();
     }
 
     public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String partyId, String appellantId) {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype))
-                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
+                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
@@ -140,18 +150,36 @@ public final class HearingsPartiesMapping {
         return entity.getName().getLastName();
     }
 
-    public static String getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data of valid Hearing Channel codes
-        return null;
+    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
+        if (hearingType == null || hearingSubtype == null) {
+            return Optional.empty();
+        }
+
+        return HEARING_TYPE_PAPER.equals(hearingType) ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(FACE_TO_FACE.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeVideo()) ? Optional.ofNullable(VIDEO.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? Optional.ofNullable(TELEPHONE.getHmcReference())
+            : Optional.empty();
     }
 
-    public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        // TODO Depends on SSCS-10273 - Needs to implement for Reference data to convert from SSCS Languages/Sign Languages to Reference languages
-        // if (isYes(hearingOptions.getLanguageInterpreter())) {
-        //     String signLanguageType = hearingOptions.getSignLanguageType();
-        //     String languages = hearingOptions.getLanguages();
-        // }
-        return null;
+    public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
+        if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
+            return getSignLanguage(hearingOptions)
+                .map(SignLanguage::getHmcReference);
+        }
+        if (isYes(hearingOptions.getLanguageInterpreter())) {
+            return getInterpreterLanguage(hearingOptions)
+                .map(InterpreterLanguage::getHmcReference);
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<SignLanguage> getSignLanguage(HearingOptions hearingOptions) {
+        return Optional.ofNullable(SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType()));
+    }
+
+    private static Optional<InterpreterLanguage> getInterpreterLanguage(HearingOptions hearingOptions) {
+        return Optional.ofNullable(InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages()));
     }
 
     public static List<String> getIndividualReasonableAdjustments(HearingOptions hearingOptions) {

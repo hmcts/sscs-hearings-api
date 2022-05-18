@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,14 +40,19 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
+                .caseManagementLocation(CaseManagementLocation.builder()
+                                            .baseLocation(EPIMS_ID)
+                                            .region(REGION)
+                                            .build())
                 .build();
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .build();
 
         HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper);
 
-        assertNull(hearingDetails.getHearingType());
+        assertNotNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
         assertNotNull(hearingDetails.getDuration());
         assertNotNull(hearingDetails.getHearingPriorityType());
@@ -86,14 +90,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertFalse(result);
     }
 
-    @DisplayName("When .. is given getHearingType returns the correct Hearing Type")
+    @DisplayName("Hearing type should be substantive.")
     @Test
     void getHearingType() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        String result = HearingsDetailsMapping.getHearingType(caseData);
+        String result = HearingsDetailsMapping.getHearingType();
 
-        assertNull(result);
+        assertEquals(result, HearingTypeLov.SUBSTANTIVE.getHmcReference());
     }
 
     @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
@@ -165,20 +167,20 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,High", "Yes,No,High", "No,Yes,High",
-        "No,No,Normal",
-        "Yes,null,High", "No,null,Normal",
-        "null,Yes,High", "null,No,Normal",
-        "null,null,Normal",
-        "Yes,,High", "No,,Normal",
-        ",Yes,High", ",No,Normal",
-        ",,Normal"
+        "Yes,Yes,high", "Yes,No,high", "No,Yes,high",
+        "No,No,normal",
+        "Yes,null,high", "No,null,normal",
+        "null,Yes,high", "null,No,normal",
+        "null,null,normal",
+        "Yes,,high", "No,,normal",
+        ",Yes,high", ",No,normal",
+        ",,normal"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .urgentCase(isUrgentCase)
-                .adjournCaseCanCaseBeListedRightAway(isAdjournCase)
+                .adjournCasePanelMembersExcluded(isAdjournCase)
                 .build();
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
@@ -193,23 +195,19 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-    @Disabled
     @DisplayName("getHearingLocations Parameterized Tests")
     @ParameterizedTest
-    @CsvSource(value = {"TBD,TBD,[{CLUSTER,TBD}]"}, nullValues = {"null"})
-    void getHearingLocations(String baseLocation, String region,
-                             List<Pair<String,String>> expectedParams) {
-        // TODO Finish Test when method done
-
+    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    void getHearingLocations(String baseLocation, String region) {
         CaseManagementLocation managementLocation = CaseManagementLocation.builder()
                 .baseLocation(baseLocation)
                 .region(region)
                 .build();
         List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
-        List<HearingLocations> expected = new ArrayList<>();
 
-        assertEquals(0, result.size());
-        assertEquals(expected, result);
+        assertEquals(1, result.size());
+        assertEquals("219164", result.get(0).getLocationId());
+        assertEquals("court", result.get(0).getLocationType());
     }
 
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")

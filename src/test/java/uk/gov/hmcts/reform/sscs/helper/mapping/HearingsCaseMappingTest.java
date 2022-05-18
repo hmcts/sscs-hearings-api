@@ -43,7 +43,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .benefitCode(BENEFIT_CODE)
                 .issueCode(ISSUE_CODE)
                 .caseCreated(CASE_CREATED)
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNameHmctsInternal(CASE_NAME_INTERNAL)
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())
@@ -107,7 +107,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getInternalCaseName() {
         String caseNameInternal = CASE_NAME_INTERNAL;
         SscsCaseData caseData = SscsCaseData.builder()
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNameHmctsInternal(caseNameInternal)
                         .build())
                 .build();
@@ -122,7 +122,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getPublicCaseName() {
         String caseNamePublic = CASE_NAME_PUBLIC;
         SscsCaseData caseData = SscsCaseData.builder()
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNamePublic(caseNamePublic)
                         .build())
                 .build();
