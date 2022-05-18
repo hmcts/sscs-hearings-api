@@ -56,11 +56,11 @@ public final class HearingsCaseMapping {
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
-        return caseData.getWorkAllocationFields().getCaseNameHmctsInternal();
+        return caseData.getCaseAccessManagementFields().getCaseNameHmctsInternal();
     }
 
     public static String getPublicCaseName(SscsCaseData caseData) {
-        return caseData.getWorkAllocationFields().getCaseNamePublic();
+        return caseData.getCaseAccessManagementFields().getCaseNamePublic();
     }
 
     public static boolean shouldBeAdditionalSecurityFlag(SscsCaseData caseData) {

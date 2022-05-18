@@ -27,7 +27,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .benefitCode(BENEFIT_CODE)
                 .issueCode(ISSUE_CODE)
                 .caseCreated(CASE_CREATED)
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNameHmctsInternal(CASE_NAME_INTERNAL)
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())

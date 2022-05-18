@@ -63,7 +63,9 @@ public class ServiceHearingsController {
 
             SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
-            ServiceHearingValues model = serviceHearingValuesMapper.mapServiceHearingValues(caseDetails);
+            ServiceHearingValues model = ServiceHearingValues.builder()
+                    .caseName(caseDetails.getData().getCaseAccessManagementFields().getCaseNamePublic())
+                    .build();
 
             return status(HttpStatus.OK).body(model);
             // TODO the following errors are temporary and will need to be implemented fully along with this endpoint

@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,7 +52,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper);
 
-        assertNull(hearingDetails.getHearingType());
+        assertNotNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
         assertNotNull(hearingDetails.getDuration());
         assertNotNull(hearingDetails.getHearingPriorityType());
@@ -89,14 +90,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertFalse(result);
     }
 
-    @DisplayName("When .. is given getHearingType returns the correct Hearing Type")
+    @DisplayName("Hearing type should be substantive.")
     @Test
     void getHearingType() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        String result = HearingsDetailsMapping.getHearingType(caseData);
+        String result = HearingsDetailsMapping.getHearingType();
 
-        assertNull(result);
+        assertEquals(result, HearingTypeLov.SUBSTANTIVE.getHmcReference());
     }
 
     @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
@@ -168,20 +167,20 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,High", "Yes,No,High", "No,Yes,High",
-        "No,No,Normal",
-        "Yes,null,High", "No,null,Normal",
-        "null,Yes,High", "null,No,Normal",
-        "null,null,Normal",
-        "Yes,,High", "No,,Normal",
-        ",Yes,High", ",No,Normal",
-        ",,Normal"
+        "Yes,Yes,high", "Yes,No,high", "No,Yes,high",
+        "No,No,normal",
+        "Yes,null,high", "No,null,normal",
+        "null,Yes,high", "null,No,normal",
+        "null,null,normal",
+        "Yes,,high", "No,,normal",
+        ",Yes,high", ",No,normal",
+        ",,normal"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .urgentCase(isUrgentCase)
-                .adjournCaseCanCaseBeListedRightAway(isAdjournCase)
+                .adjournCasePanelMembersExcluded(isAdjournCase)
                 .build();
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
