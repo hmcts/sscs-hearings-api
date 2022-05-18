@@ -5,7 +5,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
