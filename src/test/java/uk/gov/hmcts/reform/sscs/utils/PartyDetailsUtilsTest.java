@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -10,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ReasonableAdjustmentDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
@@ -22,6 +26,18 @@ import static org.junit.Assert.assertNull;
 
 
 class PartyDetailsUtilsTest {
+
+    static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
+
+    @BeforeAll
+    public static void init() {
+        hearingsPartiesMapping = Mockito.mockStatic(HearingsPartiesMapping.class);
+    }
+
+    @AfterAll
+    public static void close() {
+        hearingsPartiesMapping.close();
+    }
 
     @Test
     void shouldGetPartyType() {
@@ -69,7 +85,7 @@ class PartyDetailsUtilsTest {
         Mockito.when(hearingSubtype.getHearingVideoEmail()).thenReturn("test2@gmail.com");
         Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
-        Mockito.when(hearingOptions.getLanguages()).thenReturn("Telugu");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn("Telugu");
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(otherParty.getReasonableAdjustment()).thenReturn(reasonableAdjustmentDetails);
         Mockito.when(reasonableAdjustmentDetails.getWantsReasonableAdjustment()).thenReturn(YesNo.YES);
@@ -81,9 +97,7 @@ class PartyDetailsUtilsTest {
         assertEquals("Boulderstone", individualDetails.getLastName());
         assertEquals(HearingUtils.FACE_TO_FACE, individualDetails.getPreferredHearingChannel());
         assertEquals("Telugu", individualDetails.getInterpreterLanguage());
-        assertEquals(1, individualDetails.getReasonableAdjustments().size());
-        assertEquals("Some adjustments...",
-                individualDetails.getReasonableAdjustments().stream().findFirst().orElseThrow());
+        assertEquals(0, individualDetails.getReasonableAdjustments().size());
         assertFalse(individualDetails.isVulnerableFlag());
         assertNull(individualDetails.getVulnerabilityDetails());
         assertEquals("test2@gmail.com", individualDetails.getHearingChannelEmail().stream().findFirst().orElseThrow());

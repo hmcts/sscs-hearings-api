@@ -1,9 +1,26 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
@@ -29,6 +46,18 @@ import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
 
 class SscsCaseDataUtilsTest {
+
+    static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
+
+    @BeforeAll
+    public static void init() {
+        hearingsPartiesMapping = Mockito.mockStatic(HearingsPartiesMapping.class);
+    }
+
+    @AfterAll
+    public static void close() {
+        hearingsPartiesMapping.close();
+    }
 
     @Test
     void shouldGetHearingTypeWhenExists() {
@@ -160,12 +189,13 @@ class SscsCaseDataUtilsTest {
         otherPartyList.add(ccdValue);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         OtherParty otherParty = Mockito.mock(OtherParty.class);
+
         // when
         Mockito.when(name.getFullName()).thenReturn("Mr Harry Potter");
         Mockito.when(role.getName()).thenReturn("party_role");
         Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
         Mockito.when(hearingOptions.getExcludeDates()).thenReturn(getExcludeDates());
-        Mockito.when(hearingOptions.getLanguages()).thenReturn("Telugu");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn("Telugu");
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(otherParty.getName()).thenReturn(name);
