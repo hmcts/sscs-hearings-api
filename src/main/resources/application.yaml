@@ -3,12 +3,10 @@ server:
 
 logging:
   level:
-    uk:
-      gov:
-        hmcts:
-          fortifyclient: INFO
-          reform:
-            sscs: ${SSCS_LOG_LEVEL:INFO}
+    uk.gov.hmcts.reform.sscs: ${SSCS_LOG_LEVEL:INFO}
+    com.microsoft.azure.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.messaging.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.core.amqp: ${SERVICE_BUS_LOG_LEVEL:ERROR}
 
 management:
   endpoint:
@@ -92,7 +90,7 @@ idam:
     totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
     microservice: sscs
   s2s-authorised:
-    services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs}
+    services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs,xui}
   client:
     id: ${IDAM_OAUTH2_CLIENT_ID:}
     secret: ${IDAM_OAUTH2_CLIENT_SECRET:}
