@@ -9,9 +9,7 @@ java:
     sscs:
       secrets:
         - name: AppInsightsInstrumentationKey
-          alias: APPINSIGHTS_INSTRUMENTATION_KEY
-        - name: s2s-micro
-          alias: IDAM_S2S_AUTH_MICROSERVICES
+          alias: azure.application-insights.instrumentation-key
         - name: sscs-s2s-secret
           alias: IDAM_S2S_AUTH_TOTP_SECRET
         - name: idam-sscs-systemupdate-user
