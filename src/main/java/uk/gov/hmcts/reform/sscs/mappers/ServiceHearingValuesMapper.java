@@ -44,7 +44,7 @@ public class ServiceHearingValuesMapper {
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.getPrivateHearingRequiredFlag())
-                .leadJudgeContractType(null) // TODO ref data isn't availible yet. List Assist may handle this value
+                .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(null) // TODO
                 .hearingIsLinkedFlag(false)
                 .parties(SscsCaseDataUtils.getParties(caseData)) // TODO missing mappings
