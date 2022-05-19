@@ -60,7 +60,7 @@ class HearingLocationMappingTest {
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
-            .processingVenue("Plymouth")
+            .processingVenue("Chester")
             .build();
 
         final String courtLocation = "court";
@@ -68,23 +68,24 @@ class HearingLocationMappingTest {
         List<HearingLocations> result = HearingLocationMapping.getHearingLocations(caseData, referenceData);
 
         if (!courtLocation.equalsIgnoreCase(result.get(0).getLocationType())) {
+
             List<String> epimIdList = result.get(0).getMultipleLocationId();
             String epimId1 = epimIdList.get(0);
             String epimId2 = epimIdList.get(1);
 
-            assertThat(epimId1).isEqualTo("764728");
-            assertThat(epimId2).isEqualTo("235590");
-            assertThat(result.get(0).getLocationType()).isEqualTo("Plymouth");
+            assertThat(epimId1).isEqualTo("226511");
+            assertThat(epimId2).isEqualTo("443014");
+            assertThat(result.get(0).getLocationType()).isEqualTo("Chester");
         }
     }
 
     private void setupMultipleVenueMaps() {
         ConcurrentHashMap<String, Integer> venueIdMap = new ConcurrentHashMap<>();
-        venueIdMap.put("Plymouth", 200);
+        venueIdMap.put("Chester", 65);
 
         ConcurrentHashMap<String, VenueDetails> venueDetailsMap = new ConcurrentHashMap<>();
-        venueDetailsMap.put("200", VenueDetails.builder()
-            .epimsId("764728")
+        venueDetailsMap.put("65", VenueDetails.builder()
+            .epimsId("443014")
             .build());
 
         when(referenceData.getAirLookupService()).thenReturn(airLookupService);
