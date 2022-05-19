@@ -14,8 +14,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.AirLookupService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +30,10 @@ import static org.mockito.BDDMockito.given;
 class HearingsMappingTest extends HearingsMappingBase {
 
     @Mock
-    private ReferenceData referenceData;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    private AirLookupService airLookupService;
-
-    @Mock
-    private VenueDataLoader venueDataLoader;
+    private VenueService venueService;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
@@ -51,8 +48,7 @@ class HearingsMappingTest extends HearingsMappingBase {
         given(referenceData.getHearingDurations()).willReturn(hearingDurations);
         given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        given(referenceData.getAirLookupService()).willReturn(airLookupService);
-        given(referenceData.getVenueDataLoader()).willReturn(venueDataLoader);
+        given(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .benefitCode(BENEFIT_CODE)
@@ -85,7 +81,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .caseData(caseData)
                 .build();
-        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
         assertThat(result.getRequestDetails()).isNotNull();

@@ -36,12 +36,12 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
-            .hearingDetails(buildHearingDetails(wrapper, referenceData))
-            .caseDetails(buildHearingCaseDetails(wrapper, referenceData))
-            .partiesDetails(buildHearingPartiesDetails(wrapper, referenceData))
+            .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
+            .caseDetails(buildHearingCaseDetails(wrapper, referenceDataServiceHolder))
+            .partiesDetails(buildHearingPartiesDetails(wrapper))
             .build();
     }
 

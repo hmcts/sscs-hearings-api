@@ -71,11 +71,11 @@ class HearingsServiceTest {
     public HearingDurationsService hearingDurations;
 
     @Mock
-    public SessionCategoryMapService sessionCategoryMaps;
+    private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public ReferenceDataServiceHolder referenceData;
-
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    
     @BeforeEach
     void setup() {
         openMocks(this);
@@ -114,7 +114,7 @@ class HearingsServiceTest {
                 .build())
             .build();
 
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceData);
+        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceDataServiceHolder);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")

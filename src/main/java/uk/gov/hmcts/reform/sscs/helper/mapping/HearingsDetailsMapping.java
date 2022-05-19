@@ -6,6 +6,10 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
@@ -45,7 +49,8 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData) {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
+                                                     ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
@@ -254,6 +259,20 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
+    public static List<HearingLocations> getHearingLocations(String processingVenue,
+                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
+
+        String epimsId = referenceDataServiceHolder
+            .getVenueService()
+            .getEpimsIdForVenue(processingVenue)
+            .orElse(null);
+
+        HearingLocations hearingLocation = new HearingLocations();
+        hearingLocation.setLocationId(epimsId);
+        hearingLocation.setLocationType("court");
+
+        return List.of(hearingLocation);
+    }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
