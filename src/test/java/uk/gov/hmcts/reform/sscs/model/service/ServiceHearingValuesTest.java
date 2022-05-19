@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ServiceHearingValuesTest {
 
@@ -29,7 +28,7 @@ class ServiceHearingValuesTest {
         String deserializedJson = mapper.writeValueAsString(serializedObject);
 
         // assert all values are preserved after serializing/deserializing ignoring node order
-        assertEquals(mapper.readTree(actualJson), mapper.readTree(deserializedJson));
+        assertThat(mapper.readValue(deserializedJson, ServiceHearingValues.class)).isEqualTo(serializedObject);
     }
 
 

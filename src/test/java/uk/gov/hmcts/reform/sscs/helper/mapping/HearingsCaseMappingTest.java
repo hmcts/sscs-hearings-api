@@ -7,9 +7,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.ArrayList;
 import java.util.List;
