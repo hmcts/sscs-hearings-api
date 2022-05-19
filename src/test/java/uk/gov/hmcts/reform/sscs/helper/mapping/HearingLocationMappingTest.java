@@ -97,11 +97,11 @@ class HearingLocationMappingTest {
     }
 
     private void setupVenueMaps() {
-        Map<String, Integer> venueIdMap = new HashMap<>();
+        ConcurrentHashMap<String, Integer> venueIdMap = new ConcurrentHashMap<>();
         venueIdMap.put(PROCESSING_VENUE_1, 68);
         venueIdMap.put(PROCESSING_VENUE_2, 2);
 
-        Map<String, VenueDetails> venueDetailsMap = new HashMap<>();
+        ConcurrentHashMap<String, VenueDetails> venueDetailsMap = new ConcurrentHashMap<>();
         venueDetailsMap.put("68", VenueDetails.builder()
             .epimsId("9876")
             .build());

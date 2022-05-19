@@ -36,12 +36,12 @@ public final class HearingLocationMapping {
         HearingLocations hearingLocations = new HearingLocations();
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
-        if (!locations.isEmpty()) {
-            hearingLocationsList.addAll(locations);
-        } else {
+        if (locations.isEmpty()) {
             hearingLocations.setLocationType("court");
             hearingLocations.setLocationId(epimsId);
             hearingLocationsList.add(hearingLocations);
+        } else {
+            hearingLocationsList.addAll(locations);
         }
         return hearingLocationsList;
     }
