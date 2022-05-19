@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -171,11 +173,13 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        List<String> facilitiesRequired = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return facilitiesRequired;
+        return Optional.ofNullable(caseData.getAppeal())
+                .map(Appeal::getHearingOptions)
+                .map(HearingOptions::getArrangements)
+                .orElse(new ArrayList<>());
     }
 
     public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {

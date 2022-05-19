@@ -38,10 +38,9 @@ public class ServiceHearingValuesMapper {
                 .numberOfPhysicalAttendees(SscsCaseDataUtils.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
-                // TODO get hearingLocations from the method created in SSCS-10245-send-epimsID-to-HMC
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
-                .facilitiesRequired(SscsCaseDataUtils.getFacilitiesRequired(caseData))
+                .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
                 .hearingRequester(null)
                 .privateHearingRequiredFlag(false)
