@@ -4,9 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +26,13 @@ public class HearingsMappingBase {
     public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public ReferenceData referenceData;
+    public VerbalLanguagesService verbalLanguages;
+
+    @Mock
+    public SignLanguagesService signLanguages;
+
+    @Mock
+    public ReferenceDataServiceHolder referenceData;
 
     protected HearingsMappingBase() {
 

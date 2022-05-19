@@ -7,9 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.util.List;
