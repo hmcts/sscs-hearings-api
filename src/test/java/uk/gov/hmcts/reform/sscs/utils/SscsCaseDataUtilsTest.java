@@ -46,6 +46,7 @@ import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
 
 class SscsCaseDataUtilsTest {
 
@@ -181,8 +182,6 @@ class SscsCaseDataUtilsTest {
     @Test
     void shouldGetParties() {
         // given
-        Name name = Mockito.mock(Name.class);
-        Role role = Mockito.mock(Role.class);
         final HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
         final HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
         @SuppressWarnings("unchecked")
@@ -191,13 +190,17 @@ class SscsCaseDataUtilsTest {
         otherPartyList.add(ccdValue);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         OtherParty otherParty = Mockito.mock(OtherParty.class);
-
+        Appeal appeal = Mockito.mock(Appeal.class);
+        Name name = Mockito.mock(Name.class);
+        Role role = Mockito.mock(Role.class);
         // when
+        Mockito.when(appeal.getHearingType()).thenReturn(null);
+        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         Mockito.when(name.getFullName()).thenReturn("Mr Harry Potter");
         Mockito.when(role.getName()).thenReturn("party_role");
-        Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn(Optional.of("Telugu"));
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions)).thenReturn(getUnavailabilityRange());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype)).thenReturn(Optional.ofNullable(FACE_TO_FACE.getHmcReference()));
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(otherParty.getName()).thenReturn(name);

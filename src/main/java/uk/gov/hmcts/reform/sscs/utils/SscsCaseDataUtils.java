@@ -88,7 +88,7 @@ public final class SscsCaseDataUtils {
                     .map(party -> PartyDetails.builder()
                             .partyID(party.getId())
                             .partyType(PartyDetailsUtils.getPartyType(party))
-                            .partyChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
+                            .partyChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(sscsCaseData.getAppeal().getHearingType(), party.getHearingSubtype()).orElse(null))
                             .partyName(party.getName() == null ? null : party.getName().getFullName())
                             .partyRole(party.getRole() == null ? null : party.getRole().getName())
                             .individualDetails(PartyDetailsUtils.getIndividualDetails(party, sscsCaseData))

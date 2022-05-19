@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
 
 
 class PartyDetailsUtilsTest {
@@ -78,18 +78,19 @@ class PartyDetailsUtilsTest {
         OtherParty otherParty = Mockito.mock(OtherParty.class);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         // when
+        Mockito.when(appeal.getHearingType()).thenReturn(null);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         Mockito.when(name.getTitle()).thenReturn("Mr");
         Mockito.when(name.getFirstName()).thenReturn("Barny");
         Mockito.when(name.getLastName()).thenReturn("Boulderstone");
         Mockito.when(otherParty.getName()).thenReturn(name);
-        Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
         Mockito.when(hearingSubtype.getHearingVideoEmail()).thenReturn("test2@gmail.com");
         Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn(Optional.of("Telugu"));
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype)).thenReturn(Optional.ofNullable(FACE_TO_FACE.getHmcReference()));
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(otherParty.getReasonableAdjustment()).thenReturn(reasonableAdjustmentDetails);
         Mockito.when(reasonableAdjustmentDetails.getWantsReasonableAdjustment()).thenReturn(YesNo.YES);
