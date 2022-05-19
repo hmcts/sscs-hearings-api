@@ -43,7 +43,7 @@ public class ServiceHearingValuesMapper {
                 ).getType())     // TODO missing mappings
                 .numberOfPhysicalAttendees(SscsCaseDataUtils.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
-                .hearingInWelshFlag(YesNo.isYes("No"))
+                .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
                 // TODO get hearingLocations from the method created in SSCS-10245-send-epimsID-to-HMC
                 .hearingLocations(new ArrayList<>())
                 // TODO the method below "getAdditionalSecurityFlag" is already created in
