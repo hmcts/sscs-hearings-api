@@ -221,7 +221,7 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    private static Boolean getPrivateHearingRequiredFlag() {
+   public static Boolean getPrivateHearingRequiredFlag() {
         // TODO Future Work
         return null;
     }

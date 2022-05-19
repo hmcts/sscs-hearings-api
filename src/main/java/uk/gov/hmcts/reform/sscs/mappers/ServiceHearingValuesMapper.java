@@ -43,7 +43,7 @@ public class ServiceHearingValuesMapper {
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
-                .privateHearingRequiredFlag(false)
+                .privateHearingRequiredFlag(HearingsDetailsMapping.getPrivateHearingRequiredFlag())
                 .leadJudgeContractType(null) // TODO ref data isn't availible yet. List Assist may handle this value
                 .judiciary(null) // TODO
                 .hearingIsLinkedFlag(false)
