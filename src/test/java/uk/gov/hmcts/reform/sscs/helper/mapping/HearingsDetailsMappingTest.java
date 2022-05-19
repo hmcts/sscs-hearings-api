@@ -118,26 +118,21 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
-        "DWP_RESPOND,2021-12-01T10:15:30,true,true,2021-12-15",
-        "DWP_RESPOND,2021-12-01T10:15:30,true,false,2024-04-01",
-        "DWP_RESPOND,2021-12-01T10:15:30,false,true,null",
-        "DWP_RESPOND,2021-12-01T10:15:30,false,false,null",
-        "DWP_RESPOND,null,true,true,null",
-        "DWP_RESPOND,null,true,false,null",
-        "DWP_RESPOND,null,false,true,null",
-        "DWP_RESPOND,null,false,false,null",
+        "2021-12-01,true,true,2021-12-15",
+        "2021-12-01,true,false,2021-12-29",
+        "2021-12-01,false,true,null",
+        "2021-12-01,false,false,null",
+        "null,true,true,null",
+        "null,true,false,null",
+        "null,false,true,null",
+        "null,false,false,null",
     }, nullValues = {"null"})
-    void buildHearingWindow(EventType eventType, String dwpResponded, boolean autoListFlag, boolean isUrgent, LocalDate expected) {
-        List<Event> events = new ArrayList<>();
-        events.add(Event.builder().value(EventDetails.builder()
-                .type(eventType.getCcdType())
-                .date(dwpResponded)
-                .build()).build());
-
+    void buildHearingWindow(String dwpResponded, boolean autoListFlag, boolean isUrgent, LocalDate expected) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .events(events)
+                .dwpResponseDate(dwpResponded)
                 .urgentCase(isUrgent ? YES.toString() : NO.toString())
                 .build();
+
         HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
 
         assertNull(result.getFirstDateTimeMustBe());

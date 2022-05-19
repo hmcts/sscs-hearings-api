@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
@@ -662,12 +663,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result)
-                .extracting("unavailableFromDate", "unavailableToDate")
+                .extracting("unavailableFromDate", "unavailableToDate", "unavailabilityType")
                 .contains(
                         tuple(LocalDate.of(2022,2,1),
-                                LocalDate.of(2022,3,31)),
+                                LocalDate.of(2022,3,31),
+                            DayOfWeekUnavailabilityType.ALL_DAY.getLabel()),
                         tuple(LocalDate.of(2022,6,1),
-                                LocalDate.of(2022,6,2)));
+                                LocalDate.of(2022,6,2),
+                            DayOfWeekUnavailabilityType.ALL_DAY.getLabel()));
     }
 
     @DisplayName("When null ExcludeDates is given getPartyUnavailabilityRange returns null")

@@ -79,14 +79,14 @@ public final class HearingsDetailsMapping {
         LocalDate dateRangeStart = null;
         LocalDate dateRangeEnd = null;
 
-        if (autoListed && nonNull(caseData.getEvents())) {
-            Event dwpResponded = caseData.getEvents().stream()
-                    .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
-                    .findFirst().orElse(null);
-            if (nonNull(dwpResponded) && isNotBlank(dwpResponded.getValue().getDate())) {
+        if (autoListed) {
+            LocalDate dwpResponded = caseData.getDwpResponseDate() == null
+                ? null
+                : LocalDate.parse(caseData.getDwpResponseDate());
+            if (nonNull(dwpResponded)) {
                 dateRangeStart = isYes(caseData.getUrgentCase())
-                        ? dwpResponded.getValue().getDateTime().plusDays(14).toLocalDate()
-                        : dwpResponded.getValue().getDateTime().plusMonths(28).toLocalDate();
+                        ? dwpResponded.plusDays(14)
+                        : dwpResponded.plusDays(28);
             }
         }
 

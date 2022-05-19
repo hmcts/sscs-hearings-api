@@ -18,6 +18,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
@@ -296,6 +297,7 @@ public final class HearingsPartiesMapping {
                 UnavailabilityRange.UnavailabilityRangeBuilder unavailabilityRange = UnavailabilityRange.builder();
                 unavailabilityRange.unavailableFromDate(LocalDate.parse(dateRange.getStart()));
                 unavailabilityRange.unavailableToDate(LocalDate.parse(dateRange.getEnd()));
+                unavailabilityRange.unavailabilityType(ALL_DAY.getLabel());
                 unavailabilityRanges.add(unavailabilityRange.build());
             }
             return unavailabilityRanges;
