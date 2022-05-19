@@ -26,7 +26,7 @@ public final class HearingLocationMapping {
         VenueDetails venueDetails = referenceData.getVenueDataLoader().getVenueDetailsMap()
             .get(String.valueOf(venueId));
 
-        List<HearingLocations> locations = null;
+        List<HearingLocations> locations = new ArrayList<>();
 
         if (venueDetails != null) {
             epimsId = venueDetails.getEpimsId();
@@ -36,13 +36,12 @@ public final class HearingLocationMapping {
         HearingLocations hearingLocations = new HearingLocations();
         List<HearingLocations> hearingLocationsList = new ArrayList<>();
 
-
-        if (locations.isEmpty()) {
+        if (!locations.isEmpty()) {
+            hearingLocationsList.addAll(locations);
+        } else {
             hearingLocations.setLocationType("court");
             hearingLocations.setLocationId(epimsId);
             hearingLocationsList.add(hearingLocations);
-        }else {
-            hearingLocationsList.addAll(locations);
         }
         return hearingLocationsList;
     }
