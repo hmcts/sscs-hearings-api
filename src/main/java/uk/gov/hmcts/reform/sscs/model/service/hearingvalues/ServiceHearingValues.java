@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class ServiceHearingValues {
     private Integer numberOfPhysicalAttendees;
     private boolean hearingInWelshFlag;
     @JsonProperty("hearingLocations")
-    private List<HearingLocation> hearingLocations;
+    private List<HearingLocations> hearingLocations;
     private Boolean caseAdditionalSecurityFlag;
     private List<String> facilitiesRequired;
     private String listingComments;

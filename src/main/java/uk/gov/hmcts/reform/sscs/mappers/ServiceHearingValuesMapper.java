@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +44,7 @@ public class ServiceHearingValuesMapper {
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
                 // TODO get hearingLocations from the method created in SSCS-10245-send-epimsID-to-HMC
-                .hearingLocations(new ArrayList<>())
+                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
                 // TODO the method below "getAdditionalSecurityFlag" is already created in
                 //  SSCS-10321-Create-Hearing-POST-Mapping, HearingsCaseMapping ->  shouldBeAdditionalSecurityFlag
                 .caseAdditionalSecurityFlag(getAdditionalSecurityFlag(caseData.getOtherParties(), caseData.getDwpUcb()))

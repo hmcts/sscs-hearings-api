@@ -126,7 +126,7 @@ class ServiceHearingValuesMapperTest {
         assertEquals(HearingPriorityType.HIGH.getType(), serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
-        assertEquals(0, serviceHearingValues.getHearingLocations().size());
+        assertEquals(1, serviceHearingValues.getHearingLocations().size());
         assertTrue(serviceHearingValues.getCaseAdditionalSecurityFlag());
         assertEquals(Arrays.asList("signLanguageInterpreter",
             "hearingLoop",
