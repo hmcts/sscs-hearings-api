@@ -4,7 +4,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingLocationMapping.getHearingLocations;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
@@ -32,7 +31,8 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceData referenceData) {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
+                                                     ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
@@ -47,7 +47,8 @@ public final class HearingsDetailsMapping {
         hearingDetailsBuilder.hearingPriorityType(getHearingPriority(caseData));
         hearingDetailsBuilder.numberOfPhysicalAttendees(getNumberOfPhysicalAttendees());
         hearingDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag());
-        hearingDetailsBuilder.hearingLocations(getHearingLocations(caseData, referenceData));
+        hearingDetailsBuilder.hearingLocations(getHearingLocations(caseData.getProcessingVenue(),
+            referenceDataServiceHolder));
         hearingDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
         hearingDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
         hearingDetailsBuilder.hearingRequester(getHearingRequester());
@@ -150,6 +151,20 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
+    public static List<HearingLocations> getHearingLocations(String processingVenue,
+                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
+
+        String epimsId = referenceDataServiceHolder
+            .getVenueService()
+            .getEpimsIdForVenue(processingVenue)
+            .orElse(null);
+
+        HearingLocations hearingLocation = new HearingLocations();
+        hearingLocation.setLocationId(epimsId);
+        hearingLocation.setLocationType("court");
+
+        return List.of(hearingLocation);
+    }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
         List<String> facilitiesRequired = new ArrayList<>();

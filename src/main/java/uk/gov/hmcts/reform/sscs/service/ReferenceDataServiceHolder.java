@@ -5,10 +5,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Getter
-public class ReferenceData {
-
-    private VenueDataLoader venueDataLoader;
-
-    private AirLookupService airLookupService;
-
+public class ReferenceDataServiceHolder {
+    private VenueService venueService;
 }

@@ -12,18 +12,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
-import uk.gov.hmcts.reform.sscs.service.AirLookupService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,22 +40,19 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 @ExtendWith(MockitoExtension.class)
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
-    @Mock
-    private ReferenceData referenceData;
+    public static final String PROCESSING_VENUE_1 = "test_place";
 
     @Mock
-    private AirLookupService airLookupService;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    private VenueDataLoader venueDataLoader;
-
+    private VenueService venueService;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
     void buildHearingDetails() {
         // TODO Finish Test when method done
-        when(referenceData.getAirLookupService()).thenReturn(airLookupService);
-        when(referenceData.getVenueDataLoader()).thenReturn(venueDataLoader);
+        when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
@@ -66,7 +64,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, referenceData);
+        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, referenceDataServiceHolder);
 
         assertNotNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
@@ -178,6 +176,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         LocalDateTime result = HearingsDetailsMapping.getFirstDateTimeMustBe();
 
         assertNull(result);
+    }
+
+    @Test
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        when(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).thenReturn(Optional.of("9876"));
+        when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
+
+        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
+            referenceDataServiceHolder);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getLocationId()).isEqualTo("9876");
+        assertThat(result.get(0).getLocationType()).isEqualTo("court");
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
