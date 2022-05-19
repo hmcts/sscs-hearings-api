@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.sscs.helper.mappingutils;
 
 import org.jetbrains.annotations.NotNull;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 
 import java.util.ArrayList;
@@ -20,20 +21,20 @@ public final class GetVenueMultipleEpims {
     private GetVenueMultipleEpims() {
     }
 
-    public static List<HearingLocations> getMultipleLocationDetails(CaseManagementLocation caseManagementLocation) {
+    public static List<HearingLocations> getMultipleLocationDetails(VenueDetails venueDetailId, SscsCaseData caseData) {
         ConcurrentHashMap<String,List<String>> epimMap = new ConcurrentHashMap<>();
-        List<String> chesterId = new ArrayList<>(List.of("226511", "443014"));
-        List<String> manchesterId = new ArrayList<>(List.of("512401", "701411"));
-        List<String> plymouthId = new ArrayList<>(List.of("764728", "235590"));
+        List<String> chesterId = List.of("226511", "443014");
+        List<String> manchesterId = List.of("512401", "701411");
+        List<String> plymouthId = List.of("764728", "235590");
 
         epimMap.put(MANCHESTER, manchesterId);
         epimMap.put(CHESTER, chesterId);
         epimMap.put(PLYMOUTH, plymouthId);
 
         List<HearingLocations> locationId = new ArrayList<>();
-        String processingCenter = caseManagementLocation.getRegion();
+        String processingCenter = caseData.getProcessingVenue();
         HearingLocations hearingLocations = new HearingLocations();
-        hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
+        hearingLocations.setLocationId(venueDetailId.getEpimsId());
         hearingLocations.setLocationType(processingCenter);
         switch (processingCenter) {
             case "Manchester": locationId.addAll(getEpims(epimMap, MANCHESTER, hearingLocations));

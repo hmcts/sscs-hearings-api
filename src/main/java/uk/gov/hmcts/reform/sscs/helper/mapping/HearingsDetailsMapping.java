@@ -1,11 +1,10 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.helper.mappingutils.GetVenueMultipleEpims;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,13 +15,15 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingLocationMapping.getHearingLocations;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
-    public static final String NORMAL = "Normal";
-    public static final String HIGH = "High";
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30; // TODO find out default
@@ -31,7 +32,7 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper) {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceData referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
@@ -39,14 +40,14 @@ public final class HearingsDetailsMapping {
         boolean autoListed = shouldBeAutoListed();
 
         hearingDetailsBuilder.autolistFlag(autoListed);
-        hearingDetailsBuilder.hearingType(getHearingType(caseData));
+        hearingDetailsBuilder.hearingType(getHearingType());
         hearingDetailsBuilder.hearingWindow(buildHearingWindow(caseData, autoListed));
         hearingDetailsBuilder.duration(getHearingDuration(caseData));
         hearingDetailsBuilder.nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons());
         hearingDetailsBuilder.hearingPriorityType(getHearingPriority(caseData));
         hearingDetailsBuilder.numberOfPhysicalAttendees(getNumberOfPhysicalAttendees());
         hearingDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag());
-        hearingDetailsBuilder.hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
+        hearingDetailsBuilder.hearingLocations(getHearingLocations(caseData, referenceData));
         hearingDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
         hearingDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
         hearingDetailsBuilder.hearingRequester(getHearingRequester());
@@ -64,10 +65,8 @@ public final class HearingsDetailsMapping {
         return true;
     }
 
-    public static String getHearingType(SscsCaseData caseData) {
-        // TODO Dependant on SSCS-10273 - find out what logic is needed here
-        // Assuming key is what is required.
-        return null;
+    public static String getHearingType() {
+        return SUBSTANTIVE.getHmcReference();
     }
 
     public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
@@ -76,20 +75,20 @@ public final class HearingsDetailsMapping {
 
         if (autoListed && nonNull(caseData.getEvents())) {
             Event dwpResponded = caseData.getEvents().stream()
-                    .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
-                    .findFirst().orElse(null);
+                .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
+                .findFirst().orElse(null);
             if (nonNull(dwpResponded) && isNotBlank(dwpResponded.getValue().getDate())) {
                 dateRangeStart = isYes(caseData.getUrgentCase())
-                        ? dwpResponded.getValue().getDateTime().plusDays(14).toLocalDate()
-                        : dwpResponded.getValue().getDateTime().plusMonths(28).toLocalDate();
+                    ? dwpResponded.getValue().getDateTime().plusDays(14).toLocalDate()
+                    : dwpResponded.getValue().getDateTime().plusMonths(28).toLocalDate();
             }
         }
 
         return HearingWindow.builder()
-                .firstDateTimeMustBe(getFirstDateTimeMustBe())
-                .dateRangeStart(dateRangeStart)
-                .dateRangeEnd(dateRangeEnd)
-                .build();
+            .firstDateTimeMustBe(getFirstDateTimeMustBe())
+            .dateRangeStart(dateRangeStart)
+            .dateRangeEnd(dateRangeEnd)
+            .build();
     }
 
     public static LocalDateTime getFirstDateTimeMustBe() {
@@ -106,8 +105,8 @@ public final class HearingsDetailsMapping {
         // TODO Dependant on SSCS-10116 - Will use Session Category Reference Data
 
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
-                && caseData.getAdjournCaseNextHearingListingDuration().matches("\\d+")
-                && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
+            && caseData.getAdjournCaseNextHearingListingDuration().matches("\\d+")
+            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
 
             if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
                 return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_SESSIONS_MULTIPLIER;
@@ -134,15 +133,11 @@ public final class HearingsDetailsMapping {
         // Flag to Lauren - how  can this be captured in HMC queue?
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
-        String hearingPriorityType = NORMAL;
-
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        // TODO Dependant on SSCS-10273 - Needed for enum values and logic
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCaseCanCaseBeListedRightAway())) {
-            hearingPriorityType = HIGH;
+        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
+            return HIGH.getHmcReference();
         }
-
-        return hearingPriorityType;
+        return NORMAL.getHmcReference();
     }
 
     public static Number getNumberOfPhysicalAttendees() {
@@ -155,30 +150,13 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        HearingLocations hearingLocations = new HearingLocations();
-        List<HearingLocations> location;
-        List<String> multipleLocationList = new ArrayList<>(List.of("Manchester", "Chester", "Plymouth"));
-
-        List<HearingLocations> hearingLocationsList = new ArrayList<>();
-
-        if (multipleLocationList.contains(caseManagementLocation.getRegion())) {
-            location = GetVenueMultipleEpims.getMultipleLocationDetails(caseManagementLocation);
-            hearingLocationsList.addAll(location);
-        } else {
-            hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
-            hearingLocations.setLocationType("court");
-            hearingLocationsList.add(hearingLocations);
-        }
-
-        return hearingLocationsList;
-    }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
+        List<String> facilitiesRequired = new ArrayList<>();
         // TODO Dependant on SSCS-10116 - find out how to work this out and implement
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return new ArrayList<>();
+        return facilitiesRequired;
     }
 
     public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
@@ -188,10 +166,10 @@ public final class HearingsDetailsMapping {
         }
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
             listingComments.addAll(otherParties.stream()
-                    .map(CcdValue::getValue)
-                    .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
-                    .map(o -> getComment(o, o.getHearingOptions().getOther()))
-                    .collect(Collectors.toList()));
+                                       .map(CcdValue::getValue)
+                                       .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
+                                       .map(o -> getComment(o, o.getHearingOptions().getOther()))
+                                       .collect(Collectors.toList()));
         }
 
         return listingComments.isEmpty() ? null : String.join(String.format("%n%n"), listingComments);
@@ -207,8 +185,8 @@ public final class HearingsDetailsMapping {
 
     public static String getPartyRole(Party party) {
         return nonNull(party.getRole()) && isNotBlank(party.getRole().getName())
-                ? party.getRole().getName()
-                : HearingsMapping.getEntityRoleCode(party).getValueEN();
+            ? party.getRole().getName()
+            : HearingsMapping.getEntityRoleCode(party).getValueEn();
     }
 
     public static String getEntityName(Entity entity) {

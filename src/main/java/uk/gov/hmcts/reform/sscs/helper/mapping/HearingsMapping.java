@@ -2,10 +2,11 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,11 +18,11 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.buildH
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping.buildHearingRequestDetails;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.APPELLANT;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.APPOINTEE;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.JOINT_PARTY;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.OTHER_PARTY;
-import static uk.gov.hmcts.reform.sscs.model.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPELLANT;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.JOINT_PARTY;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.OTHER_PARTY;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
 
 @Slf4j
 public final class HearingsMapping {
@@ -32,10 +33,10 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper) {
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceData referenceData) {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
-            .hearingDetails(buildHearingDetails(wrapper))
+            .hearingDetails(buildHearingDetails(wrapper, referenceData))
             .caseDetails(buildHearingCaseDetails(wrapper))
             .partiesDetails(buildHearingPartiesDetails(wrapper))
             .build();
@@ -138,7 +139,6 @@ public final class HearingsMapping {
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {
-        // TODO SSCS-10273 - replace with common object
         // TODO Future work - handle interpreter
         if (entity instanceof Appellant) {
             return APPELLANT;
