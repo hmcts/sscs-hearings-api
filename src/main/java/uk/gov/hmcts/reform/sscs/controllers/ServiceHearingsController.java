@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
-import uk.gov.hmcts.reform.sscs.mappers.ServiceHearingValuesMapper;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
@@ -34,11 +33,10 @@ import static org.springframework.http.ResponseEntity.status;
 public class ServiceHearingsController {
 
     private final CcdCaseService ccdCaseService;
-    private final ServiceHearingValuesMapper serviceHearingValuesMapper;
 
-    public ServiceHearingsController(CcdCaseService ccdCaseService, ServiceHearingValuesMapper serviceHearingValuesMapper) {
+
+    public ServiceHearingsController(CcdCaseService ccdCaseService) {
         this.ccdCaseService = ccdCaseService;
-        this.serviceHearingValuesMapper = serviceHearingValuesMapper;
     }
 
     @PostMapping("/serviceHearingValues")

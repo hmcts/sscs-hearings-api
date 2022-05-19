@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -85,7 +87,7 @@ class PartyDetailsUtilsTest {
         Mockito.when(hearingSubtype.getHearingVideoEmail()).thenReturn("test2@gmail.com");
         Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn("Telugu");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn(Optional.of("Telugu"));
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);

@@ -10,10 +10,10 @@
   ],
   "hearingWindow": {
     "hearingWindowDateRange": {
-      "hearingWindowStartDateRange": "2022-11-23T09:00:00.000+0000",
-      "hearingWindowEndDateRange": "2022-11-30T09:00:00.000+0000"
+      "hearingWindowStartDateRange": "2022-11-23",
+      "hearingWindowEndDateRange": "2022-11-30"
     },
-    "hearingWindowFirstDate": "2022-12-01T09:00:00.000+0000"
+    "hearingWindowFirstDate": "2022-12-01"
   },
   "duration": "45",
   "hearingPriorityType": "standard",
@@ -85,8 +85,16 @@
       "partyChannel": "byVideo",
       "unavailabilityRanges": [
         {
-          "unavailableFromDate": "2021-12-10T09:00:00.000+0000",
-          "unavailableToDate": "2021-12-31T09:00:00.000+0000"
+          "unavailableFromDate": [
+            2021,
+            12,
+            20
+          ],
+          "unavailableToDate": [
+            2021,
+            12,
+            31
+          ]
         }
       ]
     },
@@ -97,8 +105,16 @@
       "partyChannel": "byVideo",
       "unavailabilityRanges": [
         {
-          "unavailableFromDate": 111111,
-          "unavailableToDate": "2021-12-31T09:00:00.000+0000"
+          "unavailableFromDate": [
+            2021,
+            13,
+            20
+          ],
+          "unavailableToDate": [
+            2021,
+            12,
+            31
+          ]
         }
       ]
     }
