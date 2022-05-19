@@ -5,6 +5,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
@@ -26,7 +27,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NO
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.NullAssignment"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
@@ -157,11 +158,18 @@ public final class HearingsPartiesMapping {
             return null;
         }
 
-        return shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING.getHmcReference()
-            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE.getHmcReference()
-            : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO.getHmcReference()
-            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE.getHmcReference()
+        HearingChannel preferredHearingChannel =
+            shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
+            : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO
+            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE
             : null;
+
+        if (preferredHearingChannel == null) {
+            throw new IllegalStateException("Failed to determine a preferred hearing channel");
+        }
+
+        return preferredHearingChannel.getHmcReference();
     }
 
     private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {

@@ -28,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
@@ -544,13 +546,19 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
 
-    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set return null")
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set throw IllegalStateException")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsTelephoneExample() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
-        assertNull(result);
+
+        IllegalStateException thrown = assertThrows(
+            IllegalStateException.class,
+            () -> getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions),
+            "Expected doThing() to throw, but it didn't"
+        );
+
+        assertTrue(thrown.getMessage().contains("Failed to determine a preferred hearing channel"));
     }
 
     @DisplayName("When hearing type oral and face to face then return LOV FACE TO FACE")
@@ -571,13 +579,19 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
-    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set return null")
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set throw IllegalStateException")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsVideoExample() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
-        assertNull(result);
+
+        IllegalStateException thrown = assertThrows(
+            IllegalStateException.class,
+            () -> getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions),
+            "Expected doThing() to throw, but it didn't"
+        );
+
+        assertTrue(thrown.getMessage().contains("Failed to determine a preferred hearing channel"));
     }
 
     @DisplayName("getIndividualReasonableAdjustments Test")
