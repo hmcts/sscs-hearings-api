@@ -6,8 +6,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.service.AirLookupService;
 import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public final class HearingLocationMapping {
 
@@ -17,7 +17,6 @@ public final class HearingLocationMapping {
 
     public static List<HearingLocations> getHearingLocations(SscsCaseData caseData,
                                                              ReferenceData referenceData) {
-        String epimsId = null;
 
         AirLookupService airLookupService = referenceData.getAirLookupService();
         String venueId = String.valueOf(airLookupService.getLookupVenueIdByAirVenueName()
@@ -26,18 +25,15 @@ public final class HearingLocationMapping {
         VenueDetails venueDetails = referenceData.getVenueDataLoader().getVenueDetailsMap()
             .get(String.valueOf(venueId));
 
-        if (venueDetails != null) {
-            epimsId = venueDetails.getEpimsId();
-        }
+        String epimsId = Optional.ofNullable(venueDetails)
+            .map(VenueDetails::getEpimsId)
+            .orElse(null);
 
-        HearingLocations hearingLocations = new HearingLocations();
-        hearingLocations.setLocationId(epimsId);
-        hearingLocations.setLocationType("court");
+        HearingLocations hearingLocation = new HearingLocations();
+        hearingLocation.setLocationId(epimsId);
+        hearingLocation.setLocationType("court");
 
-        List<HearingLocations> hearingLocationsList = new ArrayList<>();
-        hearingLocationsList.add(hearingLocations);
-
-        return hearingLocationsList;
+        return List.of(hearingLocation);
     }
 
 }
