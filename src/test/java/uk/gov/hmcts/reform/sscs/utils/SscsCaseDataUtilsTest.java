@@ -26,12 +26,14 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -194,8 +196,8 @@ class SscsCaseDataUtilsTest {
         Mockito.when(name.getFullName()).thenReturn("Mr Harry Potter");
         Mockito.when(role.getName()).thenReturn("party_role");
         Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
-        Mockito.when(hearingOptions.getExcludeDates()).thenReturn(getExcludeDates());
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn("Telugu");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn(Optional.of("Telugu"));
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions)).thenReturn(getUnavailabilityRange());
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(otherParty.getName()).thenReturn(name);
@@ -217,7 +219,7 @@ class SscsCaseDataUtilsTest {
         assertNull(partyDetails.getUnavailabilityDow());
         List<UnavailabilityRange> unavailabilityRanges = partyDetails.getUnavailabilityRanges();
         assertEquals(1, unavailabilityRanges.size());
-        assertEquals("12/01/2022", unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableFromDate());
+        assertEquals(LocalDate.of(2022,01,12), unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableFromDate());
     }
 
     @Test
@@ -288,9 +290,20 @@ class SscsCaseDataUtilsTest {
             {
                 add(ExcludeDate.builder()
                         .value(DateRange.builder()
-                                .start("12/01/2022")
-                                .end("19/01/2022")
+                                .start("2022-01-12")
+                                .end("2022-01-19")
                                 .build())
+                        .build());
+            }
+        };
+    }
+
+    private List<UnavailabilityRange> getUnavailabilityRange() {
+        return new ArrayList<>() {
+            {
+                add(UnavailabilityRange.builder()
+                        .unavailableFromDate(LocalDate.of(2022, 1, 12))
+                        .unavailableToDate(LocalDate.of(2022, 1, 19))
                         .build());
             }
         };

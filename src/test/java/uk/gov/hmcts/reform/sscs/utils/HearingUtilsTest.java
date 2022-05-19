@@ -6,8 +6,10 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,10 +68,10 @@ class HearingUtilsTest {
         // when
         Mockito.when(hearingOptions.getExcludeDates()).thenReturn(getExcludeDates());
         //then
-        List<UnavailabilityRange> unavailabilityRanges = HearingUtils.getPartyUnavailabilityRange(hearingOptions);
+        List<UnavailabilityRange> unavailabilityRanges = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
         assertEquals(1, unavailabilityRanges.size());
-        assertEquals("12/01/2022", unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableFromDate());
-        assertEquals("19/01/2022", unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableToDate());
+        assertEquals(LocalDate.of(2022,01,12), unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableFromDate());
+        assertEquals(LocalDate.of(2022,01,19), unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableToDate());
     }
 
 
@@ -79,8 +81,8 @@ class HearingUtilsTest {
             {
                 add(ExcludeDate.builder()
                         .value(DateRange.builder()
-                                .start("12/01/2022")
-                                .end("19/01/2022")
+                                .start("2022-01-12")
+                                .end("2022-01-19")
                                 .build())
                         .build());
             }

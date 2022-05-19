@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
@@ -93,7 +94,7 @@ public final class SscsCaseDataUtils {
                             .individualDetails(PartyDetailsUtils.getIndividualDetails(party, sscsCaseData))
                             .organisationDetails(PartyDetailsUtils.getOrganisationDetails(party))
                             .unavailabilityDow(null)
-                            .unavailabilityRanges(HearingUtils.getPartyUnavailabilityRange(party.getHearingOptions()))
+                            .unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(party.getHearingOptions()))
                             .build())
                     .collect(Collectors.toList());
         }

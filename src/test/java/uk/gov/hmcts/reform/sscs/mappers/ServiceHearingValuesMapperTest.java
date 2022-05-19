@@ -8,7 +8,9 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -230,8 +232,8 @@ class ServiceHearingValuesMapperTest {
         return new ArrayList<>() {
             {
                 add(UnavailabilityRange.builder()
-                    .unavailableFromDate("12/01/2022")
-                    .unavailableToDate("19/01/2022")
+                    .unavailableFromDate(LocalDate.of(2022, 1,12))
+                    .unavailableToDate(LocalDate.of(2022,1,19))
                     .build());
             }};
     }
@@ -241,7 +243,7 @@ class ServiceHearingValuesMapperTest {
             .firstName("Barny")
             .lastName("Boulderstone")
             .preferredHearingChannel(FACE_TO_FACE)
-            .interpreterLanguage(null)
+            .interpreterLanguage("tel")
             .reasonableAdjustments(new ArrayList<>())
             .vulnerableFlag(false)
             .vulnerabilityDetails(null)
@@ -261,8 +263,8 @@ class ServiceHearingValuesMapperTest {
             {
                 add(ExcludeDate.builder()
                     .value(DateRange.builder()
-                               .start("12/01/2022")
-                               .end("19/01/2022")
+                               .start("2022-01-12")
+                               .end("2022-01-19")
                                .build())
                     .build());
             }
