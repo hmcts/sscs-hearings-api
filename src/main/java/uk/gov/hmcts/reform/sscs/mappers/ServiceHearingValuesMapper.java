@@ -1,18 +1,13 @@
 package uk.gov.hmcts.reform.sscs.mappers;
 
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 @Component
@@ -45,9 +40,7 @@ public class ServiceHearingValuesMapper {
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
                 // TODO get hearingLocations from the method created in SSCS-10245-send-epimsID-to-HMC
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
-                // TODO the method below "getAdditionalSecurityFlag" is already created in
-                //  SSCS-10321-Create-Hearing-POST-Mapping, HearingsCaseMapping ->  shouldBeAdditionalSecurityFlag
-                .caseAdditionalSecurityFlag(getAdditionalSecurityFlag(caseData.getOtherParties(), caseData.getDwpUcb()))
+                .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(SscsCaseDataUtils.getFacilitiesRequired(caseData))
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
                 .hearingRequester(null)
@@ -60,23 +53,6 @@ public class ServiceHearingValuesMapper {
                 .screenFlow(null)
                 .vocabulary(null)
             .build();
-    }
-
-    private boolean getAdditionalSecurityFlag(List<CcdValue<OtherParty>> otherParties, String dwpUcb) {
-        AtomicReference<Boolean> securityFlag = new AtomicReference<>(false);
-        if (Objects.nonNull(otherParties)) {
-            otherParties
-                .forEach(party -> {
-                    if (YesNo.isYes(party.getValue().getUnacceptableCustomerBehaviour())) {
-                        securityFlag.set(true);
-                    }
-                });
-
-        }
-        if (YesNo.isYes(dwpUcb)) {
-            securityFlag.set(true);
-        }
-        return securityFlag.get();
     }
 
     public static HearingPriorityType getHearingPriority(String isAdjournCase, String isUrgentCase) {
