@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.sscs.service.AirLookupService;
 import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,17 +54,17 @@ class HearingLocationMappingTest {
     }
 
     private void setupVenueMaps() {
-        Map<String, Integer> venueIdMap = new HashMap<>();
-        venueIdMap.put(PROCESSING_VENUE_1, 68);
-        venueIdMap.put(PROCESSING_VENUE_2, 2);
+        Map<String, Integer> venueIdMap = Map.of(PROCESSING_VENUE_1,
+            68, PROCESSING_VENUE_2, 2);
 
-        Map<String, VenueDetails> venueDetailsMap = new HashMap<>();
-        venueDetailsMap.put("68", VenueDetails.builder()
-            .epimsId("9876")
-            .build());
-        venueDetailsMap.put("2", VenueDetails.builder()
-            .epimsId("1111")
-            .build());
+
+        Map<String, VenueDetails> venueDetailsMap = Map.of(
+            "68", VenueDetails.builder()
+                .epimsId("9876")
+                .build(),
+            "2", VenueDetails.builder()
+                .epimsId("1111")
+                .build());
 
         when(referenceData.getAirLookupService()).thenReturn(airLookupService);
         when(referenceData.getVenueDataLoader()).thenReturn(venueDataLoader);
