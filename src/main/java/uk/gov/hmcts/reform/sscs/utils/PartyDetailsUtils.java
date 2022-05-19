@@ -25,7 +25,7 @@ public final class PartyDetailsUtils {
                     .firstName(HearingsPartiesMapping.getIndividualFirstName(party))
                     .lastName(HearingsPartiesMapping.getIndividualLastName(party))
                     .preferredHearingChannel(HearingUtils.getPartyChannel(party.getHearingSubtype()))
-                    .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(party.getHearingOptions()))
+                    .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(party.getHearingOptions()).orElseThrow())
                     .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(party.getHearingOptions()))
                     .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
                     .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
