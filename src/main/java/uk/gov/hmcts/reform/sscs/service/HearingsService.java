@@ -34,7 +34,7 @@ public class HearingsService {
 
     private final IdamService idamService;
 
-    private final ReferenceData referenceData;
+    private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
 
 
@@ -122,7 +122,7 @@ public class HearingsService {
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         log.debug("Sending Create Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
@@ -135,7 +135,7 @@ public class HearingsService {
     }
 
     private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) {
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         log.debug("Sending Update Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),

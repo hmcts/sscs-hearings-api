@@ -8,18 +8,21 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @AllArgsConstructor
-public class ReferenceData {
+public class ReferenceDataServiceHolder {
+
     @Autowired
     private HearingDurationsService hearingDurations;
     
     @Autowired
     private SessionCategoryMapService sessionCategoryMaps;
+
+    @Autowired
+    private VenueService venueService;
     
     @Value("${exui.url}")
     private String exUiUrl;
     
     @Value("${sscs.serviceCode}")
-    private String sscsServiceCode;
-
+    private String sscsServiceCode; 
 
 }
