@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -80,10 +81,10 @@ class HearingLocationMappingTest {
     }
 
     private void setupMultipleVenueMaps() {
-        Map<String, Integer> venueIdMap = new HashMap<>();
+        ConcurrentHashMap<String, Integer> venueIdMap = new ConcurrentHashMap<>();
         venueIdMap.put("Plymouth", 200);
 
-        Map<String, VenueDetails> venueDetailsMap = new HashMap<>();
+        ConcurrentHashMap<String, VenueDetails> venueDetailsMap = new ConcurrentHashMap<>();
         venueDetailsMap.put("200", VenueDetails.builder()
             .epimsId("764728")
             .build());
