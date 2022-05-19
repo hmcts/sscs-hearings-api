@@ -47,6 +47,12 @@ import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -63,15 +69,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest {
+
+
+    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
+    private static final String NOTE_FROM_APPELLANT = "appellant note";
+    public static final String FACE_TO_FACE = "faceToFace";
+    public static final String BENEFIT_CODE = "002";
 
     private static SscsCaseDetails sscsCaseDetails;
 
     @Mock
     public HearingDurationsService hearingDurations;
+
+    @Mock
+    public VerbalLanguagesService verbalLanguages;
+
+    @Mock
+    public SignLanguagesService signLanguages;
 
     @Mock
     private static ReferenceDataServiceHolder referenceDataServiceHolder;
@@ -91,8 +109,8 @@ class ServiceHearingValuesMappingTest {
         sscsCaseDetails = SscsCaseDetails.builder()
             .data(SscsCaseData.builder()
                       .ccdCaseId("1234")
-                      .benefitCode("002")
-                      .issueCode("DD")
+                      .benefitCode(BENEFIT_CODE)
+                      .issueCode(ISSUE_CODE)
                       .urgentCase("Yes")
                       .adjournCaseCanCaseBeListedRightAway("Yes")
                       .caseManagementLocation(CaseManagementLocation.builder()
@@ -119,8 +137,8 @@ class ServiceHearingValuesMappingTest {
                                                       .wantsToAttend("Yes")
                                                       .wantsSupport("Yes")
                                                       .languageInterpreter("Yes")
-                                                      .languages("Telugu")
-                                                      .signLanguageType("Sign language")
+                                                      .languages("Bulgarian")
+                                                      .signLanguageType("Makaton")
                                                       .arrangements(Arrays.asList(
                                                           "signLanguageInterpreter",
                                                           "hearingLoop",
@@ -168,7 +186,7 @@ class ServiceHearingValuesMappingTest {
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
 
-        given(sessionCategoryMaps.getSessionCategory("002", ISSUE_CODE,true,false))
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
                 .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002");
@@ -177,13 +195,24 @@ class ServiceHearingValuesMappingTest {
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        given(hearingDurations.getHearingDuration("002",ISSUE_CODE)).willReturn(null);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+
+        given(verbalLanguages.getVerbalLanguageReference("Bulgarian"))
+                .willReturn("bul");
+
+        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        given(signLanguages.getSignLanguageReference("Makaton"))
+                .willReturn("sign-mkn");
+
+        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully() {
+    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
@@ -229,7 +258,7 @@ class ServiceHearingValuesMappingTest {
     }
 
     @Test
-    void shouldMapPartiesInServiceHearingValues() {
+    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
@@ -282,7 +311,7 @@ class ServiceHearingValuesMappingTest {
                                                        .wantsToAttend("Yes")
                                                        .wantsSupport("Yes")
                                                        .languageInterpreter("Yes")
-                                                       .languages("Telugu")
+                                                       .languages("Bulgarian")
                                                        .scheduleHearing("No")
                                                        .excludeDates(getExcludeDates())
                                                        .agreeLessNotice("No")

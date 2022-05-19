@@ -12,13 +12,14 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,9 +39,9 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.HIGH;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.NORMAL;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
 // TODO Unsuppress in future

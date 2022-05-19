@@ -2,10 +2,11 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.buildH
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping.buildHearingRequestDetails;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPELLANT;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPOINTEE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.JOINT_PARTY;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.OTHER_PARTY;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPELLANT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.JOINT_PARTY;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER_PARTY;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
 
 @Slf4j
 public final class HearingsMapping {

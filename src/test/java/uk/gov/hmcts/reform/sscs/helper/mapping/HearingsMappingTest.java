@@ -23,12 +23,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.VenueService;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +52,7 @@ class HearingsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
-    void buildHearingPayload() {
+    void buildHearingPayload() throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));

@@ -43,15 +43,15 @@ import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.model.HearingDuration;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -154,8 +154,7 @@ class ServiceHearingsControllerTest {
             .appellant(appellant).build();
 
 
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions))
-            .thenReturn(Optional.of("Telugu"));
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceData)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype))
