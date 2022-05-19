@@ -544,6 +544,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
 
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set return null")
+    @Test
+    void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsTelephoneExample() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
+        assertNull(result);
+    }
+
     @DisplayName("When hearing type oral and face to face then return LOV FACE TO FACE")
     @Test
     void getIndividualPreferredHearingChannelOralFaceToFaceTest() {
