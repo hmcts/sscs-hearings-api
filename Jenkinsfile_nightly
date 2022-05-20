@@ -15,8 +15,8 @@ def secrets = [
         'sscs-${env}' : [
                 secret('idam-s2s-api', 'IDAM_S2S_URL'),
                 secret('sscs-s2s-secret', 'IDAM_S2S_AUTH_TOTP_SECRET'),
-                secret('s2s-micro', 'IDAM_S2S_AUTH_MICROSERVICE'),
-                secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY')
+                secret('s2s-micro', 'IDAM_S2S_AUTH_MICROSERVICES'),
+                secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATION_KEY')
         ],
         's2s-${env}' : []
 ]

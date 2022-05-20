@@ -43,7 +43,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .benefitCode(BENEFIT_CODE)
                 .issueCode(ISSUE_CODE)
                 .caseCreated(CASE_CREATED)
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNameHmctsInternal(CASE_NAME_INTERNAL)
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())
@@ -90,9 +90,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("When case ID is given getCaseDeepLink returns the correct link")
     @Test
     void getCaseDeepLink() {
-        SscsCaseData caseData = SscsCaseData.builder().ccdCaseId(String.valueOf(CASE_ID)).build();
-        String result = HearingsCaseMapping.getCaseDeepLink(caseData);
-        String expected = String.format("%s/cases/case-details/%s", EX_UI_URL, CASE_ID);
+        HearingWrapper wrapper = HearingWrapper.builder()
+                .caseData(SscsCaseData.builder()
+                        .ccdCaseId(String.valueOf(CASE_ID))
+                        .build())
+                .exUiUrl(EX_UI_URL)
+                .build();
+        String result = HearingsCaseMapping.getCaseDeepLink(wrapper);
+        String expected = String.format(HearingsCaseMapping.CASE_DETAILS_URL, EX_UI_URL, CASE_ID);
 
         assertEquals(expected, result);
     }
@@ -102,7 +107,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getInternalCaseName() {
         String caseNameInternal = CASE_NAME_INTERNAL;
         SscsCaseData caseData = SscsCaseData.builder()
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNameHmctsInternal(caseNameInternal)
                         .build())
                 .build();
@@ -117,7 +122,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getPublicCaseName() {
         String caseNamePublic = CASE_NAME_PUBLIC;
         SscsCaseData caseData = SscsCaseData.builder()
-                .workAllocationFields(WorkAllocationFields.builder()
+                .caseAccessManagementFields(CaseAccessManagementFields.builder()
                         .caseNamePublic(caseNamePublic)
                         .build())
                 .build();
