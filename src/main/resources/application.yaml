@@ -131,3 +131,5 @@ flags:
     enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
   tribunals-to-hearings-api:
     enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
+  tribunals-dead-letter-consumer:
+    enabled: ${TRIBUNALS_DEAD_LETTER_CONSUMER:false}

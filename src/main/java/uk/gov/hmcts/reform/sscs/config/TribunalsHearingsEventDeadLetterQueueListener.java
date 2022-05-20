@@ -4,13 +4,17 @@ import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceiverClient;
 import com.azure.messaging.servicebus.models.SubQueue;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
+
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Configuration
@@ -20,17 +24,16 @@ public class TribunalsHearingsEventDeadLetterQueueListener {
 
     private final TribunalsHearingEventQueueProperties tribunalsHearingEventQueueProperties;
     private final AppInsightsService appInsightsService;
-    private boolean keepRun = true;
+    @Value("flag.tribunals-dead-letter-consumer.enabled") boolean deadLetterConsumer;
 
     @Bean
     public void processDeadLetterQueue() {
-        try (ServiceBusReceiverClient sessionReceiver = tribunalsHearingsEventProcessorClientDeadLetter()) {
-            while (keepRun) {
+        ServiceBusReceiverClient sessionReceiver = tribunalsHearingsEventProcessorClientDeadLetter();
+        CompletableFuture.runAsync(() -> {
+            while (deadLetterConsumer) {
                 consumeMessage(sessionReceiver);
             }
-        } catch (Exception ex) {
-            log.error("Error Processing Queue: " + ex);
-        }
+        });
     }
 
     public ServiceBusReceiverClient tribunalsHearingsEventProcessorClientDeadLetter() {
@@ -49,26 +52,23 @@ public class TribunalsHearingsEventDeadLetterQueueListener {
 
     protected void consumeMessage(ServiceBusReceiverClient receiver) {
         log.info("Starting to consume message");
-        try {
-            receiver.receiveMessages(1).forEach(
-                message -> {
-                    final String messageId = message.getMessageId();
-                    try {
-                        log.info("Received Dead Letter Message with ID: {} ", messageId);
-                        TribunalsDeadLetterMessage failMsg = obtainFailedMessage(message);
-                        appInsightsService.sendAppInsightsEvent(failMsg);
-                        receiver.complete(message);
-                        log.info("Dead Letter Queue message with id '{}' handled successfully", messageId);
-                    } catch (Exception ex) {
-                        log.error("Error processing Dead Letter Queue message with id '{}' - "
-                                      + "abandon the processing", messageId);
-                        receiver.abandon(message);
-                    }
+        receiver.receiveMessages(1).forEach(
+            message -> {
+                final String messageId = message.getMessageId();
+                try {
+                    log.info("Received Dead Letter Message with ID: {} ", messageId);
+                    TribunalsDeadLetterMessage failMsg = obtainFailedMessage(message);
+                    appInsightsService.sendAppInsightsEvent(failMsg);
+                    receiver.complete(message);
+                    log.info("Dead Letter Queue message with id '{}' handled successfully", messageId);
+                } catch (JsonProcessingException ex) {
+                    log.error("Error processing Dead Letter Queue message with id '{}' - "
+                                  + "abandon the processing", messageId, ex);
+                    receiver.abandon(message);
                 }
-            );
-        } catch (Exception ex) {
-            log.info("Failed to consume message with error {}", ex);
-        }
+            }
+        );
+
     }
 
     private TribunalsDeadLetterMessage obtainFailedMessage(ServiceBusReceivedMessage message) {
@@ -80,10 +80,6 @@ public class TribunalsHearingsEventDeadLetterQueueListener {
             .body(message.getBody().toString())
             .caseID(caseId)
             .build();
-    }
-
-    public void stop() {
-        keepRun = false;
     }
 
 }
