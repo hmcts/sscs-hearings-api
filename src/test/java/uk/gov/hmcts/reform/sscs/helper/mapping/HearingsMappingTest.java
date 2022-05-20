@@ -97,8 +97,8 @@ class HearingsMappingTest extends HearingsMappingBase {
 
         assertNotNull(wrapper.getCaseData().getOtherParties().get(1).getValue().getId());
 
-        assertNotNull(wrapper.getCaseData().getJointParty().getId());
-        assertNotNull(wrapper.getCaseData().getJointParty().getAppointee().getId());
+        assertThat(wrapper.getCaseData().getJointParty().getAppointee().getId()).isNotNull();
+        assertThat(wrapper.getCaseData().getJointParty().getId()).isNotNull();
 
     }
 

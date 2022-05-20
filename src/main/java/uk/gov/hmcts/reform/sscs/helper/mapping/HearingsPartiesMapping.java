@@ -49,7 +49,12 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.addAll(buildHearingPartiesPartyDetails(caseData.getJointParty(),appeal.getHearingOptions(),appellant.getId()));
+            partiesDetails.addAll(
+                buildHearingPartiesPartyDetails(
+                    caseData.getJointParty(),
+                    appeal.getHearingOptions(),
+                    appellant.getId()
+                ));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
