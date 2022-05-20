@@ -135,8 +135,8 @@ public final class HearingsPartiesMapping {
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
-                .hearingChannelEmail(getIndividualHearingChannelEmail(entity))
-                .hearingChannelPhone(getIndividualHearingChannelPhone(entity))
+                .hearingChannelEmail(getIndividualHearingChannelEmail(hearingSubtype))
+                .hearingChannelPhone(getIndividualHearingChannelPhone(hearingSubtype))
                 .relatedParties(getIndividualRelatedParties(entity, partyId, appellantId))
                 .custodyStatus(getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
@@ -200,23 +200,18 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static List<String> getIndividualHearingChannelEmail(Entity entity) {
+    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype) {
         List<String> emails = new ArrayList<>();
-        if (nonNull(entity.getContact()) && isNotBlank(entity.getContact().getEmail())) {
-            emails.add(entity.getContact().getEmail());
+        if (nonNull(hearingSubtype) && isNotBlank(hearingSubtype.getHearingVideoEmail())) {
+            emails.add(hearingSubtype.getHearingVideoEmail());
         }
         return emails;
     }
 
-    public static List<String> getIndividualHearingChannelPhone(Entity entity) {
+    public static List<String> getIndividualHearingChannelPhone(HearingSubtype hearingSubtype) {
         List<String> phoneNumbers = new ArrayList<>();
-        if (nonNull(entity.getContact())) {
-            if (isNotBlank(entity.getContact().getMobile())) {
-                phoneNumbers.add(entity.getContact().getMobile());
-            }
-            if (isNotBlank(entity.getContact().getPhone())) {
-                phoneNumbers.add(entity.getContact().getPhone());
-            }
+        if (nonNull(hearingSubtype) && isNotBlank(hearingSubtype.getHearingTelephoneNumber())) {
+            phoneNumbers.add(hearingSubtype.getHearingTelephoneNumber());
         }
         return phoneNumbers;
     }
