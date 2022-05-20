@@ -29,10 +29,7 @@ public class ServiceHearingValuesMapper {
                 .caseSubTypes(SscsCaseDataUtils.getIssueCode(caseData))
                 .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, HearingsDetailsMapping.shouldBeAutoListed()))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData))
-                .hearingPriorityType(getHearingPriority(
-                    caseData.getAdjournCaseCanCaseBeListedRightAway(),
-                    caseData.getUrgentCase()
-                ).getType())     // TODO missing mappings
+                .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(SscsCaseDataUtils.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
