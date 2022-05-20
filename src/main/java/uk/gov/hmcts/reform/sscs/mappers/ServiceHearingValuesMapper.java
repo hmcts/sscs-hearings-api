@@ -30,7 +30,7 @@ public class ServiceHearingValuesMapper {
                 .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, HearingsDetailsMapping.shouldBeAutoListed()))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
-                .numberOfPhysicalAttendees(SscsCaseDataUtils.getNumberOfPhysicalAttendees(caseData))
+                .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))

@@ -56,7 +56,7 @@ public final class HearingsDetailsMapping {
         hearingDetailsBuilder.duration(getHearingDuration(caseData));
         hearingDetailsBuilder.nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons());
         hearingDetailsBuilder.hearingPriorityType(getHearingPriority(caseData));
-        hearingDetailsBuilder.numberOfPhysicalAttendees(getNumberOfPhysicalAttendees());
+        hearingDetailsBuilder.numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData));
         hearingDetailsBuilder.hearingInWelshFlag(shouldBeHearingsInWelshFlag());
         hearingDetailsBuilder.hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()));
         hearingDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
@@ -151,9 +151,30 @@ public final class HearingsDetailsMapping {
         return NORMAL.getHmcReference();
     }
 
-    public static Number getNumberOfPhysicalAttendees() {
-        // TODO Implementation to be done by SSCS-10260
-        return null;
+    public static int getNumberOfPhysicalAttendees(SscsCaseData caseData) {
+        int numberOfAttendees = 0;
+        // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
+        if (nonNull(caseData.getAppeal())
+                && nonNull(caseData.getAppeal().getHearingSubtype())
+                && nonNull(caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
+                && caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
+            //appellants + dwp attendee (1) + judge (1) + panel members + representative (1)
+            numberOfAttendees = 1;
+            if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
+                numberOfAttendees++;
+            }
+
+            if (isYes(caseData.getAppeal().getRep().getHasRepresentative())) {
+                numberOfAttendees++;
+            }
+            // TODO get it from SSCS-10243, when it is finished
+            numberOfAttendees += 0;
+
+            // TODO when panelMembers is created in caseData you will map it with the size of this value
+            //  (SSCS-10116)
+            numberOfAttendees += 0;
+        }
+        return numberOfAttendees;
     }
 
     public static boolean shouldBeHearingsInWelshFlag() {

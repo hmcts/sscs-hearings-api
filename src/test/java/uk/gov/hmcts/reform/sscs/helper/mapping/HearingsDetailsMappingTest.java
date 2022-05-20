@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
+import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,7 +58,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getHearingWindow());
         assertNotNull(hearingDetails.getDuration());
         assertNotNull(hearingDetails.getHearingPriorityType());
-        assertNull(hearingDetails.getNumberOfPhysicalAttendees());
+        assertEquals(0, hearingDetails.getNumberOfPhysicalAttendees());
         assertNotNull(hearingDetails.getHearingLocations());
         assertNull(hearingDetails.getListingComments());
         assertNull(hearingDetails.getHearingRequester());
@@ -189,10 +191,23 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("getNumberOfPhysicalAttendees Test")
     @Test
-    void getNumberOfPhysicalAttendees() {
-        Number result = HearingsDetailsMapping.getNumberOfPhysicalAttendees();
-
-        assertNull(result);
+    void shouldGetNumberOfPhysicalAttendees() {
+        // given
+        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
+        Appeal appeal = Mockito.mock(Appeal.class);
+        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
+        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
+        Representative representative = Mockito.mock(Representative.class);
+        // when
+        Mockito.when(representative.getHasRepresentative()).thenReturn(YesNo.YES.getValue());
+        Mockito.when(hearingOptions.getWantsToAttend()).thenReturn(YesNo.YES.getValue());
+        Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
+        Mockito.when(appeal.getRep()).thenReturn(representative);
+        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
+        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
+        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        //then
+        assertEquals(3, SscsCaseDataUtils.getNumberOfPhysicalAttendees(sscsCaseData));
     }
 
     @DisplayName("getHearingLocations Parameterized Tests")
