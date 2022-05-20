@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
+import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
@@ -43,7 +44,7 @@ public class ServiceHearingValuesMapper {
                 .judiciary(null) // TODO
                 .hearingIsLinkedFlag(false)
                 .parties(SscsCaseDataUtils.getParties(caseData)) // TODO missing mappings
-                .caseFlags(SscsCaseDataUtils.getCaseFlags(caseData))
+                .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
             .build();

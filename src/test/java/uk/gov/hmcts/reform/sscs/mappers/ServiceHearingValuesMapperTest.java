@@ -273,7 +273,7 @@ class ServiceHearingValuesMapperTest {
     private CaseFlags getCaseFlags() {
         return CaseFlags.builder()
             .flags(getPartyFlags())
-            .flagAmendUrl(null)
+            .flagAmendUrl("")
             .build();
     }
 
