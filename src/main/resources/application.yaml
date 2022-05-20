@@ -3,12 +3,10 @@ server:
 
 logging:
   level:
-    uk:
-      gov:
-        hmcts:
-          fortifyclient: INFO
-          reform:
-            sscs: ${SSCS_LOG_LEVEL:INFO}
+    uk.gov.hmcts.reform.sscs: ${SSCS_LOG_LEVEL:INFO}
+    com.microsoft.azure.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.messaging.servicebus: ${SERVICE_BUS_LOG_LEVEL:ERROR}
+    com.azure.core.amqp: ${SERVICE_BUS_LOG_LEVEL:ERROR}
 
 management:
   endpoint:
@@ -33,7 +31,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   config:
-    import: "optional:configtree:/mnt/secrets/"
+    import: "optional:configtree:/mnt/secrets/sscs/"
   application:
     name: SSCS Hearings API
   security:
@@ -49,8 +47,6 @@ spring:
       - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
-      - "/serviceHearingValues"
-      - "/serviceLinkedCases"
 
 feign:
   httpclient:
@@ -71,8 +67,6 @@ jackson:
     WRITE_DATES_AS_TIMESTAMPS: false
 
 azure:
-  application-insights:
-    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
   service-bus:
     hmc-to-hearings-api:
       connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
@@ -87,18 +81,19 @@ azure:
       retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
       maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
       retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
-
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
   s2s-auth:
     url: ${IDAM_S2S_URL:http://localhost:4502}
-    secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
     totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
-    microservice: ${IDAM_S2S_AUTH_MICROSERVICE:sscs}
+    microservice: sscs
   s2s-authorised:
-    services: ${SSCS_S2S_AUTHORIZED_SERVICES:sscs,ccd,ccd_data,ccd_gw,ccd_ps}
+    services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs,xui}
+  client:
+    id: ${IDAM_OAUTH2_CLIENT_ID:}
+    secret: ${IDAM_OAUTH2_CLIENT_SECRET:}
   oauth2:
     user:
       email: ${IDAM_SSCS_SYSTEMUPDATE_USER:system.update@hmcts.net}
