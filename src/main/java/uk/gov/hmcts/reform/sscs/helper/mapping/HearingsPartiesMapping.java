@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
@@ -131,7 +130,7 @@ public final class HearingsPartiesMapping {
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions))
-                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
+                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
@@ -185,24 +184,22 @@ public final class HearingsPartiesMapping {
             && nonNull(hearingSubtype.getHearingVideoEmail());
     }
 
-    public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
+    public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
-            return getSignLanguage(hearingOptions)
-                .map(SignLanguage::getHmcReference);
+            return getSignLanguage(hearingOptions).getHmcReference();
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
-            return getInterpreterLanguage(hearingOptions)
-                .map(InterpreterLanguage::getHmcReference);
+            return getInterpreterLanguage(hearingOptions).getHmcReference();
         }
-        return Optional.empty();
+        return null;
     }
 
-    private static Optional<SignLanguage> getSignLanguage(HearingOptions hearingOptions) {
-        return Optional.ofNullable(SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType()));
+    private static SignLanguage getSignLanguage(HearingOptions hearingOptions) {
+        return SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType());
     }
 
-    private static Optional<InterpreterLanguage> getInterpreterLanguage(HearingOptions hearingOptions) {
-        return Optional.ofNullable(InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages()));
+    private static InterpreterLanguage getInterpreterLanguage(HearingOptions hearingOptions) {
+        return InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages());
     }
 
     public static List<String> getIndividualReasonableAdjustments(HearingOptions hearingOptions) {
