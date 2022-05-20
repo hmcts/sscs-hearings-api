@@ -22,11 +22,7 @@
   "leadJudgeContractType": "",
   "hearingIsLinkedFlag": false,
   "hearingWindow": {
-    "hearingWindowFirstDate": "2022-12-01",
-    "hearingWindowDateRange": {
-      "hearingWindowStartDateRange": "2022-11-23",
-      "hearingWindowEndDateRange": "2022-11-30"
-    }
+    "dateRangeStart": [2022,12,1]
   },
   "hearingLocations": [
     {

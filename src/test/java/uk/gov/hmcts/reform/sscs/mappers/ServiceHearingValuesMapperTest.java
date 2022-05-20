@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
@@ -110,11 +111,7 @@ class ServiceHearingValuesMapperTest {
         // when
         final ServiceHearingValues serviceHearingValues = mapper.mapServiceHearingValues(sscsCaseDetails);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
-            .hearingWindowFirstDate(null)
-            .hearingWindowDateRange(HearingWindowDateRange.builder()
-                                        .hearingWindowStartDateRange("2022-02-26")
-                                        .hearingWindowEndDateRange(null)
-                                        .build())
+            .dateRangeStart(LocalDate.of(2022, 2, 26))
             .build();
         //then
         assertEquals(serviceHearingValues.getCaseName(), sscsCaseData.getAppeal().getAppellant().getName().getFullName());

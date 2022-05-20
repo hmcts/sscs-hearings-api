@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class ServiceHearingValues {
     private String caseType;
     private List<String> caseSubTypes;
     @JsonProperty("hearingWindow")
-   private HearingWindow hearingWindow;
+    private HearingWindow hearingWindow;
     private Integer duration;
     private String hearingPriorityType;
     private Integer numberOfPhysicalAttendees;

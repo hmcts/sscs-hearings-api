@@ -105,7 +105,7 @@ public final class SscsCaseDataUtils {
      * Get ShvHearingWindow object given SscsCaseData.
      *
      * @param caseData SscsCaseData
-     * @return an ShvHearingWindow.
+     * @return a HearingWindow.
      */
     public static HearingWindow getHearingWindow(SscsCaseData caseData) {
         String hearingWindowStart = null;
