@@ -16,7 +16,8 @@
     <cve>CVE-2022-24823</cve>
   </suppress>
   <suppress until="2022-06-20">
-    <notes><![CDATA[ file name: spring-core-5.3.19.jar ]]></notes>
+    <notes><![CDATA[ springframework spring-* packages:
+    https://github.com/spring-projects/spring-framework/issues/24434#issuecomment-1132113566]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*?@[1-5]\..*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
   </suppress>
