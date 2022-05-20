@@ -42,7 +42,7 @@ public class ServiceHearingValuesMapper {
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(null) // TODO
-                .hearingIsLinkedFlag(false)
+                .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked())
                 .parties(SscsCaseDataUtils.getParties(caseData)) // TODO missing mappings
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
