@@ -174,7 +174,6 @@ public class HearingsService {
 
         HearingsServiceHelper.updateHearingId(wrapper, response);
         HearingsServiceHelper.updateVersionNumber(wrapper, response);
-        HearingsServiceHelper.addEvent(wrapper);
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getState());
         ccdCaseService.updateCaseData(

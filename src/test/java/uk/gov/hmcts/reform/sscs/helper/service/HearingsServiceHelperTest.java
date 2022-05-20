@@ -5,16 +5,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
@@ -80,29 +76,6 @@ class HearingsServiceHelperTest {
         HearingsServiceHelper.updateVersionNumber(wrapper, response);
 
         assertThat(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingVersionNumber()).isEqualTo(expected);
-    }
-
-    @DisplayName("addEvent Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "CREATE_HEARING,CREATE_HEARING",
-        "UPDATED_CASE,UPDATED_CASE",
-    }, nullValues = {"null"})
-    void addEvent(HearingState state, HearingEvent event) {
-        testStart = ZonedDateTime.now().minusMinutes(65);
-
-        wrapper.setState(state);
-        wrapper.getCaseData().setEvents(new ArrayList<>());
-
-        HearingsServiceHelper.addEvent(wrapper);
-
-        assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
-        EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
-        assertThat(eventDetails.getType()).isEqualTo(event.getEventType().getType());
-        assertThat(eventDetails.getDate()).isNotEmpty();
-        assertThat(eventDetails.getDateTime()).isAfter(testStart);
-        assertThat(eventDetails.getDateTime()).isBefore(ZonedDateTime.now().plusMinutes(65));
-        assertThat(eventDetails.getDescription()).isEqualTo(event.getDescription());
     }
 
     @Test

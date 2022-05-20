@@ -247,13 +247,6 @@ class HearingsServiceTest {
                         eq(event.getEventType()),
                         eq(event.getSummary()),
                         eq(event.getDescription()));
-
-        assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
-        EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
-        assertThat(eventDetails.getType()).isNotEmpty();
-        assertThat(eventDetails.getDate()).isNotEmpty();
-        assertThat(eventDetails.getDateTime()).isNotNull();
-        assertThat(eventDetails.getDescription()).isNotEmpty();
     }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
