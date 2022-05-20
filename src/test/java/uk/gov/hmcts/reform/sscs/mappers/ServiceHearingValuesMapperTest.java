@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
 
 class ServiceHearingValuesMapperTest {
 
@@ -119,7 +120,7 @@ class ServiceHearingValuesMapperTest {
         assertEquals(serviceHearingValues.getCaseName(), sscsCaseData.getAppeal().getAppellant().getName().getFullName());
         assertTrue(serviceHearingValues.isAutoListFlag()); //
         assertEquals(0, serviceHearingValues.getDuration());
-        assertEquals(sscsCaseData.getAppeal().getHearingType(), serviceHearingValues.getHearingType());
+        assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
         assertEquals(sscsCaseData.getIssueCode(), String.join("", serviceHearingValues.getCaseSubTypes()));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
