@@ -62,7 +62,7 @@ public final class HearingsDetailsMapping {
         hearingDetailsBuilder.facilitiesRequired(getFacilitiesRequired(caseData));
         hearingDetailsBuilder.listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()));
         hearingDetailsBuilder.hearingRequester(getHearingRequester());
-        hearingDetailsBuilder.privateHearingRequiredFlag(getPrivateHearingRequiredFlag());
+        hearingDetailsBuilder.privateHearingRequiredFlag(isPrivateHearingRequired());
         hearingDetailsBuilder.leadJudgeContractType(getLeadJudgeContractType());
         hearingDetailsBuilder.panelRequirements(getPanelRequirements(caseData));
         hearingDetailsBuilder.hearingIsLinkedFlag(isCaseLinked());
@@ -221,9 +221,9 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-   public static Boolean getPrivateHearingRequiredFlag() {
+    public static boolean isPrivateHearingRequired() {
         // TODO Future Work
-        return null;
+        return false;
     }
 
     public static String getLeadJudgeContractType() {
