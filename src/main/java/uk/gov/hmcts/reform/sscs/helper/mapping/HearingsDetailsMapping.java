@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -43,7 +44,7 @@ public final class HearingsDetailsMapping {
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceData referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
 
-        boolean autoListed = shouldBeAutoListed();
+        boolean autoListed = shouldBeAutoListed(caseData);
 
         return HearingDetails.builder()
             .autolistFlag(autoListed)
@@ -61,14 +62,14 @@ public final class HearingsDetailsMapping {
             .privateHearingRequiredFlag(getPrivateHearingRequiredFlag())
             .leadJudgeContractType(getLeadJudgeContractType())
             .panelRequirements(getPanelRequirements(caseData, referenceData))
-            .hearingIsLinkedFlag(isCaseLinked())
+            .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
             .build();
     }
 
-    public static boolean shouldBeAutoListed() {
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
         // TODO Future Work
-        return true;
+        return !isCaseLinked(caseData);
     }
 
     public static String getHearingType() {
@@ -348,11 +349,8 @@ public final class HearingsDetailsMapping {
         return panelPreferences;
     }
 
-    public static boolean isCaseLinked() {
-        // TODO Future work
-        // boolean isYes = nonNull(caseData.getLinkedCase()) && !caseData.getLinkedCase().isEmpty();
-        // driven by benefit or issue, can't be auto listed
-        return false;
+    public static boolean isCaseLinked(@Valid SscsCaseData caseData) {
+        return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));
     }
 
     private static String getAmendReasonCode() {

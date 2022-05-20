@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -81,13 +80,31 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getPanelRequirements());
     }
 
-    @DisplayName("shouldBeAutoListed Parameterized Tests")
+    @DisplayName("When there are linked cases, shouldBeAutoListed returns false")
     @Test
-    void shouldBeAutoListed() {
+    void testShouldBeAutoListedFalse() {
         // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed();
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of(CaseLink.builder()
+                        .value(CaseLinkDetails.builder()
+                                .caseReference("123456")
+                                .build())
+                        .build()))
+                .build();
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
 
-        assertTrue(result);
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When there are no linked cases, shouldBeAutoListed returns true")
+    @Test
+    void testShouldBeAutoListedTrue() {
+        // TODO Finish Test when method done
+        SscsCaseData caseData = SscsCaseData.builder()
+                .build();
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+
+        assertThat(result).isTrue();
     }
 
     @DisplayName("shouldBeHearingsInWelshFlag Test")
@@ -98,13 +115,60 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertFalse(result);
     }
 
-    @DisplayName("When .. is given isCaseLinked returns if case is linked")
+    @DisplayName("When case has a linked case isCaseLinked returns true")
     @Test
-    void isCaseLinked() {
-        // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.isCaseLinked();
+    void testIsCaseLinked() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of(CaseLink.builder()
+                        .value(CaseLinkDetails.builder()
+                                .caseReference("123456")
+                                .build())
+                        .build()))
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
 
-        assertFalse(result);
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When case has multiple linked cases isCaseLinked returns true")
+    @Test
+    void testIsCaseLinkedMultiple() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of(CaseLink.builder()
+                                .value(CaseLinkDetails.builder()
+                                        .caseReference("123456")
+                                        .build())
+                                .build(),
+                        CaseLink.builder()
+                                .value(CaseLinkDetails.builder()
+                                        .caseReference("654321")
+                                        .build())
+                                .build()))
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When case has empty linkedCase isCaseLinked returns true")
+    @Test
+    void testIsCaseLinkedEmpty() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of())
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When case has null linkedCase isCaseLinked returns true")
+    @Test
+    void testIsCaseLinkedNull() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
+
+        assertThat(result).isFalse();
     }
 
     @DisplayName("Hearing type should be substantive.")
