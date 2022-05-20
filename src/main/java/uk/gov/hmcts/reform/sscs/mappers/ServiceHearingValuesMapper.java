@@ -27,10 +27,8 @@ public class ServiceHearingValuesMapper {
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
                 .caseSubTypes(SscsCaseDataUtils.getIssueCode(caseData))
-                // TODO same method is in HearingsDetailsMapping -> buildHearingWindow
-                //  (SSCS-10321-Create-Hearing-POST-Mapping)
                 .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, HearingsDetailsMapping.shouldBeAutoListed()))
-                .duration(0) // TODO SSCS-10116 will provide
+                .duration(HearingsDetailsMapping.getHearingDuration(caseData))
                 .hearingPriorityType(getHearingPriority(
                     caseData.getAdjournCaseCanCaseBeListedRightAway(),
                     caseData.getUrgentCase()

@@ -116,7 +116,7 @@ class ServiceHearingValuesMapperTest {
         //then
         assertEquals(serviceHearingValues.getCaseName(), sscsCaseData.getAppeal().getAppellant().getName().getFullName());
         assertTrue(serviceHearingValues.isAutoListFlag()); //
-        assertEquals(0, serviceHearingValues.getDuration());
+        assertEquals(45, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
         assertEquals(sscsCaseData.getIssueCode(), String.join("", serviceHearingValues.getCaseSubTypes()));
