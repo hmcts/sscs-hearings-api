@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class PartiesNotifiedMappingTest extends HearingsMappingBase {
-    public static final Long VERSION_NUMBER = 1L;
+    private static final Long VERSION_NUMBER = 1L;
 
     @DisplayName("When a valid hearing wrapper is given buildUpdatePartiesNotifiedPayload returns the correct Hearing Request")
     @Test
