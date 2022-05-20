@@ -364,6 +364,24 @@ dependencyManagement {
   imports {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}"
   }
+  dependencies {
+    //CVE-2016-1000027
+    dependencySet(group: 'org.springframework', version: '5.3.20') {
+      entry 'spring-aop'
+      entry 'spring-aspects'
+      entry 'spring-beans'
+      entry 'spring-context'
+      entry 'spring-context-support'
+      entry 'spring-core'
+      entry 'spring-expression'
+      entry 'spring-jcl'
+      entry 'spring-jdbc'
+      entry 'spring-orm'
+      entry 'spring-tx'
+      entry 'spring-web'
+      entry 'spring-webmvc'
+    }
+  }
 }
 
 mainClassName = 'uk.gov.hmcts.reform.sscs.HearingsApiApplication'
