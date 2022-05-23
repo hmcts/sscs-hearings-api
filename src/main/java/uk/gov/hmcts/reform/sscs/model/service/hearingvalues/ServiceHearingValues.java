@@ -23,6 +23,7 @@ import java.util.List;
 public class ServiceHearingValues {
 
     private String caseName;
+    private String caseNamePublic;
     private boolean autoListFlag;
     private String hearingType;
     private String caseType;

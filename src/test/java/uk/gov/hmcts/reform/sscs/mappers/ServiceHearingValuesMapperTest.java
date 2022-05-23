@@ -115,7 +115,8 @@ class ServiceHearingValuesMapperTest {
             .dateRangeStart(LocalDate.of(2022, 2, 26))
             .build();
         //then
-        assertEquals(serviceHearingValues.getCaseName(), sscsCaseData.getAppeal().getAppellant().getName().getFullName());
+        assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNameHmctsInternal(), serviceHearingValues.getCaseName());
+        assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNamePublic(), serviceHearingValues.getCaseNamePublic());
         assertTrue(serviceHearingValues.isAutoListFlag()); //
         assertEquals(45, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());

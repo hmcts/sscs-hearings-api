@@ -24,7 +24,8 @@ public class ServiceHearingValuesMapper {
         SscsCaseData caseData = caseDetails.getData();
 
         return ServiceHearingValues.builder()
-                .caseName(SscsCaseDataUtils.getCaseName(caseData))
+                .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
+                .caseNamePublic(HearingsCaseMapping.getPublicCaseName(caseData))
                 .autoListFlag(HearingsDetailsMapping.shouldBeAutoListed())
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
