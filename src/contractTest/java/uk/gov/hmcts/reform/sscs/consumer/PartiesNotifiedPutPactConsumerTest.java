@@ -55,12 +55,12 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.unauthorisedHead
 @PactTestFor(port = "10000")
 @PactFolder("pacts")
 class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
-    public static final String FIELD_STATUS_FORMAT = "%d %s";
+    private static final String FIELD_STATUS_FORMAT = "%d %s";
     private static final String VERSION = "version";
     private static final Long VERSION_NUMBER = 123L;
     private static final String FORBIDDEN_CASE_ID = "456";
     private static final String NOT_FOUND_CASE_ID = "789";
-    public static final String QUERY_FORMAT = "%s=%s&%s=%s";
+    private static final String QUERY_FORMAT = "%s=%s&%s=%s";
 
     @Autowired
     private HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
