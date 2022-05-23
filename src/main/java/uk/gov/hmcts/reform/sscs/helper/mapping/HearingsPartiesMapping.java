@@ -18,6 +18,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
+import static uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
@@ -137,8 +138,8 @@ public final class HearingsPartiesMapping {
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
-                .hearingChannelEmail(getIndividualHearingChannelEmail(entity))
-                .hearingChannelPhone(getIndividualHearingChannelPhone(entity))
+                .hearingChannelEmail(getIndividualHearingChannelEmail(hearingSubtype))
+                .hearingChannelPhone(getIndividualHearingChannelPhone(hearingSubtype))
                 .relatedParties(getIndividualRelatedParties(entity, partyId, appellantId))
                 .custodyStatus(getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
@@ -202,23 +203,18 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static List<String> getIndividualHearingChannelEmail(Entity entity) {
+    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype) {
         List<String> emails = new ArrayList<>();
-        if (nonNull(entity.getContact()) && isNotBlank(entity.getContact().getEmail())) {
-            emails.add(entity.getContact().getEmail());
+        if (nonNull(hearingSubtype) && isNotBlank(hearingSubtype.getHearingVideoEmail())) {
+            emails.add(hearingSubtype.getHearingVideoEmail());
         }
         return emails;
     }
 
-    public static List<String> getIndividualHearingChannelPhone(Entity entity) {
+    public static List<String> getIndividualHearingChannelPhone(HearingSubtype hearingSubtype) {
         List<String> phoneNumbers = new ArrayList<>();
-        if (nonNull(entity.getContact())) {
-            if (isNotBlank(entity.getContact().getMobile())) {
-                phoneNumbers.add(entity.getContact().getMobile());
-            }
-            if (isNotBlank(entity.getContact().getPhone())) {
-                phoneNumbers.add(entity.getContact().getPhone());
-            }
+        if (nonNull(hearingSubtype) && isNotBlank(hearingSubtype.getHearingTelephoneNumber())) {
+            phoneNumbers.add(hearingSubtype.getHearingTelephoneNumber());
         }
         return phoneNumbers;
     }
@@ -299,6 +295,7 @@ public final class HearingsPartiesMapping {
                 UnavailabilityRange.UnavailabilityRangeBuilder unavailabilityRange = UnavailabilityRange.builder();
                 unavailabilityRange.unavailableFromDate(LocalDate.parse(dateRange.getStart()));
                 unavailabilityRange.unavailableToDate(LocalDate.parse(dateRange.getEnd()));
+                unavailabilityRange.unavailabilityType(ALL_DAY.getLabel());
                 unavailabilityRanges.add(unavailabilityRange.build());
             }
             return unavailabilityRanges;

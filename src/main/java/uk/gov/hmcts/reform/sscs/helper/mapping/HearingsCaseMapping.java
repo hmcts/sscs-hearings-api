@@ -3,16 +3,16 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
 @RestController
@@ -26,7 +26,7 @@ public final class HearingsCaseMapping {
 
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper) {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceData referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
                 .hmctsServiceCode(getServiceCode(wrapper))
@@ -36,7 +36,7 @@ public final class HearingsCaseMapping {
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .caseCategories(buildCaseCategories(caseData))
+                .caseCategories(buildCaseCategories(caseData, referenceData))
                 .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
                 .caseRestrictedFlag(shouldBeSensitiveFlag())
                 .caseSlaStartDate(getCaseCreated(caseData))
@@ -90,33 +90,32 @@ public final class HearingsCaseMapping {
         return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
-    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData) {
+    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceData referenceData) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
-        // TODO SSCS-10116 - Replace SessionCaseCodeMapping with commons version
         List<CaseCategory> categories = new ArrayList<>();
 
-        SessionCaseCodeMapping sessionCaseCode = getSessionCaseCode(caseData);
+        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceData);
 
-        categories.addAll(getCaseSubTypes(sessionCaseCode));
-        categories.addAll(getCaseTypes(sessionCaseCode));
+        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceData));
+        categories.addAll(getCaseTypes(sessionCaseCode, referenceData));
 
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCaseCodeMapping sessionCaseCode) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(sessionCaseCode.getCategoryTypeValue())
+                .categoryValue(referenceData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCaseCodeMapping sessionCaseCode) {
+    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
-                .categoryValue(sessionCaseCode.getCategorySubTypeValue())
+                .categoryValue(referenceData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
