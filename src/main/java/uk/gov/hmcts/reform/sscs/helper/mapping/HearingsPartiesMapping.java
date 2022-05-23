@@ -52,7 +52,6 @@ public final class HearingsPartiesMapping {
             partiesDetails.addAll(
                 buildHearingPartiesPartyDetails(
                     caseData.getJointParty(),
-                    appeal.getHearingOptions(),
                     appellant.getId()
                 ));
         }
@@ -73,8 +72,8 @@ public final class HearingsPartiesMapping {
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party,HearingOptions hearingOptions, String appellantId) {
-        return buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null, appellantId);
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) {
+        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
@@ -167,11 +166,11 @@ public final class HearingsPartiesMapping {
     }
 
     public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
+        if (null != hearingOptions && isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             return getSignLanguage(hearingOptions)
                 .map(SignLanguage::getHmcReference);
         }
-        if (isYes(hearingOptions.getLanguageInterpreter())) {
+        if (null != hearingOptions && isYes(hearingOptions.getLanguageInterpreter())) {
             return getInterpreterLanguage(hearingOptions)
                 .map(InterpreterLanguage::getHmcReference);
         }

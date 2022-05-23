@@ -236,6 +236,49 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     }
 
+    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @ParameterizedTest
+    @EnumSource(value = YesNo.class)
+    @NullSource
+    void buildHearingPartiesDetailsJointPartyWhenHearingOptionsNull(YesNo jointParty) {
+
+        String appellantId = "1";
+        String jointPartyId = "2";
+
+        JointParty jointPartyDetails = JointParty.builder().id(jointPartyId)
+            .hasJointParty(jointParty)
+            .name(Name.builder()
+                      .title("title")
+                      .firstName("first")
+                      .lastName("last")
+                      .build())
+            .build();
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .jointParty(jointPartyDetails)
+            .appeal(Appeal.builder()
+                        .appellant(Appellant.builder()
+                                       .id(appellantId)
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
+
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
+        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().anyMatch(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())));
+        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+
+    }
+
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
