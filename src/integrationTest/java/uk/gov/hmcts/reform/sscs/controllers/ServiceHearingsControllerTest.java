@@ -67,74 +67,78 @@ class ServiceHearingsControllerTest {
     @MockBean
     private CcdService ccdService;
 
+    public static String asJsonString(final Object obj) throws JsonProcessingException {
+        return mapper.writeValueAsString(obj);
+    }
+
+    // TODO These are holder tests that will need to be implemented alongside service hearing controller
+
     @BeforeEach
-    void setUp()  {
+    void setUp() {
         List<CaseLink> linkedCases = new ArrayList<>();
         linkedCases.add(CaseLink.builder()
-                .value(CaseLinkDetails.builder()
-                        .caseReference(String.valueOf(CASE_ID_LINKED))
-                        .build())
-                .build());
+                            .value(CaseLinkDetails.builder()
+                                       .caseReference(String.valueOf(CASE_ID_LINKED))
+                                       .build())
+                            .build());
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
-                .data(SscsCaseData.builder()
-                        .workAllocationFields(WorkAllocationFields.builder()
-                                .caseNamePublic(CASE_NAME)
-                                .build())
-                        .linkedCase(linkedCases)
-                        .build())
-                .build();
+            .data(SscsCaseData.builder()
+                      .caseAccessManagementFields(CaseAccessManagementFields.builder()
+                                                      .caseNamePublic(CASE_NAME)
+                                                      .build())
+                      .linkedCase(linkedCases)
+                      .build())
+            .build();
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
     }
 
-    // TODO These are holder tests that will need to be implemented alongside service hearing controller
-
     @DisplayName("When Authorization and Case ID valid "
-            + "should return the case name with a with 200 response code")
+        + "should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceHearingValues() throws Exception {
         ServiceHearingValues model = ServiceHearingValues.builder().caseName(CASE_NAME).build();
         String json = asJsonString(model);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(String.valueOf(CASE_ID))
-                .build();
+            .caseId(String.valueOf(CASE_ID))
+            .build();
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().json(json));
     }
 
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")
     @Test
     void testPostRequestServiceHearingValues_badCaseID() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(BAD_CASE_ID)
-                .build();
+            .caseId(BAD_CASE_ID)
+            .build();
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @DisplayName("When Case Not Found should return a with 404 response code")
     @Test
     void testPostRequestServiceHearingValues_missingCase() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(String.valueOf(MISSING_CASE_ID))
-                .build();
+            .caseId(String.valueOf(MISSING_CASE_ID))
+            .build();
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isNotFound());
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
+            .andDo(print())
+            .andExpect(status().isNotFound());
     }
 
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
@@ -146,48 +150,44 @@ class ServiceHearingsControllerTest {
         String json = asJsonString(model);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(String.valueOf(CASE_ID))
-                .hearingId(String.valueOf(HEARING_ID))
-                .build();
+            .caseId(String.valueOf(CASE_ID))
+            .hearingId(String.valueOf(HEARING_ID))
+            .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().json(json));
     }
 
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")
     @Test
     void testPostRequestServiceLinkedCases_badCaseID() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(String.valueOf(BAD_CASE_ID))
-                .hearingId(String.valueOf(HEARING_ID))
-                .build();
+            .caseId(BAD_CASE_ID)
+            .hearingId(String.valueOf(HEARING_ID))
+            .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @Test
     void testPostRequestServiceLinkedCases_missingCase() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(String.valueOf(MISSING_CASE_ID))
-                .hearingId(String.valueOf(HEARING_ID))
-                .build();
+            .caseId(String.valueOf(MISSING_CASE_ID))
+            .hearingId(String.valueOf(HEARING_ID))
+            .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
-
-    public static String asJsonString(final Object obj) throws JsonProcessingException {
-        return mapper.writeValueAsString(obj);
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
+            .andDo(print())
+            .andExpect(status().isNotFound());
     }
 }

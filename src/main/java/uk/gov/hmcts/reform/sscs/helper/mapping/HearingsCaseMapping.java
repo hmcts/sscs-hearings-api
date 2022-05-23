@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 
 import java.util.ArrayList;
@@ -29,18 +29,18 @@ public final class HearingsCaseMapping {
     public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
-                .hmctsServiceCode(getServiceCode(wrapper))
-                .caseId(getCaseID(caseData))
-                .caseDeepLink(getCaseDeepLink(wrapper))
-                .hmctsInternalCaseName(getInternalCaseName(caseData))
-                .publicCaseName(getPublicCaseName(caseData))
-                .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
-                .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .caseCategories(buildCaseCategories(caseData))
-                .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
-                .caseRestrictedFlag(shouldBeSensitiveFlag())
-                .caseSlaStartDate(getCaseCreated(caseData))
-                .build();
+            .hmctsServiceCode(getServiceCode(wrapper))
+            .caseId(getCaseID(caseData))
+            .caseDeepLink(getCaseDeepLink(wrapper))
+            .hmctsInternalCaseName(getInternalCaseName(caseData))
+            .publicCaseName(getPublicCaseName(caseData))
+            .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
+            .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
+            .caseCategories(buildCaseCategories(caseData))
+            .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
+            .caseRestrictedFlag(shouldBeSensitiveFlag())
+            .caseSlaStartDate(getCaseCreated(caseData))
+            .build();
     }
 
     public static String getServiceCode(HearingWrapper wrapper) {
@@ -56,38 +56,39 @@ public final class HearingsCaseMapping {
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
-        return caseData.getWorkAllocationFields().getCaseNameHmctsInternal();
+        return caseData.getCaseAccessManagementFields().getCaseNameHmctsInternal();
     }
 
     public static String getPublicCaseName(SscsCaseData caseData) {
-        return caseData.getWorkAllocationFields().getCaseNamePublic();
+        return caseData.getCaseAccessManagementFields().getCaseNamePublic();
     }
 
     public static boolean shouldBeAdditionalSecurityFlag(SscsCaseData caseData) {
         return isYes(caseData.getDwpUcb())
-                || shouldBeAdditionalSecurityOtherParties(caseData.getOtherParties());
+            || shouldBeAdditionalSecurityOtherParties(caseData.getOtherParties());
     }
 
     public static boolean shouldBeAdditionalSecurityOtherParties(List<CcdValue<OtherParty>> otherParties) {
         return nonNull(otherParties) && otherParties.stream()
-                .map(CcdValue::getValue)
-                .anyMatch(o -> isYes(o.getUnacceptableCustomerBehaviour()));
+            .map(CcdValue::getValue)
+            .anyMatch(o -> isYes(o.getUnacceptableCustomerBehaviour()));
     }
 
     public static boolean isInterpreterRequired(SscsCaseData caseData) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         Appeal appeal = caseData.getAppeal();
         return isYes(caseData.getAdjournCaseInterpreterRequired())
-                || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
-                || isInterpreterRequiredOtherParties(caseData.getOtherParties());
+            || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
+            || isInterpreterRequiredOtherParties(caseData.getOtherParties());
     }
 
     public static boolean isInterpreterRequiredOtherParties(List<CcdValue<OtherParty>> otherParties) {
-        return nonNull(otherParties) && otherParties.stream().map(CcdValue::getValue).anyMatch(o -> isInterpreterRequiredHearingOptions(o.getHearingOptions()));
+        return nonNull(otherParties) && otherParties.stream().map(CcdValue::getValue).anyMatch(o -> isInterpreterRequiredHearingOptions(
+            o.getHearingOptions()));
     }
 
     public static boolean isInterpreterRequiredHearingOptions(HearingOptions hearingOptions) {
-        return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
+        return isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData) {
@@ -106,18 +107,18 @@ public final class HearingsCaseMapping {
     public static List<CaseCategory> getCaseSubTypes(SessionCaseCodeMapping sessionCaseCode) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
-                .categoryType(CASE_TYPE)
-                .categoryValue(sessionCaseCode.getCategoryTypeValue())
-                .build());
+                           .categoryType(CASE_TYPE)
+                           .categoryValue(sessionCaseCode.getCategoryTypeValue())
+                           .build());
         return categories;
     }
 
     public static List<CaseCategory> getCaseTypes(SessionCaseCodeMapping sessionCaseCode) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
-                .categoryType(CASE_SUB_TYPE)
-                .categoryValue(sessionCaseCode.getCategorySubTypeValue())
-                .build());
+                           .categoryType(CASE_SUB_TYPE)
+                           .categoryValue(sessionCaseCode.getCategorySubTypeValue())
+                           .build());
         return categories;
     }
 
