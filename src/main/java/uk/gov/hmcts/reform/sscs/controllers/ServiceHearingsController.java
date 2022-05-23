@@ -12,10 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
@@ -52,19 +55,21 @@ public class ServiceHearingsController {
     public ResponseEntity<ServiceHearingValues> serviceHearingValues(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "CCD Case ID and Hearing ID (could be null, empty string or missing) of the case the Hearing Values will be generated for", required = true,
                     content = @Content(schema = @Schema(implementation = ServiceHearingRequest.class, example = "{ \n  \"caseReference\": \"1234123412341234\",\n  \"hearingId\": \"123123123\"\n}")))
-            @RequestBody ServiceHearingRequest request)
-            throws GetCaseException, InvalidIdException {
+            @RequestBody ServiceHearingRequest request) throws GetCaseException, InvalidIdException, UpdateCaseException {
         try {
             // TODO This is just the skeleton for the serviceHearingValues endpoint and will need to be implemented fully along with this endpoint
             log.info("Retrieving case details using Case id : {}, for use in generating Service Hearing Values",
                     request.getCaseId());
 
             SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
-
+            HearingsMapping.updateIds(caseDetails.getData());
             ServiceHearingValues model = ServiceHearingValues.builder()
                     .caseName(caseDetails.getData().getCaseAccessManagementFields().getCaseNamePublic())
                     .build();
-
+            ccdCaseService.updateCaseData(
+                    caseDetails.getData(), EventType.UPDATE_CASE_ONLY,
+                    "Updating caseDetails IDs",
+                    "IDs updated for caseDetails due to ServiceHearingValues request");
             return status(HttpStatus.OK).body(model);
             // TODO the following errors are temporary and will need to be implemented fully along with this endpoint
         } catch (Exception exc) {

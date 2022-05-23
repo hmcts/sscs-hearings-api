@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +16,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -28,8 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -75,16 +87,30 @@ class ServiceHearingsControllerTest {
                         .caseReference(String.valueOf(CASE_ID_LINKED))
                         .build())
                 .build());
-        Appeal appeal = Appeal.builder().build();
+
+        Appellant appellant = mock(Appellant.class);
+        Representative representative = mock(Representative.class);
+        OtherParty otherParty = mock(OtherParty.class);
+        Mockito.when(appellant.getId()).thenReturn("1");
+        Mockito.when(representative.getId()).thenReturn("2");
+        Mockito.when(otherParty.getId()).thenReturn("3");
+        CcdValue<OtherParty> otherPartyCcdValue = new CcdValue<>(otherParty);
+        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        otherParties.add(otherPartyCcdValue);
+        Appeal appeal = mock(Appeal.class);
+        Mockito.when(appeal.getRep()).thenReturn(representative);
+        Mockito.when(appeal.getAppellant()).thenReturn(appellant);
+        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
+        Mockito.when(sscsCaseData.getCaseAccessManagementFields()).thenReturn(CaseAccessManagementFields.builder()
+                .caseNamePublic(CASE_NAME)
+                .build());
+        Mockito.when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
+        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        Mockito.when(sscsCaseData.getCcdCaseId()).thenReturn(String.valueOf(CASE_ID));
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
-                .data(SscsCaseData.builder()
-                        .caseAccessManagementFields(CaseAccessManagementFields.builder()
-                                .caseNamePublic(CASE_NAME)
-                                .build())
-                        .linkedCase(linkedCases)
-                        .appeal(appeal)
-                        .build())
+                .data(sscsCaseData)
                 .build();
+        given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class))).willReturn(caseDetails);
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());

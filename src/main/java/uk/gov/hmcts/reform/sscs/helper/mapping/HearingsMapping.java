@@ -42,10 +42,13 @@ public final class HearingsMapping {
     }
 
     public static void updateIds(HearingWrapper wrapper) {
+        updateIds(wrapper.getCaseData());
+    }
 
-        log.info("Updating entity IDs for Case ID {}", wrapper.getCaseData().getCcdCaseId());
+    public static void updateIds(SscsCaseData caseData) {
 
-        SscsCaseData caseData = wrapper.getCaseData();
+        log.info("Updating entity IDs for Case ID {}", caseData.getCcdCaseId());
+
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
 
@@ -106,10 +109,10 @@ public final class HearingsMapping {
     public static List<Integer> getAllPartyIds(Party party, Representative rep) {
         List<Integer> currentIds = new ArrayList<>();
 
-        if (party.getId() != null) {
+        if (party != null && party.getId() != null) {
             currentIds.add(Integer.parseInt(party.getId()));
         }
-        if (party.getAppointee() != null && party.getAppointee().getId() != null) {
+        if (party != null && party.getAppointee() != null && party.getAppointee().getId() != null) {
             currentIds.add(Integer.parseInt(party.getAppointee().getId()));
         }
         if (rep != null && rep.getId() != null) {
