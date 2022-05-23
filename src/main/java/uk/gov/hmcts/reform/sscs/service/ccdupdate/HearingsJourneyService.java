@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingService;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.HEARING_BOOKED;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 
@@ -71,9 +70,19 @@ public class HearingsJourneyService {
         }
     }
 
-    private void validateHmcMessage(HmcMessage hmcMessage) {
-        requireNonNull(hmcMessage, "HMC message must not be mull");
-        requireNonNull(hmcMessage.getHearingID(), "HMC message field hearingID is missing");
-        requireNonNull(hmcMessage.getHearingUpdate().getHmcStatus(), "HMC message field HmcStatus is missing");
+    private void validateHmcMessage(HmcMessage hmcMessage) throws UpdateCaseException {
+        if (isNull(hmcMessage)) {
+            throw new UpdateCaseException("HMC message must not be mull");
+        }
+
+        if (isNull(hmcMessage.getHearingID())) {
+            throw new UpdateCaseException("HMC message field hearingID is missing");
+        }
+
+        if (isNull(hmcMessage.getHearingUpdate().getHmcStatus())) {
+            throw new UpdateCaseException("HMC message field HmcStatus is missing");
+        }
+
+
     }
 }

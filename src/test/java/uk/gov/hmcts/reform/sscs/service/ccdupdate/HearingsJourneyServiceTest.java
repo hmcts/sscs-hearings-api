@@ -46,12 +46,12 @@ class HearingsJourneyServiceTest {
         HmcMessage hmcMessage = HmcMessage.builder().build();
 
         // then
-        NullPointerException nullPointerException = assertThrows(
-            NullPointerException.class,
+        UpdateCaseException updateCaseException = assertThrows(
+            UpdateCaseException.class,
             () -> underTest.process(hmcMessage)
         );
 
-        assertThat(nullPointerException.getMessage()).isEqualTo("HMC message field hearingID is missing");
+        assertThat(updateCaseException.getMessage()).isEqualTo("HMC message field hearingID is missing");
     }
 
     @ParameterizedTest

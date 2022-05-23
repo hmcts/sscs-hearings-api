@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.messaging.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
@@ -81,7 +82,7 @@ class CcdLocationUpdateServiceTest {
 
 
     @Test
-    void shouldUpdateVenueSuccessfully() {
+    void shouldUpdateVenueSuccessfully() throws UpdateCaseException {
         // given
         final String hearingId = "789";
         final String oldVenueId = "123";

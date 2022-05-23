@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetails;
@@ -26,21 +27,29 @@ public class CcdLocationUpdateService {
 
     private final VenueRpcDetailsService venueRpcDetailsService;
 
-    public void updateVenue(HmcMessage hmcMessage, SscsCaseData sscsCaseData) {
+    public void updateVenue(HmcMessage hmcMessage, SscsCaseData sscsCaseData) throws UpdateCaseException {
 
         Optional<HearingDetails> hearingDetails = getHearingDetailsFromHearingList(hmcMessage, sscsCaseData);
         if (hearingDetails.isEmpty()) {
-            log.error("Failed to update venue in CCD(Case Id: {}) - "
-                          + "can not find hearing with Id: {}", sscsCaseData.getCcdCaseId(), hmcMessage.getHearingID());
-            return;
+
+            UpdateCaseException exc = new UpdateCaseException(
+                String.format("Failed to update venue in CCD(Case Id: %s) - "
+                                  + "can not find hearing with Id: %s", sscsCaseData.getCcdCaseId(), hmcMessage.getHearingID()));
+            log.error(exc.getMessage(), exc);
+            throw exc;
+
         }
 
         String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueID();
         Venue venue = findVenue(updatedVenueId);
         if (isNull(venue)) {
-            log.error("Failed to update location for CCD(Case Id: {}) - "
-                          + "can not find venue with Id {} ", sscsCaseData.getCcdCaseId(), updatedVenueId);
-            return;
+
+            UpdateCaseException exc = new UpdateCaseException(
+                String.format("Failed to update location for CCD(Case Id: %s) - "
+                                  + "can not find venue with Id %s ", sscsCaseData.getCcdCaseId(), updatedVenueId));
+            log.error(exc.getMessage(), exc);
+
+            throw exc;
         }
 
         HearingDetails existingHearingDetails = hearingDetails.get();

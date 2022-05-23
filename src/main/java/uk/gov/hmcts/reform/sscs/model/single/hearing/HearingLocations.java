@@ -18,4 +18,6 @@ public class HearingLocations {
 
     @EnumPattern(enumClass = LocationType.class, fieldName = "locationId")
     private String locationId;
+
+    private String locationName;
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
@@ -48,10 +49,9 @@ class CcdStateUpdateServiceTest {
         "Incomplete Tribunal,readyToList",
         "Listed In Error,readyToList",
         "Other,readyToList",
-        "Party Did Not Attend,readyToList",
-        "somethingElse,unknown"
+        "Party Did Not Attend,readyToList"
     })
-    void shouldSetCcdStateForCancelledHearingsCorrectly(String cancellationReason, String stateId) {
+    void shouldSetCcdStateForCancelledHearingsCorrectly(String cancellationReason, String stateId) throws UpdateCaseException {
         // given
         HearingGetResponse hearingGetResponse = new HearingGetResponse();
         RequestDetails requestDetails = new RequestDetails();

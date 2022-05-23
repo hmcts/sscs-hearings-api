@@ -16,8 +16,12 @@ public class VenueRpcDetailsService {
     private final VenueDataLoader venueDataLoader;
 
     public Optional<VenueRpcDetails> getVenue(String epimsId) {
-        return venueDataLoader.getVenueDetailsMap().values().stream().filter(this::isActiveVenue)
-            .map(VenueRpcDetails::new).filter(v -> v.getEpimsId().equalsIgnoreCase(epimsId)).findAny();
+        return venueDataLoader.getVenueDetailsMap()
+            .values().stream()
+            .filter(this::isActiveVenue)
+            .map(VenueRpcDetails::new)
+            .filter(v -> v.getEpimsId().equalsIgnoreCase(epimsId))
+            .findAny();
     }
 
     private boolean isActiveVenue(VenueDetails venueDetails) {
