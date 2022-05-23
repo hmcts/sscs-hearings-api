@@ -74,7 +74,6 @@ class HearingLocationMappingTest {
             List<String> epimIdList = result.get(0).getMultipleLocationId();
             String epimId1 = epimIdList.get(0);
             String epimId2 = epimIdList.get(1);
-
             assertThat(epimId1).isEqualTo("226511");
             assertThat(epimId2).isEqualTo("443014");
             assertThat(result.get(0).getLocationType()).isEqualTo(VENUE_NAMES.get(0));
