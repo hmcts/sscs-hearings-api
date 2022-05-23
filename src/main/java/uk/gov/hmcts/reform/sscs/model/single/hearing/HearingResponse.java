@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,11 +33,9 @@ public class HearingResponse {
     private LocalDateTime receivedDateTime;
 
     @JsonProperty("laCaseStatus")
-    @EnumPattern(enumClass = ListingCaseStatus.class, fieldName = "listingCaseStatus")
-    private String listingCaseStatus;
+    private ListingCaseStatus listingCaseStatus;
 
-    @EnumPattern(enumClass = ListingStatus.class, fieldName = "listingStatus")
-    private String listingStatus;
+    private ListingStatus listingStatus;
 
     private String hearingCancellationReason;
 
