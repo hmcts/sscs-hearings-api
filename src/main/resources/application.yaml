@@ -90,7 +90,7 @@ idam:
     totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAAAAAAAC}
     microservice: sscs
   s2s-authorised:
-    services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs}
+    services: ${IDAM_S2S_AUTH_MICROSERVICES:sscs,xui}
   client:
     id: ${IDAM_OAUTH2_CLIENT_ID:}
     secret: ${IDAM_OAUTH2_CLIENT_SECRET:}
