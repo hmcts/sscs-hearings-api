@@ -133,8 +133,8 @@ public class HearingsService {
                 wrapper.getState().getState(),
                 hearingPayload.toString());
         return hmcHearingApi.createHearingRequest(
-                receiveIdamToken().getIdamOauth2Token(),
-                receiveIdamToken().getServiceAuthorization(),
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
                 hearingPayload
         );
     }
@@ -146,8 +146,8 @@ public class HearingsService {
                 wrapper.getState().getState(),
                 hearingPayload.toString());
         return hmcHearingApi.updateHearingRequest(
-                receiveIdamToken().getIdamOauth2Token(),
-                receiveIdamToken().getServiceAuthorization(),
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
                 getHearingId(wrapper),
                 hearingPayload
         );
@@ -160,8 +160,8 @@ public class HearingsService {
                 wrapper.getState().getState(),
                 hearingPayload.toString());
         return hmcHearingApi.cancelHearingRequest(
-                receiveIdamToken().getIdamOauth2Token(),
-                receiveIdamToken().getServiceAuthorization(),
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
                 String.valueOf(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingId()),
                 hearingPayload
         );
@@ -169,8 +169,8 @@ public class HearingsService {
 
     private void sendPartiesNotifiedUpdateRequest(HearingWrapper wrapper) {
         hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
-                receiveIdamToken().getIdamOauth2Token(),
-                receiveIdamToken().getServiceAuthorization(),
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
                 getHearingId(wrapper),
                 getVersionNumber(wrapper),
                 buildUpdatePartiesNotifiedPayload(wrapper)
@@ -213,9 +213,5 @@ public class HearingsService {
                 .exUiUrl(exUiUrl)
                 .sscsServiceCode(sscsServiceCode)
                 .build();
-    }
-
-    private IdamTokens receiveIdamToken() {
-        return idamService.getIdamTokens();
     }
 }
