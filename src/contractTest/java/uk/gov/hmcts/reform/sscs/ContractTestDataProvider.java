@@ -174,6 +174,7 @@ public class ContractTestDataProvider {
         CaseCategory category = new CaseCategory();
         category.setCategoryType("caseType");
         category.setCategoryValue("PROBATE");
+        category.setCategoryParent("categoryParent");
         List<CaseCategory> caseCategories = new ArrayList<>();
         caseCategories.add(category);
         caseDetails.setCaseCategories(caseCategories);
@@ -409,6 +410,7 @@ public class ContractTestDataProvider {
             .minArrayLike("caseCategories", 0, 1)
             .stringType("categoryType", "categoryType123")
             .stringType("categoryValue", "categoryValue123")
+            .stringType("categoryParent", "categoryParent123")
             .closeObject().closeArray()
             .closeObject()
             .minArrayLike("partyDetails", 0, 1)
@@ -459,8 +461,8 @@ public class ContractTestDataProvider {
             .stringType("timeStamp", date.toString())
             .stringType("listAssistTransactionID", "ListAssistTransactionID123123")
             .stringType("receivedDateTime", date.toString())
-            .stringType("laCaseStatus", ACTIVE)
-            .stringType("listingStatus", ACTIVE)
+            .stringType("laCaseStatus", "Listed")
+            .stringType("listingStatus", "Fixed")
             .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
             .stringType("partiesNotified", date.toString())
             .integerType("requestVersion", 321)

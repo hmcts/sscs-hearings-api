@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +14,7 @@ public enum ListingCaseStatus {
     HEARING_COMPLETED("Hearing Completed"),
     CASE_CLOSED("Case Closed");
 
-    private final String listingCaseStatusLabel;
-
+    @JsonValue
+    private final String label;
 }
+
