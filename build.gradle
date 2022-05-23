@@ -255,12 +255,6 @@ dependencyCheck {
   }
 }
 
-dependencyCheckAggregate {
-  doLast {
-    println("Report: file:///${project.buildDir.absolutePath.replace('\\','/')}/reports/dependency-check-report.html")
-  }
-}
-
 repositories {
   mavenLocal()
   mavenCentral()
