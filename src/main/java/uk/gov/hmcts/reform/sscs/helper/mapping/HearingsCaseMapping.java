@@ -103,7 +103,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCaseCodeMapping sessionCaseCode) {
+    public static List<CaseCategory> getCaseTypes(SessionCaseCodeMapping sessionCaseCode) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
@@ -112,7 +112,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCaseCodeMapping sessionCaseCode) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCaseCodeMapping sessionCaseCode) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
