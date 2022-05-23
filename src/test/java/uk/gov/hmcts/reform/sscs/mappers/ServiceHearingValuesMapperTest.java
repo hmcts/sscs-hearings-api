@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
@@ -136,7 +137,10 @@ class ServiceHearingValuesMapperTest {
         assertNull(serviceHearingValues.getLeadJudgeContractType());
         assertNull(serviceHearingValues.getJudiciary());
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
-        assertEquals(getParties(), serviceHearingValues.getParties());
+        assertEquals(3, serviceHearingValues.getParties().size());
+        assertEquals("BBA3-appellant", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-Representative", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG.getPartyLabel().equals(partyDetails.getPartyType())).findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-otherParty", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
     }
@@ -212,16 +216,25 @@ class ServiceHearingValuesMapperTest {
     private List<PartyDetails> getParties() {
         return new ArrayList<>() {{
                 add(PartyDetails.builder()
-                        .partyID("party_id_1")
-                        .partyType(PartyType.IND)
-                        .partyName("Mr Barny Boulderstone")
-                        .partyChannel(FACE_TO_FACE)
-                        .partyRole("party_role")
+                        .partyID(null)
+                        .partyType(PartyType.IND.getPartyLabel())
+                        .partyChannelSubType(FACE_TO_FACE)
+                        .partyRole("BBA3-appellant")
                         .individualDetails(getIndividualDetails())
                         .organisationDetails(OrganisationDetails.builder().build())
-                        .unavailabilityDow(null)
+                        .unavailabilityDayOfWeek(null)
                         .unavailabilityRanges(getUnavailabilityRanges())
                         .build());
+                add(PartyDetails.builder()
+                    .partyID("party_id_1")
+                    .partyType(PartyType.IND.getPartyLabel())
+                    .partyChannelSubType(FACE_TO_FACE)
+                    .partyRole("party_role")
+                    .individualDetails(getIndividualDetails())
+                    .organisationDetails(OrganisationDetails.builder().build())
+                    .unavailabilityDayOfWeek(null)
+                    .unavailabilityRanges(getUnavailabilityRanges())
+                    .build());
             }
         };
     }

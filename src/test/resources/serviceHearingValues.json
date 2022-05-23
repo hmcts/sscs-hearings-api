@@ -77,8 +77,14 @@
     {
       "partyID": "P1",
       "partyType": "IND",
-      "partyName": "Jane Smith",
-      "partyChannel": "byVideo",
+      "individualDetails":
+        {
+          "firstName": "Jane",
+          "lastName": "Smith",
+          "vulnerableFlag": false
+        }
+      ,
+      "partyChannelSubType": "byVideo",
       "unavailabilityRanges": [
         {
           "unavailableFromDate": [
@@ -97,8 +103,8 @@
     {
       "partyID": "P2",
       "partyType": "ORG",
-      "partyName": "DWP",
-      "partyChannel": "byVideo",
+      "partyRole": "DWP",
+      "partyChannelSubType": "byVideo",
       "unavailabilityRanges": [
         {
           "unavailableFromDate": [

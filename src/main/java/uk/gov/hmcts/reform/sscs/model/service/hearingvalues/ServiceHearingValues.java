@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 
 import java.util.List;
 

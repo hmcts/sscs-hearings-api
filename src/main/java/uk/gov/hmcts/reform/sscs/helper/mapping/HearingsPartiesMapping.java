@@ -36,9 +36,12 @@ public final class HearingsPartiesMapping {
 
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper) {
+    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper hearingWrapper) {
+        return buildHearingPartiesDetails(hearingWrapper.getCaseData());
+    }
 
-        SscsCaseData caseData = wrapper.getCaseData();
+    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData) {
+
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
 
