@@ -6,11 +6,13 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus.AWAITING_LISTING;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus.FIXED;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason.WITHDRAWN;
 
 @Slf4j
 @Service
@@ -62,19 +64,23 @@ public class CcdStateUpdateService {
 
     @SuppressWarnings("PMD.CyclomaticComplexity")
     private State mapHmcCancelledToCcdState(String cancellationReason) {
+        CancellationReason reason = CancellationReason.getCancellationReasonByValue(cancellationReason);
 
-        // todo use enum once PR 10273 is merged
-        switch (cancellationReason) {
-            case "Withdrawn":
-            case "struckOut":
-            case "Lapsed":
+        if (reason == null) {
+            return State.UNKNOWN;
+        }
+
+        switch (reason) {
+            case WITHDRAWN:
+            case STRUCK_OUT:
+            case LAPSED:
                 return State.DORMANT_APPEAL_STATE;
-            case "partyUnableToAttend":
-            case "Exclusion":
-            case "incompleteTribunal":
-            case "listedInError":
-            case "Other":
-            case "partyDidNotAttend":
+            case PARTY_UNABLE_TO_ATTEND:
+            case EXCLUSION:
+            case INCOMPLETE_TRIBUNAL:
+            case LISTED_IN_ERROR:
+            case OTHER:
+            case PARTY_DID_NOT_ATTEND:
                 return State.READY_TO_LIST;
             default:
                 return State.UNKNOWN;

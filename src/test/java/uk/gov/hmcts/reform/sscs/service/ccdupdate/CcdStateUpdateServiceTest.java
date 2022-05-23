@@ -41,14 +41,14 @@ class CcdStateUpdateServiceTest {
     @ParameterizedTest
     @CsvSource({
         "Withdrawn,dormantAppealState",
-        "struckOut,dormantAppealState",
+        "Struck Out,dormantAppealState",
         "Lapsed,dormantAppealState",
-        "partyUnableToAttend,readyToList",
+        "Party unable to attend,readyToList",
         "Exclusion,readyToList",
-        "incompleteTribunal,readyToList",
-        "listedInError,readyToList",
+        "Incomplete Tribunal,readyToList",
+        "Listed In Error,readyToList",
         "Other,readyToList",
-        "partyDidNotAttend,readyToList",
+        "Party Did Not Attend,readyToList",
         "somethingElse,unknown"
     })
     void shouldSetCcdStateForCancelledHearingsCorrectly(String cancellationReason, String stateId) {
