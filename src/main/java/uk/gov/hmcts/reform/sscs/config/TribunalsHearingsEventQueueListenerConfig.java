@@ -66,8 +66,8 @@ public class TribunalsHearingsEventQueueListenerConfig {
 
                     receiver.complete(message);
                     log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
-                } catch (UnhandleableHearingStateException | UpdateCaseException |
-                    GetCaseException | InvalidIdException ex) {
+                } catch (UnhandleableHearingStateException | UpdateCaseException
+                    | GetCaseException | InvalidIdException ex) {
                     log.error("An exception occurred whilst processing hearing event for case ID {}."
                         + " Abandoning message", message.getMessageId(), ex);
                     receiver.abandon(message);
