@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +33,9 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.get
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
+
+    public static final String EMAIL_ADDRESS = "test@test.com";
+    public static final String TELEPHONE_NUMBER = "01000000000";
 
     @DisplayName("When a valid hearing wrapper without OtherParties or joint party is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
@@ -575,44 +578,86 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-    @DisplayName("getIndividualHearingChannelEmail Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "test@test.com,test@test.com",
-        "null,''",
-        "'',''",
-    }, nullValues = {"null"})
-    void getIndividualHearingChannelEmail(String value, String expected) {
-        Contact contact = null;
-        if (nonNull(value)) {
-            contact = Contact.builder().email(value).build();
-        }
-        Entity entity = Appellant.builder().contact(contact).build();
+    @DisplayName("When a hearingVideoEmail has a email, getIndividualHearingChannelEmail "
+            + "returns a list with only that email ")
+    @Test
+    void testGetIndividualHearingChannelEmail() {
 
-        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(entity);
+        HearingSubtype subtype = HearingSubtype.builder()
+                .hearingVideoEmail(EMAIL_ADDRESS)
+                .build();
 
-        assertThat(result).isEqualTo(splitCsvParamArray(expected));
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype);
+
+        assertThat(result)
+                .hasSize(1)
+                .containsOnly(EMAIL_ADDRESS);
     }
 
-    @DisplayName("getIndividualHearingChannelPhone Parameterised Tests")
+    @DisplayName("When a hearingVideoEmail is empty or blank, getIndividualHearingChannelEmail "
+            + "returns an empty list")
     @ParameterizedTest
-    @CsvSource(value = {
-        "01000000000,02000000000,01000000000|02000000000",
-        "01000000000,null,01000000000",
-        "null,02000000000,02000000000",
-        "null,null,''",
-        "01000000000,,01000000000",
-        "'',02000000000,02000000000",
-        "'','',''",
-    }, nullValues = {"null"})
-    void getIndividualHearingChannelPhone(String mobile, String phone, String expected) {
-        Contact contact = Contact.builder().mobile(mobile).phone(phone).build();
+    @NullAndEmptySource
+    void testGetIndividualHearingChannelEmail(String value) {
 
-        Entity entity = Appellant.builder().contact(contact).build();
+        HearingSubtype subtype = HearingSubtype.builder()
+                .hearingVideoEmail(value)
+                .build();
 
-        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelPhone(entity);
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype);
 
-        assertThat(result).isEqualTo(splitCsvParamArray(expected));
+        assertThat(result)
+                .isEmpty();
+    }
+
+    @DisplayName("When a HearingSubtype is null, getIndividualHearingChannelEmail "
+            + "returns an empty list")
+    @Test
+    void testGetIndividualHearingChannelEmailNull() {
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(null);
+
+        assertThat(result)
+                .isEmpty();
+    }
+
+    @DisplayName("When a hearingTelephoneNumber is empty or blank, getIndividualHearingChannelPhone "
+            + "returns an empty list")
+    @Test
+    void testGetIndividualHearingChannelPhone() {
+        HearingSubtype subtype = HearingSubtype.builder()
+                .hearingTelephoneNumber(TELEPHONE_NUMBER)
+                .build();
+
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelPhone(subtype);
+
+        assertThat(result)
+                .hasSize(1)
+                .containsOnly(TELEPHONE_NUMBER);
+    }
+
+    @DisplayName("When a hearingTelephoneNumber is empty or blank, getIndividualHearingChannelPhone "
+            + "returns an empty list")
+    @ParameterizedTest
+    @NullAndEmptySource
+    void testGetIndividualHearingChannelPhone(String value) {
+        HearingSubtype subtype = HearingSubtype.builder()
+                .hearingTelephoneNumber(value)
+                .build();
+
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelPhone(subtype);
+
+        assertThat(result)
+                .isEmpty();
+    }
+
+    @DisplayName("When a HearingSubtype is null, getIndividualHearingChannelPhone "
+            + "returns an empty list")
+    @Test
+    void testGetIndividualHearingChannelPhoneNull() {
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelPhone(null);
+
+        assertThat(result)
+                .isEmpty();
     }
 
     @DisplayName("getIndividualRelatedParties Test")
@@ -662,12 +707,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result)
-                .extracting("unavailableFromDate", "unavailableToDate")
+                .extracting("unavailableFromDate", "unavailableToDate", "unavailabilityType")
                 .contains(
                         tuple(LocalDate.of(2022,2,1),
-                                LocalDate.of(2022,3,31)),
+                                LocalDate.of(2022,3,31),
+                            DayOfWeekUnavailabilityType.ALL_DAY.getLabel()),
                         tuple(LocalDate.of(2022,6,1),
-                                LocalDate.of(2022,6,2)));
+                                LocalDate.of(2022,6,2),
+                            DayOfWeekUnavailabilityType.ALL_DAY.getLabel()));
     }
 
     @DisplayName("When null ExcludeDates is given getPartyUnavailabilityRange returns null")
