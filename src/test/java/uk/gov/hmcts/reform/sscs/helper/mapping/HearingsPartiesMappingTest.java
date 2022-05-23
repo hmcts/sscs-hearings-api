@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -236,7 +237,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     }
 
-    @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @DisplayName("When a valid hearing wrapper with HearingOption Null with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @ParameterizedTest
     @EnumSource(value = YesNo.class)
     @NullSource
@@ -272,11 +273,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .caseData(caseData)
             .build();
 
+
+
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper);
+        Optional<String> hearingOptions = HearingsPartiesMapping.getIndividualInterpreterLanguage(null);
+
+        assertThat(hearingOptions.isEmpty());
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
         assertThat(partiesDetails.stream().anyMatch(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())));
         assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
-
     }
 
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")

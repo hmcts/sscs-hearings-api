@@ -166,13 +166,16 @@ public final class HearingsPartiesMapping {
     }
 
     public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
-        if (null != hearingOptions && isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
-            return getSignLanguage(hearingOptions)
-                .map(SignLanguage::getHmcReference);
-        }
-        if (null != hearingOptions && isYes(hearingOptions.getLanguageInterpreter())) {
-            return getInterpreterLanguage(hearingOptions)
-                .map(InterpreterLanguage::getHmcReference);
+
+        if (nonNull(hearingOptions)) {
+            if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
+                return getSignLanguage(hearingOptions)
+                    .map(SignLanguage::getHmcReference);
+            }
+            if (isYes(hearingOptions.getLanguageInterpreter())) {
+                return getInterpreterLanguage(hearingOptions)
+                    .map(InterpreterLanguage::getHmcReference);
+            }
         }
         return Optional.empty();
     }
