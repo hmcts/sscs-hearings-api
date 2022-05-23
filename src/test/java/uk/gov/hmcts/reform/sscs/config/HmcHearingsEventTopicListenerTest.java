@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.sscs.config;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

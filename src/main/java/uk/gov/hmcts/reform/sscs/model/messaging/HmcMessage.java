@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.hmcmessage;
+package uk.gov.hmcts.reform.sscs.model.messaging;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HmcMessage {
-
     private String hmctsServiceID;
     private String caseRef;
     private String hearingID;

@@ -174,6 +174,7 @@ public class ContractTestDataProvider {
         CaseCategory category = new CaseCategory();
         category.setCategoryType("caseType");
         category.setCategoryValue("PROBATE");
+        category.setCategoryParent("categoryParent");
         List<CaseCategory> caseCategories = new ArrayList<>();
         caseCategories.add(category);
         caseDetails.setCaseCategories(caseCategories);
@@ -409,6 +410,7 @@ public class ContractTestDataProvider {
             .minArrayLike("caseCategories", 0, 1)
             .stringType("categoryType", "categoryType123")
             .stringType("categoryValue", "categoryValue123")
+            .stringType("categoryParent", "categoryParent123")
             .closeObject().closeArray()
             .closeObject()
             .minArrayLike("partyDetails", 0, 1)
