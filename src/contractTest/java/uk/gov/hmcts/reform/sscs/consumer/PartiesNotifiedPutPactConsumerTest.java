@@ -20,7 +20,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequest;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingPartiesNotifiedApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
@@ -201,7 +201,7 @@ class PartiesNotifiedPutPactConsumerTest extends BasePactTest {
     }
 
     private void executeCall(MockServer mockServer, Map<String, String> headers, String caseId,
-                             Long version, PartiesNotified payload, HttpStatus status) {
+                             Long version, PartiesNotifiedRequest payload, HttpStatus status) {
         RestAssured.given().headers(headers)
                 .contentType(ContentType.JSON)
                 .queryParam(FIELD_ID, caseId)

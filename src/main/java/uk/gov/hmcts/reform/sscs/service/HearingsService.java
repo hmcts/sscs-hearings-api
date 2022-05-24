@@ -125,7 +125,13 @@ public class HearingsService {
     }
 
     private void partyNotified(HearingWrapper wrapper) {
-        sendPartiesNotifiedUpdateRequest(wrapper);
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                getHearingId(wrapper),
+                getVersionNumber(wrapper),
+                buildUpdatePartiesNotifiedPayload(wrapper)
+        );
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
@@ -166,16 +172,6 @@ public class HearingsService {
                 idamService.getIdamTokens().getServiceAuthorization(),
                 String.valueOf(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingId()),
                 hearingPayload
-        );
-    }
-
-    private void sendPartiesNotifiedUpdateRequest(HearingWrapper wrapper) {
-        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
-                getHearingId(wrapper),
-                getVersionNumber(wrapper),
-                buildUpdatePartiesNotifiedPayload(wrapper)
         );
     }
 

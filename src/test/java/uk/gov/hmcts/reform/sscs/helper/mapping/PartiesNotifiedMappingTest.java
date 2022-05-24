@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,9 +27,9 @@ class PartiesNotifiedMappingTest extends HearingsMappingBase {
                 .updatedCaseData(caseData)
                 .build();
 
-        PartiesNotified partiesNotified = PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload(wrapper);
+        PartiesNotifiedRequest partiesNotifiedRequest = PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload(wrapper);
 
-        assertNotNull(partiesNotified.getRequestVersion());
+        assertNotNull(partiesNotifiedRequest.getRequestVersion());
     }
 
 

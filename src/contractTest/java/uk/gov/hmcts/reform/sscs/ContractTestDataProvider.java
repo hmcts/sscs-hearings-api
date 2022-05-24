@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
-import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotified;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequest;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.ServiceData;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
@@ -485,18 +485,18 @@ public class ContractTestDataProvider {
         return result;
     }
 
-    public static PartiesNotified generatePartiesPutRequest() throws JsonProcessingException {
-        PartiesNotified partiesNotified = new PartiesNotified();
-        partiesNotified.setRequestVersion(123L);
-        partiesNotified.setServiceData(ServiceData.builder().testData("Test Data").build());
-        return partiesNotified;
+    public static PartiesNotifiedRequest generatePartiesPutRequest() throws JsonProcessingException {
+        PartiesNotifiedRequest partiesNotifiedRequest = new PartiesNotifiedRequest();
+        partiesNotifiedRequest.setRequestVersion(123L);
+        partiesNotifiedRequest.setServiceData(ServiceData.builder().testData("Test Data").build());
+        return partiesNotifiedRequest;
     }
 
-    public static PartiesNotified generateInvalidPartiesPutRequest() {
+    public static PartiesNotifiedRequest generateInvalidPartiesPutRequest() {
 
-        PartiesNotified partiesNotified = new PartiesNotified();
-        partiesNotified.setRequestVersion(123L);
-        return partiesNotified;
+        PartiesNotifiedRequest partiesNotifiedRequest = new PartiesNotifiedRequest();
+        partiesNotifiedRequest.setRequestVersion(123L);
+        return partiesNotifiedRequest;
     }
 
 }
