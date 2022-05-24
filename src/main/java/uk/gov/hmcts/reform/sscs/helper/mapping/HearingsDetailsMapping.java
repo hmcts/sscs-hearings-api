@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
+import static com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.StringUtils.isBlank;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -36,6 +37,9 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30;
+    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE = 14;
+    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
+    public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
 
     private HearingsDetailsMapping() {
 
@@ -76,25 +80,26 @@ public final class HearingsDetailsMapping {
         return SUBSTANTIVE.getHmcReference();
     }
 
-    public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
-        LocalDate dateRangeStart = null;
-        LocalDate dateRangeEnd = null;
+    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, boolean autoListed) {
 
-        if (autoListed) {
-            LocalDate dwpResponded = caseData.getDwpResponseDate() == null
-                ? null
-                : LocalDate.parse(caseData.getDwpResponseDate());
-            if (nonNull(dwpResponded)) {
-                dateRangeStart = isYes(caseData.getUrgentCase())
-                        ? dwpResponded.plusDays(14)
-                        : dwpResponded.plusDays(28);
-            }
+        if (!autoListed || isBlank(caseData.getDwpResponseDate())) {
+            LocalDate dateRangeStart = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+            return HearingWindow.builder()
+                    .dateRangeStart(dateRangeStart)
+                    .dateRangeEnd(null)
+                    .build();
         }
+        LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
+
+        LocalDate dateRangeStart = isYes(caseData.getUrgentCase())
+                ? dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE)
+                : dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
+
 
         return HearingWindow.builder()
                 .firstDateTimeMustBe(getFirstDateTimeMustBe())
                 .dateRangeStart(dateRangeStart)
-                .dateRangeEnd(dateRangeEnd)
+                .dateRangeEnd(null)
                 .build();
     }
 
