@@ -5,11 +5,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Optional;
-
-import static java.util.Objects.isNull;
 
 public final class HearingsServiceHelper {
 
@@ -26,25 +22,6 @@ public final class HearingsServiceHelper {
 
     public static HearingEvent getHearingEvent(HearingState state) {
         return HearingEvent.valueOf(state.name());
-    }
-
-    public static HearingEvent addEvent(HearingWrapper wrapper) {
-        HearingEvent hearingEvent = getHearingEvent(wrapper.getState());
-        SscsCaseData caseData = wrapper.getCaseData();
-        if (isNull(caseData.getEvents())) {
-            caseData.setEvents(new ArrayList<>());
-        }
-        Event event = Event.builder()
-                .value(EventDetails.builder()
-                        .type(hearingEvent.getEventType().getType())
-                        .date(LocalDateTime.now().toString())
-                        .description(hearingEvent.getDescription())
-                        .build())
-                .build();
-
-        caseData.getEvents().add(event);
-
-        return hearingEvent;
     }
 
     public static String getHearingId(HearingWrapper wrapper) {

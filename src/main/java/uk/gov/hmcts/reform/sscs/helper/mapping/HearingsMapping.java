@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCaseCodeMapping;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
@@ -14,6 +14,8 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.buildHearingCaseDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.buildHearingPartiesDetails;
@@ -120,22 +122,12 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static SessionCaseCodeMapping getSessionCaseCode(SscsCaseData caseData) {
-        //  TODO SSCS-10116 - replace return with:
-        //             return SessionLookupService.getSessionMappingsByCcdKey(caseData.getBenefitCode(), caseData.getIssueCode());
-        return SessionCaseCodeMapping.builder()
-                .benefitCode(1)
-                .issueCode("DD")
-                .ccdKey("001DD")
-                .benefitDescription("UNIVERSAL CREDIT")
-                .issueDescription("APPEAL DIRECTLY LODGED")
-                .sessionCat(1)
-                .otherSessionCat(null)
-                .durationFaceToFace(20)
-                .durationPaper(10)
-                .panelMembers(List.of("Judge"))
-                .comment(null)
-                .build();
+    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceData referenceData) {
+        boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
+        boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
+        return referenceData.getSessionCategoryMaps()
+                .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
+                        doctorSpecialistSecond, fqpmRequired);
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {
