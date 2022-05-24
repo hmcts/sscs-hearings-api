@@ -87,7 +87,8 @@ public final class HearingsDetailsMapping {
 
     public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
         // TODO Future Work
-        return !isCaseLinked(caseData) && !isCaseUrgent(caseData);
+        return !isCaseLinked(caseData)
+                && !isCaseUrgent(caseData);
     }
 
     public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
@@ -107,7 +108,6 @@ public final class HearingsDetailsMapping {
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
-
         if (isNotBlank(caseData.getDwpResponseDate())) {
             LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
             if (isCaseUrgent(caseData)) {
@@ -225,7 +225,7 @@ public final class HearingsDetailsMapping {
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
+        if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
             return HIGH.getHmcReference();
         }
         return NORMAL.getHmcReference();
