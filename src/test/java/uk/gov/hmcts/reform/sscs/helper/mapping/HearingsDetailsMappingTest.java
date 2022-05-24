@@ -84,7 +84,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAutoListed flag is TRUE when HearingOptions.wantsToAttend is yes")
     @Test
     void shouldBeAutoListed() {
-        // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())

@@ -45,7 +45,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .id(appellantId)
                                 .name(Name.builder()
@@ -82,7 +84,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
                 .dwpIsOfficerAttending("Yes")
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .id(appellantId)
                                 .name(Name.builder()
@@ -121,7 +125,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
                 .dwpIsOfficerAttending(officerAttending)
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .id(appellantId)
                                 .name(Name.builder()
@@ -151,7 +157,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         String otherPartyId = "2";
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
-                .hearingOptions(HearingOptions.builder().build())
+                .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                 .id(otherPartyId)
                 .name(Name.builder()
                         .title("title")
@@ -162,7 +169,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
                 .otherParties(otherParties)
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .id(appellantId)
                                 .name(Name.builder()
@@ -205,7 +214,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
                 .jointParty(JointParty.builder().hasJointParty(jointParty).build())
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .id(appellantId)
                                 .name(Name.builder()
@@ -259,7 +270,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null, appellantId);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, "test", HearingSubtype.builder().build(), appellantId);
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
@@ -307,9 +318,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .lastName("last")
                         .build())
                 .build();
-        HearingOptions hearingOptions = HearingOptions.builder().build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, rep, hearingOptions, null, null, appellantId);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, rep, hearingOptions, "test", hearingSubtype, appellantId);
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
@@ -347,7 +359,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, null, null, appellantId);
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(party, null, hearingOptions, "test", HearingSubtype.builder().build(), appellantId);
 
         PartyDetails partyDetails = partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(null);
         assertThat(partyDetails).isNotNull();
@@ -371,7 +383,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        PartyDetails partyDetails = HearingsPartiesMapping.createHearingPartyDetails(entity, hearingOptions, null, null, "1", "1");
+        PartyDetails partyDetails = HearingsPartiesMapping.createHearingPartyDetails(entity, hearingOptions, "test", HearingSubtype.builder().build(), "1", "1");
 
         assertNotNull(partyDetails.getPartyID());
         assertNotNull(partyDetails.getPartyType());
@@ -466,23 +478,32 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When hearingType not set then return null")
+    @DisplayName("When hearingType not set then throw IllegalStateException")
     @Test
     void getIndividualPreferredHearingChannelNullHearingTypeTest() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel(null, hearingSubtype, hearingOptions);
 
-        assertNull(result);
+        IllegalStateException thrown = assertThrows(
+            IllegalStateException.class,
+            () -> getIndividualPreferredHearingChannel(null, HearingSubtype.builder().build(), hearingOptions),
+            "Expected getIndividualPreferredHearingChannelNullHearingSubtypeTest() to throw, but it didn't"
+        );
+
+        assertTrue(thrown.getMessage().contains("hearingType and/or hearingSubtype null"));
     }
 
-    @DisplayName("When hearingSubType not set then return null")
+    @DisplayName("When hearingSubType not set then throw IllegalStateException")
     @Test
     void getIndividualPreferredHearingChannelNullHearingSubtypeTest() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel("TEST", null, hearingOptions);
 
-        assertNull(result);
+        IllegalStateException thrown = assertThrows(
+            IllegalStateException.class,
+            () -> getIndividualPreferredHearingChannel("TEST", null, hearingOptions),
+            "Expected getIndividualPreferredHearingChannelNullHearingSubtypeTest() to throw, but it didn't"
+        );
+
+        assertTrue(thrown.getMessage().contains("hearingType and/or hearingSubtype null"));
     }
 
     @DisplayName("When language passed in should return correct LOV format")
@@ -527,8 +548,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void whenHearingTypeAndHearingSubTypeIsNull() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel(null, null, hearingOptions);
-        assertThat(result).isNull();
+
+        IllegalStateException thrown = assertThrows(
+            IllegalStateException.class,
+            () -> getIndividualPreferredHearingChannel(null, null, hearingOptions),
+            "Expected getIndividualPreferredHearingChannelNullHearingSubtypeTest() to throw, but it didn't"
+        );
+
+        assertTrue(thrown.getMessage().contains("hearingType and/or hearingSubtype null"));
     }
 
     @DisplayName("When hearing type oral and video then return LOV VIDEO")

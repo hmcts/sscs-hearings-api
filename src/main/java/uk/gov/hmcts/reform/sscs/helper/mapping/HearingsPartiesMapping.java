@@ -62,7 +62,7 @@ public final class HearingsPartiesMapping {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
-                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId()));
+                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId()));
             }
         }
 
@@ -155,7 +155,7 @@ public final class HearingsPartiesMapping {
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
         if (hearingType == null || hearingSubtype == null) {
-            return null;
+            throw new IllegalStateException("hearingType and/or hearingSubtype null");
         }
 
         HearingChannel preferredHearingChannel =

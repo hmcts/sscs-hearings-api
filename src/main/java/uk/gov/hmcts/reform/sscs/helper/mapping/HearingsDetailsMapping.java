@@ -67,8 +67,6 @@ public final class HearingsDetailsMapping {
     }
 
     public static boolean shouldBeAutoListed(SscsCaseData caseData) {
-        // TODO Future Work - Account for additional conditions
-
         Appeal appeal = caseData.getAppeal();
         return appeal.getHearingOptions().isWantsToAttendHearing();
     }
