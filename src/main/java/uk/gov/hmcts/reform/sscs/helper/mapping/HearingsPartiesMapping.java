@@ -27,7 +27,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NA
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TEL;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VID;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
