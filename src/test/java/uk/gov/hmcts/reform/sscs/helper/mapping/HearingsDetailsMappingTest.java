@@ -219,7 +219,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         //then
-        assertEquals(3, SscsCaseDataUtils.getNumberOfPhysicalAttendees(sscsCaseData));
+        assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
     }
 
     @DisplayName("getHearingLocations Parameterized Tests")
