@@ -22,10 +22,10 @@ import static uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabil
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NOT_ATTENDING;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.INTER;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NA;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TEL;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VID;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
@@ -156,10 +156,10 @@ public final class HearingsPartiesMapping {
             return Optional.empty();
         }
 
-        return HEARING_TYPE_PAPER.equals(hearingType) ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(FACE_TO_FACE.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeVideo()) ? Optional.ofNullable(VIDEO.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? Optional.ofNullable(TELEPHONE.getHmcReference())
+        return HEARING_TYPE_PAPER.equals(hearingType) ? Optional.ofNullable(NA.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(INTER.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeVideo()) ? Optional.ofNullable(VID.getHmcReference())
+            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? Optional.ofNullable(TEL.getHmcReference())
             : Optional.empty();
     }
 
