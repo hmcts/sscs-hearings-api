@@ -46,6 +46,8 @@ public final class HearingsDetailsMapping {
 
         SscsCaseData caseData = wrapper.getCaseData();
 
+        HearingDetails.HearingDetailsBuilder hearingDetailsBuilder = HearingDetails.builder();
+
         boolean autoListed = shouldBeAutoListed();
 
         hearingDetailsBuilder.autolistFlag(autoListed);
