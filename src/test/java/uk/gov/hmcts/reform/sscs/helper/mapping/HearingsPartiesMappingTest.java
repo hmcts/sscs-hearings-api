@@ -242,9 +242,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void getIndividualInterpreterLanguageWhenHearingOptionsNull() {
 
-        Optional<String> hearingOptions = HearingsPartiesMapping.getIndividualInterpreterLanguage(null);
+        Optional<String> individualInterpreterLanguage = HearingsPartiesMapping.getIndividualInterpreterLanguage(null);
 
-        assertThat(hearingOptions.isEmpty());
+        assertThat(individualInterpreterLanguage.isEmpty());
     }
 
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")
