@@ -111,14 +111,12 @@ class ServiceHearingValuesMapperTest {
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
         final ServiceHearingValues serviceHearingValues = mapper.mapServiceHearingValues(sscsCaseDetails);
-        final HearingWindow expectedHearingWindow = HearingWindow.builder()
-            .dateRangeStart(LocalDate.of(2022, 2, 26))
-            .build();
+        final HearingWindow expectedHearingWindow = HearingWindow.builder().build();
         //then
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNameHmctsInternal(), serviceHearingValues.getCaseName());
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNamePublic(), serviceHearingValues.getCaseNamePublic());
         assertTrue(serviceHearingValues.isAutoListFlag()); //
-        assertEquals(45, serviceHearingValues.getDuration());
+        assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
         assertEquals(sscsCaseData.getIssueCode(), String.join("", serviceHearingValues.getCaseSubTypes()));

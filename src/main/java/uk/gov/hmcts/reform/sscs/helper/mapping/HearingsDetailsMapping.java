@@ -53,13 +53,13 @@ public final class HearingsDetailsMapping {
             .duration(getHearingDuration(caseData, referenceData))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees())
+            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()))
             .facilitiesRequired(getFacilitiesRequired(caseData))
             .listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
             .hearingRequester(getHearingRequester())
-            .privateHearingRequiredFlag(getPrivateHearingRequiredFlag())
+            .privateHearingRequiredFlag(isPrivateHearingRequired())
             .leadJudgeContractType(getLeadJudgeContractType())
             .panelRequirements(getPanelRequirements(caseData, referenceData))
             .hearingIsLinkedFlag(isCaseLinked())
@@ -135,6 +135,9 @@ public final class HearingsDetailsMapping {
     }
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceData referenceData) {
+        if (isNull(referenceData)) {
+            return null;
+        }
         HearingDuration hearingDuration = referenceData.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
