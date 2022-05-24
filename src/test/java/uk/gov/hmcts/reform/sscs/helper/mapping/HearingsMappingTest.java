@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.given;
 
 
 class HearingsMappingTest extends HearingsMappingBase {
@@ -22,6 +25,16 @@ class HearingsMappingTest extends HearingsMappingBase {
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
     void buildHearingPayload() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .benefitCode(BENEFIT_CODE)
@@ -51,7 +64,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .caseData(caseData)
                 .build();
-        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper);
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRequestDetails()).isNotNull();

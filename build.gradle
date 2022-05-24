@@ -6,7 +6,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.springframework.boot' version '2.6.7'
   id 'uk.gov.hmcts.java' version '0.12.18'
-  id 'org.owasp.dependencycheck' version '7.0.4.1'
+  id 'org.owasp.dependencycheck' version '7.1.0.1'
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.3'
   id 'info.solidsoft.pitest' version '1.7.0'
@@ -150,11 +150,41 @@ checkstyle {
 
 pmd {
   toolVersion = "6.42.0"
-  sourceSets = [sourceSets.main]
   reportsDir = file("$project.buildDir/reports/pmd")
   // https://github.com/pmd/pmd/issues/876
   ruleSets = []
   ruleSetFiles = files("config/pmd/ruleset.xml")
+  group = 'Verification'
+}
+
+pmdMain {
+  group = 'Verification'
+  ignoreFailures = false
+}
+
+pmdTest {
+  group = 'Verification'
+  ignoreFailures = true
+}
+
+pmdContractTest {
+  group = 'Verification'
+  ignoreFailures = true
+}
+
+pmdSmokeTest {
+  group = 'Verification'
+  ignoreFailures = true
+}
+
+pmdFunctionalTest {
+  group = 'Verification'
+  ignoreFailures = true
+}
+
+pmdIntegrationTest {
+  group = 'Verification'
+  ignoreFailures = true
 }
 
 jacocoTestReport {
@@ -266,7 +296,7 @@ def versions= [
   springCloud: '2021.0.1',
   springDoc: '1.6.6',
   springRetry: '1.3.3',
-  sscsCommon: '4.9.1',
+  sscsCommon: '4.9.4',
   tomcat: '9.0.63',
   wiremock: '2.27.2'
 ]
@@ -363,6 +393,24 @@ dependencies {
 dependencyManagement {
   imports {
     mavenBom "org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}"
+  }
+  dependencies {
+    //CVE-2016-1000027
+    dependencySet(group: 'org.springframework', version: '5.3.20') {
+      entry 'spring-aop'
+      entry 'spring-aspects'
+      entry 'spring-beans'
+      entry 'spring-context'
+      entry 'spring-context-support'
+      entry 'spring-core'
+      entry 'spring-expression'
+      entry 'spring-jcl'
+      entry 'spring-jdbc'
+      entry 'spring-orm'
+      entry 'spring-tx'
+      entry 'spring-web'
+      entry 'spring-webmvc'
+    }
   }
 }
 
