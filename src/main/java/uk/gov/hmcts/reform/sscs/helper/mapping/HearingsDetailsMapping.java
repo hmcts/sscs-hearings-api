@@ -161,7 +161,7 @@ public final class HearingsDetailsMapping {
 
         HearingLocations hearingLocation = new HearingLocations();
         hearingLocation.setLocationId(epimsId);
-        hearingLocation.setLocationType(LocationType.COURT.toString());
+        hearingLocation.setLocationType(LocationType.COURT.getLocationLabel());
 
         return List.of(hearingLocation);
     }
