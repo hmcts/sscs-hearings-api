@@ -73,7 +73,12 @@ public final class HearingsDetailsMapping {
 
     public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
         // TODO Future Work
-        return !isCaseLinked(caseData);
+        return !isCaseLinked(caseData)
+                && !isCaseUrgent(caseData);
+    }
+
+    public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
+        return isYes(caseData.getUrgentCase());
     }
 
     public static String getHearingType() {
@@ -81,26 +86,28 @@ public final class HearingsDetailsMapping {
     }
 
     public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, boolean autoListed) {
-
-        if (!autoListed || isBlank(caseData.getDwpResponseDate())) {
-            LocalDate dateRangeStart = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
-            return HearingWindow.builder()
-                    .dateRangeStart(dateRangeStart)
-                    .dateRangeEnd(null)
-                    .build();
-        }
-        LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
-
-        LocalDate dateRangeStart = isYes(caseData.getUrgentCase())
-                ? dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE)
-                : dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
-
-
         return HearingWindow.builder()
                 .firstDateTimeMustBe(getFirstDateTimeMustBe())
-                .dateRangeStart(dateRangeStart)
+                .dateRangeStart(getHearingWindowStart(caseData, autoListed))
                 .dateRangeEnd(null)
                 .build();
+    }
+
+    public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
+
+        LocalDate startDate = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        if (isBlank(caseData.getDwpResponseDate())) {
+            return startDate;
+        }
+
+        LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
+        if (isCaseUrgent(caseData)) {
+            startDate = dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
+        } else if (autoListed) {
+            startDate = dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
+        }
+
+        return startDate;
     }
 
     public static LocalDateTime getFirstDateTimeMustBe() {
@@ -208,7 +215,7 @@ public final class HearingsDetailsMapping {
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
+        if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
             return HIGH.getHmcReference();
         }
         return NORMAL.getHmcReference();

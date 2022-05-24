@@ -106,6 +106,34 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isTrue();
     }
 
+    @DisplayName("When urgentCase is not No, null or Blank, shouldBeAutoListed should return True")
+    @ParameterizedTest
+    @ValueSource(strings = {"No"})
+    @NullAndEmptySource
+    void testShouldBeAutoListed(String urgentCase) {
+        // TODO Finish Test when method done
+        SscsCaseData caseData = SscsCaseData.builder()
+                .urgentCase(urgentCase)
+                .build();
+
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When urgentCase is Yes, shouldBeAutoListed should return False")
+    @Test
+    void testShouldBeAutoListed() {
+        // TODO Finish Test when method done
+        SscsCaseData caseData = SscsCaseData.builder()
+                .urgentCase("Yes")
+                .build();
+
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+
+        assertThat(result).isFalse();
+    }
+
     @DisplayName("shouldBeHearingsInWelshFlag Test")
     @Test
     void shouldBeHearingsInWelshFlag() {
@@ -200,9 +228,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case is autolist but dwpResponseDate is blank, buildHearingWindow returns a null value")
+    @DisplayName("When case is autolist but dwpResponseDate is blank, buildHearingWindow returns start date of tomorrow")
     @Test
-    void testBuildHearingWindow() {
+    void testBuildHearingWindowResponseBlank() {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
         HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
@@ -216,9 +244,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case when not autolist, buildHearingWindow returns a null value")
+    @DisplayName("When case when not autolist and not an urgent case, buildHearingWindow returns start date of tomorrow")
     @Test
-    void testBuildHearingWindowNullReturn() {
+    void testBuildHearingWindowNotAutoListUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
                 .dwpResponseDate(LocalDate.now().toString())
                 .build();
@@ -228,6 +256,24 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
         assertThat(result.getDateRangeStart()).isEqualTo(expected);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
+    @DisplayName("When case when not autolist and an urgent case, buildHearingWindow returns start date of tomorrow")
+    @Test
+    void testBuildHearingWindowNotAutoListIsUrgent() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .dwpResponseDate("2021-12-01")
+                .urgentCase("Yes")
+                .build();
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+
+        assertThat(result).isNotNull();
+
+        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-15");
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
