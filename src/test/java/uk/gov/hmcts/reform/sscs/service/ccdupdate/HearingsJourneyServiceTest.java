@@ -54,6 +54,37 @@ class HearingsJourneyServiceTest {
         assertThat(updateCaseException.getMessage()).isEqualTo("HMC message field hearingID is missing");
     }
 
+
+    @Test
+    void shouldThrowExceptionIfHmcMessageIsMissing() {
+
+        // then
+        UpdateCaseException updateCaseException = assertThrows(
+            UpdateCaseException.class,
+            () -> underTest.process(null)
+        );
+
+        assertThat(updateCaseException.getMessage()).isEqualTo("HMC message must not be mull");
+    }
+
+    @Test
+    void shouldThrowExceptionIfHmcStatusIsMissing() {
+        // given
+        HmcMessage hmcMessage = HmcMessage.builder()
+            .hearingID("123")
+            .hearingUpdate(HearingUpdate.builder().build())
+            .build();
+
+        // then
+        UpdateCaseException updateCaseException = assertThrows(
+            UpdateCaseException.class,
+            () -> underTest.process(hmcMessage)
+        );
+
+        assertThat(updateCaseException.getMessage()).isEqualTo("HMC message field HmcStatus is missing");
+    }
+
+
     @ParameterizedTest
     @CsvSource({
         "LISTED,hearingBooked,SSCS - new case sent to HMC,SSCS - new case sent to HMC",

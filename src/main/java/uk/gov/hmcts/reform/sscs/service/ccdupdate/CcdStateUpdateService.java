@@ -104,9 +104,8 @@ public class CcdStateUpdateService {
         } else if (checkCancellationReasonIsReadyToList(cancellationReason)) {
             return State.READY_TO_LIST;
         } else {
-            UpdateCaseException exc = new UpdateCaseException(
+            throw new UpdateCaseException(
                 String.format("Can not map cancellation reason with this value - %s for caseId %s", cancellationReason, caseId));
-            throw exc;
         }
     }
 
@@ -114,10 +113,8 @@ public class CcdStateUpdateService {
         CancellationReason reason = CancellationReason.getCancellationReasonByValue(cancellationReason);
 
         if (reason == null) {
-            UpdateCaseException exc = new UpdateCaseException(
+            throw new UpdateCaseException(
                 String.format("Can not map cancellation reason with null value for caseId %s", caseId));
-
-            throw exc;
         }
 
         return mapNonNullHmcCancelledToCcdState(reason, caseId);
