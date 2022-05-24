@@ -21,10 +21,10 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.*;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NOT_ATTENDING;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.INTER;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NA;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TEL;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VID;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
@@ -158,10 +158,10 @@ public final class HearingsPartiesMapping {
         }
 
         HearingChannel preferredHearingChannel =
-            shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING
-            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
-            : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO
-            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE
+            shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NA
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? INTER
+            : shouldPreferVideoHearingChannel(hearingSubtype) ? VID
+            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TEL
             : null;
 
         if (preferredHearingChannel == null) {
