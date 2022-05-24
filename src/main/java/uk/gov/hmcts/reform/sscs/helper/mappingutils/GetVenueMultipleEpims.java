@@ -37,11 +37,11 @@ public final class GetVenueMultipleEpims {
         hearingLocations.setLocationId(venueDetailId.getEpimsId());
         hearingLocations.setLocationType(processingCenter);
         switch (processingCenter) {
-            case "Manchester": locationId.addAll(getEpims(epimMap, MANCHESTER, hearingLocations));
+            case MANCHESTER: locationId.addAll(getEpims(epimMap, MANCHESTER, hearingLocations));
                 break;
-            case "Chester": locationId.addAll(getEpims(epimMap, CHESTER, hearingLocations));
+            case CHESTER: locationId.addAll(getEpims(epimMap, CHESTER, hearingLocations));
                 break;
-            case "Plymouth": locationId.addAll(getEpims(epimMap, PLYMOUTH, hearingLocations));
+            case PLYMOUTH: locationId.addAll(getEpims(epimMap, PLYMOUTH, hearingLocations));
                 break;
             default: break;
         }
