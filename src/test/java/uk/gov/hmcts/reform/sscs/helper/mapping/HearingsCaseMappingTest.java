@@ -34,7 +34,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
@@ -74,7 +74,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceData);
+        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceDataServiceHolder);
 
         assertNotNull(caseDetails.getCaseId());
         assertNotNull(caseDetails.getCaseDeepLink());
@@ -324,14 +324,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002-DD");
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
                 .issueCode(ISSUE_CODE)
                 .build();
 
-        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceData);
+        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder);
 
         assertThat(result)
                 .extracting("categoryType", "categoryValue")

@@ -6,7 +6,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public final class HearingsCaseMapping {
 
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceData referenceData) {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
                 .hmctsServiceCode(getServiceCode(wrapper))
@@ -36,7 +36,7 @@ public final class HearingsCaseMapping {
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .caseCategories(buildCaseCategories(caseData, referenceData))
+                .caseCategories(buildCaseCategories(caseData, referenceDataServiceHolder))
                 .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
                 .caseRestrictedFlag(shouldBeSensitiveFlag())
                 .caseSlaStartDate(getCaseCreated(caseData))
@@ -90,32 +90,32 @@ public final class HearingsCaseMapping {
         return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
-    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceData referenceData) {
+    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         List<CaseCategory> categories = new ArrayList<>();
 
-        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceData);
+        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceDataServiceHolder);
 
-        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceData));
-        categories.addAll(getCaseTypes(sessionCaseCode, referenceData));
+        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceDataServiceHolder));
+        categories.addAll(getCaseTypes(sessionCaseCode, referenceDataServiceHolder));
 
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(referenceData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
+                .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
+    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
-                .categoryValue(referenceData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
+                .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }

@@ -67,7 +67,7 @@ class HearingsServiceTest {
 
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
-  
+
     public HearingDurationsService hearingDurations;
 
     @Mock
@@ -152,8 +152,8 @@ class HearingsServiceTest {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
@@ -183,8 +183,8 @@ class HearingsServiceTest {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()

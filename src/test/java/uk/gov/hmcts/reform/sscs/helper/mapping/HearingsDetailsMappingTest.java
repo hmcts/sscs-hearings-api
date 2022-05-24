@@ -60,8 +60,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         // TODO Finish Test when method done
         when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
@@ -421,11 +421,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getPanelRequirements() {
         // TODO Finish Test when method done
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
+        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
         assertThat(result.getRoleTypes()).isEmpty();
@@ -515,7 +515,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -526,7 +526,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
                 .build();
-        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceData);
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(30, result);
     }
@@ -549,7 +549,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
                 .build();
-        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceData);
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(expected, result);
     }
@@ -565,7 +565,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         given(hearingDurations.getHearingDuration(benefitCode,issueCode)).willReturn(null);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
@@ -576,7 +576,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNull();
     }
@@ -590,7 +590,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -602,7 +602,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(30);
     }
@@ -618,7 +618,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(hearingDurations.addExtraTimeIfNeeded(eq(60),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
                 .willReturn(60);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -630,7 +630,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(60);
     }
@@ -646,7 +646,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(hearingDurations.addExtraTimeIfNeeded(eq(75),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
                 .willReturn(75);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -659,7 +659,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(75);
     }

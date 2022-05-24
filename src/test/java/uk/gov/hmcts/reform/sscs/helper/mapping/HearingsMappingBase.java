@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class HearingsMappingBase {
     public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public ReferenceData referenceData;
+    public ReferenceDataServiceHolder referenceDataServiceHolder;
 
     protected HearingsMappingBase() {
 

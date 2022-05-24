@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,7 +39,7 @@ public final class HearingsMapping {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
             .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
-            .caseDetails(buildHearingCaseDetails(wrapper))
+            .caseDetails(buildHearingCaseDetails(wrapper, referenceDataServiceHolder))
             .partiesDetails(buildHearingPartiesDetails(wrapper))
             .build();
     }
@@ -123,10 +122,10 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceData referenceData) {
+    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return referenceData.getSessionCategoryMaps()
+        return referenceDataServiceHolder.getSessionCategoryMaps()
                 .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
                         doctorSpecialistSecond, fqpmRequired);
     }

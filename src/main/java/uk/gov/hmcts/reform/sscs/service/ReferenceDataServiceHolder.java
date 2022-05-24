@@ -6,5 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 public class ReferenceDataServiceHolder {
+    private HearingDurationsService hearingDurations;
+    private SessionCategoryMapService sessionCategoryMaps;
     private VenueService venueService;
 }
