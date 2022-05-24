@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -168,15 +169,16 @@ public final class HearingsPartiesMapping {
 
     public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
 
-        if (nonNull(hearingOptions)) {
-            if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
-                return getSignLanguage(hearingOptions)
-                    .map(SignLanguage::getHmcReference);
-            }
-            if (isYes(hearingOptions.getLanguageInterpreter())) {
-                return getInterpreterLanguage(hearingOptions)
-                    .map(InterpreterLanguage::getHmcReference);
-            }
+        if (isNull(hearingOptions)) {
+            return Optional.empty();
+        }
+        if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
+            return getSignLanguage(hearingOptions)
+                .map(SignLanguage::getHmcReference);
+        }
+        if (isYes(hearingOptions.getLanguageInterpreter())) {
+            return getInterpreterLanguage(hearingOptions)
+                .map(InterpreterLanguage::getHmcReference);
         }
         return Optional.empty();
     }

@@ -205,13 +205,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         String appellantId = "1";
         String jointPartyId = "2";
 
+        Name name = Name.builder()
+            .title("title")
+            .firstName("first")
+            .lastName("last")
+            .build();
+
         JointParty jointPartyDetails = JointParty.builder().id(jointPartyId)
             .hasJointParty(jointParty)
-            .name(Name.builder()
-                      .title("title")
-                      .firstName("first")
-                      .lastName("last")
-                      .build())
+            .name(name)
             .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
@@ -220,11 +222,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .appellant(Appellant.builder()
                                        .id(appellantId)
-                                       .name(Name.builder()
-                                                 .title("title")
-                                                 .firstName("first")
-                                                 .lastName("last")
-                                                 .build())
+                                       .name(name)
                                        .build())
                         .build())
             .build();
