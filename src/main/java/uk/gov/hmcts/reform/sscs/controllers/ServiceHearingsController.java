@@ -119,5 +119,8 @@ public class ServiceHearingsController {
         if (exc instanceof InvalidIdException) {
             log.error("Invalid case id format case id case id {}, {}", caseId, exc);
         }
+        if (exc instanceof UpdateCaseException) {
+            log.error("Error updating case id {}, {}", caseId, exc);
+        }
     }
 }
