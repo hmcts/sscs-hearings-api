@@ -201,7 +201,8 @@ class ServiceHearingsControllerTest {
     void testPostRequestServiceHearingValues() throws Exception {
         ServiceHearingValues model = ServiceHearingValues.builder()
                 .caseNamePublic(CASE_NAME)
-                .autoListFlag(true)
+                .autoListFlag(false)
+                .hearingIsLinkedFlag(true)
                 .build();
         String json = asJsonString(model);
 

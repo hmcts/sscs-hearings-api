@@ -35,7 +35,7 @@ public final class ServiceHearingValuesMapper {
         return ServiceHearingValues.builder()
                 .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
                 .caseNamePublic(HearingsCaseMapping.getPublicCaseName(caseData))
-                .autoListFlag(HearingsDetailsMapping.shouldBeAutoListed())
+                .autoListFlag(HearingsDetailsMapping.shouldBeAutoListed(caseData))
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
@@ -53,7 +53,7 @@ public final class ServiceHearingValuesMapper {
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(getJudiciary(caseDetails, referenceData))
-                .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked())
+                .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
                 .parties(ServiceHearingPartiesMapping.buildHearingPartiesDetails(caseData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)

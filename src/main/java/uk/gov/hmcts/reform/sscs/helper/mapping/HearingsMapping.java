@@ -112,10 +112,10 @@ public final class HearingsMapping {
     public static List<Integer> getAllPartyIds(Party party, Representative rep) {
         List<Integer> currentIds = new ArrayList<>();
 
-        if (party != null && party.getId() != null) {
+        if (party.getId() != null) {
             currentIds.add(Integer.parseInt(party.getId()));
         }
-        if (party != null && party.getAppointee() != null && party.getAppointee().getId() != null) {
+        if (party.getAppointee() != null && party.getAppointee().getId() != null) {
             currentIds.add(Integer.parseInt(party.getAppointee().getId()));
         }
         if (rep != null && rep.getId() != null) {
