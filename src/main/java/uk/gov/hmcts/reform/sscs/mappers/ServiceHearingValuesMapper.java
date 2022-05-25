@@ -38,7 +38,7 @@ public final class ServiceHearingValuesMapper {
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
-                .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, HearingsDetailsMapping.shouldBeAutoListed()))
+                .hearingWindow(SscsCaseDataUtils.getHearingWindow(caseData))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceData))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))

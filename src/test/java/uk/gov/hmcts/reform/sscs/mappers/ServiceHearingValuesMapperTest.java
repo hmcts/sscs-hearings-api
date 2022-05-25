@@ -8,10 +8,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
@@ -148,7 +149,8 @@ class ServiceHearingValuesMapperTest {
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapper.mapServiceHearingValues(sscsCaseDetails, referenceData);
-        final HearingWindow expectedHearingWindow = HearingWindow.builder().build();
+        final HearingWindow expectedHearingWindow = HearingWindow.builder()
+                .hearingWindowDateRange(HearingWindowDateRange.builder().hearingWindowStartDateRange("2022-02-26").build()).build();
         //then
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNameHmctsInternal(), serviceHearingValues.getCaseName());
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNamePublic(), serviceHearingValues.getCaseNamePublic());
