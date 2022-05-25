@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -147,11 +148,11 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualFirstName(Entity entity) {
-        return entity.getName().getFirstName();
+        return isNull(entity.getName()) ? "" : entity.getName().getFirstName();
     }
 
     public static String getIndividualLastName(Entity entity) {
-        return entity.getName().getLastName();
+        return isNull(entity.getName()) ? "" : entity.getName().getLastName();
     }
 
     public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {

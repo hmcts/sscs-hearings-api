@@ -178,8 +178,10 @@ class ServiceHearingValuesMapperTest {
         assertNull(serviceHearingValues.getLeadJudgeContractType());
         assertEquals("BBA3-MQPM1", serviceHearingValues.getJudiciary().getJudiciarySpecialisms().stream().findFirst().orElse(""));
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
-        assertEquals(1, serviceHearingValues.getParties().size());
-        assertEquals("party_role", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals(3, serviceHearingValues.getParties().size());
+        assertEquals("BBA3-appellant", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-Representative", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-otherParty", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
     }

@@ -3,11 +3,14 @@ package uk.gov.hmcts.reform.sscs.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +27,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
@@ -34,6 +39,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
@@ -48,6 +54,7 @@ import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -60,6 +67,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -101,6 +109,18 @@ class ServiceHearingsControllerTest {
     @Mock
     public HearingDurationsService hearingDurations;
 
+    static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
+
+    @BeforeAll
+    public static void init() {
+        hearingsPartiesMapping = Mockito.mockStatic(HearingsPartiesMapping.class);
+    }
+
+    @AfterAll
+    public static void close() {
+        hearingsPartiesMapping.close();
+    }
+
     @BeforeEach
     void setUp()  {
         List<CaseLink> linkedCases = new ArrayList<>();
@@ -119,8 +139,20 @@ class ServiceHearingsControllerTest {
         CcdValue<OtherParty> otherPartyCcdValue = new CcdValue<>(otherParty);
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(otherPartyCcdValue);
+        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
+        Mockito.when(hearingSubtype.getHearingVideoEmail()).thenReturn("test2@gmail.com");
+        Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
+        Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         Appeal appeal = mock(Appeal.class);
         Mockito.when(appeal.getRep()).thenReturn(representative);
+        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
+        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions)).thenReturn(Optional.of("Telugu"));
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype)).thenReturn(Optional.ofNullable(FACE_TO_FACE.getHmcReference()));
+        Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
+        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(appeal.getAppellant()).thenReturn(appellant);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         Mockito.when(sscsCaseData.getCaseAccessManagementFields()).thenReturn(CaseAccessManagementFields.builder()

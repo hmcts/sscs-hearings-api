@@ -316,23 +316,26 @@ public final class HearingsDetailsMapping {
 
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData, ReferenceData referenceData) {
         return PanelRequirements.builder()
-                .roleTypes(getRoleTypes(caseData, referenceData))
-                .authorisationTypes(getAuthorisationTypes(caseData, referenceData))
-                .authorisationSubTypes(getAuthorisationSubTypes(caseData, referenceData))
+                .roleTypes(getRoleTypes())
+                .authorisationTypes(getAuthorisationTypes())
+                .authorisationSubTypes(getAuthorisationSubTypes())
                 .panelPreferences(getPanelPreferences(caseData))
                 .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceData)))
                 .build();
     }
 
-    public static List<String> getRoleTypes(SscsCaseData caseData, ReferenceData referenceData) {
+    public static List<String> getRoleTypes() {
+        //TODO Need to retrieve RoleTypes from caseData and/or ReferenceData
         return Collections.emptyList();
     }
 
-    public static List<String> getAuthorisationTypes(SscsCaseData caseData, ReferenceData referenceData) {
+    public static List<String> getAuthorisationTypes() {
+        //TODO Need to retrieve AuthorisationTypes from caseData and/or ReferenceData
         return Collections.emptyList();
     }
 
-    public static List<String> getAuthorisationSubTypes(SscsCaseData caseData, ReferenceData referenceData) {
+    public static List<String> getAuthorisationSubTypes() {
+        //TODO Need to retrieve AuthorisationSubTypes from caseData and/or ReferenceData
         return Collections.emptyList();
     }
 

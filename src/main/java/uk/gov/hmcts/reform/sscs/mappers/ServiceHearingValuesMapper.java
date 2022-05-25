@@ -5,6 +5,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
+import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingPartiesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
@@ -53,7 +54,7 @@ public final class ServiceHearingValuesMapper {
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(getJudiciary(caseDetails, referenceData))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked())
-                .parties(SscsCaseDataUtils.getParties(caseData))
+                .parties(ServiceHearingPartiesMapping.buildHearingPartiesDetails(caseData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
@@ -63,15 +64,15 @@ public final class ServiceHearingValuesMapper {
     public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceData referenceData) {
         SscsCaseData sscsCaseData = caseDetails.getData();
         return Judiciary.builder()
-                .roleType(HearingsDetailsMapping.getRoleTypes(sscsCaseData, referenceData))
-                .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes(sscsCaseData, referenceData))
-                .authorisationSubType(HearingsDetailsMapping.getAuthorisationSubTypes(sscsCaseData, referenceData))
+                .roleType(HearingsDetailsMapping.getRoleTypes())
+                .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes())
+                .authorisationSubType(HearingsDetailsMapping.getAuthorisationSubTypes())
                 .judiciarySpecialisms(HearingsDetailsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceData)))
-                .judiciaryPreferences(getPanelPreferences(sscsCaseData, referenceData))
+                .judiciaryPreferences(getPanelPreferences())
                 .build();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData, ReferenceData referenceData) {
+    public static List<PanelPreference> getPanelPreferences() {
         //TODO Need to retrieve PanelPreferences from caseData and/or ReferenceData
         return new ArrayList<>();
     }
