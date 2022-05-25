@@ -65,14 +65,19 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-
         // TODO Finish Test when method done
         when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
 
         SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().build())
-                .build())
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .caseManagementLocation(CaseManagementLocation.builder()
+                                        .baseLocation(EPIMS_ID)
+                                        .region(REGION)
+                                        .build())
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
