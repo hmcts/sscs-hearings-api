@@ -3,8 +3,10 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -21,6 +23,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -30,6 +33,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPELLANT;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
@@ -406,36 +412,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getPartyRole with OtherParty Test")
-    @Test
-    void getPartyRoleOtherParty() {
-        String result = HearingsPartiesMapping.getPartyRole(OtherParty.builder().build());
+    @ParameterizedTest
+    @MethodSource("getPartyReferenceArgements")
+    void testGetPartyRole(Entity entity, String reference) {
+        String result = HearingsPartiesMapping.getPartyRole(entity);
 
-        assertThat(result).isEqualTo("BBA3-otherParty");
-    }
-
-    @DisplayName("getPartyRole with Appellant Test")
-    @Test
-    void getPartyRoleAppellant() {
-        String result = HearingsPartiesMapping.getPartyRole(Appellant.builder().build());
-
-        assertThat(result).isEqualTo("BBA3-appellant");
-    }
-
-    @DisplayName("getPartyRole with Appointee Test")
-    @Test
-    void getPartyRoleAppointee() {
-        String result = HearingsPartiesMapping.getPartyRole(Appointee.builder().build());
-
-        assertThat(result).isEqualTo("BBA3-appointee");
-    }
-
-    @DisplayName("getPartyRole with Representative Test")
-    @Test
-    void getPartyRoleRepresentative() {
-        String result = HearingsPartiesMapping.getPartyRole(Representative.builder().build());
-
-        assertThat(result).isEqualTo(REPRESENTATIVE.getHmcReference());
+        assertThat(result).isEqualTo(reference);
     }
 
     @DisplayName("getIndividualFirstName Parameterised Tests")
@@ -670,7 +652,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result)
                 .isNotEmpty()
                 .extracting("relatedPartyId","relationshipType")
-                .contains(tuple("1","Representative"));
+                .contains(tuple("1", REPRESENTATIVE.getHmcReference()));
     }
 
     @DisplayName("getPartyOrganisationDetails Test")
@@ -724,5 +706,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertNull(result);
+    }
+
+    private static Stream<Arguments> getPartyReferenceArgements() {
+        return Stream.of(
+            Arguments.of(Representative.builder().build(), REPRESENTATIVE.getHmcReference()),
+            Arguments.of(Appellant.builder().build(), APPELLANT.getHmcReference()),
+            Arguments.of(Appointee.builder().build(), APPOINTEE.getHmcReference()),
+            Arguments.of(OtherParty.builder().build(), OTHER_PARTY.getHmcReference())
+        );
     }
 }
