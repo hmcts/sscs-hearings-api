@@ -8,8 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum ListingStatus {
     DRAFT("Draft"),
     PROVISIONAL("Provisional"),
-    FIXED("Fixed"),
-    CANCELLED("Cancelled");
+    FIXED("Fixed");
 
     private final String listingStatusLabel;
 

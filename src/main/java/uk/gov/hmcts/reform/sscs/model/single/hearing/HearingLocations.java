@@ -20,4 +20,6 @@ public class HearingLocations {
     private String locationId;
 
     private String locationName;
+
+    private String region;
 }
