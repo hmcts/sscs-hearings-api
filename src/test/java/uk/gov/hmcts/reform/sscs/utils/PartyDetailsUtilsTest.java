@@ -100,7 +100,7 @@ class PartyDetailsUtilsTest {
         IndividualDetails individualDetails = PartyDetailsUtils.getIndividualDetails(otherParty, sscsCaseData);
         assertEquals("Barny", individualDetails.getFirstName());
         assertEquals("Boulderstone", individualDetails.getLastName());
-        assertEquals(HearingUtils.FACE_TO_FACE, individualDetails.getPreferredHearingChannel());
+        assertEquals(SscsCaseDataUtils.FACE_TO_FACE, individualDetails.getPreferredHearingChannel());
         assertEquals("Telugu", individualDetails.getInterpreterLanguage());
         assertEquals(0, individualDetails.getReasonableAdjustments().size());
         assertFalse(individualDetails.isVulnerableFlag());

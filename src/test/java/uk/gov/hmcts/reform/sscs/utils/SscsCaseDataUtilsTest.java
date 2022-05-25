@@ -213,7 +213,7 @@ class SscsCaseDataUtilsTest {
         PartyDetails partyDetails = partyDetailsList.stream().findFirst().orElseThrow();
         assertEquals("party_id_1", partyDetails.getPartyID());
         assertEquals(PartyType.IND, partyDetails.getPartyType());
-        assertEquals(HearingUtils.FACE_TO_FACE, partyDetails.getPartyChannel());
+        assertEquals(SscsCaseDataUtils.FACE_TO_FACE, partyDetails.getPartyChannel());
         assertEquals("Mr Harry Potter", partyDetails.getPartyName());
         assertEquals("party_role", partyDetails.getPartyRole());
         assertEquals("Telugu", partyDetails.getIndividualDetails().getInterpreterLanguage());

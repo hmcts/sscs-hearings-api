@@ -27,6 +27,11 @@ import java.util.stream.Collectors;
 
 public final class SscsCaseDataUtils {
 
+    public static final String FACE_TO_FACE = "faceToFace";
+    public static final String TELEPHONE = "telephone";
+    public static final String VIDEO = "video";
+    public static final String PAPER = "paper";
+
     private SscsCaseDataUtils() {
         throw new IllegalStateException("Utility class");
     }
