@@ -23,6 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsMappingTest extends HearingsMappingBase {
@@ -43,9 +45,6 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                    false, false, SessionCategory.CATEGORY_03, null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .benefitCode(BENEFIT_CODE)
@@ -56,7 +55,9 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .hearingOptions(HearingOptions.builder()
+                                .wantsToAttend("No")
+                                .build())
                         .appellant(Appellant.builder()
                                 .id("1")
                                 .name(Name.builder()
@@ -65,16 +66,23 @@ class HearingsMappingTest extends HearingsMappingBase {
                                         .lastName("last")
                                         .build())
                                 .build())
+                        .hearingType(PAPER.getValue())
                         .build())
                 .caseManagementLocation(CaseManagementLocation.builder()
                         .baseLocation(EPIMS_ID)
                         .region(REGION)
                         .build())
                 .build();
+
+        when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
+        when(referenceDataServiceHolder.getHearingDurations()).thenReturn(hearingDurations);
+        when(referenceDataServiceHolder.getSessionCategoryMaps()).thenReturn(sessionCategoryMaps);
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .caseData(caseData)
                 .build();
+
         HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();

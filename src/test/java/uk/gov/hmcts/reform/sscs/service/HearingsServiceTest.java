@@ -31,8 +31,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
@@ -69,11 +69,14 @@ class HearingsServiceTest {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
+    @Mock
     public HearingDurationsService hearingDurations;
 
     @Mock
     public SessionCategoryMapService sessionCategoryMaps;
 
+    @Mock
+    private VenueService venueService;
 
     @BeforeEach
     void setup() {
@@ -145,6 +148,10 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCreate() {
+        when(referenceDataServiceHolder.getHearingDurations()).thenReturn(hearingDurations);
+        when(referenceDataServiceHolder.getSessionCategoryMaps()).thenReturn(sessionCategoryMaps);
+        when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
+
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
@@ -152,9 +159,6 @@ class HearingsServiceTest {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
@@ -174,7 +178,9 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperUpdate() {
-
+        when(referenceDataServiceHolder.getHearingDurations()).thenReturn(hearingDurations);
+        when(referenceDataServiceHolder.getSessionCategoryMaps()).thenReturn(sessionCategoryMaps);
+        when(referenceDataServiceHolder.getVenueService()).thenReturn(venueService);
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -183,9 +189,6 @@ class HearingsServiceTest {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
