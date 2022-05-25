@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -98,13 +97,31 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getPanelRequirements());
     }
 
-    @DisplayName("shouldBeAutoListed Parameterized Tests")
+    @DisplayName("When there are linked cases, shouldBeAutoListed returns false")
     @Test
-    void shouldBeAutoListed() {
+    void testShouldBeAutoListedFalse() {
         // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed();
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of(CaseLink.builder()
+                        .value(CaseLinkDetails.builder()
+                                .caseReference("123456")
+                                .build())
+                        .build()))
+                .build();
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
 
-        assertTrue(result);
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When there are no linked cases, shouldBeAutoListed returns true")
+    @Test
+    void testShouldBeAutoListedTrue() {
+        // TODO Finish Test when method done
+        SscsCaseData caseData = SscsCaseData.builder()
+                .build();
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+
+        assertThat(result).isTrue();
     }
 
     @DisplayName("shouldBeHearingsInWelshFlag Test")
@@ -115,13 +132,60 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertFalse(result);
     }
 
-    @DisplayName("When .. is given isCaseLinked returns if case is linked")
+    @DisplayName("When case has a linked case isCaseLinked returns true")
     @Test
-    void isCaseLinked() {
-        // TODO Finish Test when method done
-        boolean result = HearingsDetailsMapping.isCaseLinked();
+    void testIsCaseLinked() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of(CaseLink.builder()
+                        .value(CaseLinkDetails.builder()
+                                .caseReference("123456")
+                                .build())
+                        .build()))
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
 
-        assertFalse(result);
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When case has multiple linked cases isCaseLinked returns true")
+    @Test
+    void testIsCaseLinkedMultiple() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of(CaseLink.builder()
+                                .value(CaseLinkDetails.builder()
+                                        .caseReference("123456")
+                                        .build())
+                                .build(),
+                        CaseLink.builder()
+                                .value(CaseLinkDetails.builder()
+                                        .caseReference("654321")
+                                        .build())
+                                .build()))
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When case has empty linkedCase isCaseLinked returns true")
+    @Test
+    void testIsCaseLinkedEmpty() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .linkedCase(List.of())
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When case has null linkedCase isCaseLinked returns true")
+    @Test
+    void testIsCaseLinkedNull() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
+
+        assertThat(result).isFalse();
     }
 
     @DisplayName("Hearing type should be substantive.")
@@ -135,62 +199,65 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
-        "2021-12-01,true,true,2021-12-15",
-        "2021-12-01,true,false,2021-12-29",
-        "2021-12-01,false,true,null",
-        "2021-12-01,false,false,null",
-        "null,true,true,null",
-        "null,true,false,null",
-        "null,false,true,null",
-        "null,false,false,null",
+        "2021-12-01,Yes,2021-12-15",
+        "2021-12-01,No,2021-12-29",
     }, nullValues = {"null"})
-    void buildHearingWindow(String dwpResponded, boolean autoListFlag, boolean isUrgent, LocalDate expected) {
+    void testBuildHearingWindow(String dwpResponded, String isUrgent, LocalDate expected) {
         SscsCaseData caseData = SscsCaseData.builder()
                 .dwpResponseDate(dwpResponded)
-                .urgentCase(isUrgent ? YES.toString() : NO.toString())
+                .urgentCase(isUrgent)
                 .build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
 
-        assertNull(result.getFirstDateTimeMustBe());
-        assertEquals(expected, result.getDateRangeStart());
-        assertNull(result.getDateRangeEnd());
+        assertThat(result).isNotNull();
+
+        assertThat(result.getDateRangeStart()).isEqualTo(expected);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case with no valid event or is negative auto-listable is given buildHearingWindow returns a null value")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "WITHDRAWN,true",
-        "null,true",
-        "DWP_RESPOND,false",
-    }, nullValues = {"null"})
-    void buildHearingWindowNullReturn(EventType eventType, boolean autoListFlag) {
-        List<Event> events = new ArrayList<>();
-        LocalDateTime testDateTime = LocalDateTime.now();
-        if (nonNull(eventType)) {
-            events.add(Event.builder().value(EventDetails.builder()
-                    .type(eventType.getCcdType())
-                    .date(testDateTime.toString())
-                    .build()).build());
-        } else {
-            events = null;
-        }
-
-        SscsCaseData caseData = SscsCaseData.builder().events(events).build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, autoListFlag);
-
-        assertNull(result.getFirstDateTimeMustBe());
-        assertNull(result.getDateRangeStart());
-        assertNull(result.getDateRangeEnd());
-    }
-
-    @DisplayName("When .. is given getFacilitiesRequired returns the valid LocalDateTime")
+    @DisplayName("When case is autolist but dwpResponseDate is blank, buildHearingWindow returns a null value")
     @Test
-    void getFirstDateTimeMustBe() {
+    void testBuildHearingWindow() {
+        SscsCaseData caseData = SscsCaseData.builder().build();
+
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+
+        assertThat(result).isNotNull();
+
+        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        assertThat(result.getDateRangeStart()).isEqualTo(expected);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
+    @DisplayName("When case when not autolist, buildHearingWindow returns a null value")
+    @Test
+    void testBuildHearingWindowNullReturn() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .dwpResponseDate(LocalDate.now().toString())
+                .build();
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+
+        assertThat(result).isNotNull();
+
+        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        assertThat(result.getDateRangeStart()).isEqualTo(expected);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
+    @DisplayName("When .. is given getFirstDateTimeMustBe returns the valid LocalDateTime")
+    @Test
+    void testBetFirstDateTimeMustBe() {
         // TODO Finish Test when method done
         LocalDateTime result = HearingsDetailsMapping.getFirstDateTimeMustBe();
 
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @Test
