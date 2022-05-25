@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingService;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -76,12 +77,9 @@ class HearingsJourneyServiceTest {
             .build();
 
         // then
-        UpdateCaseException updateCaseException = assertThrows(
-            UpdateCaseException.class,
-            () -> underTest.process(hmcMessage)
-        );
-
-        assertThat(updateCaseException.getMessage()).isEqualTo("HMC message field HmcStatus is missing");
+        assertThatExceptionOfType(UpdateCaseException.class)
+                .isThrownBy(() -> underTest.process(hmcMessage))
+                .withMessageContaining("HMC message field HmcStatus is missing");
     }
 
 
@@ -147,11 +145,8 @@ class HearingsJourneyServiceTest {
         when(hmcHearingService.getHearingRequest(hearingId)).thenReturn(null);
 
         // then
-        GetCaseException getCaseException = assertThrows(
-            GetCaseException.class,
-            () -> underTest.process(hmcMessage)
-        );
-
-        assertThat(getCaseException.getMessage()).isEqualTo("Failed to retrieve hearing with Id: 123 from HMC");
+        assertThatExceptionOfType(GetCaseException.class)
+                .isThrownBy(() -> underTest.process(hmcMessage))
+                .withMessageContaining("Failed to retrieve hearing with Id: 123 from HMC");
     }
 }

@@ -3,41 +3,36 @@ package uk.gov.hmcts.reform.sscs.service.ccdupdate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CcdLocationUpdateService {
 
+    public static final String TEMPLATE_UPDATE_VENUE_ERROR = "Failed to update venue for Case Id %s:%n";
+
     private final VenueRpcDetailsService venueRpcDetailsService;
 
-    public void updateVenue(HmcMessage hmcMessage, SscsCaseData sscsCaseData) throws UpdateCaseException {
+    public void updateVenue(HmcMessage hmcMessage, @Valid SscsCaseData sscsCaseData) throws UpdateCaseException {
 
-        Optional<HearingDetails> hearingDetails = getHearingDetailsFromHearingList(hmcMessage, sscsCaseData);
-        if (hearingDetails.isEmpty()) {
-
+        Hearing oldHearing = getHearingFromCaseData(hmcMessage, sscsCaseData);
+        if (isNull(oldHearing)) {
             UpdateCaseException exc = new UpdateCaseException(
-                String.format("Failed to update venue in CCD(Case Id: %s) - "
-                                  + "can not find hearing with Id: %s", sscsCaseData.getCcdCaseId(), hmcMessage.getHearingID()));
+                String.format(TEMPLATE_UPDATE_VENUE_ERROR + "Could not find hearing with Hearing Id: %s",
+                        sscsCaseData.getCcdCaseId(), hmcMessage.getHearingID()));
             log.error(exc.getMessage(), exc);
             throw exc;
-
         }
 
         String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueID();
@@ -45,67 +40,70 @@ public class CcdLocationUpdateService {
         if (isNull(venue)) {
 
             UpdateCaseException exc = new UpdateCaseException(
-                String.format("Failed to update location for CCD(Case Id: %s) - "
-                                  + "can not find venue with Id %s ", sscsCaseData.getCcdCaseId(), updatedVenueId));
+                String.format(TEMPLATE_UPDATE_VENUE_ERROR + "Could not find venue with Epims Id %s ",
+                        sscsCaseData.getCcdCaseId(), updatedVenueId));
             log.error(exc.getMessage(), exc);
 
             throw exc;
         }
 
-        HearingDetails existingHearingDetails = hearingDetails.get();
-        HearingDetails updatedHearingDetails = HearingDetails.builder()
-            .venue(venue)
-            .hearingDate(existingHearingDetails.getHearingDate())
-            .time(existingHearingDetails.getTime())
-            .adjourned(existingHearingDetails.getAdjourned())
-            .eventDate(existingHearingDetails.getEventDate())
-            .hearingId(existingHearingDetails.getHearingId())
-            .venueId(updatedVenueId)
-            .build();
+        HearingDetails hearingDetails = oldHearing.getValue();
+        Hearing updatedHearing = Hearing.builder().value(
+                HearingDetails.builder()
+                        .venue(venue)
+                        .hearingDate(hearingDetails.getHearingDate())
+                        .time(hearingDetails.getTime())
+                        .adjourned(hearingDetails.getAdjourned())
+                        .eventDate(hearingDetails.getEventDate())
+                        .hearingId(hearingDetails.getHearingId())
+                        .venueId(updatedVenueId)
+                        .build())
+                .build();
 
-        // remove hearing with outdated venueId
-        List<Hearing> updatedHearingList = sscsCaseData.getHearings().stream()
-            .filter(hearing -> !hearing.getValue().getHearingId().equals(hmcMessage.getHearingID()))
-            .collect(toList());
+        updateHearing(sscsCaseData, oldHearing, updatedHearing);
 
-        // add hearing with updated venueId
-        updatedHearingList.add(Hearing.builder().value(updatedHearingDetails).build());
-
-        sscsCaseData.setHearings(updatedHearingList);
         log.info("(Case Id: {}) Venue has been updated from epimsId {} to {} for hearingId {}",
-                 sscsCaseData.getCcdCaseId(), existingHearingDetails.getHearingId(),
+                 sscsCaseData.getCcdCaseId(), hearingDetails.getHearingId(),
                  updatedVenueId, hmcMessage.getHearingID()
         );
     }
 
-    public Venue findVenue(String venueId) {
+    private void updateHearing(SscsCaseData sscsCaseData, Hearing oldHearing, Hearing updatedHearing) {
+        List<Hearing> hearings = new ArrayList<>(sscsCaseData.getHearings());
 
-        Optional<VenueRpcDetails> venue = venueRpcDetailsService.getVenue(venueId);
+        hearings.remove(oldHearing);
+        hearings.add(updatedHearing);
 
-        if (venue.isEmpty()) {
-            log.error("Can not find venue with Id {}", venueId);
+        sscsCaseData.setHearings(hearings);
+    }
+
+    public Venue findVenue(String epimsId) {
+
+        VenueDetails venue = venueRpcDetailsService.getVenue(epimsId);
+
+        if (isNull(venue)) {
+            log.error("Could not find venue with Epims Id {}", epimsId);
             return null;
         }
 
-        VenueDetails venueDetails = venue.get().getVenueDetails();
         return Venue.builder()
             .address(Address.builder()
-                         .line1(venueDetails.getVenAddressLine1())
-                         .line2(venueDetails.getVenAddressLine2())
-                         .postcodeAddress(venueDetails.getVenAddressPostcode())
-                         .county(venueDetails.getVenAddressCounty())
-                         .town(venueDetails.getVenAddressTown())
+                         .line1(venue.getVenAddressLine1())
+                         .line2(venue.getVenAddressLine2())
+                         .postcodeAddress(venue.getVenAddressPostcode())
+                         .county(venue.getVenAddressCounty())
+                         .town(venue.getVenAddressTown())
                          .build())
-            .name(venueDetails.getVenName())
+            .name(venue.getVenName())
             .build();
     }
 
 
-    private Optional<HearingDetails> getHearingDetailsFromHearingList(HmcMessage hmcMessage, SscsCaseData caseData) {
+    Hearing getHearingFromCaseData(HmcMessage hmcMessage, @Valid SscsCaseData caseData) {
         return caseData.getHearings().stream()
-            .map(Hearing::getValue)
-            .filter(hearingDetails -> hmcMessage.getHearingID().equals(hearingDetails.getHearingId()))
-            .findFirst();
+                .filter(hearing -> hmcMessage.getHearingID().equals(hearing.getValue().getHearingId()))
+                .findFirst()
+                .orElse(null);
     }
 
 }

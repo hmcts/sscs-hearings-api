@@ -9,9 +9,17 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
 
+import javax.validation.Valid;
+
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.State.DORMANT_APPEAL_STATE;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.State.HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.State.READY_TO_LIST;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.State.UNKNOWN;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus.AWAITING_LISTING;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus.LISTED;
+import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus.FIXED;
 
 
@@ -19,8 +27,8 @@ import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus.FIXED;
 @Service
 public class CcdStateUpdateService {
 
-    public void updateListed(HearingGetResponse hearingResponse, SscsCaseData sscsCaseData) {
-        State state = State.UNKNOWN;
+    public void updateListed(HearingGetResponse hearingResponse, @Valid SscsCaseData sscsCaseData) {
+        State state = UNKNOWN;
         if (isHearingListingStatusFixed(hearingResponse)) {
             state = mapHmcCreatedOrUpdatedToCcd(hearingResponse);
         }
@@ -31,8 +39,9 @@ public class CcdStateUpdateService {
         }
     }
 
-    public void updateCancelled(HearingGetResponse hearingResponse, SscsCaseData sscsCaseData) throws UpdateCaseException {
-        State state = State.UNKNOWN;
+    public void updateCancelled(HearingGetResponse hearingResponse, @Valid SscsCaseData sscsCaseData)
+            throws UpdateCaseException {
+        State state = UNKNOWN;
 
         if (isHearingCancelled(hearingResponse)) {
             state = mapHmcCancelledToCcdState(
@@ -44,13 +53,6 @@ public class CcdStateUpdateService {
         }
     }
 
-    public void validateUpdateCancelled(HearingGetResponse hearingResponse, SscsCaseData sscsCaseData) throws UpdateCaseException {
-        if (isHearingCancelled(hearingResponse)) {
-            mapHmcCancelledToCcdState(
-                hearingResponse.getHearingResponse().getHearingCancellationReason(), sscsCaseData.getCcdCaseId());
-        }
-    }
-
     public void updateFailed(SscsCaseData sscsCaseData) {
         sscsCaseData.setState(State.HANDLING_ERROR);
         log.info("CCD state has been updated to {} for caseId {}", State.HANDLING_ERROR, sscsCaseData.getCcdCaseId());
@@ -58,16 +60,16 @@ public class CcdStateUpdateService {
 
     private State mapHmcCreatedOrUpdatedToCcd(HearingGetResponse hearingResponse) {
         if (checkHearingStatus(hearingResponse, LISTED)) {
-            return State.HEARING;
+            return HEARING;
         }
         if (checkHearingStatus(hearingResponse, AWAITING_LISTING)) {
-            return State.READY_TO_LIST;
+            return READY_TO_LIST;
         }
-        return State.UNKNOWN;
+        return UNKNOWN;
     }
 
     private boolean isKnownState(State state) {
-        return !state.equals(State.UNKNOWN);
+        return !state.equals(UNKNOWN);
     }
 
     private boolean checkCancellationReasonIsDormantAppealState(CancellationReason cancellationReason) {
@@ -97,24 +99,25 @@ public class CcdStateUpdateService {
         }
     }
 
-    private State mapNonNullHmcCancelledToCcdState(CancellationReason cancellationReason, String caseId) throws UpdateCaseException {
+    private State mapNonNullHmcCancelledToCcdState(CancellationReason cancellationReason, String caseId)
+            throws UpdateCaseException {
 
         if (checkCancellationReasonIsDormantAppealState(cancellationReason)) {
-            return State.DORMANT_APPEAL_STATE;
+            return DORMANT_APPEAL_STATE;
         } else if (checkCancellationReasonIsReadyToList(cancellationReason)) {
-            return State.READY_TO_LIST;
+            return READY_TO_LIST;
         } else {
-            throw new UpdateCaseException(
-                String.format("Can not map cancellation reason with this value - %s for caseId %s", cancellationReason, caseId));
+            throw new UpdateCaseException(String.format("Can not map cancellation reason with this value - %s for caseId %s",
+                    cancellationReason, caseId));
         }
     }
 
     private State mapHmcCancelledToCcdState(String cancellationReason, String caseId) throws UpdateCaseException {
         CancellationReason reason = CancellationReason.getCancellationReasonByValue(cancellationReason);
 
-        if (reason == null) {
-            throw new UpdateCaseException(
-                String.format("Can not map cancellation reason with null value for caseId %s", caseId));
+        if (isNull(reason)) {
+            throw new UpdateCaseException(String.format("Can not map cancellation reason %s value for caseId %s",
+                            cancellationReason, caseId));
         }
 
         return mapNonNullHmcCancelledToCcdState(reason, caseId);
@@ -122,17 +125,15 @@ public class CcdStateUpdateService {
     }
 
     private static boolean checkHearingStatus(HearingGetResponse hearingResponse, ListingCaseStatus laStatus) {
-        return laStatus.getListingCaseStatusLabel().equals(
-            hearingResponse.getHearingResponse().getListingCaseStatus());
+        return laStatus.getListingCaseStatusLabel().equals(hearingResponse.getHearingResponse().getListingCaseStatus());
     }
 
     private static boolean isHearingListingStatusFixed(HearingGetResponse hearingResponse) {
-        return FIXED.getListingStatusLabel().equals(
-            hearingResponse.getHearingResponse().getListingStatus());
+        return FIXED.getListingStatusLabel().equalsIgnoreCase(hearingResponse.getHearingResponse().getListingStatus());
     }
 
     private static boolean isHearingCancelled(HearingGetResponse hearingResponse) {
-        return "Cancelled".equalsIgnoreCase(hearingResponse.getRequestDetails().getStatus())
+        return CANCELLED.getListingStatusLabel().equalsIgnoreCase(hearingResponse.getRequestDetails().getStatus())
             || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
     }
 }

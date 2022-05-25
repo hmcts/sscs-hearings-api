@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.sscs.service.ccdupdate;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
@@ -14,30 +15,32 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.messaging.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetails;
 import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CcdLocationUpdateServiceTest {
 
+    public static final String HEARING_ID = "789";
+    public static final String EPIMS_ID = "123";
+    public static final String NEW_EPIMS_ID = "456";
+    public static final String CASE_ID = "777";
+    public static final String VENUE_NAME = "VenueName";
+
     @Mock
     private VenueRpcDetailsService venueRpcDetailsService;
+
+    @InjectMocks
     private CcdLocationUpdateService underTest;
 
-    @BeforeEach
-    void setUp() {
-        underTest = new CcdLocationUpdateService(venueRpcDetailsService);
-    }
-
     @Test
-    void shouldFindVenueByVenueId() {
+    void testShouldFindVenueByVenueId() {
         // given
         final String venueId = "123";
         VenueDetails venueDetails = VenueDetails.builder()
@@ -49,8 +52,8 @@ class CcdLocationUpdateServiceTest {
             .venAddressPostcode("adrPostcode")
             .regionalProcessingCentre("regionalProcessingCentre")
             .build();
-        VenueRpcDetails venueRpcDetails = new VenueRpcDetails(venueDetails);
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(Optional.of(venueRpcDetails));
+
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(venueDetails);
 
         // when
         Venue venue = underTest.findVenue(venueId);
@@ -68,56 +71,108 @@ class CcdLocationUpdateServiceTest {
 
 
     @Test
-    void shouldReturnNullIfVenueDoesNotExist() {
+    void testShouldReturnNullIfVenueDoesNotExist() {
         // given
-        final String venueId = "987";
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(Optional.empty());
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(null);
 
         // when
-        Venue venue = underTest.findVenue(venueId);
+        Venue venue = underTest.findVenue(EPIMS_ID);
 
         // then
         assertThat(venue).isNull();
     }
 
-
     @Test
-    void shouldUpdateVenueSuccessfully() throws UpdateCaseException {
+    void testShouldUpdateVenueSuccessfully() throws UpdateCaseException {
         // given
-        final String hearingId = "789";
-        final String oldVenueId = "123";
-        final String newVenueId = "456";
-        final String caseId = "777";
 
         HmcMessage hmcMessage = HmcMessage.builder()
-            .hearingID(hearingId)
-            .hearingUpdate(HearingUpdate.builder()
-                               .hearingVenueID(newVenueId)
-                               .build())
-            .build();
+                .hearingID(HEARING_ID)
+                .hearingUpdate(HearingUpdate.builder()
+                        .hearingVenueID(NEW_EPIMS_ID)
+                        .build())
+                .build();
 
-        HearingDetails hearingDetailsWithOldVenue = HearingDetails.builder()
-            .venueId(oldVenueId)
-            .hearingId(hearingId)
-            .build();
-        Hearing hearingWithOldVenue = Hearing.builder().value(hearingDetailsWithOldVenue).build();
-        List<Hearing> hearingListWithOldVenue = List.of(hearingWithOldVenue);
-        SscsCaseData caseData = SscsCaseData.builder().hearings(hearingListWithOldVenue).ccdCaseId(caseId).build();
+        SscsCaseData caseData = SscsCaseData.builder()
+                .hearings(List.of(
+                        Hearing.builder()
+                                .value(HearingDetails.builder()
+                                        .venueId(EPIMS_ID)
+                                        .hearingId(HEARING_ID)
+                                        .build())
+                                .build(),
+                        Hearing.builder()
+                                .value(HearingDetails.builder()
+                                        .venueId("23453")
+                                        .hearingId("35533")
+                                        .build())
+                                .build()))
+                .ccdCaseId(CASE_ID)
+                .build();
 
         VenueDetails venueDetails = VenueDetails.builder()
-            .venueId(newVenueId)
-            .regionalProcessingCentre("regionalProcessingCentre")
-            .build();
-        VenueRpcDetails venueRpcDetails = new VenueRpcDetails(venueDetails);
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(Optional.of(venueRpcDetails));
+                .venueId(NEW_EPIMS_ID)
+                .venName(VENUE_NAME)
+                .regionalProcessingCentre("regionalProcessingCentre")
+                .build();
+
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(venueDetails);
 
         // when
         underTest.updateVenue(hmcMessage, caseData);
 
         // then
         List<Hearing> hearings = caseData.getHearings();
-        assertThat(hearings).isNotNull();
-        assertThat(hearings.get(0).getValue().getVenueId()).isEqualTo(newVenueId);
-        assertThat(hearings.get(0).getValue().getVenue()).isNotNull();
+        assertThat(hearings)
+                .hasSize(2)
+                .extracting(Hearing::getValue)
+                .filteredOn("hearingId", HEARING_ID)
+                .hasSize(1)
+                .allSatisfy(x -> assertThat(x.getVenueId()).isEqualTo(NEW_EPIMS_ID))
+                .extracting(HearingDetails::getVenue)
+                .extracting("name")
+                .containsOnly(VENUE_NAME);
     }
+
+    @DisplayName("When updateVenue is given caseData with a hearing ID that cannot be found,"
+            + "updateVenue throws UpdateCaseException with the correct message")
+    @Test
+    void testUpdateVenueMissingHearing() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .hearings(List.of())
+                .build();
+
+        assertThatExceptionOfType(UpdateCaseException.class)
+                .isThrownBy(() -> underTest.updateVenue(HmcMessage.builder().build(), caseData))
+                .withMessageContaining("Could not find hearing");
+    }
+
+    @DisplayName("When updateVenue is given caseData with a epims ID that cannot be found,"
+            + "updateVenue throws UpdateCaseException with the correct message")
+    @Test
+    void testUpdateVenueMissingVenue() {
+        HmcMessage hmcMessage = HmcMessage.builder()
+                .hearingID(HEARING_ID)
+                .hearingUpdate(HearingUpdate.builder()
+                        .hearingVenueID(NEW_EPIMS_ID)
+                        .build())
+                .build();
+
+        SscsCaseData caseData = SscsCaseData.builder()
+                .hearings(List.of(Hearing.builder()
+                        .value(HearingDetails.builder()
+                                .venueId(EPIMS_ID)
+                                .hearingId(HEARING_ID)
+                                .build())
+                        .build()))
+                .ccdCaseId(CASE_ID)
+                .build();
+
+        when(venueRpcDetailsService.getVenue(any())).thenReturn(null);
+
+        assertThatExceptionOfType(UpdateCaseException.class)
+                .isThrownBy(() -> underTest.updateVenue(hmcMessage, caseData))
+                .withMessageContaining("Could not find venue");
+    }
+
 }
