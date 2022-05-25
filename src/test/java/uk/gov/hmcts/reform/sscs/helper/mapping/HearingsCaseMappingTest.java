@@ -314,6 +314,8 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("When give a valid benefit code and issue code, buildCaseCategories returns a valid case Category and  case subcategory")
     @Test
     void buildCaseCategories() {
+        String parentValue = "BBA3-002";
+        String subTypeValue = "BBA3-002-DD";
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
@@ -321,9 +323,9 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
                 .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
-                .willReturn("BBA3-002");
+                .willReturn(parentValue);
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
-                .willReturn("BBA3-002-DD");
+                .willReturn(subTypeValue);
 
         given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
@@ -335,9 +337,11 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceData);
 
         assertThat(result)
-                .extracting("categoryType", "categoryValue")
-                .contains(tuple(CASE_TYPE, "BBA3-002"), tuple(CASE_SUB_TYPE, "BBA3-002-DD"));
+                .extracting("categoryType", "categoryValue", "categoryParent")
+                .as("Case sub type categories should have a parent set.")
+                .contains(tuple(CASE_TYPE, parentValue, null), tuple(CASE_SUB_TYPE, subTypeValue, parentValue));
     }
+
 
     @DisplayName("When a case with a valid CaseManagementLocation is given getCaseManagementLocationCode returns the correct EPIMS ID")
     @Test
