@@ -27,20 +27,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityRoleCode;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getDwpOrganisationDetails;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualCustodyStatus;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualFirstName;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualHearingChannelEmail;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualHearingChannelPhone;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualLastName;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualOtherReasonableAdjustmentDetails;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualReasonableAdjustments;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualRelatedParties;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualVulnerabilityDetails;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getPartyOrganisationDetails;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.isIndividualVulnerableFlag;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
@@ -52,7 +38,7 @@ public final class ServiceHearingPartiesMapping {
         throw new IllegalStateException("Utility class");
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData) {
+    public static List<PartyDetails> buildServiceHearingPartiesDetails(SscsCaseData caseData) {
 
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
@@ -67,7 +53,7 @@ public final class ServiceHearingPartiesMapping {
             partiesDetails.add(createJointPartyDetails());
         }
 
-        partiesDetails.addAll(buildHearingPartiesPartyDetails(
+        partiesDetails.addAll(buildServiceHearingPartiesPartyDetails(
                 appellant, appeal.getRep(), appeal.getHearingOptions(), appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId()));
 
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
@@ -75,7 +61,7 @@ public final class ServiceHearingPartiesMapping {
         if (nonNull(otherParties)) {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
                 OtherParty otherParty = ccdOtherParty.getValue();
-                partiesDetails.addAll(buildHearingPartiesPartyDetails(
+                partiesDetails.addAll(buildServiceHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId()));
             }
         }
@@ -83,7 +69,7 @@ public final class ServiceHearingPartiesMapping {
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
+    public static List<PartyDetails> buildServiceHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String appellantId) {
         List<PartyDetails> partyDetails = new ArrayList<>();
         partyDetails.add(createHearingPartyDetails(party, hearingOptions, hearingType, hearingSubtype, party.getId(), appellantId));
         if (nonNull(party.getAppointee()) && isYes(party.getIsAppointee())) {
@@ -101,9 +87,10 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyID(getPartyId(entity));
         partyDetails.partyType(getPartyType(entity));
         partyDetails.partyRole(getPartyRole(entity));
+        partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype, partyId, appellantId));
-        partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null));
-        partyDetails.organisationDetails(getPartyOrganisationDetails());
+        partyDetails.partyChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null));
+        partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(null); //TODO Implement later
         partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
 
@@ -116,7 +103,7 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyID(DWP_ID);
         partyDetails.partyType(ORG);
         partyDetails.partyRole(RESPONDENT.getHmcReference());
-        partyDetails.organisationDetails(getDwpOrganisationDetails());
+        partyDetails.organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails());
         partyDetails.unavailabilityDow(null);
         partyDetails.unavailabilityRanges(null);
 
@@ -130,18 +117,18 @@ public final class ServiceHearingPartiesMapping {
 
     public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions, String hearingType, HearingSubtype hearingSubtype, String partyId, String appellantId) {
         return IndividualDetails.builder()
-                .firstName(getIndividualFirstName(entity))
-                .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
-                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
-                .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
-                .vulnerableFlag(isIndividualVulnerableFlag())
-                .vulnerabilityDetails(getIndividualVulnerabilityDetails())
-                .hearingChannelEmail(getIndividualHearingChannelEmail(hearingSubtype))
-                .hearingChannelPhone(getIndividualHearingChannelPhone(hearingSubtype))
-                .relatedParties(getIndividualRelatedParties(entity, partyId, appellantId))
-                .custodyStatus(getIndividualCustodyStatus())
-                .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
+                .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
+                .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
+                .preferredHearingChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
+                .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions).orElse(null))
+                .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions))
+                .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
+                .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
+                .hearingChannelEmail(HearingsPartiesMapping.getIndividualHearingChannelEmail(hearingSubtype))
+                .hearingChannelPhone(HearingsPartiesMapping.getIndividualHearingChannelPhone(hearingSubtype))
+                .relatedParties(HearingsPartiesMapping.getIndividualRelatedParties(entity, partyId, appellantId))
+                .custodyStatus(HearingsPartiesMapping.getIndividualCustodyStatus())
+                .otherReasonableAdjustmentDetails(HearingsPartiesMapping.getIndividualOtherReasonableAdjustmentDetails())
                 .build();
     }
 

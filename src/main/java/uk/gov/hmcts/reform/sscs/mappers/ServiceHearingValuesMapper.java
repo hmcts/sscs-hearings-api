@@ -54,7 +54,7 @@ public final class ServiceHearingValuesMapper {
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(getJudiciary(caseDetails, referenceData))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
-                .parties(ServiceHearingPartiesMapping.buildHearingPartiesDetails(caseData))
+                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
