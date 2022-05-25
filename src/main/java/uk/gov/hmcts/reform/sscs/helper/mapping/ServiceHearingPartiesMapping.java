@@ -64,7 +64,7 @@ public final class ServiceHearingPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.add(createJointPartyDetails(caseData));
+            partiesDetails.add(createJointPartyDetails());
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -123,8 +123,8 @@ public final class ServiceHearingPartiesMapping {
         return partyDetails.build();
     }
 
-    public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
-        // TODO SSCS-10378 - Add joint party logic
+    public static PartyDetails createJointPartyDetails() {
+        // TODO SSCS-10378 - Add joint party logic using caseData or referenceData
         return PartyDetails.builder().build();
     }
 
