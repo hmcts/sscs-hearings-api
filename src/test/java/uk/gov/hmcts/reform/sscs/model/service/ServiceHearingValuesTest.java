@@ -55,7 +55,7 @@ class ServiceHearingValuesTest {
         JsonSchema schema = getJsonSchemaFromStringContent(jsonSchema);
         JsonNode node = getJsonNodeFromStringContent(json);
         Set<ValidationMessage> errors = schema.validate(node);
-        assertThat(errors).hasSize(2);
+        assertThat(errors).hasSize(3);
     }
 
     private JsonSchema getJsonSchemaFromStringContent(String schemaContent) {

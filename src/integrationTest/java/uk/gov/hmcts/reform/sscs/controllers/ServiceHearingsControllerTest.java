@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,26 +19,38 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -61,7 +74,7 @@ class ServiceHearingsControllerTest {
     private static final long HEARING_ID = 123L;
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
-    private static final String CASE_NAME = "";
+    private static final String CASE_NAME = "Test Case Name";
 
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -78,6 +91,15 @@ class ServiceHearingsControllerTest {
 
     @MockBean
     private CcdService ccdService;
+
+    @MockBean
+    private ReferenceData referenceData;
+
+    @Mock
+    public SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    public HearingDurationsService hearingDurations;
 
     @BeforeEach
     void setUp()  {
@@ -107,6 +129,13 @@ class ServiceHearingsControllerTest {
         Mockito.when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         Mockito.when(sscsCaseData.getCcdCaseId()).thenReturn(String.valueOf(CASE_ID));
+        SscsIndustrialInjuriesData sscsIndustrialInjuriesData = mock(SscsIndustrialInjuriesData.class);
+        Mockito.when(sscsIndustrialInjuriesData.getSecondPanelDoctorSpecialism()).thenReturn("");
+        Mockito.when(sscsCaseData.getSscsIndustrialInjuriesData()).thenReturn(sscsIndustrialInjuriesData);
+        Mockito.when(sscsCaseData.getIsFqpmRequired()).thenReturn(YesNo.NO);
+        JointParty jointParty = mock(JointParty.class);
+        Mockito.when(jointParty.getHasJointParty()).thenReturn(YesNo.NO);
+        Mockito.when(sscsCaseData.getJointParty()).thenReturn(jointParty);
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
@@ -114,6 +143,22 @@ class ServiceHearingsControllerTest {
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false, false, SessionCategory.CATEGORY_06, null);
+
+        given(sessionCategoryMaps.getSessionCategory(anyString(), anyString(),anyBoolean(),anyBoolean()))
+                .willReturn(sessionCategoryMap);
+        given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
+                .willReturn("BBA3-002");
+        given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
+                .willReturn("BBA3-002-DD");
+        given(hearingDurations.getHearingDuration(anyString(),anyString()))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
     }
 
     // TODO These are holder tests that will need to be implemented alongside service hearing controller
@@ -122,7 +167,10 @@ class ServiceHearingsControllerTest {
             + "should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceHearingValues() throws Exception {
-        ServiceHearingValues model = ServiceHearingValues.builder().caseName(CASE_NAME).build();
+        ServiceHearingValues model = ServiceHearingValues.builder()
+                .caseNamePublic(CASE_NAME)
+                .autoListFlag(true)
+                .build();
         String json = asJsonString(model);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()

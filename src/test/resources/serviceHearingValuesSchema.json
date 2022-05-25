@@ -311,16 +311,10 @@
     "UnavailabilityRangeModel": {
       "properties": {
         "unavailableFromDate": {
-          "items": {
-            "type": "number"
-          },
-          "type": "array"
+          "type": "string"
         },
         "unavailableToDate": {
-          "items": {
-            "type": "number"
-          },
-          "type": "array"
+          "type": "string"
         }
       },
       "type": "object"

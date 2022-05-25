@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -314,31 +315,25 @@ public final class HearingsDetailsMapping {
     }
 
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData, ReferenceData referenceData) {
-        var panelRequirementsBuilder = PanelRequirements.builder();
+        return PanelRequirements.builder()
+                .roleTypes(getRoleTypes(caseData, referenceData))
+                .authorisationTypes(getAuthorisationTypes(caseData, referenceData))
+                .authorisationSubTypes(getAuthorisationSubTypes(caseData, referenceData))
+                .panelPreferences(getPanelPreferences(caseData))
+                .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceData)))
+                .build();
+    }
 
-        // TODO Dependant on SSCS-10116 and SSCS-10273 - Will be linked to Session Category Reference Data,
-        //      find out what types there are and how these are determined
-        List<String> roleTypes = new ArrayList<>();
-        panelRequirementsBuilder.roleTypes(roleTypes);
+    public static List<String> getRoleTypes(SscsCaseData caseData, ReferenceData referenceData) {
+        return Collections.emptyList();
+    }
 
-        List<String> authorisationTypes = new ArrayList<>();
-        // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
-        //      find out what types there are and how these are determined
-        panelRequirementsBuilder.authorisationTypes(authorisationTypes);
+    public static List<String> getAuthorisationTypes(SscsCaseData caseData, ReferenceData referenceData) {
+        return Collections.emptyList();
+    }
 
-
-        List<String> authorisationSubTypes = new ArrayList<>();
-        // TODO Dependant on SSCS-10116 - Will be linked to Session Category Reference Data,
-        //      find out what subtypes there are and how these are determined
-        panelRequirementsBuilder.authorisationSubTypes(authorisationSubTypes);
-
-        panelRequirementsBuilder.panelPreferences(getPanelPreferences(caseData));
-
-        SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
-
-        return panelRequirementsBuilder
-            .panelSpecialisms(getPanelSpecialisms(caseData, sessionCategoryMap))
-            .build();
+    public static List<String> getAuthorisationSubTypes(SscsCaseData caseData, ReferenceData referenceData) {
+        return Collections.emptyList();
     }
 
     public static List<String> getPanelSpecialisms(SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {

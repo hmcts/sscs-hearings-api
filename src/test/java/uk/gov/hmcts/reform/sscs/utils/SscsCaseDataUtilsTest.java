@@ -26,11 +26,10 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -221,8 +220,7 @@ class SscsCaseDataUtilsTest {
         assertEquals(OrganisationDetails.builder().build(), partyDetails.getOrganisationDetails());
         assertNull(partyDetails.getUnavailabilityDow());
         List<UnavailabilityRange> unavailabilityRanges = partyDetails.getUnavailabilityRanges();
-        assertEquals(1, unavailabilityRanges.size());
-        assertEquals(LocalDate.of(2022,01,12), unavailabilityRanges.stream().findFirst().orElseThrow().getUnavailableFromDate());
+        assertEquals(0, unavailabilityRanges.size());
     }
 
     @Test
@@ -305,8 +303,8 @@ class SscsCaseDataUtilsTest {
         return new ArrayList<>() {
             {
                 add(UnavailabilityRange.builder()
-                        .unavailableFromDate(LocalDate.of(2022, 1, 12))
-                        .unavailableToDate(LocalDate.of(2022, 1, 19))
+                        .unavailableFromDate("2022-01-12")
+                        .unavailableToDate("2022-01-19")
                         .build());
             }
         };

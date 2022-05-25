@@ -1,22 +1,30 @@
 package uk.gov.hmcts.reform.sscs.mappers;
 
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
-import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 
-@Component
-public class ServiceHearingValuesMapper {
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
-    public ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails) {
+public final class ServiceHearingValuesMapper {
+
+    private ServiceHearingValuesMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
+
+    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceData referenceData) {
         if (caseDetails == null) {
             return null;
         }
@@ -29,9 +37,9 @@ public class ServiceHearingValuesMapper {
                 .autoListFlag(HearingsDetailsMapping.shouldBeAutoListed())
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
-                .caseSubTypes(SscsCaseDataUtils.getIssueCode(caseData))
+                .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
                 .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, HearingsDetailsMapping.shouldBeAutoListed()))
-                .duration(HearingsDetailsMapping.getHearingDuration(caseData, null))
+                .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceData))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
@@ -43,25 +51,28 @@ public class ServiceHearingValuesMapper {
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
-                .judiciary(null) // TODO
+                .judiciary(getJudiciary(caseDetails, referenceData))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked())
-                .parties(HearingsPartiesMapping.buildHearingPartiesDetails(caseData))
+                .parties(SscsCaseDataUtils.getParties(caseData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
             .build();
     }
 
-    public static HearingPriorityType getHearingPriority(String isAdjournCase, String isUrgentCase) {
-        HearingPriorityType hearingPriorityType = HearingPriorityType.NORMAL;
-
-        if (YesNo.isYes(isUrgentCase) || YesNo.isYes(isAdjournCase)) {
-            hearingPriorityType = HearingPriorityType.HIGH;
-        }
-        return hearingPriorityType;
+    public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceData referenceData) {
+        SscsCaseData sscsCaseData = caseDetails.getData();
+        return Judiciary.builder()
+                .roleType(HearingsDetailsMapping.getRoleTypes(sscsCaseData, referenceData))
+                .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes(sscsCaseData, referenceData))
+                .authorisationSubType(HearingsDetailsMapping.getAuthorisationSubTypes(sscsCaseData, referenceData))
+                .judiciarySpecialisms(HearingsDetailsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceData)))
+                .judiciaryPreferences(getPanelPreferences(sscsCaseData, referenceData))
+                .build();
     }
 
-
-
-
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData, ReferenceData referenceData) {
+        //TODO Need to retrieve PanelPreferences from caseData and/or ReferenceData
+        return new ArrayList<>();
+    }
 }

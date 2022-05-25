@@ -1,8 +1,18 @@
 package uk.gov.hmcts.reform.sscs.utils;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
+import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingPartiesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
@@ -94,7 +104,7 @@ public final class SscsCaseDataUtils {
                             .individualDetails(PartyDetailsUtils.getIndividualDetails(party, sscsCaseData))
                             .organisationDetails(PartyDetailsUtils.getOrganisationDetails(party))
                             .unavailabilityDow(null)
-                            .unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(party.getHearingOptions()))
+                            .unavailabilityRanges(ServiceHearingPartiesMapping.getPartyUnavailabilityRange(party.getHearingOptions()))
                             .build())
                     .collect(Collectors.toList());
         }

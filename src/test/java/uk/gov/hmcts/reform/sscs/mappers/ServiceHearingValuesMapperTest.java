@@ -2,8 +2,15 @@ package uk.gov.hmcts.reform.sscs.mappers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.*;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
@@ -11,23 +18,37 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
 
+@ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMapperTest {
 
-    private static final ServiceHearingValuesMapper mapper = new ServiceHearingValuesMapper();
     private static SscsCaseDetails sscsCaseDetails;
+
+    @Mock
+    public HearingDurationsService hearingDurations;
+    @Mock
+    private static ReferenceData referenceData;
+
+    @Mock
+    private static SessionCategoryMapService sessionCategoryMaps;
 
     private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
     private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:\n";
@@ -38,7 +59,7 @@ class ServiceHearingValuesMapperTest {
         sscsCaseDetails = SscsCaseDetails.builder()
             .data(SscsCaseData.builder()
                       .ccdCaseId("1234")
-                      .benefitCode("001")
+                      .benefitCode("002")
                       .issueCode("DD")
                       .urgentCase("Yes")
                       .adjournCaseCanCaseBeListedRightAway("Yes")
@@ -103,6 +124,22 @@ class ServiceHearingValuesMapperTest {
                       .linkedCasesBoolean("No")
                       .build())
             .build();
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false, false, SessionCategory.CATEGORY_06, null);
+
+        given(sessionCategoryMaps.getSessionCategory("002", ISSUE_CODE,false,false))
+                .willReturn(sessionCategoryMap);
+        given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
+                .willReturn("BBA3-002");
+        given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
+                .willReturn("BBA3-002-DD");
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
+        given(hearingDurations.getHearingDuration("002",ISSUE_CODE)).willReturn(null);
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
     }
 
     @Test
@@ -110,7 +147,7 @@ class ServiceHearingValuesMapperTest {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
-        final ServiceHearingValues serviceHearingValues = mapper.mapServiceHearingValues(sscsCaseDetails);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapper.mapServiceHearingValues(sscsCaseDetails, referenceData);
         final HearingWindow expectedHearingWindow = HearingWindow.builder().build();
         //then
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNameHmctsInternal(), serviceHearingValues.getCaseName());
@@ -119,7 +156,10 @@ class ServiceHearingValuesMapperTest {
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
-        assertEquals(sscsCaseData.getIssueCode(), String.join("", serviceHearingValues.getCaseSubTypes()));
+        List<String> categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
+        assertEquals("BBA3-002", categoryValueList.stream().findFirst().orElse(""));
+        categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseSubType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
+        assertEquals("BBA3-002-DD", categoryValueList.stream().findFirst().orElse(""));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
         assertEquals(HearingPriorityType.HIGH.getType(), serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
@@ -134,12 +174,10 @@ class ServiceHearingValuesMapperTest {
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
-        assertNull(serviceHearingValues.getJudiciary());
+        assertEquals("BBA3-MQPM1", serviceHearingValues.getJudiciary().getJudiciarySpecialisms().stream().findFirst().orElse(""));
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
-        assertEquals(3, serviceHearingValues.getParties().size());
-        assertEquals("BBA3-appellant", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-Representative", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG.getPartyLabel().equals(partyDetails.getPartyType())).findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-otherParty", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertEquals(1, serviceHearingValues.getParties().size());
+        assertEquals("party_role", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
     }

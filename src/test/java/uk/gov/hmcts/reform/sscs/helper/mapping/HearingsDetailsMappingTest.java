@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov;
-import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
