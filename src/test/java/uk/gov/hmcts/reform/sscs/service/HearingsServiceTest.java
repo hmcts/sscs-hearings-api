@@ -15,8 +15,10 @@ import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -39,8 +41,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
-
-
     private static final long HEARING_REQUEST_ID = 12345;
     private static final String HMC_STATUS = "TestStatus";
     private static final long VERSION = 1;
@@ -49,6 +49,8 @@ class HearingsServiceTest {
     private static final String CANCEL_REASON_TEMP = "AWAITING_LISTING";
     private static final String IDAM_OAUTH2_TOKEN = "TestOauth2Token";
     private static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
+    private static final String BENEFIT_CODE = "002";
+    private static final String ISSUE_CODE = "DD";
 
     private HearingsService hearingsService;
     private HearingWrapper wrapper;
@@ -64,24 +66,31 @@ class HearingsServiceTest {
     @Mock
     private IdamService idamService;
 
+    @Mock
+    public HearingDurationsService hearingDurations;
+
+    @Mock
+    public SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    public ReferenceData referenceData;
+
     @BeforeEach
     void setup() {
         openMocks(this);
 
         SscsCaseData caseData = SscsCaseData.builder()
-            .ccdCaseId(String.valueOf(CASE_ID))
-                .caseManagementLocation(CaseManagementLocation.builder()
+                .ccdCaseId(String.valueOf(CASE_ID))
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
+                .caseManagementLocation(CaseManagementLocation.builder().build())
+                .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .appellant(Appellant.builder()
+                                .name(Name.builder().build())
+                                .build())
                         .build())
-            .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                            .build())
-                    .appellant(Appellant.builder()
-                            .name(Name.builder()
-                                    .build())
-                            .build())
-                    .build())
-
-            .build();
+                .build();
 
         wrapper = HearingWrapper.builder()
             .state(CREATE_HEARING)
@@ -100,8 +109,7 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService);
+        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceData);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
@@ -136,6 +144,17 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCreate() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
                         .idamOauth2Token(IDAM_OAUTH2_TOKEN)
@@ -154,6 +173,19 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperUpdate() {
+
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         given(idamService.getIdamTokens())
                 .willReturn(IdamTokens.builder()
                         .idamOauth2Token(IDAM_OAUTH2_TOKEN)
@@ -215,13 +247,6 @@ class HearingsServiceTest {
                         eq(event.getEventType()),
                         eq(event.getSummary()),
                         eq(event.getDescription()));
-
-        assertThat(wrapper.getCaseData().getEvents()).isNotEmpty();
-        EventDetails eventDetails = wrapper.getCaseData().getEvents().get(0).getValue();
-        assertThat(eventDetails.getType()).isNotEmpty();
-        assertThat(eventDetails.getDate()).isNotEmpty();
-        assertThat(eventDetails.getDateTime()).isNotNull();
-        assertThat(eventDetails.getDescription()).isNotEmpty();
     }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")

@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_SUB_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_TYPE;
 
@@ -27,6 +29,13 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Test
     void buildHearingCaseDetails() {
         // TODO Finish Test when method done
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .hearingOptions(HearingOptions.builder().build())
@@ -65,7 +74,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper);
+        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceData);
 
         assertNotNull(caseDetails.getCaseId());
         assertNotNull(caseDetails.getCaseDeepLink());
@@ -290,6 +299,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         ",,false",
     }, nullValues = {"null"})
     void isInterpreterRequiredHearingOptions(String interpreter, String arrangements, boolean expected) {
+
         HearingOptions hearingOptions = HearingOptions.builder()
                 .languageInterpreter(interpreter)
                 .arrangements(nonNull(arrangements) ?  splitCsvParamArray(arrangements) : null)
@@ -300,24 +310,37 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     }
 
 
-    @DisplayName("buildCaseCategories Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "001,DD,BBA3-001,BBA3-001DD", // TODO replace with actual values
-    }, nullValues = {"null"})
-    void buildCaseCategories(String benefitCode, String issueCode, String expectedCaseTypeValue,  String expectedCaseSubTypeValue) {
-        // TODO Finish Test when method done
+    @DisplayName("When give a valid benefit code and issue code, buildCaseCategories returns a valid case Category and  case subcategory")
+    @Test
+    void buildCaseCategories() {
+        String parentValue = "BBA3-002";
+        String subTypeValue = "BBA3-002-DD";
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false, false, SessionCategory.CATEGORY_06, null);
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
+                .willReturn(sessionCategoryMap);
+        given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
+                .willReturn(parentValue);
+        given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
+                .willReturn(subTypeValue);
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(benefitCode)
-                .issueCode(issueCode)
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
                 .build();
 
-        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData);
+        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceData);
 
         assertThat(result)
-                .extracting("categoryType", "categoryValue")
-                .contains(tuple(CASE_TYPE, expectedCaseTypeValue), tuple(CASE_SUB_TYPE, expectedCaseSubTypeValue));
+                .extracting("categoryType", "categoryValue", "categoryParent")
+                .as("Case sub type categories should have a parent set.")
+                .contains(tuple(CASE_TYPE, parentValue, null), tuple(CASE_SUB_TYPE, subTypeValue, parentValue));
     }
+
 
     @DisplayName("When a case with a valid CaseManagementLocation is given getCaseManagementLocationCode returns the correct EPIMS ID")
     @Test
