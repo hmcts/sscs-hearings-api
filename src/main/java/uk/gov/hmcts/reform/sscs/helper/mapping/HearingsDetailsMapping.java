@@ -156,9 +156,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceData referenceData) {
-        if (isNull(referenceData)) {
-            return null;
-        }
+
         HearingDuration hearingDuration = referenceData.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 

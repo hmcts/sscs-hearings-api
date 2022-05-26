@@ -172,7 +172,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualFullName(Entity entity) {
-        return entity.getName().getFullName();
+        return entity.getName().getFullNameNoTitle();
     }
 
 
