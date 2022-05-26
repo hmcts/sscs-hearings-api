@@ -5,11 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
+import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,14 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_T
 
 class HearingsCaseMappingTest extends HearingsMappingBase {
 
+    @Mock
+    private SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+
+
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
     void buildHearingCaseDetails() {
@@ -35,7 +46,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
@@ -75,7 +86,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .build();
 
-        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceData);
+        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceDataServiceHolder);
 
         assertNotNull(caseDetails.getCaseId());
         assertNotNull(caseDetails.getCaseDeepLink());
@@ -327,14 +338,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
                 .willReturn(subTypeValue);
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
                 .issueCode(ISSUE_CODE)
                 .build();
 
-        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceData);
+        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder);
 
         assertThat(result)
                 .extracting("categoryType", "categoryValue", "categoryParent")

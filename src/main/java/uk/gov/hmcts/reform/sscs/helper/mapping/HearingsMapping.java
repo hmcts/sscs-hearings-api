@@ -126,10 +126,11 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData,
+                                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return referenceData.getSessionCategoryMaps()
+        return referenceDataServiceHolder.getSessionCategoryMaps()
                 .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
                         doctorSpecialistSecond, fqpmRequired);
     }
