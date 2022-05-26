@@ -154,11 +154,11 @@ public class HearingsService {
     }
 
     public HearingResponse sendCancelHearingRequest(HearingWrapper wrapper) {
-        HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(null); // TODO: Get Reason in Ticket: SSCS-10366
-        log.debug("Sending Update Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
+        HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
+        log.debug("Sending Update Hearing Request for Case ID ({}), Hearing State ({}) and reason ({})",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
-                hearingPayload.toString());
+                hearingPayload.getCancellationReasonCode());
         return hmcHearingApi.cancelHearingRequest(
                 idamService.getIdamTokens().getIdamOauth2Token(),
                 idamService.getIdamTokens().getServiceAuthorization(),

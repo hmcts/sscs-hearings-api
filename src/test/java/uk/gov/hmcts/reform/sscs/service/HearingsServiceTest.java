@@ -8,7 +8,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -22,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,7 +58,6 @@ class HearingsServiceTest {
     private static final long VERSION = 1;
     private static final long CASE_ID = 1625080769409918L;
     private static final long MISSING_CASE_ID = 99250807409918L;
-    private static final String CANCEL_REASON_TEMP = "AWAITING_LISTING";
     private static final String IDAM_OAUTH2_TOKEN = "TestOauth2Token";
     private static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
     private static final String BENEFIT_CODE = "002";
@@ -214,9 +225,9 @@ class HearingsServiceTest {
                 .willReturn(HearingResponse.builder().build());
 
         wrapper.setState(CANCEL_HEARING);
+        wrapper.setCancellationReason(CancellationReason.OTHER);
 
-        assertThatNoException()
-                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
@@ -277,18 +288,19 @@ class HearingsServiceTest {
                         .build());
 
         HearingCancelRequestPayload payload = HearingCancelRequestPayload.builder()
-                // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
+                .cancellationReasonCode(CancellationReason.OTHER.name())
                 .build();
 
         HearingResponse response = HearingResponse.builder()
-                .hearingCancellationReason(CANCEL_REASON_TEMP)
+                .hearingCancellationReason(CancellationReason.OTHER.name())
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .versionNumber(VERSION)
                 .build();
 
-        given(hmcHearingApi.cancelHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
+        given(hmcHearingApi.cancelHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION,
+            String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
 
-        // wrapper.getCaseData().getSchedulingAndListingFields().setCancellationCode(CANCEL_REASON_TEMP); // TODO: Uncomment when implemented
+        wrapper.setCancellationReason(CancellationReason.OTHER);
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingVersionNumber(VERSION);
 
