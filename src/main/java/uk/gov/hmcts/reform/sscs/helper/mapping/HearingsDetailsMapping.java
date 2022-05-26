@@ -103,11 +103,10 @@ public final class HearingsDetailsMapping {
 
         LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
         if (isCaseUrgent(caseData)) {
-            startDate = dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
+            return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
         } else if (autoListed) {
-            startDate = dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
+            return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
         }
-
         return startDate;
     }
 
