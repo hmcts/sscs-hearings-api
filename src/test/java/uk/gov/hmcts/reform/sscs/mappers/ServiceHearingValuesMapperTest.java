@@ -188,8 +188,6 @@ class ServiceHearingValuesMapperTest {
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapper.mapServiceHearingValues(sscsCaseDetails, referenceData);
-        final HearingWindow expectedHearingWindow = HearingWindow.builder()
-                .hearingWindowDateRange(HearingWindowDateRange.builder().hearingWindowStartDateRange("2022-02-26").build()).build();
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
