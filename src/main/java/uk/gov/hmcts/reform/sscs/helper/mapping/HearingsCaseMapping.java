@@ -116,6 +116,7 @@ public final class HearingsCaseMapping {
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
                 .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
+                .categoryParent(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
