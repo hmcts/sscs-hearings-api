@@ -91,7 +91,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                 .build())
                         .build()))
                 .build();
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isFalse();
     }
@@ -102,7 +102,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
                 .build();
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isTrue();
     }
@@ -117,7 +117,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .urgentCase(urgentCase)
                 .build();
 
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isTrue();
     }
@@ -130,7 +130,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .urgentCase("Yes")
                 .build();
 
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isFalse();
     }
@@ -397,7 +397,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             appeal.setHearingOptions(HearingOptions.builder().other(appellant).build());
         }
 
-        String result = HearingsDetailsMapping.getListingComments(appeal, otherParties);
+        SscsCaseData caseData = SscsCaseData.builder()
+                .appeal(appeal)
+                .otherParties(otherParties)
+                .build();
+
+        String result = HearingsDetailsMapping.getListingComments(caseData);
 
         assertThat(result).isEqualToNormalizingNewlines(expected.replace("\\n",String.format("%n")));
     }
@@ -426,7 +431,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             appeal.setHearingOptions(HearingOptions.builder().other(appellant).build());
         }
 
-        String result = HearingsDetailsMapping.getListingComments(appeal, otherParties);
+        SscsCaseData caseData = SscsCaseData.builder()
+                .appeal(appeal)
+                .otherParties(otherParties)
+                .build();
+
+        String result = HearingsDetailsMapping.getListingComments(caseData);
 
         assertNull(result);
     }
