@@ -32,8 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPELLANT;
@@ -467,10 +465,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
         assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(()->
-                                            getIndividualPreferredHearingChannel(null,
-                                                                                 HearingSubtype.builder().build(),
-                                                                                 hearingOptions));
+            IllegalStateException.class).isThrownBy(() ->
+            getIndividualPreferredHearingChannel(null,
+                HearingSubtype.builder().build(),
+                hearingOptions));
     }
 
     @DisplayName("When hearingSubType not set then throw IllegalStateException")
@@ -479,10 +477,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
         assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(()->
-                                                getIndividualPreferredHearingChannel("TEST",
-                                                                                     null,
-                                                                                     hearingOptions));
+            IllegalStateException.class).isThrownBy(() ->
+            getIndividualPreferredHearingChannel("TEST",
+                null,
+                hearingOptions));
 
     }
 
@@ -530,10 +528,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
         assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(()->
-                                                getIndividualPreferredHearingChannel(null,
-                                                                                     null,
-                                                                                             hearingOptions));
+            IllegalStateException.class).isThrownBy(() ->
+            getIndividualPreferredHearingChannel(null,
+                null,
+                hearingOptions));
     }
 
     @DisplayName("When hearing type oral and video then return LOV VIDEO")
@@ -561,10 +559,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
 
         assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(()->
-                                                getIndividualPreferredHearingChannel("oral",
-                                                                                     hearingSubtype,
-                                                                                     hearingOptions));
+            IllegalStateException.class).isThrownBy(() ->
+            getIndividualPreferredHearingChannel("oral",
+                hearingSubtype,
+                hearingOptions));
     }
 
     @DisplayName("When hearing type oral and face to face then return LOV FACE TO FACE")
@@ -592,10 +590,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
 
         assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(()->
-                                                getIndividualPreferredHearingChannel("oral",
-                                                                                     hearingSubtype,
-                                                                                     hearingOptions));
+            IllegalStateException.class).isThrownBy(() ->
+            getIndividualPreferredHearingChannel("oral",
+                hearingSubtype,
+                hearingOptions));
     }
 
     @DisplayName("getIndividualReasonableAdjustments Test")

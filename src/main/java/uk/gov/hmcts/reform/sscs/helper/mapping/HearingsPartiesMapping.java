@@ -27,7 +27,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NA
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TEL;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VID;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
@@ -154,7 +154,7 @@ public final class HearingsPartiesMapping {
     public static String getIndividualPreferredHearingChannel(String hearingType,
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
-        if (hearingType == null || hearingSubtype == null) {
+        if (eitherNull(hearingType, hearingSubtype)) {
             throw new IllegalStateException("hearingType and/or hearingSubtype null");
         }
 
@@ -170,6 +170,10 @@ public final class HearingsPartiesMapping {
         }
 
         return preferredHearingChannel.getHmcReference();
+    }
+
+    private static boolean eitherNull(String hearingType, HearingSubtype hearingSubtype) {
+        return hearingType == null || hearingSubtype == null;
     }
 
     private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {
