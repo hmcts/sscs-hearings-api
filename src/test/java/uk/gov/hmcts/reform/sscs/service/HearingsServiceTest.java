@@ -37,6 +37,7 @@ import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
@@ -66,14 +67,17 @@ class HearingsServiceTest {
     private IdamService idamService;
 
     @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
     public HearingDurationsService hearingDurations;
 
     @Mock
-    private SessionCategoryMapService sessionCategoryMaps;
+    public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
-    
+    private VenueService venueService;
+
     @BeforeEach
     void setup() {
         openMocks(this);
@@ -142,6 +146,68 @@ class HearingsServiceTest {
         });
 
         assertThat(thrown.getMessage()).isNotEmpty();
+    }
+
+    @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
+    @Test
+    void processHearingWrapperCreate() {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        given(idamService.getIdamTokens())
+            .willReturn(IdamTokens.builder()
+                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                .serviceAuthorization(SERVICE_AUTHORIZATION)
+                .build());
+
+        given(hmcHearingApi.createHearingRequest(any(), any(), any()))
+            .willReturn(HearingResponse.builder().build());
+
+        wrapper.setState(CREATE_HEARING);
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
+    @Test
+    void processHearingWrapperUpdate() {
+
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        given(idamService.getIdamTokens())
+            .willReturn(IdamTokens.builder()
+                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                .serviceAuthorization(SERVICE_AUTHORIZATION)
+                .build());
+
+        given(hmcHearingApi.updateHearingRequest(any(), any(), any(), any()))
+            .willReturn(HearingResponse.builder().build());
+
+        wrapper.setState(UPDATE_HEARING);
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
