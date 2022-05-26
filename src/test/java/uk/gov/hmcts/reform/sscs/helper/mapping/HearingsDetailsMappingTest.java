@@ -95,22 +95,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When there are no linked cases, shouldBeAutoListed returns true")
-    @DisplayName("shouldBeAutoListed flag is TRUE when HearingOptions.wantsToAttend is yes")
+    @DisplayName("shouldBeAutoListed flag is TRUE when HearingOptions.wantsToAttend is yes and there are no linked cases")
     @Test
-    void shouldBeAutoListed() {
+    void shouldBeAutoListedTruWhenAttending() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .build())
             .build();
         boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
-    void testShouldBeAutoListedTrue() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .build();
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData);
-
         assertThat(result).isTrue();
     }
 
