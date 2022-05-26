@@ -223,7 +223,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).isNotNull();
 
-        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
         assertThat(result.getDateRangeStart()).isEqualTo("2021-12-15");
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
