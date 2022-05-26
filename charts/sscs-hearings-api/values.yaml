@@ -29,7 +29,6 @@ java:
     REFORM_TEAM: sscs
     REFORM_SERVICE_NAME: sscs-hearings-api
     REFORM_SERVICE_TYPE: java
-    REFORM_ENVIRONMENT: preview
     ROOT_LOGGING_LEVEL: INFO
     LOG_OUTPUT: single
     CREATE_CCD_ENDPOINT: false
