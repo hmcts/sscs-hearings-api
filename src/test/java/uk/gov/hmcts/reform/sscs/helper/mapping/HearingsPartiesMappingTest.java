@@ -518,8 +518,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelPaperTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        String result = getIndividualPreferredHearingChannel("paper", hearingSubtype, hearingOptions);
-        assertThat(result).isEqualTo(HearingChannel.NA.getHmcReference());
+        String result = getIndividualPreferredHearingChannel("ONPPRS", hearingSubtype, hearingOptions);
+        assertThat(result).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
     }
 
     @DisplayName("When hearingType and hearingSubType is null")
@@ -540,7 +540,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").hearingVideoEmail("test@email.com").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
         String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
-        assertThat(result).isEqualTo(HearingChannel.VID.getHmcReference());
+        assertThat(result).isEqualTo(HearingChannel.VIDEO.getHmcReference());
     }
 
     @DisplayName("When hearing type oral and telephone then return LOV TELEPHONE")
@@ -549,7 +549,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").hearingTelephoneNumber("01111234567").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
         String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
-        assertThat(result).isEqualTo(HearingChannel.TEL.getHmcReference());
+        assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
 
     @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set throw IllegalStateException")
@@ -571,7 +571,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
         String result = getIndividualPreferredHearingChannel("oral", hearingSubtype, hearingOptions);
-        assertThat(result).isEqualTo(HearingChannel.INTER.getHmcReference());
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
     @DisplayName("When hearing type is blank and face to face then return LOV not attending")
@@ -580,7 +580,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
         String result = getIndividualPreferredHearingChannel("", hearingSubtype, hearingOptions);
-        assertThat(result).isEqualTo(HearingChannel.INTER.getHmcReference());
+        assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
     @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set throw IllegalStateException")
