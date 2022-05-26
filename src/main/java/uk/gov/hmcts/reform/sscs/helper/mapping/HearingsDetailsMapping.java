@@ -1,11 +1,24 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
 import java.time.LocalDate;
@@ -18,7 +31,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
-import static com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.StringUtils.isBlank;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -96,18 +108,15 @@ public final class HearingsDetailsMapping {
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
 
-        LocalDate startDate = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
-        if (isBlank(caseData.getDwpResponseDate())) {
-            return startDate;
+        if (isNotBlank(caseData.getDwpResponseDate())) {
+            LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
+            if (isCaseUrgent(caseData)) {
+                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
+            } else if (autoListed) {
+                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
+            }
         }
-
-        LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
-        if (isCaseUrgent(caseData)) {
-            return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
-        } else if (autoListed) {
-            return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
-        }
-        return startDate;
+        return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
     }
 
     public static LocalDateTime getFirstDateTimeMustBe() {
