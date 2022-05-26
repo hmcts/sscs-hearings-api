@@ -242,11 +242,11 @@ public final class HearingsPartiesMapping {
         switch (roleCode) {
             case APPOINTEE:
             case REPRESENTATIVE:
-                relatedParties.add(getRelatedParty(partyId, roleCode.getParentRole()));
+                relatedParties.add(getRelatedParty(partyId, roleCode.getHmcReference()));
                 break;
             case OTHER_PARTY:
             case JOINT_PARTY:
-                relatedParties.add(getRelatedParty(appellantId, roleCode.getParentRole()));
+                relatedParties.add(getRelatedParty(appellantId, roleCode.getHmcReference()));
                 break;
             default:
                 break;

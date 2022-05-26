@@ -96,13 +96,13 @@ public final class HearingsCaseMapping {
 
         SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceData);
 
-        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceData));
         categories.addAll(getCaseTypes(sessionCaseCode, referenceData));
+        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceData));
 
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
+    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
@@ -111,10 +111,11 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
+                .categoryParent(referenceData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .categoryValue(referenceData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;

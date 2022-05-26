@@ -264,6 +264,7 @@ repositories {
     url 'https://repo.spring.io/libs-milestone'
   }
 }
+
 def versions= [
   assertJ: '3.22.0',
   azureCore: '1.26.0',
@@ -299,7 +300,6 @@ def versions= [
   tomcat: '9.0.63',
   wiremock: '2.27.2'
 ]
-
 
 dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
