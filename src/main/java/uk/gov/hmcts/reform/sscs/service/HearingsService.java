@@ -44,10 +44,11 @@ public class HearingsService {
 
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
-        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
+        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {} and Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
-                hearingRequest.getHearingRoute());
+                hearingRequest.getHearingRoute(),
+                hearingRequest.getCancellationReason());
 
         processHearingWrapper(createWrapper(hearingRequest));
     }
