@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
@@ -29,9 +30,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 
 class HearingsDetailsMappingTest extends HearingsMappingBase {
@@ -80,60 +83,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getPanelRequirements());
     }
 
-    @DisplayName("When there are linked cases, shouldBeAutoListed returns false")
-    @Test
-    void testShouldBeAutoListedFalse() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .linkedCase(List.of(CaseLink.builder()
-                        .value(CaseLinkDetails.builder()
-                                .caseReference("123456")
-                                .build())
-                        .build()))
-                .build();
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
 
-        assertThat(result).isFalse();
-    }
-
-    @DisplayName("When there are no linked cases, shouldBeAutoListed returns true")
-    @Test
-    void testShouldBeAutoListedTrue() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .build();
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
-
-        assertThat(result).isTrue();
-    }
-
-    @DisplayName("When urgentCase is not No, null or Blank, shouldBeAutoListed should return True")
-    @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void testShouldBeAutoListed(String urgentCase) {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .urgentCase(urgentCase)
-                .build();
-
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
-
-        assertThat(result).isTrue();
-    }
-
-    @DisplayName("When urgentCase is Yes, shouldBeAutoListed should return False")
-    @Test
-    void testShouldBeAutoListed() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder()
-                .urgentCase("Yes")
-                .build();
-
-        boolean result = HearingsDetailsMapping.shouldBeAutoListed(caseData, referenceData);
-
-        assertThat(result).isFalse();
-    }
 
     @DisplayName("shouldBeHearingsInWelshFlag Test")
     @Test
@@ -287,6 +237,30 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         LocalDateTime result = HearingsDetailsMapping.getFirstDateTimeMustBe();
 
         assertThat(result).isNull();
+    }
+
+    @DisplayName("When urgentCase is yes, isCaseUrgent return True")
+    @Test
+    void testIsCaseUrgent() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .urgentCase("Yes")
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseUrgent(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When urgentCase is No or blank, isCaseUrgent return False")
+    @ParameterizedTest
+    @ValueSource(strings = {"No"})
+    @NullAndEmptySource
+    void testIsCaseUrgent(String value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .urgentCase(value)
+                .build();
+        boolean result = HearingsDetailsMapping.isCaseUrgent(caseData);
+
+        assertThat(result).isFalse();
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
@@ -560,8 +534,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003",
-        "null,carer,BBA3-MQPM1|BBA3-MQPM2-002",
+        "cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003|BBA3-?",
+        "null,carer,BBA3-MQPM1|BBA3-MQPM2-002|BBA3-?",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
 
@@ -588,8 +562,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with no second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "generalPractitioner,BBA3-MQPM1-004",
-        "null,BBA3-MQPM1",
+        "generalPractitioner,BBA3-MQPM1-004|BBA3-?",
+        "null,BBA3-MQPM1|BBA3-?",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism,String expected) {
 
@@ -822,4 +796,60 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .hasSize(9)
                 .containsOnly("WC");
     }
+
+    @DisplayName("When hearingType is Paper, isPaperCase returns True")
+    @Test
+    void testIsPaperCase() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .appeal(Appeal.builder()
+                        .hearingType(PAPER.toString())
+                        .build())
+                .build();
+        boolean result = HearingsDetailsMapping.isPaperCase(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When hearingType is not Paper, isPaperCase returns False")
+    @ParameterizedTest
+    @EnumSource(
+        value = HearingType.class,
+        names = {"PAPER"},
+        mode = EXCLUDE)
+    void testIsPaperCase(HearingType value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .appeal(Appeal.builder()
+                        .hearingType(value.getValue())
+                        .build())
+                .build();
+
+        boolean result = HearingsDetailsMapping.isPaperCase(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When dwpIsOfficerAttending is yes, isPoAttending return True")
+    @Test
+    void testIsPoAttending() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .dwpIsOfficerAttending("Yes")
+                .build();
+        boolean result = HearingsDetailsMapping.isPoAttending(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoAttending return False")
+    @ParameterizedTest
+    @ValueSource(strings = {"No"})
+    @NullAndEmptySource
+    void testIsPoAttending(String value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .dwpIsOfficerAttending(value)
+                .build();
+        boolean result = HearingsDetailsMapping.isPoAttending(caseData);
+
+        assertThat(result).isFalse();
+    }
+
 }
