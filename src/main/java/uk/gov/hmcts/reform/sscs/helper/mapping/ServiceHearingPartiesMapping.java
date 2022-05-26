@@ -151,9 +151,8 @@ public final class ServiceHearingPartiesMapping {
                 unavailabilityRanges.add(unavailabilityRange.build());
             }
             return unavailabilityRanges;
-        } else {
-            return Collections.emptyList();
         }
+        return Collections.emptyList();
     }
 
     public static String getPartyId(Entity entity) {

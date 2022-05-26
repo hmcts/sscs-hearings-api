@@ -1,15 +1,7 @@
-package uk.gov.hmcts.reform.sscs.mappers;
+package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
-import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
-import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
-import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingPartiesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
@@ -17,18 +9,15 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
-public final class ServiceHearingValuesMapper {
+public final class ServiceHearingValuesMapping {
 
-    private ServiceHearingValuesMapper() {
+    private ServiceHearingValuesMapping() {
         throw new IllegalStateException("Utility class");
     }
 
@@ -39,15 +28,16 @@ public final class ServiceHearingValuesMapper {
         }
 
         SscsCaseData caseData = caseDetails.getData();
+        boolean shouldBeAutoListed = HearingsDetailsMapping.shouldBeAutoListed(caseData);
 
         return ServiceHearingValues.builder()
                 .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
                 .caseNamePublic(HearingsCaseMapping.getPublicCaseName(caseData))
-                .autoListFlag(HearingsDetailsMapping.shouldBeAutoListed(caseData))
+                .autoListFlag(shouldBeAutoListed)
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
-                .hearingWindow(getHearingWindow(caseData))
+                .hearingWindow(buildHearingWindow(caseData, shouldBeAutoListed))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceData))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
@@ -82,35 +72,14 @@ public final class ServiceHearingValuesMapper {
 
     public static List<PanelPreference> getPanelPreferences() {
         //TODO Need to retrieve PanelPreferences from caseData and/or ReferenceData
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
-    public static HearingWindow getHearingWindow(SscsCaseData caseData) {
-        String hearingWindowStart = null;
-        if (Objects.nonNull(caseData.getEvents())) {
-            Event dwpResponded = caseData.getEvents().stream()
-                    .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
-                    .findFirst().orElse(null);
-
-            ZonedDateTime dwpResponseDateTime = Optional.ofNullable(dwpResponded)
-                    .map(Event::getValue)
-                    .map(EventDetails::getDateTime)
-                    .orElse(null);
-
-            if (Objects.nonNull(dwpResponseDateTime)) {
-                if (YesNo.isYes(caseData.getUrgentCase())) {
-                    hearingWindowStart = dwpResponseDateTime.plusDays(14).toLocalDate().toString();
-
-                } else {
-                    hearingWindowStart = dwpResponseDateTime.plusDays(28).toLocalDate().toString();
-                }
-            }
-        }
-
+    public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
         return HearingWindow.builder()
                 .hearingWindowFirstDate(null)
                 .hearingWindowDateRange(HearingWindowDateRange.builder()
-                        .hearingWindowStartDateRange(hearingWindowStart)
+                        .hearingWindowStartDateRange(HearingsDetailsMapping.getHearingWindowStart(caseData, autoListed).toString())
                         .hearingWindowEndDateRange(null)
                         .build())
                 .build();

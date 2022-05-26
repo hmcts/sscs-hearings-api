@@ -164,15 +164,15 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualFirstName(Entity entity) {
-        return nonNull(entity.getName()) ? entity.getName().getFirstName() : "";
+        return entity.getName().getFirstName();
     }
 
     public static String getIndividualLastName(Entity entity) {
-        return nonNull(entity.getName()) ? entity.getName().getLastName() : "";
+        return entity.getName().getLastName();
     }
 
     public static String getIndividualFullName(Entity entity) {
-        return nonNull(entity.getName()) ? entity.getName().getFullName() : "";
+        return entity.getName().getFullName();
     }
 
 

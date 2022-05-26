@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.mappers;
+package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,11 +35,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceHearingValuesMapperTest {
+class ServiceHearingValuesMappingTest {
 
     private static SscsCaseDetails sscsCaseDetails;
 
@@ -64,6 +65,10 @@ class ServiceHearingValuesMapperTest {
                       .issueCode("DD")
                       .urgentCase("Yes")
                       .adjournCaseCanCaseBeListedRightAway("Yes")
+                      .caseManagementLocation(CaseManagementLocation.builder()
+                              .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
+                              .region("North West")
+                              .build())
                       .appeal(Appeal.builder()
                                   .hearingType("final")
                                   .appellant(Appellant.builder()
@@ -148,13 +153,14 @@ class ServiceHearingValuesMapperTest {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapper.mapServiceHearingValues(sscsCaseDetails, referenceData);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
-                .hearingWindowDateRange(HearingWindowDateRange.builder().hearingWindowStartDateRange("2022-02-26").build()).build();
+                .hearingWindowDateRange(HearingWindowDateRange.builder()
+                .hearingWindowStartDateRange(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY).toString()).build()).build();
         //then
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNameHmctsInternal(), serviceHearingValues.getCaseName());
         assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNamePublic(), serviceHearingValues.getCaseNamePublic());
-        assertTrue(serviceHearingValues.isAutoListFlag()); //
+        assertFalse(serviceHearingValues.isAutoListFlag()); //
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
@@ -163,7 +169,7 @@ class ServiceHearingValuesMapperTest {
         categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseSubType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
         assertEquals("BBA3-002-DD", categoryValueList.stream().findFirst().orElse(""));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
-        assertEquals(HearingPriorityType.HIGH.getType(), serviceHearingValues.getHearingPriorityType());
+        assertEquals("high", serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());
@@ -187,7 +193,7 @@ class ServiceHearingValuesMapperTest {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapper.mapServiceHearingValues(sscsCaseDetails, referenceData);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());

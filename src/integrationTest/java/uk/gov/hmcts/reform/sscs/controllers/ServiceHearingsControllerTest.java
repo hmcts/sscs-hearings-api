@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -157,6 +158,10 @@ class ServiceHearingsControllerTest {
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         Mockito.when(sscsCaseData.getCaseAccessManagementFields()).thenReturn(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
+                .build());
+        Mockito.when(sscsCaseData.getCaseManagementLocation()).thenReturn(CaseManagementLocation.builder()
+                .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
+                .region("North West")
                 .build());
         Mockito.when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
