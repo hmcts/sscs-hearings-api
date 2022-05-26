@@ -40,6 +40,7 @@ public final class HearingsDetailsMapping {
     public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE = 14;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
+    public static final String COURT = "court";
 
     private HearingsDetailsMapping() {
 
@@ -239,7 +240,7 @@ public final class HearingsDetailsMapping {
 
         HearingLocations hearingLocation = new HearingLocations();
         hearingLocation.setLocationId(epimsId);
-        hearingLocation.setLocationType(LocationType.COURT.getLocationLabel());
+        hearingLocation.setLocationType(COURT);
 
         return List.of(hearingLocation);
     }
