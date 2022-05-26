@@ -1,19 +1,27 @@
 package uk.gov.hmcts.reform.sscs.mappers;
 
+import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.PartyFlagsMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingPartiesMapping;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.ReferenceData;
-import uk.gov.hmcts.reform.sscs.utils.SscsCaseDataUtils;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
@@ -39,7 +47,7 @@ public final class ServiceHearingValuesMapper {
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
-                .hearingWindow(SscsCaseDataUtils.getHearingWindow(caseData))
+                .hearingWindow(getHearingWindow(caseData))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceData))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
@@ -75,5 +83,36 @@ public final class ServiceHearingValuesMapper {
     public static List<PanelPreference> getPanelPreferences() {
         //TODO Need to retrieve PanelPreferences from caseData and/or ReferenceData
         return new ArrayList<>();
+    }
+
+    public static HearingWindow getHearingWindow(SscsCaseData caseData) {
+        String hearingWindowStart = null;
+        if (Objects.nonNull(caseData.getEvents())) {
+            Event dwpResponded = caseData.getEvents().stream()
+                    .filter(c -> EventType.DWP_RESPOND.equals(c.getValue().getEventType()))
+                    .findFirst().orElse(null);
+
+            ZonedDateTime dwpResponseDateTime = Optional.ofNullable(dwpResponded)
+                    .map(Event::getValue)
+                    .map(EventDetails::getDateTime)
+                    .orElse(null);
+
+            if (Objects.nonNull(dwpResponseDateTime)) {
+                if (YesNo.isYes(caseData.getUrgentCase())) {
+                    hearingWindowStart = dwpResponseDateTime.plusDays(14).toLocalDate().toString();
+
+                } else {
+                    hearingWindowStart = dwpResponseDateTime.plusDays(28).toLocalDate().toString();
+                }
+            }
+        }
+
+        return HearingWindow.builder()
+                .hearingWindowFirstDate(null)
+                .hearingWindowDateRange(HearingWindowDateRange.builder()
+                        .hearingWindowStartDateRange(hearingWindowStart)
+                        .hearingWindowEndDateRange(null)
+                        .build())
+                .build();
     }
 }

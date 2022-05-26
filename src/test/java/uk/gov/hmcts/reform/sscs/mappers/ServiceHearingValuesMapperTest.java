@@ -192,9 +192,9 @@ class ServiceHearingValuesMapperTest {
                 .hearingWindowDateRange(HearingWindowDateRange.builder().hearingWindowStartDateRange("2022-02-26").build()).build();
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
-        assertEquals("BBA3-appellant", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-Representative", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-otherParty", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-j", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-d", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {
