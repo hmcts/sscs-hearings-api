@@ -28,12 +28,7 @@ public class CcdCaseService {
     }
 
     public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException, InvalidIdException {
-        try {
-            long caseIdLong = Long.parseLong(caseId);
-            return getCaseDetails(caseIdLong);
-        } catch (NumberFormatException e) {
-            throw new InvalidIdException(String.format("Invalid case id format for %s", caseId), e);
-        }
+        return getCaseDetails(parseCaseId(caseId));
     }
 
     public SscsCaseDetails getCaseDetails(long caseId) throws GetCaseException {
@@ -54,9 +49,10 @@ public class CcdCaseService {
         return caseDetails;
     }
 
-    public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description) throws UpdateCaseException {
+    public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description)
+        throws UpdateCaseException, InvalidIdException {
 
-        long caseId = Long.parseLong(caseData.getCcdCaseId());
+        long caseId = parseCaseId(caseData.getCcdCaseId());
 
         log.info("Updating case data using Case id : {}", caseId);
 
@@ -70,6 +66,14 @@ public class CcdCaseService {
                             caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
+        }
+    }
+
+    private long parseCaseId(String caseId) throws InvalidIdException {
+        try {
+            return Long.parseLong(caseId);
+        } catch (NumberFormatException e) {
+            throw new InvalidIdException(String.format("Invalid case id format for %s", caseId), e);
         }
     }
 }

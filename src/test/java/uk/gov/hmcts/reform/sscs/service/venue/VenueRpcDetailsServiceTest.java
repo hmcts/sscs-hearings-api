@@ -28,15 +28,14 @@ class VenueRpcDetailsServiceTest {
     public static final String INVALID_EPIMS_ID = "abcdef";
     public static final String VENUE_ID = "60";
 
-    private VenueDetailsBuilder venueDetailsBuilder;
-
     @Mock
     private VenueDataLoader venueDataLoader;
 
     @InjectMocks
-    VenueRpcDetailsService venueRpcDetailsService;
-    private Map<String, VenueDetails> venueDetailsMap;
+    private VenueRpcDetailsService venueRpcDetailsService;
 
+    private VenueDetailsBuilder venueDetailsBuilder;
+    private Map<String, VenueDetails> venueDetailsMap;
 
     @BeforeEach
     void setUp() {

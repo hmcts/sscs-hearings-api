@@ -50,7 +50,8 @@ public class HearingsService {
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
-    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+    public void processHearingWrapper(HearingWrapper wrapper)
+            throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -90,7 +91,6 @@ public class HearingsService {
 
         hearingResponseUpdate(wrapper, response);
     }
-
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
@@ -164,7 +164,8 @@ public class HearingsService {
         );
     }
 
-    public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response) throws UpdateCaseException {
+    public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response)
+        throws UpdateCaseException, InvalidIdException {
 
         log.info("Updating Case with Hearing Response for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
