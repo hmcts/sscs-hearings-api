@@ -38,12 +38,10 @@ public class CcdLocationUpdateService {
         String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueID();
         Venue venue = findVenue(updatedVenueId);
         if (isNull(venue)) {
-
             UpdateCaseException exc = new UpdateCaseException(
                 String.format(TEMPLATE_UPDATE_VENUE_ERROR + "Could not find venue with Epims Id %s ",
                         sscsCaseData.getCcdCaseId(), updatedVenueId));
             log.error(exc.getMessage(), exc);
-
             throw exc;
         }
 
@@ -62,9 +60,11 @@ public class CcdLocationUpdateService {
 
         updateHearing(sscsCaseData, oldHearing, updatedHearing);
 
-        log.info("(Case Id: {}) Venue has been updated from epimsId {} to {} for hearingId {}",
-                 sscsCaseData.getCcdCaseId(), hearingDetails.getHearingId(),
-                 updatedVenueId, hmcMessage.getHearingID()
+        log.info("Venue has been updated from epimsId {} to {} for Case Id: {} with hearingId {}",
+            hearingDetails.getHearingId(),
+            updatedVenueId,
+            sscsCaseData.getCcdCaseId(),
+            hmcMessage.getHearingID()
         );
     }
 
@@ -79,29 +79,29 @@ public class CcdLocationUpdateService {
 
     public Venue findVenue(String epimsId) {
 
-        VenueDetails venue = venueRpcDetailsService.getVenue(epimsId);
+        VenueDetails venueDetails = venueRpcDetailsService.getVenue(epimsId);
 
-        if (isNull(venue)) {
-            log.error("Could not find venue with Epims Id {}", epimsId);
+        if (isNull(venueDetails)) {
+            log.error("Could not find venueDetails with Epims Id {}", epimsId);
             return null;
         }
 
         return Venue.builder()
             .address(Address.builder()
-                         .line1(venue.getVenAddressLine1())
-                         .line2(venue.getVenAddressLine2())
-                         .postcodeAddress(venue.getVenAddressPostcode())
-                         .county(venue.getVenAddressCounty())
-                         .town(venue.getVenAddressTown())
+                         .line1(venueDetails.getVenAddressLine1())
+                         .line2(venueDetails.getVenAddressLine2())
+                         .postcodeAddress(venueDetails.getVenAddressPostcode())
+                         .county(venueDetails.getVenAddressCounty())
+                         .town(venueDetails.getVenAddressTown())
                          .build())
-            .name(venue.getVenName())
+            .name(venueDetails.getVenName())
             .build();
     }
 
 
     Hearing getHearingFromCaseData(HmcMessage hmcMessage, @Valid SscsCaseData caseData) {
         return caseData.getHearings().stream()
-                .filter(hearing -> hmcMessage.getHearingID().equals(hearing.getValue().getHearingId()))
+                .filter(hearing -> hearing.getValue().getHearingId().equals(hmcMessage.getHearingID()))
                 .findFirst()
                 .orElse(null);
     }

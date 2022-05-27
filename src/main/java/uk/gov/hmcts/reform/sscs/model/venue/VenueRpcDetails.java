@@ -6,7 +6,7 @@ import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 @Getter
 public class VenueRpcDetails {
 
-    public static final int SSCS_PREFIX_END_INDEX = 5;
+    private static final int SSCS_PREFIX_END_INDEX = 5;
 
     private final VenueDetails venueDetails;
 

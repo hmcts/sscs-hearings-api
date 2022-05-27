@@ -93,7 +93,7 @@ class CcdCaseServiceTest {
     }
 
     @Test
-    void updateCase_shouldUpdateCaseDetails() throws UpdateCaseException {
+    void updateCase_shouldUpdateCaseDetails() throws UpdateCaseException, InvalidIdException {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         SscsCaseDetails expectedCaseDetails =
                 SscsCaseDetails.builder()

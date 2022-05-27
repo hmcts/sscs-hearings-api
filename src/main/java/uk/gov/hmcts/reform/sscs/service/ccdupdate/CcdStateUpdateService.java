@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.DORMANT_APPEAL_STATE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.READY_TO_LIST;
@@ -28,7 +27,7 @@ public class CcdStateUpdateService {
     public void updateListed(HearingGetResponse hearingResponse, @Valid SscsCaseData sscsCaseData)
             throws UpdateCaseException {
 
-        if (!isHearingListingStatusFixed(hearingResponse)) {
+        if (isHearingListingNotStatusFixed(hearingResponse)) {
             return;
         }
 
@@ -46,7 +45,7 @@ public class CcdStateUpdateService {
     public void updateCancelled(HearingGetResponse hearingResponse, @Valid SscsCaseData sscsCaseData)
             throws UpdateCaseException {
 
-        if (!isHearingCancelled(hearingResponse)) {
+        if (isHearingNotCancelled(hearingResponse)) {
             return;
         }
 
@@ -107,12 +106,12 @@ public class CcdStateUpdateService {
 
     }
 
-    private static boolean isHearingListingStatusFixed(HearingGetResponse hearingResponse) {
-        return FIXED == hearingResponse.getHearingResponse().getListingStatus();
+    private static boolean isHearingListingNotStatusFixed(HearingGetResponse hearingResponse) {
+        return FIXED != hearingResponse.getHearingResponse().getListingStatus();
     }
 
-    private static boolean isHearingCancelled(HearingGetResponse hearingResponse) {
-        return CANCELLED.equalsIgnoreCase(hearingResponse.getRequestDetails().getStatus())
-            || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
+    private static boolean isHearingNotCancelled(HearingGetResponse hearingResponse) {
+        return !CANCELLED.equalsIgnoreCase(hearingResponse.getRequestDetails().getStatus())
+            && isNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
     }
 }

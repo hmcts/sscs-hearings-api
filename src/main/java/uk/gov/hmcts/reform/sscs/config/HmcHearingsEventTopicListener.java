@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.ccdupdate.HearingsJourneyService;
@@ -63,10 +64,11 @@ public class HmcHearingsEventTopicListener {
                 );
 
                 context.complete();
-            } catch (GetCaseException | UpdateCaseException exc) {
-                log.error("An exception occurred whilst processing hearing event for "
-                              + "hearing ID {}, case reference: {}", hmcMessage.getHearingID(),
-                          hmcMessage.getCaseRef(), exc);
+            } catch (GetCaseException | UpdateCaseException | InvalidIdException exc) {
+                log.error("An exception occurred whilst processing hearing event for hearing ID {}, case reference: {}",
+                    hmcMessage.getHearingID(),
+                    hmcMessage.getCaseRef(),
+                    exc);
                 context.abandon();
             }
         } else {

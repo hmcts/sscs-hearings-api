@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CcdLocationUpdateServiceTest {
 
-    public static final String HEARING_ID = "789";
-    public static final String EPIMS_ID = "123";
-    public static final String NEW_EPIMS_ID = "456";
-    public static final String CASE_ID = "777";
-    public static final String VENUE_NAME = "VenueName";
+    private static final String HEARING_ID = "789";
+    private static final String EPIMS_ID = "123";
+    private static final String NEW_EPIMS_ID = "456";
+    private static final String CASE_ID = "777";
+    private static final String VENUE_NAME = "VenueName";
 
     @Mock
     private VenueRpcDetailsService venueRpcDetailsService;
@@ -42,9 +42,9 @@ class CcdLocationUpdateServiceTest {
     @Test
     void testShouldFindVenueByVenueId() {
         // given
-        final String venueId = "123";
+        final String epimsId = "123";
         VenueDetails venueDetails = VenueDetails.builder()
-            .venueId(venueId)
+            .venueId(epimsId)
             .venAddressLine1("adrLine1")
             .venAddressLine2("adrLine2")
             .venAddressTown("adrTown")
@@ -53,10 +53,10 @@ class CcdLocationUpdateServiceTest {
             .regionalProcessingCentre("regionalProcessingCentre")
             .build();
 
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(venueDetails);
+        when(venueRpcDetailsService.getVenue(epimsId)).thenReturn(venueDetails);
 
         // when
-        Venue venue = underTest.findVenue(venueId);
+        Venue venue = underTest.findVenue(epimsId);
 
         // then
         assertThat(venue).isNotNull();
@@ -128,7 +128,7 @@ class CcdLocationUpdateServiceTest {
                 .extracting(Hearing::getValue)
                 .filteredOn("hearingId", HEARING_ID)
                 .hasSize(1)
-                .allSatisfy(x -> assertThat(x.getVenueId()).isEqualTo(NEW_EPIMS_ID))
+                .allSatisfy(hearing -> assertThat(hearing.getVenueId()).isEqualTo(NEW_EPIMS_ID))
                 .extracting(HearingDetails::getVenue)
                 .extracting("name")
                 .containsOnly(VENUE_NAME);

@@ -17,9 +17,9 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class HmcHearingServiceTest {
 
-    public static final String SERVICE_AUTH_TOKEN = "a token";
-    public static final String SERVICE_AUTHORIZATION = "authorisation";
-    public static final String HEARING_ID = "12345";
+    private static final String SERVICE_AUTH_TOKEN = "a token";
+    private static final String SERVICE_AUTHORIZATION = "authorisation";
+    private static final String HEARING_ID = "12345";
 
     @Mock
     private HmcHearingApi hmcHearingApi;
@@ -31,7 +31,7 @@ class HmcHearingServiceTest {
     private IdamService idamService;
 
     @InjectMocks
-    HmcHearingService getHearingRequest;
+    private HmcHearingService getHearingRequest;
 
     @BeforeEach
     void setUp() {
@@ -39,7 +39,7 @@ class HmcHearingServiceTest {
         given(idamService.generateServiceAuthorization()).willReturn(SERVICE_AUTHORIZATION);
     }
 
-    @DisplayName("When getHearingRequest is given te correct parameters, it returns a valid response without error")
+    @DisplayName("When getHearingRequest is given the correct parameters it returns a valid response without error")
     @Test
     void testGetHearingRequest() {
         given(hmcHearingApi.getHearingRequest(SERVICE_AUTH_TOKEN, SERVICE_AUTHORIZATION, HEARING_ID))

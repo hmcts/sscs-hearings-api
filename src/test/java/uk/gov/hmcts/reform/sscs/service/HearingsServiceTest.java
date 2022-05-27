@@ -227,7 +227,7 @@ class HearingsServiceTest {
         "CREATE_HEARING,CREATE_HEARING",
         "UPDATED_CASE,UPDATED_CASE",
     }, nullValues = {"null"})
-    void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException {
+    void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException, InvalidIdException {
         given(ccdCaseService.updateCaseData(
                 any(SscsCaseData.class),
                 any(EventType.class),
@@ -253,7 +253,7 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
     @Test
-    void updateHearingResponse() throws UpdateCaseException {
+    void updateHearingResponse() throws UpdateCaseException, InvalidIdException {
         given(ccdCaseService.updateCaseData(
                 any(SscsCaseData.class),
                 any(EventType.class),
