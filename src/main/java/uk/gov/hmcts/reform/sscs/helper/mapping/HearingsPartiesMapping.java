@@ -176,7 +176,7 @@ public final class HearingsPartiesMapping {
     }
 
     private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {
-        return PAPER.equals(hearingType) || !hearingOptions.isWantsToAttendHearing();
+        return PAPER.getHmcReference().equals(hearingType) || !hearingOptions.isWantsToAttendHearing();
     }
 
     private static boolean shouldPreferTelephoneHearingChannel(HearingSubtype hearingSubtype) {
