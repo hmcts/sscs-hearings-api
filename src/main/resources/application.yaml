@@ -72,9 +72,11 @@ azure:
       connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
       topicName: ${HEARINGS_TOPIC_NAME:}
       subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
-      retryTimeout: ${HEARINGS_TOPIC_RETRY_TIMEOUT:1}
+      receiveTimeout: ${HEARINGS_TOPIC_RECEIVE_TIMEOUT:1}
+      idleTimeout: ${HEARINGS_TOPIC_IDLE_TIMEOUT:3600000}
       maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
-      retryDelay: ${HEARINGS_TOPIC_RETRY_DELAY:1}
+      username: ${HEARINGS_TOPIC_POLICY_NAME:}
+      password: ${HEARINGS_TOPIC_ACCESS_KEY:}
     tribunals-to-hearings-api:
       connectionString: ${SSCS_SERVICEBUS_CONNECTION_STRING:}
       queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}

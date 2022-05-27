@@ -15,7 +15,7 @@ class HmcHearingsEventTopicListenerTest {
     })
     void testMessageRelevantForService(String messageServiceId, String serviceId, boolean expected) {
         HmcMessage hmcMessage = HmcMessage.builder()
-            .hmctsServiceID(messageServiceId)
+            .hmctsServiceCode(messageServiceId)
             .build();
 
         boolean isMessageRelevantForService = HmcHearingsEventTopicListener

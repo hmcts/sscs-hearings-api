@@ -2,85 +2,69 @@ package uk.gov.hmcts.reform.sscs.config;
 
 import com.azure.core.amqp.AmqpRetryMode;
 import com.azure.core.amqp.AmqpRetryOptions;
-import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusProcessorClient;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.annotation.JmsListener;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
 
-import java.time.Duration;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Data
 @Configuration
 @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
 public class HmcHearingsEventTopicListener {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @Value("${azure.service-bus.hmc-to-hearings-api.connectionString}")
-    private String connectionString;
-    @Value("${azure.service-bus.hmc-to-hearings-api.topicName}")
-    private String topicName;
-    @Value("${azure.service-bus.hmc-to-hearings-api.subscriptionName}")
-    private String subscriptionName;
-
-    @Value("${azure.service-bus.hmc-to-hearings-api.retryTimeout}")
-    private Long retryTimeout;
-    @Value("${azure.service-bus.hmc-to-hearings-api.retryDelay}")
-    private Long retryDelay;
     @Value("${azure.service-bus.hmc-to-hearings-api.maxRetries}")
     private Integer maxRetries;
 
     @Value("${sscs.serviceCode}")
-    private String serviceId;
+    private String serviceCode;
 
-    @Bean
-    @SuppressWarnings("PMD.CloseResource")
-    public ServiceBusProcessorClient hmcHearingEventProcessorClient() {
-        ServiceBusProcessorClient processorClient = new ServiceBusClientBuilder()
-            .retryOptions(retryOptions())
-            .connectionString(connectionString)
-            .processor()
-            .topicName(topicName)
-            .subscriptionName(subscriptionName)
-            .processMessage(HmcHearingsEventTopicListener::processMessage)
-            .processError(QueueHelper::processError)
-            .buildProcessorClient();
+    @JmsListener(
+        destination = "${azure.service-bus.hmc-to-hearings-api.topicName}",
+        subscription = "${azure.service-bus.hmc-to-hearings-api.subscriptionName}",
+        containerFactory = "hmcHearingsEventTopicContainerFactory"
+    )
+    public void onMessage(byte[] messageBytes) throws JsonProcessingException, UpdateCaseException, GetCaseException {
+        String message = new String(messageBytes, StandardCharsets.UTF_8);
+        HmcMessage hmcMessage = OBJECT_MAPPER.readValue(message, HmcMessage.class);
 
-        processorClient.start();
-        log.info("HMC hearing event topic processor started.");
-
-        return processorClient;
-    }
-
-    public static void processMessage(ServiceBusReceivedMessageContext context) {
-        ServiceBusReceivedMessage message = context.getMessage();
-        HmcMessage hmcMessage = message.getBody().toObject(HmcMessage.class);
-        String hmctsServiceID = hmcMessage.getHmctsServiceID();
-
-        if (isMessageRelevantForService(hmcMessage, hmctsServiceID)) {
-            //TODO process all messages: SSCS-10286
-            log.info("Processing hearing ID: {} for case reference: {}%n", hmcMessage.getHearingID(),
+        if (isMessageRelevantForService(hmcMessage, serviceCode)) {
+            log.info("Processing hearing ID: {} for case reference: {}", hmcMessage.getHearingID(),
                 hmcMessage.getCaseRef());
+            processMessageWithRetry(hmcMessage, 1);
         }
     }
 
-    public static boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceId) {
-        return hmcMessage.getHmctsServiceID().contains(serviceId);
+    private void processMessageWithRetry(HmcMessage hmcMessage, int retry) throws UpdateCaseException, GetCaseException {
+
+        try {
+            processMessage(hmcMessage);
+        } catch (GetCaseException | UpdateCaseException e) {
+            if (retry > maxRetries) {
+                log.error("Maximum retries exceeded for case reference: {} ", hmcMessage.getCaseRef());
+                throw e;
+            } else {
+                processMessageWithRetry(hmcMessage, ++retry);
+            }
+        }
     }
 
-    private AmqpRetryOptions retryOptions() {
-        AmqpRetryOptions amqpRetryOptions = new AmqpRetryOptions();
-        amqpRetryOptions.setMode(AmqpRetryMode.EXPONENTIAL);
-        amqpRetryOptions.setTryTimeout(Duration.ofMinutes(retryTimeout));
-        amqpRetryOptions.setMaxRetries(maxRetries);
-        amqpRetryOptions.setDelay(Duration.ofSeconds(retryDelay));
-
-        return amqpRetryOptions;
+    private void processMessage(HmcMessage message) throws GetCaseException, UpdateCaseException{
+        //process.
     }
+
+    private boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceId) {
+        return hmcMessage.getHmctsServiceCode().contains(serviceId);
+    }
+
 }
