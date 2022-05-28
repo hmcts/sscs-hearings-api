@@ -14,18 +14,15 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
 
 @SuppressWarnings("PMD.ExcessiveImports")
@@ -91,7 +88,7 @@ public final class ServiceHearingPartiesMapping {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(HearingsPartiesMapping.getPartyId(entity));
-        partyDetails.partyType(getPartyType(entity));
+        partyDetails.partyType(HearingsPartiesMapping.getPartyType(entity));
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype, partyId, appellantId, referenceData));
@@ -107,7 +104,7 @@ public final class ServiceHearingPartiesMapping {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(DWP_ID);
-        partyDetails.partyType(ORG);
+        partyDetails.partyType(ORGANISATION);
         partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek());
@@ -149,9 +146,4 @@ public final class ServiceHearingPartiesMapping {
         organisationDetails.cftOrganisationID(id);
         return organisationDetails.build();
     }
-
-    public static PartyType getPartyType(Entity entity) {
-        return isNotBlank(entity.getOrganisation()) ? ORG : IND;
-    }
-
 }

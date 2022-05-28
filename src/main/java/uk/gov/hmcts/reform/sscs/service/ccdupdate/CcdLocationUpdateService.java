@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
-import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.util.ArrayList;
@@ -30,12 +30,12 @@ public class CcdLocationUpdateService {
         if (isNull(oldHearing)) {
             UpdateCaseException exc = new UpdateCaseException(
                 String.format(TEMPLATE_UPDATE_VENUE_ERROR + "Could not find hearing with Hearing Id: %s",
-                        sscsCaseData.getCcdCaseId(), hmcMessage.getHearingID()));
+                        sscsCaseData.getCcdCaseId(), hmcMessage.getHearingId()));
             log.error(exc.getMessage(), exc);
             throw exc;
         }
 
-        String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueID();
+        String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueId();
         Venue venue = findVenue(updatedVenueId);
         if (isNull(venue)) {
             UpdateCaseException exc = new UpdateCaseException(
@@ -64,7 +64,7 @@ public class CcdLocationUpdateService {
             hearingDetails.getHearingId(),
             updatedVenueId,
             sscsCaseData.getCcdCaseId(),
-            hmcMessage.getHearingID()
+            hmcMessage.getHearingId()
         );
     }
 
@@ -101,7 +101,7 @@ public class CcdLocationUpdateService {
 
     Hearing getHearingFromCaseData(HmcMessage hmcMessage, @Valid SscsCaseData caseData) {
         return caseData.getHearings().stream()
-                .filter(hearing -> hearing.getValue().getHearingId().equals(hmcMessage.getHearingID()))
+                .filter(hearing -> hearing.getValue().getHearingId().equals(hmcMessage.getHearingId()))
                 .findFirst()
                 .orElse(null);
     }

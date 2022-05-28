@@ -12,10 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,12 +36,12 @@ class CcdStateUpdateServiceTest {
         "FIXED,LISTED,HEARING",
         "FIXED,AWAITING_LISTING,READY_TO_LIST",
     })
-    void testUpdateListed(ListingStatus listingStatus, ListingCaseStatus listingCaseStatus, State expected) throws UpdateCaseException {
+    void testUpdateListed(ListingStatus listingStatus, ListAssistCaseStatus listAssistCaseStatus, State expected) throws UpdateCaseException {
         // given
         HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
                 .hearingResponse(HearingResponse.builder()
                         .listingStatus(listingStatus)
-                        .listingCaseStatus(listingCaseStatus)
+                        .listAssistCaseStatus(listAssistCaseStatus)
                         .build())
                 .build();
 
@@ -62,12 +62,12 @@ class CcdStateUpdateServiceTest {
     @CsvSource({
         "DRAFT,LISTED",
     })
-    void testUpdateListed(ListingStatus listingStatus, ListingCaseStatus listingCaseStatus) throws UpdateCaseException {
+    void testUpdateListed(ListingStatus listingStatus, ListAssistCaseStatus listAssistCaseStatus) throws UpdateCaseException {
         // given
         HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
                 .hearingResponse(HearingResponse.builder()
                         .listingStatus(listingStatus)
-                        .listingCaseStatus(listingCaseStatus)
+                        .listAssistCaseStatus(listAssistCaseStatus)
                         .build())
                 .build();
 
@@ -90,12 +90,12 @@ class CcdStateUpdateServiceTest {
     @CsvSource({
         "FIXED,CASE_CLOSED",
     })
-    void testUpdateListedInvalidListingStatus(ListingStatus listingStatus, ListingCaseStatus listingCaseStatus) throws UpdateCaseException {
+    void testUpdateListedInvalidListingStatus(ListingStatus listingStatus, ListAssistCaseStatus listAssistCaseStatus) throws UpdateCaseException {
         // given
         HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
                 .hearingResponse(HearingResponse.builder()
                         .listingStatus(listingStatus)
-                        .listingCaseStatus(listingCaseStatus)
+                        .listAssistCaseStatus(listAssistCaseStatus)
                         .build())
                 .build();
 

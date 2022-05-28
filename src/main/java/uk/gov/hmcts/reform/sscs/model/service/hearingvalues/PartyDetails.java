@@ -8,7 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 
 import java.util.List;
 
@@ -21,7 +23,6 @@ import java.util.List;
 public class PartyDetails {
 
     private String partyID;
-    @EnumPattern(enumClass = PartyType.class, fieldName = "partyType")
     private PartyType partyType;
     private String partyName;
     private String partyChannel;

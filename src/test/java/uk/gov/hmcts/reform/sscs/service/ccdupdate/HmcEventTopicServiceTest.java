@@ -13,11 +13,12 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
-import uk.gov.hmcts.reform.sscs.model.messaging.HearingUpdate;
-import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
-import uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
+import uk.gov.hmcts.reform.sscs.service.HmcEventTopicService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingService;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -26,13 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.CANCELLED;
-import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.EXCEPTION;
-import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.messaging.HmcStatus.UPDATE_SUBMITTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
 
 @ExtendWith(MockitoExtension.class)
-class HearingsJourneyServiceTest {
+class HmcEventTopicServiceTest {
 
     @Mock
     private HmcHearingService hmcHearingService;
@@ -47,7 +48,7 @@ class HearingsJourneyServiceTest {
     private CcdLocationUpdateService ccdLocationUpdateService;
 
     @InjectMocks
-    private HearingsJourneyService underTest;
+    private HmcEventTopicService underTest;
 
     @Test
     void shouldThrowExceptionIfRequiredParameterIsMissing() {
@@ -57,7 +58,7 @@ class HearingsJourneyServiceTest {
         // then
         UpdateCaseException updateCaseException = assertThrows(
             UpdateCaseException.class,
-            () -> underTest.process(hmcMessage)
+            () -> underTest.processEventMessage(hmcMessage)
         );
 
         assertThat(updateCaseException.getMessage()).isEqualTo("HMC message field hearingID is missing");
@@ -70,7 +71,7 @@ class HearingsJourneyServiceTest {
         // then
         UpdateCaseException updateCaseException = assertThrows(
             UpdateCaseException.class,
-            () -> underTest.process(null)
+            () -> underTest.processEventMessage(null)
         );
 
         assertThat(updateCaseException.getMessage()).isEqualTo("HMC message must not be mull");
@@ -80,13 +81,13 @@ class HearingsJourneyServiceTest {
     void shouldThrowExceptionIfHmcStatusIsMissing() {
         // given
         HmcMessage hmcMessage = HmcMessage.builder()
-            .hearingID("123")
+            .hearingId("123")
             .hearingUpdate(HearingUpdate.builder().build())
             .build();
 
         // then
         assertThatExceptionOfType(UpdateCaseException.class)
-                .isThrownBy(() -> underTest.process(hmcMessage))
+                .isThrownBy(() -> underTest.processEventMessage(hmcMessage))
                 .withMessageContaining("HMC message field HmcStatus is missing");
     }
 
@@ -105,7 +106,7 @@ class HearingsJourneyServiceTest {
         // given
         final String hearingId = "123";
         HmcMessage hmcMessage = HmcMessage.builder()
-            .hearingID(hearingId)
+            .hearingId(hearingId)
             .hearingUpdate(HearingUpdate.builder()
                                .hmcStatus(hmcStatus)
                                .build())
@@ -118,7 +119,7 @@ class HearingsJourneyServiceTest {
         when(ccdCaseService.getCaseDetails(hearingId)).thenReturn(caseDetails);
 
         // when
-        underTest.process(hmcMessage);
+        underTest.processEventMessage(hmcMessage);
 
         // then
         if (LISTED.equals(hmcStatus)) {
@@ -148,13 +149,13 @@ class HearingsJourneyServiceTest {
     void shouldThrowExceptionWhenCallToHmcFailed() {
         // given
         final String hearingId = "123";
-        HmcMessage hmcMessage = HmcMessage.builder().hearingID(hearingId)
+        HmcMessage hmcMessage = HmcMessage.builder().hearingId(hearingId)
             .hearingUpdate(HearingUpdate.builder().hmcStatus(HmcStatus.EXCEPTION).build()).build();
         when(hmcHearingService.getHearingRequest(hearingId)).thenReturn(null);
 
         // when + then
         assertThatExceptionOfType(GetCaseException.class)
-                .isThrownBy(() -> underTest.process(hmcMessage))
+                .isThrownBy(() -> underTest.processEventMessage(hmcMessage))
                 .withMessageContaining("Failed to retrieve hearing with Id: 123 from HMC");
     }
 }

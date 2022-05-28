@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
@@ -30,6 +30,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static java.time.DayOfWeek.MONDAY;
+import static java.time.DayOfWeek.TUESDAY;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.AM;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.PM;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.EXCLUDE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
 
 public class ContractTestDataProvider {
 
@@ -144,7 +155,7 @@ public class ContractTestDataProvider {
         hearingDetails.setHearingPriorityType("Priority type");
         HearingLocation location1 = new HearingLocation();
         location1.setLocationId("court");
-        location1.setLocationType("Location type");
+        location1.setLocationType(COURT);
         List<HearingLocation> hearingLocation = new ArrayList<>();
         hearingLocation.add(location1);
         hearingDetails.setHearingLocations(hearingLocation);
@@ -172,7 +183,7 @@ public class ContractTestDataProvider {
         caseDetails.setCaseRestrictedFlag(false);
         caseDetails.setCaseSlaStartDate("2030-08-20");
         CaseCategory category = new CaseCategory();
-        category.setCategoryType("caseType");
+        category.setCategoryType(CASE_TYPE);
         category.setCategoryValue("PROBATE");
         category.setCategoryParent("categoryParent");
         List<CaseCategory> caseCategories = new ArrayList<>();
@@ -198,15 +209,15 @@ public class ContractTestDataProvider {
         final PanelPreference panelPreference1 = new PanelPreference();
         panelPreference1.setMemberID("Member 1");
         panelPreference1.setMemberType("Member Type 1");
-        panelPreference1.setRequirementType("MUSTINC");
+        panelPreference1.setRequirementType(MUST_INCLUDE);
         final PanelPreference panelPreference2 = new PanelPreference();
         panelPreference2.setMemberID("Member 2");
         panelPreference2.setMemberType("Member Type 2");
-        panelPreference2.setRequirementType("OPTINC");
+        panelPreference2.setRequirementType(OPTIONAL_INCLUDE);
         final PanelPreference panelPreference3 = new PanelPreference();
         panelPreference3.setMemberID("Member 3");
         panelPreference3.setMemberType("Member Type 3");
-        panelPreference3.setRequirementType("EXCLUDE");
+        panelPreference3.setRequirementType(EXCLUDE);
         List<PanelPreference> panelPreferences = new ArrayList<>();
         panelPreferences.add(panelPreference1);
         panelPreferences.add(panelPreference2);
@@ -230,9 +241,9 @@ public class ContractTestDataProvider {
 
     protected static List<PartyDetails> partyDetails1() {
         ArrayList<PartyDetails> partyDetailsArrayList = new ArrayList<>();
-        partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
-        partyDetailsArrayList.add(createPartyDetails("P2", "IND", "DEF2", createIndividualDetails(), null));
-        partyDetailsArrayList.add(createPartyDetails("P3", "IND", "DEF3", createIndividualDetails(),
+        partyDetailsArrayList.add(createPartyDetails("P1", "DEF", null, createOrganisationDetails()));
+        partyDetailsArrayList.add(createPartyDetails("P2", "DEF2", createIndividualDetails(), null));
+        partyDetailsArrayList.add(createPartyDetails("P3", "DEF3", createIndividualDetails(),
                                                      createOrganisationDetails()
         ));
         return partyDetailsArrayList;
@@ -285,12 +296,12 @@ public class ContractTestDataProvider {
         return relatedParties;
     }
 
-    private static PartyDetails createPartyDetails(String partyID, String partyType, String partyRole,
-                                            IndividualDetails individualDetails,
-                                            OrganisationDetails organisationDetails) {
+    private static PartyDetails createPartyDetails(String partyID, String partyRole,
+                                                   IndividualDetails individualDetails,
+                                                   OrganisationDetails organisationDetails) {
         PartyDetails partyDetails = new PartyDetails();
         partyDetails.setPartyID(partyID);
-        partyDetails.setPartyType(partyType);
+        partyDetails.setPartyType(INDIVIDUAL);
         partyDetails.setPartyRole(partyRole);
         partyDetails.setIndividualDetails(individualDetails);
         partyDetails.setOrganisationDetails(organisationDetails);
@@ -310,12 +321,12 @@ public class ContractTestDataProvider {
     private static List<UnavailabilityDayOfWeek> createUnavailabilityDows() {
         List<UnavailabilityDayOfWeek> unavailabilityDows = new ArrayList<>();
         UnavailabilityDayOfWeek unavailabilityDow1 = new UnavailabilityDayOfWeek();
-        unavailabilityDow1.setDayOfWeek("DOW1");
-        unavailabilityDow1.setDayOfWeekUnavailabilityType("TYPE1");
+        unavailabilityDow1.setDayOfWeek(MONDAY);
+        unavailabilityDow1.setDayOfWeekUnavailabilityType(AM);
         unavailabilityDows.add(unavailabilityDow1);
         UnavailabilityDayOfWeek unavailabilityDow2 = new UnavailabilityDayOfWeek();
-        unavailabilityDow2.setDayOfWeek("DOW1");
-        unavailabilityDow2.setDayOfWeekUnavailabilityType("TYPE1");
+        unavailabilityDow2.setDayOfWeek(TUESDAY);
+        unavailabilityDow2.setDayOfWeekUnavailabilityType(PM);
         unavailabilityDows.add(unavailabilityDow2);
         return unavailabilityDows;
     }
@@ -384,11 +395,11 @@ public class ContractTestDataProvider {
             .minArrayLike("panelPreferences", 0, 1)
             .stringType("memberID", "memberID123")
             .stringType("memberType", "memberType123")
-            .stringType("requirementType", "requirementType123")
+            .stringType("requirementType", "EXCLUDE")
             .closeObject().closeArray()
             .closeObject()
             .minArrayLike("hearingLocations", 0, 1)
-            .stringType("locationType", "locationType123")
+            .stringType("locationType", "court")
             .stringType("locationId", "locationId123")
             .closeObject().closeArray()
             .array("facilitiesRequired")
@@ -408,14 +419,14 @@ public class ContractTestDataProvider {
             .stringType("caseManagementLocationCode", "caseManagementLocationCode123")
             .stringType("caseSLAStartDate", date.toString())
             .minArrayLike("caseCategories", 0, 1)
-            .stringType("categoryType", "categoryType123")
+            .stringType("categoryType", "caseType")
             .stringType("categoryValue", "categoryValue123")
             .stringType("categoryParent", "categoryParent123")
             .closeObject().closeArray()
             .closeObject()
             .minArrayLike("partyDetails", 0, 1)
             .stringType("partyID", "partyID123")
-            .stringType("partyType", "partyType123")
+            .stringType("partyType", "IND")
             .stringType("partyRole", "partyRole")
             .object("individualDetails")
             .stringType("firstName", "firstName123")
@@ -447,7 +458,7 @@ public class ContractTestDataProvider {
             .closeObject()
             .minArrayLike("unavailabilityDOW", 0, 1)
             .stringType("DOW", "MONDAY")
-            .stringType("DOWUnavailabilityType", "dowUnavailabilityType123")
+            .stringType("DOWUnavailabilityType", "AM")
             .closeObject().closeArray()
             .minArrayLike("unavailabilityRanges", 0, 1)
             .stringType("unavailableFromDate", date.toString())

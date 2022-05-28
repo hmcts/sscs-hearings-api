@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +35,7 @@ public class HearingResponse {
     private LocalDateTime receivedDateTime;
 
     @JsonProperty("laCaseStatus")
-    private ListingCaseStatus listingCaseStatus;
+    private ListAssistCaseStatus listAssistCaseStatus;
 
     private ListingStatus listingStatus;
 

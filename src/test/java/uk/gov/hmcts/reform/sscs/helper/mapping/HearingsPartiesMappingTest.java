@@ -13,7 +13,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
@@ -415,12 +416,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("getPartyType Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "test,ORG",
-        "null,IND",
+        "test,ORGANISATION",
+        "null,INDIVIDUAL",
     }, nullValues = {"null"})
-    void getPartyType(String value, String expected) {
+    void getPartyType(String value, PartyType expected) {
         Entity entity = Appellant.builder().organisation(value).build();
-        String result = HearingsPartiesMapping.getPartyType(entity);
+        PartyType result = HearingsPartiesMapping.getPartyType(entity);
 
         assertEquals(expected, result);
     }

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +18,5 @@ public class PanelPreference {
 
     private String memberType;
 
-    @EnumPattern(enumClass = RequirementType.class, fieldName = "requirementType")
-    private String requirementType;
+    private RequirementType requirementType;
 }

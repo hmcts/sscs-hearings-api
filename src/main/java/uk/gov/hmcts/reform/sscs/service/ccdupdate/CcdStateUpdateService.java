@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.ListingCaseStatus;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
 
 import javax.validation.Valid;
@@ -15,7 +15,7 @@ import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.DORMANT_APPEAL_STATE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.READY_TO_LIST;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.ListingStatus.FIXED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
 
 @Slf4j
@@ -31,14 +31,14 @@ public class CcdStateUpdateService {
             return;
         }
 
-        ListingCaseStatus listingCaseStatus = hearingResponse.getHearingResponse().getListingCaseStatus();
+        ListAssistCaseStatus listAssistCaseStatus = hearingResponse.getHearingResponse().getListAssistCaseStatus();
 
-        if (isNull(listingCaseStatus)) {
+        if (isNull(listAssistCaseStatus)) {
             throw new UpdateCaseException(String.format("Can not map listing Case Status %s for caseId %s",
-                    listingCaseStatus, sscsCaseData.getCcdCaseId()));
+                listAssistCaseStatus, sscsCaseData.getCcdCaseId()));
         }
 
-        State state = mapHmcCreatedOrUpdatedToCcd(listingCaseStatus, sscsCaseData.getCcdCaseId());
+        State state = mapHmcCreatedOrUpdatedToCcd(listAssistCaseStatus, sscsCaseData.getCcdCaseId());
         setState(sscsCaseData, state);
     }
 
@@ -70,9 +70,9 @@ public class CcdStateUpdateService {
         log.info("CCD state has been updated to {} for caseId {}", state, sscsCaseData.getCcdCaseId());
     }
 
-    private State mapHmcCreatedOrUpdatedToCcd(ListingCaseStatus listingCaseStatus, String caseId)
+    private State mapHmcCreatedOrUpdatedToCcd(ListAssistCaseStatus listAssistCaseStatus, String caseId)
             throws UpdateCaseException {
-        switch (listingCaseStatus) {
+        switch (listAssistCaseStatus) {
             case LISTED:
                 return HEARING;
             case AWAITING_LISTING:
@@ -80,7 +80,7 @@ public class CcdStateUpdateService {
             default:
                 throw new UpdateCaseException(String.format("Can not map HMC updated or create listing status %s "
                                 + "with CCD state for caseId %s",
-                        listingCaseStatus, caseId));
+                    listAssistCaseStatus, caseId));
         }
     }
 
