@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
+import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class CcdLocationUpdateService {
 
     public static final String TEMPLATE_UPDATE_VENUE_ERROR = "Failed to update venue for Case Id %s:%n";
 
-    private final VenueRpcDetailsService venueRpcDetailsService;
+    private final VenueDataLoader venueData;
 
     public void updateVenue(HmcMessage hmcMessage, @Valid SscsCaseData sscsCaseData) throws UpdateCaseException {
 
@@ -79,7 +79,7 @@ public class CcdLocationUpdateService {
 
     public Venue findVenue(String epimsId) {
 
-        VenueDetails venueDetails = venueRpcDetailsService.getVenue(epimsId);
+        VenueDetails venueDetails = venueData.getAnActiveVenueByEpims(epimsId);
 
         if (isNull(venueDetails)) {
             log.error("Could not find venueDetails with Epims Id {}", epimsId);
