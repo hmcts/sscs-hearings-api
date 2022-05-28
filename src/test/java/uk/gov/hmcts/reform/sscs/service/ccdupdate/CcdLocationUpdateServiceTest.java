@@ -13,8 +13,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
-import uk.gov.hmcts.reform.sscs.model.messaging.HearingUpdate;
-import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.util.List;
@@ -87,9 +87,9 @@ class CcdLocationUpdateServiceTest {
         // given
 
         HmcMessage hmcMessage = HmcMessage.builder()
-                .hearingID(HEARING_ID)
+                .hearingId(HEARING_ID)
                 .hearingUpdate(HearingUpdate.builder()
-                        .hearingVenueID(NEW_EPIMS_ID)
+                        .hearingVenueId(NEW_EPIMS_ID)
                         .build())
                 .build();
 
@@ -152,9 +152,9 @@ class CcdLocationUpdateServiceTest {
     @Test
     void testUpdateVenueMissingVenue() {
         HmcMessage hmcMessage = HmcMessage.builder()
-                .hearingID(HEARING_ID)
+                .hearingId(HEARING_ID)
                 .hearingUpdate(HearingUpdate.builder()
-                        .hearingVenueID(NEW_EPIMS_ID)
+                        .hearingVenueId(NEW_EPIMS_ID)
                         .build())
                 .build();
 

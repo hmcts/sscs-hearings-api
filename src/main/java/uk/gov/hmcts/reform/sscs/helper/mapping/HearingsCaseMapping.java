@@ -13,13 +13,13 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
 
 @RestController
 public final class HearingsCaseMapping {
 
-    public static final String CASE_TYPE = "caseType";
-    public static final String CASE_SUB_TYPE = "caseSubType";
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
 
     private HearingsCaseMapping() {
@@ -114,7 +114,7 @@ public final class HearingsCaseMapping {
     public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
-                .categoryType(CASE_SUB_TYPE)
+                .categoryType(CASE_SUBTYPE)
                 .categoryParent(referenceData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .categoryValue(referenceData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());

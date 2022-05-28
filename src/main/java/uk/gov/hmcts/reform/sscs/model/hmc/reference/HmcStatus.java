@@ -1,5 +1,6 @@
-package uk.gov.hmcts.reform.sscs.model.messaging;
+package uk.gov.hmcts.reform.sscs.model.hmc.reference;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,6 @@ public enum HmcStatus {
     COMPLETED("Completed"),
     ADJOURNED("Adjourned");
 
-
+    @JsonValue
     private final String state;
 }
