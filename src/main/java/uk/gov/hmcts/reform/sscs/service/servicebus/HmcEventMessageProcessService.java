@@ -13,8 +13,8 @@ import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.service.HmcEventTopicService;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class HmcEventMessageProcessService {
 
     @Value("${sscs.serviceCode}")
