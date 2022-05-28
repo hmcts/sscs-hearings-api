@@ -15,12 +15,12 @@ import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class HmcEventTopicListenerServiceTest {
+class HmcEventMessageProcessServiceTest {
 
     public static final String SSCS_SERVICE_CODE = "BBA3";
 
     @InjectMocks
-    private HmcEventTopicListenerService eventTopicService;
+    private HmcEventMessageProcessService eventTopicService;
 
     @BeforeEach
     void setUp() {
@@ -28,22 +28,22 @@ class HmcEventTopicListenerServiceTest {
     }
 
     @DisplayName("When the service code of a message matches the correct this services code "
-        + "isMessageRelevantForService returns true")
+        + "isMessageRelevantForService returns false")
     @Test
     void testMessageRelevantForService() {
         HmcMessage hmcMessage = HmcMessage.builder()
             .hmctsServiceCode(SSCS_SERVICE_CODE)
             .build();
 
-        boolean result = eventTopicService.isMessageRelevantForService(hmcMessage);
+        boolean result = eventTopicService.isMessageNotRelevantForService(hmcMessage);
 
         assertThat(result)
             .as("This message does not have the correct service ID.")
-            .isTrue();
+            .isFalse();
     }
 
     @DisplayName("When the service code of a message does not match this service's code "
-        + "isMessageRelevantForService returns false")
+        + "isMessageRelevantForService returns true")
     @ParameterizedTest
     @ValueSource(strings = {"PP4","SSA1"})
     @EmptySource
@@ -52,10 +52,10 @@ class HmcEventTopicListenerServiceTest {
             .hmctsServiceCode(value)
             .build();
 
-        boolean result = eventTopicService.isMessageRelevantForService(hmcMessage);
+        boolean result = eventTopicService.isMessageNotRelevantForService(hmcMessage);
 
         assertThat(result)
             .as("This service ID should not of matched.")
-            .isFalse();
+            .isTrue();
     }
 }

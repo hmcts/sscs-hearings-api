@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs;
 
 import com.microsoft.applicationinsights.web.internal.ApplicationInsightsServletContextListener;
 import okhttp3.OkHttpClient;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,17 +14,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
+import uk.gov.hmcts.reform.sscs.helper.servicebus.ConnectionStringResolver;
+import uk.gov.hmcts.reform.sscs.model.servicebus.ServiceBusKey;
+import uk.gov.hmcts.reform.sscs.service.servicebus.CustomMessageConverter;
 
 import java.util.concurrent.TimeUnit;
+import javax.jms.ConnectionFactory;
 import javax.servlet.ServletContextListener;
 
 @SpringBootApplication
 @EnableScheduling
 @EnableJms
 @ComponentScan(basePackages = {"uk.gov.hmcts.reform"})
+@EnableJms
 @EnableFeignClients(basePackages =
     {
         "uk.gov.hmcts.reform.sscs.service",
@@ -33,6 +42,18 @@ import javax.servlet.ServletContextListener;
         "uk.gov.hmcts.reform.idam"
     })
 public class HearingsApiApplication {
+
+    @Value("${spring.jms.servicebus.connection-string}")
+    private String connectionString;
+
+    @Value("${spring.jms.servicebus.topic-client-id}")
+    private String clientId;
+
+    @Value("${spring.jms.servicebus.idle-timeout}")
+    private int idleTimeout;
+
+    private static final String AMQP_URI_FORMAT = "amqps://%s?amqp.idleTimeout=%d";
+
 
     public static void main(final String[] args) {
         SpringApplication.run(HearingsApiApplication.class, args);
@@ -85,4 +106,33 @@ public class HearingsApiApplication {
             .jurisdictionId(coreCaseDataJurisdictionId)
             .build();
     }
+
+
+
+    @Bean
+    public ConnectionFactory myConnectionFactory() {
+        ServiceBusKey serviceBusKey = ConnectionStringResolver.getServiceBusKey(connectionString);
+        String host = serviceBusKey.getHost();
+        String sasKeyName = serviceBusKey.getSharedAccessKeyName();
+        String sasKey = serviceBusKey.getSharedAccessKey();
+
+        String remoteUri = String.format(AMQP_URI_FORMAT, host, idleTimeout);
+        JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory();
+        jmsConnectionFactory.setRemoteURI(remoteUri);
+        jmsConnectionFactory.setClientID(clientId);
+        jmsConnectionFactory.setUsername(sasKeyName);
+        jmsConnectionFactory.setPassword(sasKey);
+        return new CachingConnectionFactory(jmsConnectionFactory);
+    }
+
+    @Bean
+    public JmsListenerContainerFactory<?> myTopicFactory(ConnectionFactory connectionFactory) {
+        DefaultJmsListenerContainerFactory topicFactory = new DefaultJmsListenerContainerFactory();
+        topicFactory.setConnectionFactory(connectionFactory);
+        topicFactory.setSubscriptionDurable(Boolean.TRUE);
+        topicFactory.setMessageConverter(new CustomMessageConverter());
+        return topicFactory;
+    }
+
+
 }
