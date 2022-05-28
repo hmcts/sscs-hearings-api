@@ -15,13 +15,13 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.messaging.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.messaging.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.venue.VenueRpcDetailsService;
+import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +34,7 @@ class CcdLocationUpdateServiceTest {
     private static final String VENUE_NAME = "VenueName";
 
     @Mock
-    private VenueRpcDetailsService venueRpcDetailsService;
+    private VenueDataLoader venueData;
 
     @InjectMocks
     private CcdLocationUpdateService underTest;
@@ -53,7 +53,7 @@ class CcdLocationUpdateServiceTest {
             .regionalProcessingCentre("regionalProcessingCentre")
             .build();
 
-        when(venueRpcDetailsService.getVenue(epimsId)).thenReturn(venueDetails);
+        when(venueData.getAnActiveVenueByEpims(epimsId)).thenReturn(venueDetails);
 
         // when
         Venue venue = underTest.findVenue(epimsId);
@@ -73,7 +73,7 @@ class CcdLocationUpdateServiceTest {
     @Test
     void testShouldReturnNullIfVenueDoesNotExist() {
         // given
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(null);
+        when(venueData.getAnActiveVenueByEpims(anyString())).thenReturn(null);
 
         // when
         Venue venue = underTest.findVenue(EPIMS_ID);
@@ -116,7 +116,7 @@ class CcdLocationUpdateServiceTest {
                 .regionalProcessingCentre("regionalProcessingCentre")
                 .build();
 
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(venueDetails);
+        when(venueData.getAnActiveVenueByEpims(NEW_EPIMS_ID)).thenReturn(venueDetails);
 
         // when
         underTest.updateVenue(hmcMessage, caseData);
@@ -168,11 +168,10 @@ class CcdLocationUpdateServiceTest {
                 .ccdCaseId(CASE_ID)
                 .build();
 
-        when(venueRpcDetailsService.getVenue(any())).thenReturn(null);
+        when(venueData.getAnActiveVenueByEpims(anyString())).thenReturn(null);
 
         assertThatExceptionOfType(UpdateCaseException.class)
                 .isThrownBy(() -> underTest.updateVenue(hmcMessage, caseData))
                 .withMessageContaining("Could not find venue");
     }
-
 }
