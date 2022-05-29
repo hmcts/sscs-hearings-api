@@ -7,16 +7,19 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
@@ -381,4 +384,23 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
 
         assertThat(result).isNull();
     }
+
+    @DisplayName("get Case Flags")
+    @Test
+    void shouldGetCaseFlags() {
+        // given
+        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
+        Appeal appeal = Mockito.mock(Appeal.class);
+        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
+        // when
+        Mockito.when(hearingOptions.getSignLanguageType()).thenReturn("British Sign Language (BSL)");
+        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
+        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        // then
+        CaseFlags caseFlags = PartyFlagsMapping.getCaseFlags(sscsCaseData);
+        assertEquals("", caseFlags.getFlagAmendUrl());
+        assertEquals(1, caseFlags.getFlags().size());
+        assertEquals(SIGN_LANGUAGE_TYPE.getFlagId(), caseFlags.getFlags().stream().findFirst().orElseThrow().getFlagId());
+    }
+
 }

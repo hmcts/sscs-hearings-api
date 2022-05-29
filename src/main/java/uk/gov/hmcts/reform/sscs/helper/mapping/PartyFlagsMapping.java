@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 
 import java.util.List;
@@ -142,5 +143,14 @@ public final class PartyFlagsMapping {
                 .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();
         }
         return adjournCasePartyFlag;
+    }
+
+    public static CaseFlags getCaseFlags(SscsCaseData sscsCaseData) {
+        return CaseFlags.builder()
+                .flags(PartyFlagsMapping.getPartyFlags(sscsCaseData).stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList()))
+                .flagAmendUrl("") //TODO Implement when present
+                .build();
     }
 }

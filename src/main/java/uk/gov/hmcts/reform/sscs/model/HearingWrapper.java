@@ -17,6 +17,4 @@ public class HearingWrapper {
     private SscsCaseData updatedCaseData;
     private EventType event;
     private HearingState state;
-    private String sscsServiceCode;
-    private String exUiUrl;
 }
