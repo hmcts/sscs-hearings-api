@@ -365,7 +365,7 @@ public final class HearingsDetailsMapping {
         return Collections.emptyList();
     }
 
-    public static List<String> getPanelSpecialisms(SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
+    public static List<String> getPanelSpecialisms(@Valid SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
         List<String> panelSpecialisms = new ArrayList<>();
         if (isNull(sessionCategoryMap)) {
             return panelSpecialisms;
