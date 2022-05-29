@@ -74,7 +74,6 @@ azure:
       subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
       receiveTimeout: ${HEARINGS_TOPIC_RECEIVE_TIMEOUT:1}
       idleTimeout: ${HEARINGS_TOPIC_IDLE_TIMEOUT:3600000}
-      maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
       username: ${HEARINGS_TOPIC_POLICY_NAME:}
       password: ${HEARINGS_TOPIC_ACCESS_KEY:}
     tribunals-to-hearings-api:

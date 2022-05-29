@@ -16,8 +16,6 @@ java:
           alias: IDAM_SSCS_SYSTEMUPDATE_USER
         - name: idam-sscs-systemupdate-password
           alias: IDAM_SSCS_SYSTEMUPDATE_PASSWORD
-        - name: hmc-servicebus-connection-string
-          alias: HEARINGS_TOPIC_CONNECTION_STRING
         - name: sscs-asb-connection-string
           alias: SSCS_SERVICEBUS_CONNECTION_STRING
         - name: idam-oauth-user
@@ -48,3 +46,4 @@ java:
     CORE_CASE_DATA_JURISDICTION_ID: SSCS
     CORE_CASE_DATA_CASE_TYPE_ID: Benefit
     SSCS_SERVICE_CODE: BBA3
+    HEARINGS_TOPIC_CONNECTION_STRING: "hmc-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
