@@ -51,3 +51,4 @@ java:
     CORE_CASE_DATA_JURISDICTION_ID: SSCS
     CORE_CASE_DATA_CASE_TYPE_ID: Benefit
     SSCS_SERVICE_CODE: BBA3
+    HEARINGS_TOPIC_CONNECTION_STRING: "hmc-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"

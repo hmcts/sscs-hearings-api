@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.config;
+package uk.gov.hmcts.reform.sscs.config.jms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.qpid.jms.JmsConnectionFactory;
@@ -13,6 +13,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.Session;
 
 
 @Configuration
@@ -32,6 +33,7 @@ public class HearingsJMSConfig {
 
     @Value("${azure.service-bus.hmc-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
+
 
     @Bean
     public ConnectionFactory hmcHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
@@ -53,10 +55,13 @@ public class HearingsJMSConfig {
         factory.setConnectionFactory(hmcHearingJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
         factory.setSubscriptionDurable(Boolean.TRUE);
+        factory.setSessionTransacted(Boolean.TRUE);
+        factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
         configurer.configure(factory, hmcHearingJmsConnectionFactory);
         return factory;
     }
+
 
     @Bean
     public JmsTemplate jmsTemplate(ConnectionFactory jmsConnectionFactory) {
