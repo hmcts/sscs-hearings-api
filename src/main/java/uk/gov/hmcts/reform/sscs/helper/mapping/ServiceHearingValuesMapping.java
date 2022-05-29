@@ -29,7 +29,7 @@ public final class ServiceHearingValuesMapping {
         }
 
         SscsCaseData caseData = caseDetails.getData();
-        boolean shouldBeAutoListed = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+        boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         return ServiceHearingValues.builder()
                 .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
@@ -47,7 +47,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
-                .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
+                .listingComments(HearingsDetailsMapping.getListingComments(caseData))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value

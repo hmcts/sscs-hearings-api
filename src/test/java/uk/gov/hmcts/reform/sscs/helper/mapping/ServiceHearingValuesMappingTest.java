@@ -34,17 +34,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceHearingValuesMappingTest {
+class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
 
     private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
-    public static final String BENEFIT_CODE = "002";
 
     private static SscsCaseDetails sscsCaseDetails;
 
@@ -135,13 +133,17 @@ class ServiceHearingValuesMappingTest {
                       .languagePreferenceWelsh("No")
                       .otherParties(getOtherParties())
                       .linkedCasesBoolean("No")
+                      .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                              .panelDoctorSpecialism("cardiologist")
+                              .secondPanelDoctorSpecialism("eyeSurgeon")
+                              .build())
                       .build())
             .build();
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
 
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,true,false))
                 .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002");
@@ -202,7 +204,10 @@ class ServiceHearingValuesMappingTest {
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
-        assertEquals("BBA3-MQPM1", serviceHearingValues.getJudiciary().getJudiciarySpecialisms().stream().findFirst().orElse(""));
+        assertThat(serviceHearingValues.getJudiciary()).isNotNull();
+        assertThat(serviceHearingValues.getJudiciary().getJudiciarySpecialisms())
+                .hasSize(3)
+                .contains("BBA3-MQPM1-001","BBA3-MQPM2-003","BBA3-?");
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
