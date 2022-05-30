@@ -50,8 +50,9 @@ import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
 import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,13 +103,16 @@ class ServiceHearingsControllerTest {
     private CcdService ccdService;
 
     @MockBean
-    private ReferenceData referenceData;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    public SessionCategoryMapService sessionCategoryMaps;
+    private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public HearingDurationsService hearingDurations;
+    private HearingDurationsService hearingDurations;
+
+    @Mock
+    private VenueService venueService;
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
 
@@ -194,8 +198,9 @@ class ServiceHearingsControllerTest {
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
     }
 
     // TODO These are holder tests that will need to be implemented alongside service hearing controller

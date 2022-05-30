@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRan
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,7 @@ public final class ServiceHearingValuesMapping {
     }
 
 
-    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceData referenceData) {
+    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder) {
         if (caseDetails == null) {
             return null;
         }
@@ -36,21 +36,21 @@ public final class ServiceHearingValuesMapping {
                 .autoListFlag(shouldBeAutoListed)
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(caseData.getBenefitCode())
-                .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
+                .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder))
                 .hearingWindow(buildHearingWindow(caseData, shouldBeAutoListed))
-                .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceData))
+                .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
-                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
+                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
-                .judiciary(getJudiciary(caseDetails, referenceData))
+                .judiciary(getJudiciary(caseDetails, referenceDataServiceHolder))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
                 .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
@@ -59,13 +59,13 @@ public final class ServiceHearingValuesMapping {
             .build();
     }
 
-    public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceData referenceData) {
+    public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData sscsCaseData = caseDetails.getData();
         return Judiciary.builder()
                 .roleType(HearingsDetailsMapping.getRoleTypes())
                 .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes())
                 .authorisationSubType(HearingsDetailsMapping.getAuthorisationSubTypes())
-                .judiciarySpecialisms(HearingsDetailsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceData)))
+                .judiciarySpecialisms(HearingsDetailsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
                 .judiciaryPreferences(getPanelPreferences())
                 .build();
     }

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HearingLocations {
+public class HearingLocation {
     private String locationType;
     private String locationId;
     private String locationName;
