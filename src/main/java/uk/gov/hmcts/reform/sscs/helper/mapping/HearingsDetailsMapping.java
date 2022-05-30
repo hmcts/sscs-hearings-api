@@ -87,7 +87,7 @@ public final class HearingsDetailsMapping {
 
     public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
         Appeal appeal = caseData.getAppeal();
-        return (!isCaseLinked(caseData) && !isCaseUrgent(caseData)) && appeal.getHearingOptions().isWantsToAttendHearing();
+        return !isCaseLinked(caseData) && !isCaseUrgent(caseData) && appeal.getHearingOptions().isWantsToAttendHearing();
     }
 
     public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
