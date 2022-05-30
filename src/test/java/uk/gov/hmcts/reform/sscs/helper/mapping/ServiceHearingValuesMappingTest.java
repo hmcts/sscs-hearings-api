@@ -52,8 +52,8 @@ class ServiceHearingValuesMappingTest {
     @Mock
     private static SessionCategoryMapService sessionCategoryMaps;
 
-    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
-    private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:\n";
+    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:" + System.lineSeparator();
+    private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:" + System.lineSeparator();
     public static final String FACE_TO_FACE = "faceToFace";
 
     @BeforeEach
@@ -178,7 +178,7 @@ class ServiceHearingValuesMappingTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertEquals(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY, serviceHearingValues.getListingComments());
+        assertEquals(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + System.lineSeparator() + System.lineSeparator() + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY, serviceHearingValues.getListingComments());
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());

@@ -85,6 +85,7 @@ class HearingsServiceTest {
                 .issueCode(ISSUE_CODE)
                 .caseManagementLocation(CaseManagementLocation.builder().build())
                 .appeal(Appeal.builder()
+                        .rep(Representative.builder().hasRepresentative("No").build())
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())

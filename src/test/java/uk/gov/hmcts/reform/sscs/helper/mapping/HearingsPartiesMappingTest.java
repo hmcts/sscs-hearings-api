@@ -492,7 +492,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .languageInterpreter("Yes")
             .languages(lang)
             .build();
-        String result = getIndividualInterpreterLanguage(hearingOptions);
+        String result = getIndividualInterpreterLanguage(hearingOptions).orElse(null);
         assertThat(result).isEqualTo(expected);
     }
 
@@ -509,7 +509,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .signLanguageType(signLang)
             .build();
         hearingOptions.wantsSignLanguageInterpreter();
-        String result = getIndividualInterpreterLanguage(hearingOptions);
+        String result = getIndividualInterpreterLanguage(hearingOptions).orElse(null);
         assertThat(result).isEqualTo(expected);
     }
 

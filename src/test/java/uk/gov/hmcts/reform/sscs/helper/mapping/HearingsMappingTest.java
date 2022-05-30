@@ -45,6 +45,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())
                 .appeal(Appeal.builder()
+                        .rep(Representative.builder().hasRepresentative("no").build())
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())

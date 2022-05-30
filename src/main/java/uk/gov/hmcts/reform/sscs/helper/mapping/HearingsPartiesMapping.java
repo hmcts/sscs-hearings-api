@@ -151,7 +151,7 @@ public final class HearingsPartiesMapping {
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions))
-                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions))
+                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
@@ -213,7 +213,7 @@ public final class HearingsPartiesMapping {
             && nonNull(hearingSubtype.getHearingVideoEmail());
     }
 
-    public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
+    public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             return getSignLanguage(hearingOptions)
                 .map(SignLanguage::getHmcReference);

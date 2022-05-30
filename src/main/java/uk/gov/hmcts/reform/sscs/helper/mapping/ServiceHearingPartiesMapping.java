@@ -62,7 +62,7 @@ public final class ServiceHearingPartiesMapping {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildServiceHearingPartiesPartyDetails(
-                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId()));
+                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId()));
             }
         }
 
@@ -89,7 +89,7 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingType, hearingSubtype, partyId, appellantId));
-        partyDetails.partyChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null));
+        partyDetails.partyChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions));
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(null); //TODO Implement later
         partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
@@ -119,7 +119,7 @@ public final class ServiceHearingPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
-                .preferredHearingChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
+                .preferredHearingChannel(HearingsPartiesMapping.getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions))
                 .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions).orElse(null))
                 .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
