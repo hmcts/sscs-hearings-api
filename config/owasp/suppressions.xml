@@ -42,4 +42,11 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*?@[1-5]\..*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+     incorrectly tagging spring-security-crypto, Affects versions prior to 5.3.2
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@5\.7.*$</packageUrl>
+    <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
+  </suppress>
 </suppressions>

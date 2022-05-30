@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.service.ccdupdate;
+package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CcdLocationUpdateServiceTest {
+class CaseHearingLocationServiceTest {
 
     private static final String HEARING_ID = "789";
     private static final String EPIMS_ID = "123";
@@ -37,7 +37,7 @@ class CcdLocationUpdateServiceTest {
     private VenueDataLoader venueData;
 
     @InjectMocks
-    private CcdLocationUpdateService underTest;
+    private CaseHearingLocationService underTest;
 
     @Test
     void testShouldFindVenueByVenueId() {

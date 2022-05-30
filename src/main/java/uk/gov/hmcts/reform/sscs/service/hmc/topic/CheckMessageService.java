@@ -1,28 +1,34 @@
 
-package uk.gov.hmcts.reform.sscs.service.servicebus;
+package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
-import uk.gov.hmcts.reform.sscs.service.HmcEventTopicService;
+
+import static java.util.Objects.isNull;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class HmcEventMessageProcessService {
+public class CheckMessageService {
 
     @Value("${sscs.serviceCode}")
     private String sscsServiceCode;
 
-    private final HmcEventTopicService hmcEventTopicService;
+    private final ProcessMessageService processMessageService;
 
-    public void processMessage(HmcMessage hmcMessage) throws UpdateCaseException, GetCaseException, InvalidIdException {
+    public void checkMessage(HmcMessage hmcMessage)
+            throws UpdateCaseException, GetCaseException, InvalidIdException, GetHearingException, InvalidHmcMessageException {
+
+        validateHmcMessage(hmcMessage);
 
         Long caseId = hmcMessage.getCaseId();
         ListAssistCaseStatus listAssistCaseStatus = hmcMessage.getHearingUpdate().getListAssistCaseStatus();
@@ -37,11 +43,30 @@ public class HmcEventMessageProcessService {
             return;
         }
 
-        hmcEventTopicService.processEventMessage(hmcMessage);
+        processMessageService.processEventMessage(hmcMessage);
 
         log.info("Hearing message {} processed for case reference {}",
             hmcMessage.getHearingId(),
             hmcMessage.getCaseId());
+    }
+
+    public void validateHmcMessage(HmcMessage hmcMessage) throws InvalidHmcMessageException {
+
+        if (isNull(hmcMessage)) {
+            throw new InvalidHmcMessageException("HMC message must not be mull");
+        }
+
+        if (isNull(hmcMessage.getHearingId())) {
+            throw new InvalidHmcMessageException("HMC message field hearingID is missing");
+        }
+
+        if (isNull(hmcMessage.getHearingUpdate())) {
+            throw new InvalidHmcMessageException("HMC message field HearingUpdate is missing");
+        }
+
+        if (isNull(hmcMessage.getHearingUpdate().getHmcStatus())) {
+            throw new InvalidHmcMessageException("HMC message field HmcStatus is missing");
+        }
     }
 
     public boolean isMessageNotRelevantForService(HmcMessage hmcMessage) {
