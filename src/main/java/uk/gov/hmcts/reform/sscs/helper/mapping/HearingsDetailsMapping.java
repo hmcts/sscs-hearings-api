@@ -72,8 +72,8 @@ public final class HearingsDetailsMapping {
     }
 
     public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
-        // TODO Future Work
-        return !isCaseLinked(caseData);
+        Appeal appeal = caseData.getAppeal();
+        return !isCaseLinked(caseData) && appeal.getHearingOptions().isWantsToAttendHearing();
     }
 
     public static String getHearingType() {

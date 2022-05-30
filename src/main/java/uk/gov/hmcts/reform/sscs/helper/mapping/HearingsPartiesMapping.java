@@ -5,13 +5,13 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
 import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
@@ -24,14 +24,13 @@ import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NOT_ATTENDING;
+import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.PAPER;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
-
-    private static final String HEARING_TYPE_PAPER = "paper";
 
     private HearingsPartiesMapping() {
 
@@ -62,7 +61,7 @@ public final class HearingsPartiesMapping {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
-                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId()));
+                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId()));
             }
         }
 
@@ -130,8 +129,8 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
-                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions).orElse(null))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions))
+                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
@@ -151,36 +150,60 @@ public final class HearingsPartiesMapping {
         return entity.getName().getLastName();
     }
 
-    public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
-        if (hearingType == null || hearingSubtype == null) {
-            return Optional.empty();
+    public static String getIndividualPreferredHearingChannel(String hearingType,
+                                                                        HearingSubtype hearingSubtype,
+                                                                        HearingOptions hearingOptions) {
+        if (eitherNull(hearingType, hearingSubtype)) {
+            throw new IllegalStateException("hearingType and/or hearingSubtype null");
         }
 
-        return HEARING_TYPE_PAPER.equals(hearingType) ? Optional.ofNullable(NOT_ATTENDING.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? Optional.ofNullable(FACE_TO_FACE.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeVideo()) ? Optional.ofNullable(VIDEO.getHmcReference())
-            : isYes(hearingSubtype.getWantsHearingTypeTelephone()) ? Optional.ofNullable(TELEPHONE.getHmcReference())
-            : Optional.empty();
+        HearingChannel preferredHearingChannel =
+            shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
+            : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO
+            : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE
+            : null;
+
+        if (preferredHearingChannel == null) {
+            throw new IllegalStateException("Failed to determine a preferred hearing channel");
+        }
+
+        return preferredHearingChannel.getHmcReference();
     }
 
-    public static Optional<String> getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
+    private static boolean eitherNull(String hearingType, HearingSubtype hearingSubtype) {
+        return hearingType == null || hearingSubtype == null;
+    }
+
+    private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {
+        return PAPER.getHmcReference().equals(hearingType) || !hearingOptions.isWantsToAttendHearing();
+    }
+
+    private static boolean shouldPreferTelephoneHearingChannel(HearingSubtype hearingSubtype) {
+        return isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber());
+    }
+
+    private static boolean shouldPreferVideoHearingChannel(HearingSubtype hearingSubtype) {
+        return isYes(hearingSubtype.getWantsHearingTypeVideo())
+            && nonNull(hearingSubtype.getHearingVideoEmail());
+    }
+
+    public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions) {
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
-            return getSignLanguage(hearingOptions)
-                .map(SignLanguage::getHmcReference);
+            return getSignLanguage(hearingOptions).getHmcReference();
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
-            return getInterpreterLanguage(hearingOptions)
-                .map(InterpreterLanguage::getHmcReference);
+            return getInterpreterLanguage(hearingOptions).getHmcReference();
         }
-        return Optional.empty();
+        return null;
     }
 
-    private static Optional<SignLanguage> getSignLanguage(HearingOptions hearingOptions) {
-        return Optional.ofNullable(SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType()));
+    private static SignLanguage getSignLanguage(HearingOptions hearingOptions) {
+        return SignLanguage.getSignLanguageKeyByCcdReference(hearingOptions.getSignLanguageType());
     }
 
-    private static Optional<InterpreterLanguage> getInterpreterLanguage(HearingOptions hearingOptions) {
-        return Optional.ofNullable(InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages()));
+    private static InterpreterLanguage getInterpreterLanguage(HearingOptions hearingOptions) {
+        return InterpreterLanguage.getLanguageAndConvert(hearingOptions.getLanguages());
     }
 
     public static List<String> getIndividualReasonableAdjustments(HearingOptions hearingOptions) {
