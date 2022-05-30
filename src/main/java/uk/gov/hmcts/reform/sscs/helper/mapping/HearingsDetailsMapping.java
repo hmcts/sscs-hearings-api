@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -259,15 +260,15 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocations> getHearingLocations(String processingVenue,
-                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<HearingLocation> getHearingLocations(String processingVenue,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
 
         String epimsId = referenceDataServiceHolder
             .getVenueService()
             .getEpimsIdForVenue(processingVenue)
             .orElse(null);
 
-        HearingLocations hearingLocation = new HearingLocations();
+        HearingLocation hearingLocation = new HearingLocation();
         hearingLocation.setLocationId(epimsId);
         hearingLocation.setLocationType("court");
 
@@ -340,13 +341,14 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    public static PanelRequirements getPanelRequirements(SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+    public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
+                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
         return PanelRequirements.builder()
                 .roleTypes(getRoleTypes())
                 .authorisationTypes(getAuthorisationTypes())
                 .authorisationSubTypes(getAuthorisationSubTypes())
                 .panelPreferences(getPanelPreferences(caseData))
-                .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceData)))
+                .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceDataServiceHolder)))
                 .build();
     }
 

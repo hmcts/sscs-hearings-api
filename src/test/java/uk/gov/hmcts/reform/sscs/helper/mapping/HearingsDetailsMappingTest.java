@@ -7,12 +7,11 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
@@ -23,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.service.AirLookupService;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -319,7 +319,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
             referenceDataServiceHolder);
 
         assertThat(result).hasSize(1);
@@ -369,6 +369,28 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         //then
         assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
+    }
+
+    @DisplayName("getHearingLocations Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    void getHearingLocations() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
+            referenceDataServiceHolder);
+
+        assertEquals(1, result.size());
+        assertEquals("219164", result.get(0).getLocationId());
+        assertEquals("court", result.get(0).getLocationType());
     }
 
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")

@@ -6,7 +6,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +29,9 @@ public final class HearingsCaseMapping {
     public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
-                .hmctsServiceCode(getServiceCode(referenceData))
+                .hmctsServiceCode(getServiceCode(referenceDataServiceHolder))
                 .caseId(getCaseID(caseData))
-                .caseDeepLink(getCaseDeepLink(wrapper, referenceData))
+                .caseDeepLink(getCaseDeepLink(wrapper, referenceDataServiceHolder))
                 .hmctsInternalCaseName(getInternalCaseName(caseData))
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
@@ -43,16 +43,16 @@ public final class HearingsCaseMapping {
                 .build();
     }
 
-    public static String getServiceCode(ReferenceDataServiceHolder referenceData) {
-        return referenceData.getSscsServiceCode();
+    public static String getServiceCode(ReferenceDataServiceHolder referenceDataServiceHolder) {
+        return referenceDataServiceHolder.getSscsServiceCode();
     }
 
     public static String getCaseID(SscsCaseData caseData) {
         return caseData.getCcdCaseId();
     }
 
-    public static String getCaseDeepLink(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData) {
-        return String.format(CASE_DETAILS_URL, referenceData.getExUiUrl(), getCaseID(wrapper.getCaseData()));
+    public static String getCaseDeepLink(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        return String.format(CASE_DETAILS_URL, referenceDataServiceHolder.getExUiUrl(), getCaseID(wrapper.getCaseData()));
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
