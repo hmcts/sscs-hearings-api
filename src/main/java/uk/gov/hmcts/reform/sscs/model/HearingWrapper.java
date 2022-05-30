@@ -14,6 +14,4 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 public class HearingWrapper {
     private SscsCaseData caseData;
     private HearingState state;
-    private String sscsServiceCode;
-    private String exUiUrl;
 }

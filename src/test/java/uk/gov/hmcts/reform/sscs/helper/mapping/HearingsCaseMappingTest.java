@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
@@ -103,9 +104,9 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .caseData(SscsCaseData.builder()
                         .ccdCaseId(String.valueOf(CASE_ID))
                         .build())
-                .exUiUrl(EX_UI_URL)
                 .build();
-        String result = HearingsCaseMapping.getCaseDeepLink(wrapper);
+        Mockito.when(referenceData.getExUiUrl()).thenReturn(EX_UI_URL);
+        String result = HearingsCaseMapping.getCaseDeepLink(wrapper, referenceData);
         String expected = String.format(HearingsCaseMapping.CASE_DETAILS_URL, EX_UI_URL, CASE_ID);
 
         assertEquals(expected, result);
