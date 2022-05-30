@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
@@ -37,10 +36,7 @@ public class HearingsService {
 
     private final ReferenceData referenceData;
 
-    @Value("${exui.url}")
-    private String exUiUrl;
-    @Value("${sscs.serviceCode}")
-    private String sscsServiceCode;
+
 
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
@@ -199,8 +195,6 @@ public class HearingsService {
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
-                .exUiUrl(exUiUrl)
-                .sscsServiceCode(sscsServiceCode)
                 .build();
     }
 }

@@ -29,9 +29,9 @@ public final class HearingsCaseMapping {
     public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceData referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
-                .hmctsServiceCode(getServiceCode(wrapper))
+                .hmctsServiceCode(getServiceCode(referenceData))
                 .caseId(getCaseID(caseData))
-                .caseDeepLink(getCaseDeepLink(wrapper))
+                .caseDeepLink(getCaseDeepLink(wrapper, referenceData))
                 .hmctsInternalCaseName(getInternalCaseName(caseData))
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
@@ -43,16 +43,16 @@ public final class HearingsCaseMapping {
                 .build();
     }
 
-    public static String getServiceCode(HearingWrapper wrapper) {
-        return wrapper.getSscsServiceCode();
+    public static String getServiceCode(ReferenceData referenceData) {
+        return referenceData.getSscsServiceCode();
     }
 
     public static String getCaseID(SscsCaseData caseData) {
         return caseData.getCcdCaseId();
     }
 
-    public static String getCaseDeepLink(HearingWrapper wrapper) {
-        return String.format(CASE_DETAILS_URL, wrapper.getExUiUrl(), getCaseID(wrapper.getCaseData()));
+    public static String getCaseDeepLink(HearingWrapper wrapper, ReferenceData referenceData) {
+        return String.format(CASE_DETAILS_URL, referenceData.getExUiUrl(), getCaseID(wrapper.getCaseData()));
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
