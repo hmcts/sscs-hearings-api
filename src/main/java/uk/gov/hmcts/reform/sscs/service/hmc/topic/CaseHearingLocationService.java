@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.service.ccdupdate;
+package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import static java.util.Objects.isNull;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CcdLocationUpdateService {
+public class CaseHearingLocationService {
 
     public static final String TEMPLATE_UPDATE_VENUE_ERROR = "Failed to update venue for Case Id %s:%n";
 
