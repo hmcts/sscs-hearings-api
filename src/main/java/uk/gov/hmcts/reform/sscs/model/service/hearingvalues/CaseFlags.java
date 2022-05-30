@@ -18,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CaseFlags {
 
+    @JsonProperty("flags")
     private List<PartyFlags> flags;
     @JsonProperty("flagAmendURL")
     private String flagAmendUrl;

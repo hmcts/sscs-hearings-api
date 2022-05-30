@@ -45,10 +45,13 @@ public final class HearingsMapping {
     }
 
     public static void updateIds(HearingWrapper wrapper) {
+        updateIds(wrapper.getCaseData());
+    }
 
-        log.info("Updating entity IDs for Case ID {}", wrapper.getCaseData().getCcdCaseId());
+    public static void updateIds(SscsCaseData caseData) {
 
-        SscsCaseData caseData = wrapper.getCaseData();
+        log.info("Updating entity IDs for Case ID {}", caseData.getCcdCaseId());
+
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
 
