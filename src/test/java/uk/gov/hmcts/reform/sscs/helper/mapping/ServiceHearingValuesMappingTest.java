@@ -52,7 +52,7 @@ class ServiceHearingValuesMappingTest {
 
     @Mock
     private static SessionCategoryMapService sessionCategoryMaps;
-
+  
     private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
