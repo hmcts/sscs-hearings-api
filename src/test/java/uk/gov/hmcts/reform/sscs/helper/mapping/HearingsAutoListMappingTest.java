@@ -41,7 +41,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     }
 
 
-    @DisplayName("When there are not conditions that affect autolisting, shouldBeAutoListed returns true")
+    @DisplayName("When there are no conditions that affect autolisting, shouldBeAutoListed returns true")
     @Test
     void testShouldBeAutoListed() {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
@@ -55,7 +55,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When this is a condition that affects autolisting, shouldBeAutoListed returns false")
+    @DisplayName("When there is a condition that affects autolisting, shouldBeAutoListed returns false")
     @Test
     void testShouldBeAutoListedFalse() {
         caseData.setLinkedCase(List.of(CaseLink.builder()
@@ -63,12 +63,11 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                         .caseReference("123456")
                         .build())
                 .build()));
+
         boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isFalse();
     }
-
-
 
     @DisplayName("When appellant has a org as a representative, hasOrgRepresentative should return True")
     @Test
@@ -192,21 +191,21 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When hearingType is Paper, isPaperCaseAndNoPO return True")
+    @DisplayName("When hearingType is Paper, isPaperCaseAndNoPoNotAttending return True")
     @Test
-    void testIsPaperCaseAndNoPo() {
+    void testIsPaperCaseAndNoPoNotAttending() {
         caseData.setDwpIsOfficerAttending("No");
         caseData.getAppeal().setHearingType("paper");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPo(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPoNotAttending(caseData);
 
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When hearingType is not Paper, isPaperCaseAndNoPO return False")
+    @DisplayName("When hearingType is not Paper, isPaperCaseAndNoPoNotAttending return False")
     @Test
-    void testIsPaperCaseAndNoPoNotPaper() {
-        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPo(caseData);
+    void testIsPaperCaseAndNoPoNotAttendingNotPaper() {
+        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPoNotAttending(caseData);
 
         assertThat(result).isFalse();
     }
