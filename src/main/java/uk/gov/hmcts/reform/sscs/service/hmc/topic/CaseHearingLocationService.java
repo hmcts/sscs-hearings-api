@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import javax.validation.Valid;
 
@@ -20,7 +20,7 @@ import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.
 @RequiredArgsConstructor
 public class CaseHearingLocationService {
 
-    private final VenueDataLoader venueData;
+    private final VenueService venueService;
 
     public void updateVenue(HmcMessage hmcMessage, @Valid SscsCaseData sscsCaseData)
             throws InvalidHearingDataException, InvalidMappingException {
@@ -28,7 +28,7 @@ public class CaseHearingLocationService {
         Hearing oldHearing = getHearingFromCaseData(hmcMessage, sscsCaseData);
 
         String updatedVenueId = hmcMessage.getHearingUpdate().getHearingVenueId();
-        Venue venue = findVenue(updatedVenueId, venueData);
+        Venue venue = findVenue(updatedVenueId, venueService);
 
         HearingDetails hearingDetails = oldHearing.getValue();
         Hearing updatedHearing = Hearing.builder().value(

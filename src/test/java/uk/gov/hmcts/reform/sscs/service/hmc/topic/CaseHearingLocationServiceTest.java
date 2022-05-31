@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ class CaseHearingLocationServiceTest {
     private static final String VENUE_NAME = "VenueName";
 
     @Mock
-    private VenueDataLoader venueDataLoader;
+    private VenueService venueService;
 
     @InjectMocks
     private CaseHearingLocationService caseHearingLocationService;
@@ -67,7 +67,7 @@ class CaseHearingLocationServiceTest {
                 .regionalProcessingCentre("regionalProcessingCentre")
                 .build();
 
-        when(venueDataLoader.getAnActiveVenueByEpims(NEW_EPIMS_ID)).thenReturn(venueDetails);
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(NEW_EPIMS_ID)).thenReturn(venueDetails);
 
         // when
         caseHearingLocationService.updateVenue(hmcMessage, caseData);
