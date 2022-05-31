@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,13 +27,13 @@ public final class HearingsAutoListMapping {
 
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceData referenceData) {
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
         return !(HearingsDetailsMapping.isCaseUrgent(caseData)
                 || hasOrgRepresentative(caseData)
                 || shouldBeAdditionalSecurityFlag(caseData)
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
-                || isPaperCaseAndNoPoNotAttending(caseData)
+                || isPaperCaseAndPoNotAttending(caseData)
                 || hasMqpmOrFqpm(caseData, referenceData)
                 || isThereOtherComments(caseData)
             );
@@ -54,7 +58,7 @@ public final class HearingsAutoListMapping {
                 && isYes(rep.getHasRepresentative()) && isNotBlank(rep.getOrganisation());
     }
 
-    public static boolean isPaperCaseAndNoPoNotAttending(@Valid SscsCaseData caseData) {
+    public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
         return HearingsDetailsMapping.isPaperCase(caseData)
                 && !HearingsDetailsMapping.isPoAttending(caseData);
     }
@@ -63,7 +67,7 @@ public final class HearingsAutoListMapping {
         return isNotBlank(HearingsDetailsMapping.getListingComments(caseData));
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceData referenceData) {
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
         SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);

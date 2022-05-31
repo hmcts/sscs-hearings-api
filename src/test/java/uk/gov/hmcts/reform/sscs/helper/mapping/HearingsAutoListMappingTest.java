@@ -8,8 +8,21 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.List;
 
@@ -191,21 +204,21 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When hearingType is Paper, isPaperCaseAndNoPoNotAttending return True")
+    @DisplayName("When hearingType is Paper, isPaperCaseAndPoNotAttending return True")
     @Test
-    void testIsPaperCaseAndNoPoNotAttending() {
+    void testIsPaperCaseAndPoNotAttending() {
         caseData.setDwpIsOfficerAttending("No");
         caseData.getAppeal().setHearingType("paper");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPoNotAttending(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When hearingType is not Paper, isPaperCaseAndNoPoNotAttending return False")
+    @DisplayName("When hearingType is not Paper, isPaperCaseAndPoNotAttending return False")
     @Test
-    void testIsPaperCaseAndNoPoNotAttendingNotPaper() {
-        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPoNotAttending(caseData);
+    void testIsPaperCaseAndPoNotAttendingNotPaper() {
+        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
         assertThat(result).isFalse();
     }
