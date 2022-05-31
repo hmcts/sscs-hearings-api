@@ -42,14 +42,7 @@ import javax.servlet.ServletContextListener;
     })
 public class HearingsApiApplication {
 
-    @Value("${spring.jms.servicebus.connection-string}")
-    private String connectionString;
 
-    @Value("${spring.jms.servicebus.topic-client-id}")
-    private String clientId;
-
-    @Value("${spring.jms.servicebus.idle-timeout}")
-    private int idleTimeout;
 
     private static final String AMQP_URI_FORMAT = "amqps://%s?amqp.idleTimeout=%d";
 
@@ -109,7 +102,10 @@ public class HearingsApiApplication {
 
 
     @Bean
-    public ConnectionFactory myConnectionFactory() {
+    public ConnectionFactory hmcConnectionFactory(
+            @Value("${spring.jms.servicebus.connection-string}") String connectionString,
+            @Value("${spring.jms.servicebus.topic-client-id}") String clientId,
+            @Value("${spring.jms.servicebus.idle-timeout}") int idleTimeout) {
         ServiceBusKey serviceBusKey = ConnectionStringResolver.getServiceBusKey(connectionString);
         String host = serviceBusKey.getHost();
         String sasKeyName = serviceBusKey.getSharedAccessKeyName();
@@ -125,7 +121,7 @@ public class HearingsApiApplication {
     }
 
     @Bean
-    public JmsListenerContainerFactory<?> myTopicFactory(ConnectionFactory connectionFactory) {
+    public JmsListenerContainerFactory<?> hmcTopicFactory(ConnectionFactory connectionFactory) {
         DefaultJmsListenerContainerFactory topicFactory = new DefaultJmsListenerContainerFactory();
         topicFactory.setConnectionFactory(connectionFactory);
         topicFactory.setSubscriptionDurable(Boolean.TRUE);
