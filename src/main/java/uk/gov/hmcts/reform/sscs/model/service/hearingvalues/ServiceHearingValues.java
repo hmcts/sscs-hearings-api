@@ -15,7 +15,6 @@ import java.util.List;
 @SuppressWarnings("PMD.TooManyFields")
 @Data
 @Builder(toBuilder = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
