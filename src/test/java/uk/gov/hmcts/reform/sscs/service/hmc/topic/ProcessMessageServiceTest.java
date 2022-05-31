@@ -13,11 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -96,7 +92,7 @@ class ProcessMessageServiceTest {
     @ParameterizedTest
     @EnumSource(value = HmcStatus.class, names = {"LISTED", "UPDATE_SUBMITTED"})
     void testUpdateListed(HmcStatus hmcStatus)
-            throws UpdateCaseException, GetHearingException, GetCaseException, InvalidIdException, InvalidHmcMessageException {
+            throws UpdateCaseException, GetHearingException, GetCaseException, InvalidIdException, InvalidHmcMessageException, InvalidMappingException, InvalidHearingDataException {
         // given
         hearingGetResponse.getHearingResponse().setListingStatus(FIXED);
 
@@ -117,8 +113,7 @@ class ProcessMessageServiceTest {
 
     @DisplayName("When listing Status is not Fixed, updateListed and updateCaseData are not called")
     @Test
-    void testUpdateListedNotFixed()
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testUpdateListedNotFixed() throws Exception {
         // given
         hearingGetResponse.getHearingResponse().setListingStatus(DRAFT);
         hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
@@ -137,8 +132,7 @@ class ProcessMessageServiceTest {
         value = HmcStatus.class,
         mode = EnumSource.Mode.EXCLUDE,
         names = {"LISTED", "UPDATE_SUBMITTED"})
-    void testUpdateListedNotFixed(HmcStatus hmcStatus)
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testUpdateListedNotFixed(HmcStatus hmcStatus) throws Exception {
         // given
         hearingGetResponse.getHearingResponse().setListingStatus(FIXED);
         hmcMessage.getHearingUpdate().setHmcStatus(hmcStatus);
@@ -153,8 +147,7 @@ class ProcessMessageServiceTest {
     @DisplayName("When valid listing Status and list assist case status is given, "
             + "updateListed and updateCaseData are called once")
     @Test
-    void testShouldSetCcdStateForCancelledHearingsCorrectly()
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testShouldSetCcdStateForCancelledHearingsCorrectly() throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus("Cancelled");
         hearingGetResponse.getHearingResponse().setHearingCancellationReason("Withdrawn");
@@ -174,8 +167,7 @@ class ProcessMessageServiceTest {
     @DisplayName("When non Cancelled status given in but hearingCancellationReason is valid, "
             + "updateCancelled and updateCaseData are called")
     @Test
-    void testUpdateCancelledNonCancelledStatusRequest()
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testUpdateCancelledNonCancelledStatusRequest() throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus("test");
         hearingGetResponse.getHearingResponse().setHearingCancellationReason("Withdrawn");
@@ -195,8 +187,7 @@ class ProcessMessageServiceTest {
     @DisplayName("When no cancellation reason is given but status is Cancelled, "
             + "updateCancelled and updateCaseData are not called")
     @Test
-    void testUpdateCancelledNullReason()
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testUpdateCancelledNullReason() throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus("Cancelled");
         hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
@@ -218,8 +209,7 @@ class ProcessMessageServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"test"})
     @NullAndEmptySource
-    void testUpdateCancelledInvalidStatusNullReason(String value)
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testUpdateCancelledInvalidStatusNullReason(String value) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(value);
         hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
@@ -234,8 +224,7 @@ class ProcessMessageServiceTest {
 
     @DisplayName("When HmcStatus is Exception updateFailed and updateCaseData are called")
     @Test
-    void testUpdateCancelledInvalidStatusNullReason()
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testUpdateCancelledInvalidStatusNullReason() throws Exception {
         // given
         hmcMessage.getHearingUpdate().setHmcStatus(EXCEPTION);
 
@@ -252,8 +241,7 @@ class ProcessMessageServiceTest {
 
     @DisplayName("When not listed, updated, canceled or exception nothing is called")
     @Test
-    void testInvalidCall()
-            throws UpdateCaseException, InvalidIdException, GetHearingException, GetCaseException, InvalidHmcMessageException {
+    void testInvalidCall() throws Exception {
         // given
         hmcMessage.getHearingUpdate().setHmcStatus(null);
 

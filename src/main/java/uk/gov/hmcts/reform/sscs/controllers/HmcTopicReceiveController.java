@@ -7,11 +7,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.hmc.topic.CheckMessageService;
 
@@ -29,7 +25,8 @@ public class HmcTopicReceiveController {
         containerFactory = "myTopicFactory",
         subscription = "${azure.service-bus.hmc-to-hearings-api.subscriptionName}")
     public void receiveMessage(HmcMessage hmcMessage)
-            throws UpdateCaseException, GetCaseException, InvalidIdException, GetHearingException, InvalidHmcMessageException {
+            throws UpdateCaseException, GetCaseException, InvalidIdException, GetHearingException, InvalidHmcMessageException,
+            InvalidMappingException, InvalidHearingDataException {
         String hearingID = hmcMessage.getHearingId();
         Long caseId = hmcMessage.getCaseId();
         String hmctsServiceID = hmcMessage.getHmctsServiceCode();

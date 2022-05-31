@@ -4,11 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -34,7 +30,9 @@ public class ProcessMessageService {
     private final CaseStateUpdateService caseStateUpdateService;
 
 
-    public void processEventMessage(HmcMessage hmcMessage) throws GetCaseException, UpdateCaseException, InvalidIdException, GetHearingException, InvalidHmcMessageException {
+    public void processEventMessage(HmcMessage hmcMessage)
+            throws GetCaseException, UpdateCaseException, InvalidIdException, GetHearingException,
+            InvalidHmcMessageException, InvalidMappingException, InvalidHearingDataException {
 
 
         final String hearingId = hmcMessage.getHearingId();

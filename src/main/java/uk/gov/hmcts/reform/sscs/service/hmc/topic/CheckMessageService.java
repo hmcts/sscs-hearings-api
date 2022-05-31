@@ -5,11 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 
@@ -26,7 +22,8 @@ public class CheckMessageService {
     private final ProcessMessageService processMessageService;
 
     public void checkMessage(HmcMessage hmcMessage)
-            throws UpdateCaseException, GetCaseException, InvalidIdException, GetHearingException, InvalidHmcMessageException {
+            throws UpdateCaseException, GetCaseException, InvalidIdException, GetHearingException,
+            InvalidHmcMessageException, InvalidMappingException, InvalidHearingDataException {
 
         validateHmcMessage(hmcMessage);
 

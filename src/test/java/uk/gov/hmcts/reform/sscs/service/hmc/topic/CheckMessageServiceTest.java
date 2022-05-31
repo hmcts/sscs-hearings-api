@@ -11,11 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 
@@ -142,8 +138,7 @@ class CheckMessageServiceTest {
 
     @DisplayName("When hmcMessage is valid and relevant to the service, no error is thrown and processEventMessage is called")
     @Test
-    void testCheckMessage()
-            throws GetHearingException, UpdateCaseException, InvalidHmcMessageException, GetCaseException, InvalidIdException {
+    void testCheckMessage() throws Exception {
         // given
         HmcMessage hmcMessage = HmcMessage.builder()
                 .hearingId("1234")
@@ -166,8 +161,7 @@ class CheckMessageServiceTest {
 
     @DisplayName("When hmcMessage is invalid, the correct error is thrown")
     @Test
-    void testCheckMessageNullHmcMessage()
-            throws GetHearingException, UpdateCaseException, InvalidHmcMessageException, GetCaseException, InvalidIdException {
+    void testCheckMessageNullHmcMessage() throws Exception {
         // given + when
         assertThatExceptionOfType(InvalidHmcMessageException.class)
                 .isThrownBy(() -> checkMessageService.validateHmcMessage(null));
@@ -178,8 +172,7 @@ class CheckMessageServiceTest {
 
     @DisplayName("When hmcMessage is valid but message not relevant, no error is thrown but no call to processEventMessage is made")
     @Test
-    void testCheckMessageWrongServiceCode()
-            throws GetHearingException, UpdateCaseException, InvalidHmcMessageException, GetCaseException, InvalidIdException {
+    void testCheckMessageWrongServiceCode() throws Exception {
         // given
         HmcMessage hmcMessage = HmcMessage.builder()
                 .hearingId("1234")
