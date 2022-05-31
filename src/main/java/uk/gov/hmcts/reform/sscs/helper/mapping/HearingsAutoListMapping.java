@@ -29,7 +29,7 @@ public final class HearingsAutoListMapping {
                 || shouldBeAdditionalSecurityFlag(caseData)
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
-                || isPaperCaseAndNoPoNotAttending(caseData)
+                || isPaperCaseAndPoNotAttending(caseData)
                 || hasMqpmOrFqpm(caseData, referenceData)
                 || isThereOtherComments(caseData)
             );
@@ -54,7 +54,7 @@ public final class HearingsAutoListMapping {
                 && isYes(rep.getHasRepresentative()) && isNotBlank(rep.getOrganisation());
     }
 
-    public static boolean isPaperCaseAndNoPoNotAttending(@Valid SscsCaseData caseData) {
+    public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
         return HearingsDetailsMapping.isPaperCase(caseData)
                 && !HearingsDetailsMapping.isPoAttending(caseData);
     }

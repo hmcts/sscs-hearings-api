@@ -191,21 +191,21 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When hearingType is Paper, isPaperCaseAndNoPoNotAttending return True")
+    @DisplayName("When hearingType is Paper, isPaperCaseAndPoNotAttending return True")
     @Test
-    void testIsPaperCaseAndNoPoNotAttending() {
+    void testIsPaperCaseAndPoNotAttending() {
         caseData.setDwpIsOfficerAttending("No");
         caseData.getAppeal().setHearingType("paper");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPoNotAttending(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When hearingType is not Paper, isPaperCaseAndNoPoNotAttending return False")
+    @DisplayName("When hearingType is not Paper, isPaperCaseAndPoNotAttending return False")
     @Test
-    void testIsPaperCaseAndNoPoNotAttendingNotPaper() {
-        boolean result = HearingsAutoListMapping.isPaperCaseAndNoPoNotAttending(caseData);
+    void testIsPaperCaseAndPoNotAttendingNotPaper() {
+        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
         assertThat(result).isFalse();
     }
