@@ -51,9 +51,9 @@ spring:
   jms:
     servicebus:
       connection-string: ${HEARINGS_TOPIC_CONNECTION_STRING:Endpoint=sb://hmc-servicebus-demo.servicebus.windows.net/;SharedAccessKeyName=manage;SharedAccessKey=xxxxxx=;EntityPath=lucas-topic}
-      idle-timeout: ${SSCS_SERVICEBUS_IDLE_TIMEOUT:100000}
-      pricing-tier: ${SSCS_SERVICEBUS_PRICING_TIER:standard}
-      topic-client-id: ${SSCS_SERVICEBUS_SUBSCRIPTION_ID:1234}
+      idle-timeout: ${HEARINGS_TOPIC_IDLE_TIMEOUT:100000}
+      pricing-tier: ${HEARINGS_TOPIC_PRICING_TIER:standard}
+      topic-client-id: ${HEARINGS_TOPIC_SUBSCRIPTION_ID:1234}
 
 feign:
   httpclient:

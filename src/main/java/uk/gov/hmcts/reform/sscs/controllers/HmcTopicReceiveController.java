@@ -22,7 +22,7 @@ public class HmcTopicReceiveController {
     @Retryable(maxAttemptsExpression = "#{azure.service-bus.hmc-to-hearings-api.maxRetries}",
         backoff = @Backoff(delayExpression = "${azure.service-bus.hmc-to-hearings-api.retryDelay}"))
     @JmsListener(destination = "${azure.service-bus.hmc-to-hearings-api.topicName}",
-        containerFactory = "myTopicFactory",
+        containerFactory = "hmcTopicFactory",
         subscription = "${azure.service-bus.hmc-to-hearings-api.subscriptionName}")
     public void receiveMessage(HmcMessage hmcMessage)
             throws UpdateCaseException, GetCaseException, InvalidIdException, GetHearingException, InvalidHmcMessageException,
