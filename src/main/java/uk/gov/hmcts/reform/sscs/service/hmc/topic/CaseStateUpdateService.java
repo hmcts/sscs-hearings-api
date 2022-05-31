@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -27,7 +28,7 @@ public class CaseStateUpdateService {
     private final CaseHearingLocationService caseHearingLocationService;
 
     public void updateListed(HearingGetResponse hearingResponse, HmcMessage hmcMessage, @Valid SscsCaseData sscsCaseData)
-            throws UpdateCaseException, InvalidHmcMessageException {
+            throws InvalidHmcMessageException, InvalidMappingException, InvalidHearingDataException {
         ListAssistCaseStatus listAssistCaseStatus = hearingResponse.getHearingResponse().getListAssistCaseStatus();
 
         State state = mapHmcCreatedOrUpdatedToCcd(listAssistCaseStatus, sscsCaseData.getCcdCaseId());
