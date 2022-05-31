@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ class CaseHearingLocationHelperTest {
     private static final String NEW_EPIMS_ID = "456";
 
     @Mock
-    private VenueDataLoader venueData;
+    private VenueService venueService;
 
 
     @DisplayName("When updateVenue is given caseData with a hearing ID that cannot be found,"
@@ -94,10 +94,10 @@ class CaseHearingLocationHelperTest {
         // given
         VenueDetails venueDetails = VenueDetails.builder().build();
 
-        given(venueData.getAnActiveVenueByEpims(EPIMS_ID)).willReturn(venueDetails);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID)).willReturn(venueDetails);
 
         // when
-        Venue venue = CaseHearingLocationHelper.findVenue(EPIMS_ID, venueData);
+        Venue venue = CaseHearingLocationHelper.findVenue(EPIMS_ID, venueService);
 
         // then
         assertThat(venue).isNotNull();
@@ -106,10 +106,10 @@ class CaseHearingLocationHelperTest {
     @DisplayName("When an invalid epims id is given to findVenue, it throws an error with the correct message ")
     @Test
     void testShouldReturnNullIfVenueDoesNotExist() {
-        given(venueData.getAnActiveVenueByEpims(anyString())).willReturn(null);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(anyString())).willReturn(null);
 
         assertThatExceptionOfType(InvalidMappingException.class)
-                .isThrownBy(() -> CaseHearingLocationHelper.findVenue(EPIMS_ID, venueData))
+                .isThrownBy(() -> CaseHearingLocationHelper.findVenue(EPIMS_ID, venueService))
                 .withMessageContaining("Invalid epims Id " + EPIMS_ID);
     }
 

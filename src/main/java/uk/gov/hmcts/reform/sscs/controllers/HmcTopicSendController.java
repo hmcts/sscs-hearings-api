@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.sscs.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +11,6 @@ import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 
 @Slf4j
 @RestController
-@ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
 @RequiredArgsConstructor
 public class HmcTopicSendController {
 

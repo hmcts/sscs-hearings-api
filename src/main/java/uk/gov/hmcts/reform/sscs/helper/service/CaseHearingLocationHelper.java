@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +44,10 @@ public final class CaseHearingLocationHelper {
         sscsCaseData.setHearings(hearings);
     }
 
-    public static Venue findVenue(String epimsId, VenueDataLoader venueDataLoader)
+    public static Venue findVenue(String epimsId, VenueService venueService)
             throws InvalidMappingException {
 
-        VenueDetails venueDetails = venueDataLoader.getAnActiveVenueByEpims(epimsId);
+        VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsId);
 
         if (isNull(venueDetails)) {
             throw new InvalidMappingException(String.format("Invalid epims Id %s, unable to find active venue with that id", epimsId));
