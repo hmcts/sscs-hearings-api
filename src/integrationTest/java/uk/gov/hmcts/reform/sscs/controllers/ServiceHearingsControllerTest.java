@@ -47,7 +47,6 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
@@ -210,7 +209,6 @@ class ServiceHearingsControllerTest {
                 .build();
 
         String actualJson = ResourceLoader.loadJson("serviceHearingValuesForControllerTest.json");
-        ServiceHearingValues serializedObject = mapper.readValue(actualJson, ServiceHearingValues.class);
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .contentType(APPLICATION_JSON)
