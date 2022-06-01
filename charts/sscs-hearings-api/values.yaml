@@ -22,6 +22,10 @@ java:
           alias: IDAM_OAUTH2_CLIENT_ID
         - name: idam-sscs-oauth2-client-secret
           alias: IDAM_OAUTH2_CLIENT_SECRET
+        - name: hmc-servicebus-connection-string-SharedAccessKeyName
+          alias: HMC_HEARINGS_TOPIC_POLICY_NAME
+        - name: hmc-servicebus-connection-string-SharedAccessKey
+          alias: HMC_HEARINGS_TOPIC_ACCESS_KEY
   environment:
     SERVER_PORT: 8083
     REFORM_TEAM: sscs
@@ -36,8 +40,9 @@ java:
     CORE_CASE_DATA_API_URL: "http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     COMMON_REF_API_URL: "http://rd-commondata-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JUDICIAL_REF_API_URL: "http://judicial-ref-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
-    HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
-    HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_CONNECTION_STRING: "hmc-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
+    HMC_HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARING_LISTENING_ENABLED: false
     TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
     TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
@@ -46,4 +51,3 @@ java:
     CORE_CASE_DATA_JURISDICTION_ID: SSCS
     CORE_CASE_DATA_CASE_TYPE_ID: Benefit
     SSCS_SERVICE_CODE: BBA3
-    HEARINGS_TOPIC_CONNECTION_STRING: "hmc-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"

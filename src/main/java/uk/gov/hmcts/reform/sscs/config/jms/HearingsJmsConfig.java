@@ -3,22 +3,21 @@ package uk.gov.hmcts.reform.sscs.config.jms;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 
-
-@Configuration
 @Slf4j
-public class HearingsJMSConfig {
+@Configuration
+public class HearingsJmsConfig {
     @Value("${azure.service-bus.hmc-to-hearings-api.connectionString}")
     private String connectionString;
 
@@ -36,6 +35,7 @@ public class HearingsJMSConfig {
 
 
     @Bean
+    @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
     public ConnectionFactory hmcHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
         String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
@@ -48,9 +48,10 @@ public class HearingsJMSConfig {
 
 
     @Bean
+    @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
     public JmsListenerContainerFactory<DefaultMessageListenerContainer> hmcHearingsEventTopicContainerFactory(
-                                                            ConnectionFactory hmcHearingJmsConnectionFactory,
-                                                            DefaultJmsListenerContainerFactoryConfigurer configurer) {
+        ConnectionFactory hmcHearingJmsConnectionFactory,
+        DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(hmcHearingJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
@@ -60,13 +61,5 @@ public class HearingsJMSConfig {
 
         configurer.configure(factory, hmcHearingJmsConnectionFactory);
         return factory;
-    }
-
-
-    @Bean
-    public JmsTemplate jmsTemplate(ConnectionFactory jmsConnectionFactory) {
-        JmsTemplate jmsTemplate = new JmsTemplate();
-        jmsTemplate.setConnectionFactory(jmsConnectionFactory);
-        return jmsTemplate;
     }
 }
