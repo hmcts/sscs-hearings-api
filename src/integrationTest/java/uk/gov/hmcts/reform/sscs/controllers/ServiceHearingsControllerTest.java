@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.sscs.ResourceLoader;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -46,7 +47,6 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
@@ -204,23 +204,18 @@ class ServiceHearingsControllerTest {
             + "should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceHearingValues() throws Exception {
-        ServiceHearingValues model = ServiceHearingValues.builder()
-                .caseNamePublic(CASE_NAME)
-                .autoListFlag(false)
-                .hearingIsLinkedFlag(true)
-                .build();
-        String json = asJsonString(model);
-
         ServiceHearingRequest request = ServiceHearingRequest.builder()
                 .caseId(String.valueOf(CASE_ID))
                 .build();
+
+        String actualJson = ResourceLoader.loadJson("serviceHearingValuesForControllerTest.json");
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .contentType(APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(content().json(actualJson));
     }
 
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")

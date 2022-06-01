@@ -1,8 +1,10 @@
 {
   "caseName": "Jane Smith vs DWP",
+  "caseNamePublic": null,
   "autoListFlag": false,
   "hearingType": "final",
   "caseType": "Personal Independence Payment",
+  "caseCategories": null,
   "duration": 45,
   "hearingPriorityType": "standard",
   "numberOfPhysicalAttendees": 2,
@@ -16,12 +18,13 @@
   "privateHearingRequiredFlag": false,
   "leadJudgeContractType": "",
   "hearingIsLinkedFlag": false,
+  "hmctsServiceID": null,
   "hearingWindow": {
+    "hearingWindowFirstDate": "2022-12-01",
     "hearingWindowDateRange": {
       "hearingWindowStartDateRange": "2022-11-23",
       "hearingWindowEndDateRange": "2022-11-30"
-    },
-    "hearingWindowFirstDate": "2022-12-01"
+    }
   },
   "hearingLocations": [
     {
@@ -77,14 +80,12 @@
       "partyID": "P1",
       "partyType": "IND",
       "partyName": "Jane Smith",
-      "individualDetails":
-        {
-          "firstName": "Jane",
-          "lastName": "Smith",
-          "vulnerableFlag": false
-        }
-      ,
       "partyChannel": "byVideo",
+      "individualDetails": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "vulnerableFlag": false
+      },
       "unavailabilityRanges": [
         {
           "unavailableFromDate": "2021-12-10",
@@ -95,8 +96,8 @@
     {
       "partyID": "P2",
       "partyType": "ORG",
-      "partyRole": "DWP",
       "partyChannel": "byVideo",
+      "partyRole": "DWP",
       "unavailabilityRanges": [
         {
           "unavailableFromDate": "2021-12-20",
