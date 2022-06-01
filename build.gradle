@@ -417,6 +417,8 @@ dependencyManagement {
       entry 'spring-tx'
       entry 'spring-web'
       entry 'spring-webmvc'
+      entry 'spring-jms'
+      entry 'spring-messaging'
     }
   }
 }

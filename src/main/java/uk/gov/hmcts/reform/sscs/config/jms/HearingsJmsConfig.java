@@ -46,7 +46,6 @@ public class HearingsJmsConfig {
         return new CachingConnectionFactory(jmsConnectionFactory);
     }
 
-
     @Bean
     @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
     public JmsListenerContainerFactory<DefaultMessageListenerContainer> hmcHearingsEventTopicContainerFactory(

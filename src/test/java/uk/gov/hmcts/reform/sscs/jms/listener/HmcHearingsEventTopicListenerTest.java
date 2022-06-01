@@ -46,13 +46,12 @@ class HmcHearingsEventTopicListenerTest {
 
     @BeforeEach
     void setup() {
-
         hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
     }
 
     @Test
-    @DisplayName("Messages should not be processed if the service code does not match the service.")
+    @DisplayName("Messages should not be processed if their service code does not match the service.")
     void testOnMessage_serviceCodeNotApplicable() throws HmcEventProcessingException, JsonProcessingException,
         JMSException {
 
@@ -69,7 +68,7 @@ class HmcHearingsEventTopicListenerTest {
     }
 
     @Test
-    @DisplayName("Messages be processed if the service code does not match the service.")
+    @DisplayName("Messages should be processed if their service code matches the service.")
     void testOnMessage_serviceCodeApplicable()
         throws HmcEventProcessingException, JsonProcessingException, JMSException {
 

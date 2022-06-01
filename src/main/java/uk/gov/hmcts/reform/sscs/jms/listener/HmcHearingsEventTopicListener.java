@@ -19,6 +19,7 @@ import javax.jms.JMSException;
 @Component
 @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
 public class HmcHearingsEventTopicListener {
+
     private final ObjectMapper objectMapper;
 
     private final String serviceCode;
