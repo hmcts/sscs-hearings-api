@@ -47,13 +47,6 @@ spring:
       - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
-      - "/test/sendhmcmessage"
-  jms:
-    servicebus:
-      connection-string: ${HEARINGS_TOPIC_CONNECTION_STRING:Endpoint=sb://hmc-servicebus-demo.servicebus.windows.net/;SharedAccessKeyName=manage;SharedAccessKey=xxxxxx=;EntityPath=lucas-topic}
-      idle-timeout: ${HEARINGS_TOPIC_IDLE_TIMEOUT:100000}
-      pricing-tier: ${HEARINGS_TOPIC_PRICING_TIER:standard}
-      topic-client-id: ${HEARINGS_TOPIC_SUBSCRIPTION_ID:1234}
 
 feign:
   httpclient:
@@ -135,6 +128,6 @@ hmc:
 
 flags:
   hmc-to-hearings-api:
-    enabled: ${HMC_HEARINGS_LISTENING_ENABLED:true}
+    enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
   tribunals-to-hearings-api:
     enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}

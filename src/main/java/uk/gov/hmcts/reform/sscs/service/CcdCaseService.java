@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -27,7 +26,7 @@ public class CcdCaseService {
         this.idamService = idamService;
     }
 
-    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException, InvalidIdException {
+    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException {
         return getCaseDetails(parseCaseId(caseId));
     }
 
@@ -50,7 +49,7 @@ public class CcdCaseService {
     }
 
     public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description)
-        throws UpdateCaseException, InvalidIdException {
+        throws UpdateCaseException {
 
         long caseId = parseCaseId(caseData.getCcdCaseId());
 
@@ -69,11 +68,12 @@ public class CcdCaseService {
         }
     }
 
-    private long parseCaseId(String caseId) throws InvalidIdException {
+    private long parseCaseId(String caseId) {
         try {
             return Long.parseLong(caseId);
         } catch (NumberFormatException e) {
-            throw new InvalidIdException(String.format("Invalid case id format for %s", caseId), e);
+            log.error("Invalid case id {} should be in long format", caseId);
+            throw e;
         }
     }
 }

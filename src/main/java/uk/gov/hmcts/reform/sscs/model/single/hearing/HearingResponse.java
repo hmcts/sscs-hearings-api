@@ -45,7 +45,7 @@ public class HearingResponse {
 
     private Integer requestVersion;
 
-    private List<HearingDaySchedule> hearingDaySchedule;
+    private List<HearingSession> hearingDaySchedule;
 
     private JsonNode serviceData;
 
