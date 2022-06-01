@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -51,9 +52,9 @@ class ServiceHearingValuesMappingTest {
 
     @Mock
     private static SessionCategoryMapService sessionCategoryMaps;
-
-    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
-    private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:\n";
+  
+    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
+    private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
 
     @BeforeEach
@@ -99,7 +100,7 @@ class ServiceHearingValuesMappingTest {
                                                       .scheduleHearing("No")
                                                       .excludeDates(getExcludeDates())
                                                       .agreeLessNotice("No")
-                                                      .other(NOTE_FROM_OTHER_APPELLANT)
+                                                      .other(NOTE_FROM_APPELLANT)
                                                       .build())
                                   .rep(Representative.builder()
                                            .id("12321")
@@ -128,13 +129,17 @@ class ServiceHearingValuesMappingTest {
                       .languagePreferenceWelsh("No")
                       .otherParties(getOtherParties())
                       .linkedCasesBoolean("No")
+                      .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                              .panelDoctorSpecialism("cardiologist")
+                              .secondPanelDoctorSpecialism("eyeSurgeon")
+                              .build())
                       .build())
             .build();
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
 
-        given(sessionCategoryMaps.getSessionCategory("002", ISSUE_CODE,false,false))
+        given(sessionCategoryMaps.getSessionCategory("002", ISSUE_CODE,true,false))
                 .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002");
@@ -178,11 +183,16 @@ class ServiceHearingValuesMappingTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertEquals(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY, serviceHearingValues.getListingComments());
+        assertThat(serviceHearingValues.getListingComments())
+                .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
+                        + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
-        assertEquals("BBA3-MQPM1", serviceHearingValues.getJudiciary().getJudiciarySpecialisms().stream().findFirst().orElse(""));
+        assertThat(serviceHearingValues.getJudiciary()).isNotNull();
+        assertThat(serviceHearingValues.getJudiciary().getJudiciarySpecialisms())
+                .hasSize(3)
+                .contains("BBA3-MQPM1-001","BBA3-MQPM2-003","BBA3-?");
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());

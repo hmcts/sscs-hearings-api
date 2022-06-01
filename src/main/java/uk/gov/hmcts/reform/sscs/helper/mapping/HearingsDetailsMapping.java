@@ -36,9 +36,8 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember.MQPM1;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember.MQPM2;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
 import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
@@ -62,7 +61,7 @@ public final class HearingsDetailsMapping {
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceData referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
 
-        boolean autoListed = shouldBeAutoListed(caseData);
+        boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         return HearingDetails.builder()
             .autolistFlag(autoListed)
@@ -75,7 +74,7 @@ public final class HearingsDetailsMapping {
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()))
             .facilitiesRequired(getFacilitiesRequired(caseData))
-            .listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
+            .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
             .leadJudgeContractType(getLeadJudgeContractType())
@@ -83,15 +82,6 @@ public final class HearingsDetailsMapping {
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
             .build();
-    }
-
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
-        // TODO Future Work
-        return !isCaseLinked(caseData) && !isCaseUrgent(caseData);
-    }
-
-    public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
-        return isYes(caseData.getUrgentCase());
     }
 
     public static String getHearingType() {
@@ -107,7 +97,6 @@ public final class HearingsDetailsMapping {
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
-
         if (isNotBlank(caseData.getDwpResponseDate())) {
             LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
             if (isCaseUrgent(caseData)) {
@@ -117,6 +106,10 @@ public final class HearingsDetailsMapping {
             }
         }
         return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+    }
+
+    public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
+        return isYes(caseData.getUrgentCase());
     }
 
     public static LocalDateTime getFirstDateTimeMustBe() {
@@ -165,17 +158,25 @@ public final class HearingsDetailsMapping {
         }
 
         if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-            Integer duration = HearingsCaseMapping.isInterpreterRequired(caseData)
+            Integer duration = isInterpreterRequired(caseData)
                     ? hearingDuration.getDurationInterpreter()
                     : hearingDuration.getDurationFaceToFace();
             return referenceData.getHearingDurations()
                     .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
                             getElementsDisputed(caseData));
-        } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
+        } else if (isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
             return null;
         }
+    }
+
+    public static boolean isPaperCase(SscsCaseData caseData) {
+        return PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType());
+    }
+
+    public static boolean isPoAttending(SscsCaseData caseData) {
+        return isYes(caseData.getDwpIsOfficerAttending());
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
@@ -225,7 +226,7 @@ public final class HearingsDetailsMapping {
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
+        if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
             return HIGH.getHmcReference();
         }
         return NORMAL.getHmcReference();
@@ -283,7 +284,10 @@ public final class HearingsDetailsMapping {
                 .orElse(new ArrayList<>());
     }
 
-    public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
+    public static String getListingComments(SscsCaseData caseData) {
+        Appeal appeal = caseData.getAppeal();
+        List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
+
         List<String> listingComments = new ArrayList<>();
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
             listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
@@ -296,7 +300,11 @@ public final class HearingsDetailsMapping {
                     .collect(Collectors.toList()));
         }
 
-        return listingComments.isEmpty() ? null : String.join(String.format("%n%n"), listingComments);
+        if (listingComments.isEmpty()) {
+            return null;
+        }
+
+        return String.join(String.format("%n%n"), listingComments);
     }
 
     public static String getComment(Party party, String comment) {
@@ -357,7 +365,7 @@ public final class HearingsDetailsMapping {
         return Collections.emptyList();
     }
 
-    public static List<String> getPanelSpecialisms(SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
+    public static List<String> getPanelSpecialisms(@Valid SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
         List<String> panelSpecialisms = new ArrayList<>();
         if (isNull(sessionCategoryMap)) {
             return panelSpecialisms;
@@ -374,13 +382,14 @@ public final class HearingsDetailsMapping {
 
     public static String getPanelMemberSpecialism(PanelMember panelMember,
                                                     String doctorSpecialism, String doctorSpecialismSecond) {
-        if (MQPM1 == panelMember) {
-            return panelMember.getReference(doctorSpecialism);
+        switch (panelMember) {
+            case MQPM1:
+                return panelMember.getReference(doctorSpecialism);
+            case MQPM2:
+                return panelMember.getReference(doctorSpecialismSecond);
+            default:
+                return panelMember.getReference();
         }
-        if (MQPM2 == panelMember) {
-            return panelMember.getReference(doctorSpecialismSecond);
-        }
-        return null;
     }
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
