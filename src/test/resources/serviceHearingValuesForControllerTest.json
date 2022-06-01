@@ -1,72 +1,70 @@
 {
-  "caseName":null,
-  "caseNamePublic":"Test Case Name",
-  "autoListFlag":false,
-  "hearingType":"BBA3-substantive",
-  "caseType":null,
-  "caseCategories":[
+  "caseName": null,
+  "caseNamePublic": "Test Case Name",
+  "autoListFlag": false,
+  "hearingType": "BBA3-substantive",
+  "caseType": null,
+  "caseCategories": [
     {
-      "categoryType":"caseType"
+      "categoryType": "caseType"
     },
     {
-      "categoryType":"caseSubType"
+      "categoryType": "caseSubType"
     }
   ],
-  "duration":30,
-  "hearingPriorityType":"normal",
-  "numberOfPhysicalAttendees":0,
-  "hearingInWelshFlag":false,
-  "caseAdditionalSecurityFlag":false,
-  "facilitiesRequired":[
-
-  ],
-  "listingComments":null,
-  "hearingRequester":null,
-  "privateHearingRequiredFlag":false,
-  "leadJudgeContractType":null,
-  "hearingIsLinkedFlag":true,
-  "hmctsServiceID":null,
-  "hearingWindow":{
-    "hearingWindowDateRange":{
-      "hearingWindowStartDateRange":"2022-06-02"
+  "duration": 30,
+  "hearingPriorityType": "normal",
+  "numberOfPhysicalAttendees": 0,
+  "hearingInWelshFlag": false,
+  "caseAdditionalSecurityFlag": false,
+  "facilitiesRequired": [],
+  "listingComments": null,
+  "hearingRequester": null,
+  "privateHearingRequiredFlag": false,
+  "leadJudgeContractType": null,
+  "hearingIsLinkedFlag": true,
+  "hmctsServiceID": null,
+  "hearingWindow": {
+    "hearingWindowDateRange": {
+      "hearingWindowStartDateRange": "2022-06-02"
     }
   },
-  "hearingLocations":[
+  "hearingLocations": [
     {
-      "locationType":"court",
-      "locationId":"LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
+      "locationType": "court",
+      "locationId": "LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
     }
   ],
-  "panelRequirements":null,
-  "judiciary":{
-    "roleType":[],
-    "authorisationTypes":[],
-    "authorisationSubType":[],
-    "judiciaryPreferences":[],
-    "judiciarySpecialisms":[]
+  "panelRequirements": null,
+  "judiciary": {
+    "roleType": [],
+    "authorisationTypes": [],
+    "authorisationSubType": [],
+    "judiciaryPreferences": [],
+    "judiciarySpecialisms": []
   },
-  "parties":[
+  "parties": [
     {
-      "partyID":"1",
-      "partyType":"IND",
-      "partyChannel":"faceToFace",
-      "partyRole":"BBA3-a",
-      "individualDetails":{
-        "preferredHearingChannel":"faceToFace",
-        "interpreterLanguage":"Telugu",
-        "reasonableAdjustments":[],
-        "vulnerableFlag":false,
-        "hearingChannelEmail":[],
-        "hearingChannelPhone":[],
-        "relatedParties":[]
+      "partyID": "1",
+      "partyType": "IND",
+      "partyChannel": "INTER",
+      "partyRole": "BBA3-a",
+      "individualDetails": {
+        "preferredHearingChannel": "INTER",
+        "interpreterLanguage": "Telugu",
+        "reasonableAdjustments": [],
+        "vulnerableFlag": false,
+        "hearingChannelEmail": [],
+        "hearingChannelPhone": [],
+        "relatedParties": []
       },
-      "unavailabilityRanges":[]
+      "unavailabilityRanges": []
     }
   ],
-  "caseFlags":{
-    "flags":[],
-    "flagAmendURL":""
+  "caseFlags": {
+    "flags": [],
+    "flagAmendURL": ""
   },
-  "screenFlow":null,
-  "vocabulary":null
+  "screenFlow": null,
+  "vocabulary": null
 }
