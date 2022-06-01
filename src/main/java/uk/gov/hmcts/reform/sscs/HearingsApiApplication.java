@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 @EnableScheduling
 @EnableJms
 @ComponentScan(basePackages = {"uk.gov.hmcts.reform"})
-@EnableJms
 @EnableFeignClients(basePackages =
     {
         "uk.gov.hmcts.reform.sscs.service",

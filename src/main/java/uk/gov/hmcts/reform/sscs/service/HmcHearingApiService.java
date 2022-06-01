@@ -23,14 +23,12 @@ public class HmcHearingApiService {
     private final IdamService idamService;
 
     public HearingGetResponse getHearingRequest(String hearingId) throws GetHearingException {
-        log.debug("Sending Get Hearing Request for Hearing ID {}",
-                hearingId);
+        log.debug("Sending Get Hearing Request for Hearing ID {}", hearingId);
         HearingGetResponse hearingResponse = hmcHearingApi.getHearingRequest(
                 serviceAuthTokenGenerator.generate(),
                 idamService.generateServiceAuthorization(),
-                hearingId
-        );
-        if (isGetResponseInvalid(hearingResponse)) {
+                hearingId);
+        if (isNull(hearingResponse)) {
             throw new GetHearingException(String.format("Failed to retrieve hearing with Id: %s from HMC", hearingId));
         }
         return hearingResponse;
@@ -43,8 +41,7 @@ public class HmcHearingApiService {
         return hmcHearingApi.createHearingRequest(
                 serviceAuthTokenGenerator.generate(),
                 idamService.generateServiceAuthorization(),
-                hearingPayload
-        );
+                hearingPayload);
     }
 
     public HearingResponse sendUpdateHearingRequest(HearingRequestPayload hearingPayload, String hearingId) {
@@ -56,8 +53,7 @@ public class HmcHearingApiService {
                 serviceAuthTokenGenerator.generate(),
                 idamService.generateServiceAuthorization(),
                 hearingId,
-                hearingPayload
-        );
+                hearingPayload);
     }
 
     public HearingResponse sendCancelHearingRequest(HearingCancelRequestPayload hearingPayload, String hearingId) {
@@ -68,11 +64,6 @@ public class HmcHearingApiService {
                 serviceAuthTokenGenerator.generate(),
                 idamService.generateServiceAuthorization(),
                 hearingId,
-                hearingPayload
-        );
-    }
-
-    private static boolean isGetResponseInvalid(HearingGetResponse hearingResponse) {
-        return isNull(hearingResponse);
+                hearingPayload);
     }
 }

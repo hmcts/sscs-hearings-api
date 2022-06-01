@@ -270,7 +270,6 @@ def versions= [
   assertJ: '3.22.0',
   azureCore: '1.26.0',
   azureMessagingServicebus: '7.7.0',
-  azureSpring: '4.2.0',
   commonsIo: '2.11.0',
   elasticsearch: '7.16.3',
   fortify: '1.2.2',
@@ -317,8 +316,8 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq'
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server'
-  implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: versions.springSecurity
-  implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
+  implementation group: 'org.springframework.security', name: 'spring-security-crypto'
+  implementation group: 'org.springframework.security', name: 'spring-security-web'
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter'
 
@@ -362,7 +361,6 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-core', version: versions.azureCore
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: versions.azureMessagingServicebus
-  implementation group: 'com.azure.spring', name: 'spring-cloud-azure-starter-servicebus-jms', version: versions.azureSpring
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom

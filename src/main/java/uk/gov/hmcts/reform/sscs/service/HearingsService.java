@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
@@ -36,7 +35,7 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException, InvalidMappingException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
@@ -124,7 +123,7 @@ public class HearingsService {
     }
 
     public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response)
-        throws UpdateCaseException, InvalidIdException {
+        throws UpdateCaseException {
 
         log.info("Updating Case with Hearing Response for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -146,7 +145,7 @@ public class HearingsService {
                 event.getEventType().getCcdType());
     }
 
-    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, InvalidIdException {
+    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
         if (isNull(hearingRequest.getHearingState())) {
             UnhandleableHearingStateException err = new UnhandleableHearingStateException();
             log.error(err.getMessage(), err);

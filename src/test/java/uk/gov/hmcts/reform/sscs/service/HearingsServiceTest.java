@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
@@ -136,7 +135,7 @@ class HearingsServiceTest {
         "UPDATED_CASE",
         "PARTY_NOTIFIED",
     }, nullValues = {"null"})
-    void processHearingRequest(HearingState state) throws GetCaseException, InvalidIdException {
+    void processHearingRequest(HearingState state) throws GetCaseException {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
@@ -230,7 +229,7 @@ class HearingsServiceTest {
         "CREATE_HEARING,CREATE_HEARING",
         "UPDATED_CASE,UPDATED_CASE",
     }, nullValues = {"null"})
-    void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException, InvalidIdException {
+    void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException {
         given(ccdCaseService.updateCaseData(
                 any(SscsCaseData.class),
                 any(EventType.class),
@@ -256,7 +255,7 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
     @Test
-    void updateHearingResponse() throws UpdateCaseException, InvalidIdException {
+    void updateHearingResponse() throws UpdateCaseException {
         given(ccdCaseService.updateCaseData(
                 any(SscsCaseData.class),
                 any(EventType.class),

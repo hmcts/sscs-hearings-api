@@ -55,7 +55,6 @@
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.model.single.hearing"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.model.service.hearingvalues"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.ContractTestDataProvider"/>
-      <property name="excludes" value="uk.gov.hmcts.reform.sscs.exception"/>
     </module>
     <module name="OneTopLevelClass"/>
     <module name="NoLineWrap"/>

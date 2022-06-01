@@ -90,8 +90,6 @@ class HmcHearingApiServiceTest {
 
         given(hmcHearingApi.createHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, payload)).willReturn(response);
 
-
-
         HearingResponse result = hmcHearingsService.sendCreateHearingRequest(payload);
 
         assertThat(result)
