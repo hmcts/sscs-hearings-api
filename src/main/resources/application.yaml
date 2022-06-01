@@ -76,6 +76,7 @@ jackson:
 azure:
   service-bus:
     hmc-to-hearings-api:
+      connection-string: ${HEARINGS_TOPIC_CONNECTION_STRING:}
       topicName: ${HEARINGS_TOPIC_NAME:lucas-topic}
       subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:S1}
       retryTimeout: ${HEARINGS_TOPIC_RETRY_TIMEOUT:1}
