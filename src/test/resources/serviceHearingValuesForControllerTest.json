@@ -39,21 +39,11 @@
   ],
   "panelRequirements":null,
   "judiciary":{
-    "roleType":[
-
-    ],
-    "authorisationTypes":[
-
-    ],
-    "authorisationSubType":[
-
-    ],
-    "judiciaryPreferences":[
-
-    ],
-    "judiciarySpecialisms":[
-
-    ]
+    "roleType":[],
+    "authorisationTypes":[],
+    "authorisationSubType":[],
+    "judiciaryPreferences":[],
+    "judiciarySpecialisms":[]
   },
   "parties":[
     {
@@ -64,29 +54,17 @@
       "individualDetails":{
         "preferredHearingChannel":"faceToFace",
         "interpreterLanguage":"Telugu",
-        "reasonableAdjustments":[
-
-        ],
+        "reasonableAdjustments":[],
         "vulnerableFlag":false,
-        "hearingChannelEmail":[
-
-        ],
-        "hearingChannelPhone":[
-
-        ],
-        "relatedParties":[
-
-        ]
+        "hearingChannelEmail":[],
+        "hearingChannelPhone":[],
+        "relatedParties":[]
       },
-      "unavailabilityRanges":[
-
-      ]
+      "unavailabilityRanges":[]
     }
   ],
   "caseFlags":{
-    "flags":[
-
-    ],
+    "flags":[],
     "flagAmendURL":""
   },
   "screenFlow":null,
