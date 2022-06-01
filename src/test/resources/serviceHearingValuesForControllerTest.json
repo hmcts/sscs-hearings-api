@@ -1,0 +1,94 @@
+{
+  "caseName":null,
+  "caseNamePublic":"Test Case Name",
+  "autoListFlag":false,
+  "hearingType":"BBA3-substantive",
+  "caseType":null,
+  "caseCategories":[
+    {
+      "categoryType":"caseType"
+    },
+    {
+      "categoryType":"caseSubType"
+    }
+  ],
+  "duration":30,
+  "hearingPriorityType":"normal",
+  "numberOfPhysicalAttendees":0,
+  "hearingInWelshFlag":false,
+  "caseAdditionalSecurityFlag":false,
+  "facilitiesRequired":[
+
+  ],
+  "listingComments":null,
+  "hearingRequester":null,
+  "privateHearingRequiredFlag":false,
+  "leadJudgeContractType":null,
+  "hearingIsLinkedFlag":true,
+  "hmctsServiceID":null,
+  "hearingWindow":{
+    "hearingWindowDateRange":{
+      "hearingWindowStartDateRange":"2022-06-02"
+    }
+  },
+  "hearingLocations":[
+    {
+      "locationType":"court",
+      "locationId":"LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
+    }
+  ],
+  "panelRequirements":null,
+  "judiciary":{
+    "roleType":[
+
+    ],
+    "authorisationTypes":[
+
+    ],
+    "authorisationSubType":[
+
+    ],
+    "judiciaryPreferences":[
+
+    ],
+    "judiciarySpecialisms":[
+
+    ]
+  },
+  "parties":[
+    {
+      "partyID":"1",
+      "partyType":"IND",
+      "partyChannel":"faceToFace",
+      "partyRole":"BBA3-a",
+      "individualDetails":{
+        "preferredHearingChannel":"faceToFace",
+        "interpreterLanguage":"Telugu",
+        "reasonableAdjustments":[
+
+        ],
+        "vulnerableFlag":false,
+        "hearingChannelEmail":[
+
+        ],
+        "hearingChannelPhone":[
+
+        ],
+        "relatedParties":[
+
+        ]
+      },
+      "unavailabilityRanges":[
+
+      ]
+    }
+  ],
+  "caseFlags":{
+    "flags":[
+
+    ],
+    "flagAmendURL":""
+  },
+  "screenFlow":null,
+  "vocabulary":null
+}

@@ -3,11 +3,7 @@ package uk.gov.hmcts.reform.sscs.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -20,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.sscs.ResourceLoader;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -57,6 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -204,23 +202,19 @@ class ServiceHearingsControllerTest {
             + "should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceHearingValues() throws Exception {
-        ServiceHearingValues model = ServiceHearingValues.builder()
-                .caseNamePublic(CASE_NAME)
-                .autoListFlag(false)
-                .hearingIsLinkedFlag(true)
-                .build();
-        String json = asJsonString(model);
-
         ServiceHearingRequest request = ServiceHearingRequest.builder()
                 .caseId(String.valueOf(CASE_ID))
                 .build();
+
+        String actualJson = ResourceLoader.loadJson("serviceHearingValuesForControllerTest.json");
+        ServiceHearingValues serializedObject = mapper.readValue(actualJson, ServiceHearingValues.class);
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .contentType(APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(content().json(actualJson));
     }
 
     @DisplayName("When Case Reference is Invalid should return a with 400 response code")
