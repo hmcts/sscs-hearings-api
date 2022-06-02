@@ -1,6 +1,16 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
@@ -10,13 +20,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -33,6 +43,7 @@ import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
@@ -44,12 +55,14 @@ public final class HearingsPartiesMapping {
 
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData)
+    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper,
+                                                                ReferenceDataServiceHolder referenceDataServiceHolder)
             throws InvalidMappingException {
-        return buildHearingPartiesDetails(wrapper.getCaseData(), referenceData);
+        return buildHearingPartiesDetails(wrapper.getCaseData(), referenceDataServiceHolder);
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData, ReferenceDataServiceHolder referenceData)
+    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData,
+                                                                ReferenceDataServiceHolder referenceDataServiceHolder)
             throws InvalidMappingException {
 
         Appeal appeal = caseData.getAppeal();
@@ -67,7 +80,7 @@ public final class HearingsPartiesMapping {
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
                 appellant, appeal.getRep(), appeal.getHearingOptions(),
-                appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId(), referenceData));
+                appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
 
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
@@ -76,7 +89,7 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        null, otherParty.getHearingSubtype(), appellant.getId(), referenceData));
+                        appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
             }
         }
 
@@ -153,7 +166,8 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype).orElse(null))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype,
+                    hearingOptions))
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, referenceData))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())

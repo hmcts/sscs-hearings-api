@@ -46,12 +46,12 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +74,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("integration")
 class ServiceHearingsControllerTest {
-
     private static final long CASE_ID = 1625080769409918L;
     private static final long CASE_ID_LINKED = 3456385374124L;
     private static final long MISSING_CASE_ID = 99250807409918L;
@@ -85,6 +84,8 @@ class ServiceHearingsControllerTest {
     private static final String CASE_NAME = "Test Case Name";
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     public static final String PROCESSING_VENUE = "Liverpool";
+    public static final String APPELLANT_ID = "1";
+    public static final String APPELLANT_ROLE = "BBA3-a";
 
     @Autowired
     private MockMvc mockMvc;
@@ -139,7 +140,7 @@ class ServiceHearingsControllerTest {
             .build();
 
         Representative representative = Representative.builder().id("2").build();
-        Appellant appellant = Appellant.builder().id("1").build();
+        Appellant appellant = Appellant.builder().id(APPELLANT_ID).build();
 
         OtherParty otherParty = OtherParty.builder().id("3")
             .hearingSubtype(hearingSubtype)
@@ -150,16 +151,21 @@ class ServiceHearingsControllerTest {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(otherPartyCcdValue);
 
-        Appeal appeal = Appeal.builder().rep(representative).hearingSubtype(hearingSubtype).hearingOptions(hearingOptions)
-            .appellant(appellant).build();
+        Appeal appeal = Appeal.builder()
+            .rep(representative)
+            .hearingSubtype(hearingSubtype)
+            .hearingOptions(hearingOptions)
+            .appellant(appellant)
+            .build();
 
-
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceData)).thenReturn("bul");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceDataServiceHolder))
+            .thenReturn("Telugu");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype))
-            .thenReturn(Optional.ofNullable(FACE_TO_FACE.getHmcReference()));
-
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype, hearingOptions))
+            .thenReturn(FACE_TO_FACE.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn(APPELLANT_ID);
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(appellant)).thenReturn(APPELLANT_ROLE);
         SscsCaseData sscsCaseData = SscsCaseData.builder()
             .caseAccessManagementFields(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
@@ -180,6 +186,7 @@ class ServiceHearingsControllerTest {
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
+
         given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class))).willReturn(caseDetails);
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
@@ -205,8 +212,6 @@ class ServiceHearingsControllerTest {
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
     }
-
-    // TODO These are holder tests that will need to be implemented alongside service hearing controller
 
     @DisplayName("When Authorization and Case ID valid "
             + "should return the case name with a with 200 response code")

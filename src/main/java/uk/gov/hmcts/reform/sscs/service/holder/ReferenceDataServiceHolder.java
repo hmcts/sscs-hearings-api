@@ -1,26 +1,33 @@
-package uk.gov.hmcts.reform.sscs.service;
+package uk.gov.hmcts.reform.sscs.service.holder;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
-@Getter
-@RequiredArgsConstructor
+@Data
 @Component
 public class ReferenceDataServiceHolder {
 
-    private final HearingDurationsService hearingDurations;
+    @Autowired
+    private HearingDurationsService hearingDurations;
 
-    private final SessionCategoryMapService sessionCategoryMaps;
+    @Autowired
+    private SessionCategoryMapService sessionCategoryMaps;
 
-    private final VerbalLanguagesService verbalLanguages;
+    @Autowired
+    private VerbalLanguagesService verbalLanguages;
 
-    private final SignLanguagesService signLanguages;
+    @Autowired
+    private SignLanguagesService signLanguages;
+
+    @Autowired
+    private VenueService venueService;
 
     @Value("${exui.url}")
     private String exUiUrl;

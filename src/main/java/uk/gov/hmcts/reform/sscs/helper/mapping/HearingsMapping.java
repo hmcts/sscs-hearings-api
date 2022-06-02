@@ -5,7 +5,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -36,12 +36,15 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
+
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
             .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
             .caseDetails(buildHearingCaseDetails(wrapper, referenceDataServiceHolder))
-            .partiesDetails(buildHearingPartiesDetails(wrapper))
+            .partiesDetails(buildHearingPartiesDetails(wrapper, referenceDataServiceHolder))
             .build();
     }
 

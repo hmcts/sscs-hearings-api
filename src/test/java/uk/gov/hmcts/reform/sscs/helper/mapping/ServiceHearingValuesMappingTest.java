@@ -28,9 +28,10 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
@@ -43,16 +44,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.VenueService;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -73,10 +71,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBST
 
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest {
-
-
-    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
-    private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
     public static final String BENEFIT_CODE = "002";
 
@@ -92,17 +86,16 @@ class ServiceHearingValuesMappingTest {
     public SignLanguagesService signLanguages;
 
     @Mock
-    private static ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    private static SessionCategoryMapService sessionCategoryMaps;
+    private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
     private VenueService venueService;
 
     private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
     private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:\n";
-    public static final String FACE_TO_FACE = "faceToFace";
 
     @BeforeEach
     public void setUp() {
@@ -147,7 +140,7 @@ class ServiceHearingValuesMappingTest {
                                                       .scheduleHearing("No")
                                                       .excludeDates(getExcludeDates())
                                                       .agreeLessNotice("No")
-                                                      .other(NOTE_FROM_APPELLANT)
+                                                      .other(NOTE_FROM_OTHER_APPELLANT)
                                                       .build())
                                   .rep(Representative.builder()
                                            .id("12321")
@@ -186,7 +179,7 @@ class ServiceHearingValuesMappingTest {
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
 
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,true,false))
                 .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002");
@@ -197,17 +190,17 @@ class ServiceHearingValuesMappingTest {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(verbalLanguages.getVerbalLanguageReference("Bulgarian"))
                 .willReturn("bul");
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
 
         given(signLanguages.getSignLanguageReference("Makaton"))
                 .willReturn("sign-mkn");
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
 
     }
 
