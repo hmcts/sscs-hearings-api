@@ -43,8 +43,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
