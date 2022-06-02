@@ -47,13 +47,11 @@ public class ServiceHearingsController {
                     content = @Content(schema = @Schema(implementation = ServiceHearingRequest.class, example = "{ \n  \"caseReference\": \"1234123412341234\",\n  \"hearingId\": \"123123123\"\n}")))
             @RequestBody ServiceHearingRequest request) throws GetCaseException, InvalidIdException, UpdateCaseException {
         try {
-            // TODO This is just the skeleton for the serviceHearingValues endpoint and will need to be implemented fully along with this endpoint
             log.info("Retrieving case details using Case id : {}, for use in generating Service Hearing Values",
                     request.getCaseId());
 
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
             return status(HttpStatus.OK).body(model);
-            // TODO the following errors are temporary and will need to be implemented fully along with this endpoint
         } catch (Exception exc) {
             logException(exc, request.getCaseId());
             throw exc;
