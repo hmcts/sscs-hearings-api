@@ -834,7 +834,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .build())
                 .build());
         HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
-        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRangeAllDay(hearingOptions);
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result)
                 .extracting("unavailableFromDate", "unavailableToDate", "unavailabilityType")
@@ -851,7 +851,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void getPartyUnavailabilityRangeNullValue() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRangeAllDay(hearingOptions);
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result).isEmpty();
     }

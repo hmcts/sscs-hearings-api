@@ -116,7 +116,7 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(HearingsPartiesMapping.getDwpUnavailabilityRange());
+        partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(null));
 
         return partyDetails.build();
     }

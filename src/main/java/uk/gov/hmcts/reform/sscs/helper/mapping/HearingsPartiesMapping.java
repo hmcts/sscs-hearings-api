@@ -124,7 +124,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyChannelSubType(getPartyChannelSubType());
         partyDetails.organisationDetails(getPartyOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getPartyUnavailabilityRangeAllDay(hearingOptions));
+        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
 
         return partyDetails.build();
     }
@@ -137,7 +137,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getDwpUnavailabilityRange());
+        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(null));
 
         return partyDetails.build();
     }
@@ -349,12 +349,6 @@ public final class HearingsPartiesMapping {
         return getPartyUnavailabilityDayOfWeek();
     }
 
-    public static List<UnavailabilityRange> getPartyUnavailabilityRangeAllDay(HearingOptions hearingOptions) {
-        List<UnavailabilityRange> partyUnavailabilityRange = getPartyUnavailabilityRange(hearingOptions);
-        partyUnavailabilityRange.forEach(unavailabilityRange -> unavailabilityRange.setUnavailabilityType(ALL_DAY.getLabel()));
-        return partyUnavailabilityRange;
-    }
-
     public static List<UnavailabilityRange> getPartyUnavailabilityRange(HearingOptions hearingOptions) {
         if (isNull(hearingOptions) || isNull(hearingOptions.getExcludeDates())) {
             return Collections.emptyList();
@@ -365,13 +359,9 @@ public final class HearingsPartiesMapping {
                 .map(dateRange -> UnavailabilityRange.builder()
                         .unavailableFromDate(LocalDate.parse(dateRange.getStart()))
                         .unavailableToDate(LocalDate.parse(dateRange.getEnd()))
+                        .unavailabilityType(ALL_DAY.getLabel())
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    public static List<UnavailabilityRange> getDwpUnavailabilityRange() {
-        // Not used as of now
-        return getPartyUnavailabilityRangeAllDay(null);
     }
 }
 
