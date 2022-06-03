@@ -1,10 +1,10 @@
 {
-  "caseName": null,
-  "caseNamePublic": "Test Case Name",
-  "autoListFlag": false,
-  "hearingType": "BBA3-substantive",
-  "caseType": null,
-  "caseCategories": [
+  "caseName":null,
+  "caseNamePublic":"Test Case Name",
+  "autoListFlag":false,
+  "hearingType":"BBA3-substantive",
+  "caseType":"Benefit",
+  "caseCategories":[
     {
       "categoryType": "caseType"
     },
