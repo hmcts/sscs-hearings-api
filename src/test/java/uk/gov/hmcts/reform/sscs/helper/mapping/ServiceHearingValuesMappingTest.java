@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRan
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -43,6 +44,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
 
+    public static final String BENEFIT = "Benefit";
     private static SscsCaseDetails sscsCaseDetails;
 
     @Mock
@@ -182,7 +184,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isAutoListFlag());
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
-        assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
+        assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         List<String> categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
         assertEquals("BBA3-002", categoryValueList.stream().findFirst().orElse(""));
         categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseSubType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
@@ -214,15 +216,13 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     @Test
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
-        // given
-        SscsCaseData sscsCaseData = sscsCaseDetails.getData();
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
-        assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-j", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-d", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {

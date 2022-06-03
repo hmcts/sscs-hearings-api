@@ -18,8 +18,9 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSession
 
 public final class ServiceHearingValuesMapping {
 
+    public static final String BENEFIT = "Benefit";
+
     private ServiceHearingValuesMapping() {
-        throw new IllegalStateException("Utility class");
     }
 
 
@@ -36,7 +37,7 @@ public final class ServiceHearingValuesMapping {
                 .caseNamePublic(HearingsCaseMapping.getPublicCaseName(caseData))
                 .autoListFlag(shouldBeAutoListed)
                 .hearingType(HearingsDetailsMapping.getHearingType())
-                .caseType(caseData.getBenefitCode())
+                .caseType(BENEFIT)
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceData))
                 .hearingWindow(buildHearingWindow(caseData, shouldBeAutoListed))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceData))
@@ -55,6 +56,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
                 .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
+                .hmctsServiceID(referenceData.getSscsServiceCode())
                 .screenFlow(null)
                 .vocabulary(null)
             .build();
