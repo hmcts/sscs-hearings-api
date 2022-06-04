@@ -14,9 +14,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingSession;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
@@ -73,8 +73,8 @@ class HearingUpdateServiceTest {
             + "updateHearing updates the correct hearing")
     @Test
     void testUpdateHearing() throws Exception {
-        hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
-                        HearingSession.builder()
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+                        HearingDaySchedule.builder()
                                 .hearingStartDateTime(HEARING_START_DATE_TIME)
                                 .hearingEndDateTime(HEARING_END_DATE_TIME)
                                 .hearingVenueEpimsId(NEW_EPIMS_ID)
@@ -117,8 +117,8 @@ class HearingUpdateServiceTest {
             + "updateHearing adds the correct hearing")
     @Test
     void testUpdateHearingNewHearing() throws Exception {
-        hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
-                HearingSession.builder()
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+                HearingDaySchedule.builder()
                         .hearingStartDateTime(HEARING_START_DATE_TIME)
                         .hearingEndDateTime(HEARING_END_DATE_TIME)
                         .hearingVenueEpimsId(NEW_EPIMS_ID)
@@ -155,9 +155,9 @@ class HearingUpdateServiceTest {
             + "updateHearing throws the correct error and message")
     @Test
     void testUpdateHearingMultipleHearingSessions() {
-        hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
-                HearingSession.builder().build(),
-                HearingSession.builder().build()));
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+                HearingDaySchedule.builder().build(),
+                HearingDaySchedule.builder().build()));
 
         assertThatExceptionOfType(InvalidHearingDataException.class)
                 .isThrownBy(() -> hearingUpdateService.updateHearing(hearingGetResponse, caseData))
@@ -168,8 +168,8 @@ class HearingUpdateServiceTest {
             + "updateHearing throws the correct error and message")
     @Test
     void testUpdateHearingVenueNull() {
-        hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
-                HearingSession.builder()
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+                HearingDaySchedule.builder()
                         .hearingStartDateTime(HEARING_START_DATE_TIME)
                         .hearingEndDateTime(HEARING_END_DATE_TIME)
                         .hearingVenueEpimsId(NEW_EPIMS_ID)
