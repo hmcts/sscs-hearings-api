@@ -180,7 +180,6 @@ public final class HearingsPartiesMapping {
         return entity.getName().getFullNameNoTitle();
     }
 
-
     public static Optional<String> getIndividualPreferredHearingChannel(String hearingType, HearingSubtype hearingSubtype) {
         if (hearingType == null || hearingSubtype == null) {
             return Optional.empty();

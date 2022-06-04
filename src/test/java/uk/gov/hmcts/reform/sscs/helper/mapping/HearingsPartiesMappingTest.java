@@ -31,7 +31,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
@@ -458,7 +457,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-    @DisplayName("When language passed in should return correct LOV format")
+    @DisplayName("When a valid verbal language is given getIndividualInterpreterLanguage should return correct hmcReference")
     @ParameterizedTest
     @CsvSource({"Acholi,ach", "Afrikaans,afr", "Akan,aka", "Albanian,alb", "Zaza,zza", "Zulu,zul"})
     void testGetIndividualInterpreterLanguage(String lang, String expected) throws InvalidMappingException {
@@ -476,26 +475,27 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expected);
     }
 
-    @DisplayName("When a invalid sign language passed in should throw an error")
+    @DisplayName("When a invalid verbal language is given getIndividualInterpreterLanguage should throw the correct error and message")
+    @ParameterizedTest
     @ValueSource(strings = {"Test"})
     @NullAndEmptySource
-    void testGetIndividualInterpreterLanguage(String values) throws InvalidMappingException {
-        given(signLanguages.getSignLanguageReference(anyString()))
+    void testGetIndividualInterpreterLanguage(String value) throws InvalidMappingException {
+        given(verbalLanguages.getVerbalLanguageReference(value))
                 .willReturn(null);
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         HearingOptions hearingOptions = HearingOptions.builder()
                 .languageInterpreter("Yes")
-                .languages(values)
+                .languages(value)
                 .build();
 
         assertThatExceptionOfType(InvalidMappingException.class)
                 .isThrownBy(() -> getIndividualInterpreterLanguage(hearingOptions, referenceData))
-                .withMessageContaining("The language {} cannot be mapped", values);
+                .withMessageContaining("The language %s cannot be mapped", value);
     }
 
-    @DisplayName("When sign language passed in should return correct LOV format")
+    @DisplayName("When a valid sign language is given getIndividualInterpreterLanguage should return correct hmcReference")
     @ParameterizedTest
     @CsvSource({"American Sign Language (ASL),americanSignLanguage",
                 "Hands on signing,handsOnSigning",
@@ -517,23 +517,24 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expected);
     }
 
-    @DisplayName("When a invalid sign language passed in should throw an error")
+    @DisplayName("When a invalid sign language is given getIndividualInterpreterLanguage should throw the correct error and message")
+    @ParameterizedTest
     @ValueSource(strings = {"Test"})
     @NullAndEmptySource
-    void testGetIndividualInterpreterSignLanguage(String values) throws InvalidMappingException {
-        given(signLanguages.getSignLanguageReference(anyString()))
+    void testGetIndividualInterpreterSignLanguage(String value) throws InvalidMappingException {
+        given(signLanguages.getSignLanguageReference(value))
                 .willReturn(null);
 
         given(referenceData.getSignLanguages()).willReturn(signLanguages);
 
         HearingOptions hearingOptions = HearingOptions.builder()
                 .arrangements(List.of("signLanguageInterpreter"))
-                .signLanguageType(values)
+                .signLanguageType(value)
                 .build();
 
         assertThatExceptionOfType(InvalidMappingException.class)
                 .isThrownBy(() -> getIndividualInterpreterLanguage(hearingOptions, referenceData))
-                .withMessageContaining("The language {} cannot be mapped", values);
+                .withMessageContaining("The language %s cannot be mapped", value);
     }
 
 
