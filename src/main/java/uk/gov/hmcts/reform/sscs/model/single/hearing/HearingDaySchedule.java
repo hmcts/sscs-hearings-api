@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HearingSession {
+public class HearingDaySchedule {
     private LocalDateTime hearingStartDateTime;
 
     private LocalDateTime hearingEndDateTime;

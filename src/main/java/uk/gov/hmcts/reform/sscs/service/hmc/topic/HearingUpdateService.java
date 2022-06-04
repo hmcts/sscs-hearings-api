@@ -11,9 +11,9 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingSession;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class HearingUpdateService {
         HearingResponse hearingResponse = hearingGetResponse.getHearingResponse();
         String hearingId = String.valueOf(hearingResponse.getHearingRequestId());
 
-        List<HearingSession> hearingSessions = hearingResponse.getHearingDaySchedule();
+        List<HearingDaySchedule> hearingSessions = hearingResponse.getHearingSessions();
 
         if (hearingSessions.size() != EXPECTED_SESSIONS) {
             throw new InvalidHearingDataException(
@@ -49,9 +49,9 @@ public class HearingUpdateService {
                             hearingId));
         }
 
-        HearingSession hearingSession = hearingSessions.get(0);
+        HearingDaySchedule hearingDaySchedule = hearingSessions.get(0);
 
-        String hearingEpimsId = hearingSession.getHearingVenueEpimsId();
+        String hearingEpimsId = hearingDaySchedule.getHearingVenueEpimsId();
 
         VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(hearingEpimsId);
 

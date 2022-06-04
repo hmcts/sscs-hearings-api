@@ -45,7 +45,8 @@ public class HearingResponse {
 
     private Integer requestVersion;
 
-    private List<HearingSession> hearingDaySchedule;
+    @JsonProperty("hearingDaySchedule")
+    private List<HearingDaySchedule> hearingSessions;
 
     private JsonNode serviceData;
 
