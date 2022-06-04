@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
@@ -35,39 +34,34 @@ public class ProcessHmcMessageService {
     private final CcdCaseService ccdCaseService;
     private final CaseStateUpdateService caseStateUpdateService;
 
-    public void checkMessage(HmcMessage hmcMessage) throws CaseException, MessageProcessingException {
-
-        Long caseId = hmcMessage.getCaseId();
-        ListAssistCaseStatus listAssistCaseStatus = hmcMessage.getHearingUpdate().getListAssistCaseStatus();
-        log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
-                listAssistCaseStatus, caseId);
-
-
-        if (isMessageNotRelevantForService(hmcMessage)) {
-            log.info("Message not for this service for hearing ID {} and case reference: {}",
-                    hmcMessage.getHearingId(),
-                    hmcMessage.getCaseId());
-            return;
-        }
-
-        processEventMessage(hmcMessage);
-
-        log.info("Hearing message {} processed for case reference {}",
-                hmcMessage.getHearingId(),
-                hmcMessage.getCaseId());
-    }
-
     public void processEventMessage(HmcMessage hmcMessage)
             throws CaseException, MessageProcessingException {
 
+        Long caseId = hmcMessage.getCaseId();
+        String hearingId = hmcMessage.getHearingId();
 
-        final String hearingId = hmcMessage.getHearingId();
-        HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
+        log.info("Attempting to process message from hearings topic for Case ID {}, Hearing ID {} and Service Code {}",
+                caseId, hearingId, hmcMessage.getHmctsServiceCode());
 
-        long caseId = hmcMessage.getCaseId();
-        SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
+        if (messageIsNotRelevantForService(hmcMessage)) {
+            log.info("Message with Service Code {} not for this service, regarding hearing ID {} and Case ID: {}",
+                    hmcMessage.getHmctsServiceCode(), hearingId, caseId);
+            return;
+        }
 
         HmcStatus hmcStatus = hmcMessage.getHearingUpdate().getHmcStatus();
+
+        log.info("Message relevant to this service, processing for hearing status '{}'"
+                        + " from hearings event queue for Case ID {}, Hearing ID {} and service code {}",
+                hmcStatus.getState(),
+                caseId,
+                hearingId,
+                hmcMessage.getHmctsServiceCode());
+
+        HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
+        SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
+
+
         if (isHearingUpdated(hmcStatus, hearingResponse)) {
             caseStateUpdateService.updateListed(hearingResponse, caseData);
         } else if (isHearingCancelled(hmcStatus, hearingResponse)) {
@@ -86,9 +80,13 @@ public class ProcessHmcMessageService {
                 hmcStatus.getCcdUpdateEventType(),
                 hmcStatus.getCcdUpdateSummary(),
                 ccdUpdateDescription);
+
+        log.info("Hearing message {} processed for case reference {}",
+                hmcMessage.getHearingId(),
+                hmcMessage.getCaseId());
     }
 
-    public boolean isMessageNotRelevantForService(HmcMessage hmcMessage) {
+    public boolean messageIsNotRelevantForService(HmcMessage hmcMessage) {
         return !sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }
 
