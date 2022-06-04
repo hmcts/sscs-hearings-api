@@ -28,7 +28,7 @@
   "hmctsServiceID":null,
   "hearingWindow":{
     "hearingWindowDateRange":{
-      "hearingWindowStartDateRange":"2022-06-02"
+      "hearingWindowStartDateRange":"MOCK_DATE_TOMORROW"
     }
   },
   "hearingLocations":[

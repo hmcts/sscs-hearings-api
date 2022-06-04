@@ -53,6 +53,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -213,6 +214,8 @@ class ServiceHearingsControllerTest {
                 .build();
 
         String actualJson = ResourceLoader.loadJson("serviceHearingValuesForControllerTest.json");
+        String dateTomorrow = LocalDate.now().plusDays(1).toString();
+        actualJson = actualJson.replace("MOCK_DATE_TOMORROW", dateTomorrow);
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .contentType(APPLICATION_JSON)
