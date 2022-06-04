@@ -69,8 +69,8 @@ public class HearingUpdateService {
         hearingDetails.setHearingId(hearingId);
         hearingDetails.setVenueId(hearingEpimsId);
         hearingDetails.setVenue(venue);
-        hearingDetails.setStartDateTime(hearingSession.getHearingStartDateTime());
-        hearingDetails.setEndDateTime(hearingSession.getHearingEndDateTime());
+
+        // TODO SSCS-10620 - Set StartDateTime and EndDateTime
 
         log.info("Venue has been updated from epimsId {} to {} for Case Id: {} with hearingId {}",
             hearingDetails.getHearingId(),
