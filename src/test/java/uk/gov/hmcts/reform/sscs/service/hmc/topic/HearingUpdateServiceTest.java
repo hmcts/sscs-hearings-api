@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -29,6 +30,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
 
+    public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
+    public static final LocalDateTime HEARING_END_DATE_TIME = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
     private static final String HEARING_ID = "789";
     private static final String EPIMS_ID = "123";
     private static final String NEW_EPIMS_ID = "456";
@@ -70,12 +73,10 @@ class HearingUpdateServiceTest {
             + "updateHearing updates the correct hearing")
     @Test
     void testUpdateHearing() throws Exception {
-        LocalDateTime hearingStartDateTime = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
-        LocalDateTime hearingEndDateTime = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
         hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
                         HearingSession.builder()
-                                .hearingStartDateTime(hearingStartDateTime)
-                                .hearingEndDateTime(hearingEndDateTime)
+                                .hearingStartDateTime(HEARING_START_DATE_TIME)
+                                .hearingEndDateTime(HEARING_END_DATE_TIME)
                                 .hearingVenueEpimsId(NEW_EPIMS_ID)
                                 .build()));
 
@@ -116,12 +117,10 @@ class HearingUpdateServiceTest {
             + "updateHearing adds the correct hearing")
     @Test
     void testUpdateHearingNewHearing() throws Exception {
-        LocalDateTime hearingStartDateTime = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
-        LocalDateTime hearingEndDateTime = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
         hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
                 HearingSession.builder()
-                        .hearingStartDateTime(hearingStartDateTime)
-                        .hearingEndDateTime(hearingEndDateTime)
+                        .hearingStartDateTime(HEARING_START_DATE_TIME)
+                        .hearingEndDateTime(HEARING_END_DATE_TIME)
                         .hearingVenueEpimsId(NEW_EPIMS_ID)
                         .build()));
 
@@ -153,7 +152,7 @@ class HearingUpdateServiceTest {
     }
 
     @DisplayName("When hearingGetResponse with multiple Hearing Sessions are given,"
-            + "throws the correct error and message")
+            + "updateHearing throws the correct error and message")
     @Test
     void testUpdateHearingMultipleHearingSessions() {
         hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
@@ -163,5 +162,32 @@ class HearingUpdateServiceTest {
         assertThatExceptionOfType(InvalidHearingDataException.class)
                 .isThrownBy(() -> hearingUpdateService.updateHearing(hearingGetResponse, caseData))
                 .withMessageContaining("Invalid HearingDaySchedule, should have 1 session but instead has 2 sessions");
+    }
+
+    @DisplayName("When a invalid Epims ID is given, "
+            + "updateHearing throws the correct error and message")
+    @Test
+    void testUpdateHearingVenueNull() {
+        hearingGetResponse.getHearingResponse().setHearingDaySchedule(List.of(
+                HearingSession.builder()
+                        .hearingStartDateTime(HEARING_START_DATE_TIME)
+                        .hearingEndDateTime(HEARING_END_DATE_TIME)
+                        .hearingVenueEpimsId(NEW_EPIMS_ID)
+                        .build()));
+
+        caseData.setHearings(Lists.newArrayList(
+                Hearing.builder()
+                        .value(HearingDetails.builder()
+                                .venueId("23453")
+                                .hearingId("35533")
+                                .build())
+                        .build()));
+
+
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(NEW_EPIMS_ID)).thenReturn(null);
+
+        assertThatExceptionOfType(InvalidMappingException.class)
+                .isThrownBy(() -> hearingUpdateService.updateHearing(hearingGetResponse, caseData))
+                .withMessageContaining("Invalid epims Id %s, unable to find active venue with that id, regarding Case Id %s", NEW_EPIMS_ID, CASE_ID);
     }
 }

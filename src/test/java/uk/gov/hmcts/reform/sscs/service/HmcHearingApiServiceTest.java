@@ -75,7 +75,6 @@ class HmcHearingApiServiceTest {
     @DisplayName("sendDeleteHearingRequest should send request successfully")
     @Test
     void testSendCreateHearingRequest() {
-
         HearingRequestPayload payload = HearingRequestPayload.builder()
                 .caseDetails(CaseDetails.builder()
                         .caseId(String.valueOf(CASE_ID))
@@ -100,7 +99,6 @@ class HmcHearingApiServiceTest {
     @DisplayName("sendDeleteHearingRequest should send request successfully")
     @Test
     void testSendUpdateHearingRequest() {
-
         HearingRequestPayload payload = HearingRequestPayload.builder()
                 .caseDetails(CaseDetails.builder()
                         .caseId(String.valueOf(CASE_ID))
@@ -115,8 +113,6 @@ class HmcHearingApiServiceTest {
 
         given(hmcHearingApi.updateHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
 
-
-
         HearingResponse result = hmcHearingsService.sendUpdateHearingRequest(payload, String.valueOf(HEARING_REQUEST_ID));
 
         assertThat(result)
@@ -128,7 +124,6 @@ class HmcHearingApiServiceTest {
     @DisplayName("sendDeleteHearingRequest should send request successfully")
     @Test
     void testSendDeleteHearingRequest() {
-
         HearingCancelRequestPayload payload = HearingCancelRequestPayload.builder().build();
 
         HearingResponse response = HearingResponse.builder()

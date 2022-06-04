@@ -33,6 +33,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.UNKNOWN;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
@@ -48,11 +49,6 @@ class ProcessHmcMessageServiceTest {
     public static final String HEARING_ID = "abcdef";
     public static final long CASE_ID = 123L;
 
-    private SscsCaseDetails sscsCaseDetails;
-    private SscsCaseData caseData;
-    private HearingGetResponse hearingGetResponse;
-    private HmcMessage hmcMessage;
-
     @Mock
     private HmcHearingApiService hmcHearingApiService;
 
@@ -64,6 +60,11 @@ class ProcessHmcMessageServiceTest {
 
     @InjectMocks
     private ProcessHmcMessageService processHmcMessageService;
+
+    private SscsCaseDetails sscsCaseDetails;
+    private SscsCaseData caseData;
+    private HearingGetResponse hearingGetResponse;
+    private HmcMessage hmcMessage;
 
     @BeforeEach
     void setUp() {
@@ -99,7 +100,7 @@ class ProcessHmcMessageServiceTest {
     void testMessageRelevantForService() {
         hmcMessage.setHmctsServiceCode(SSCS_SERVICE_CODE);
 
-        boolean result = processHmcMessageService.isMessageNotRelevantForService(hmcMessage);
+        boolean result = processHmcMessageService.messageIsNotRelevantForService(hmcMessage);
 
         assertThat(result)
                 .as("This message does not have the correct service ID.")
@@ -114,7 +115,7 @@ class ProcessHmcMessageServiceTest {
     void testMessageRelevantForService(String value) {
         hmcMessage.setHmctsServiceCode(value);
 
-        boolean result = processHmcMessageService.isMessageNotRelevantForService(hmcMessage);
+        boolean result = processHmcMessageService.messageIsNotRelevantForService(hmcMessage);
 
         assertThat(result)
                 .as("This service ID should not of matched.")
@@ -123,7 +124,7 @@ class ProcessHmcMessageServiceTest {
 
     @DisplayName("When hmcMessage is valid but message not relevant, no error is thrown but no call further calls are made")
     @Test
-    void testCheckMessageWrongServiceCode() throws Exception {
+    void testCheckMessageWrongServiceCode() {
         // given
         hmcMessage.setHmctsServiceCode("SBC3");
         hmcMessage.getHearingUpdate().setHmcStatus(UPDATE_REQUESTED);
@@ -131,13 +132,10 @@ class ProcessHmcMessageServiceTest {
 
         // when
         assertThatNoException()
-                .isThrownBy(() -> processHmcMessageService.checkMessage(hmcMessage));
+                .isThrownBy(() -> processHmcMessageService.processEventMessage(hmcMessage));
 
         // then
-        verify(caseStateUpdateService, never()).updateListed(any(), any());
-        verify(caseStateUpdateService, never()).updateCancelled(any(), any());
-        verify(caseStateUpdateService, never()).updateFailed(any());
-        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
+        verifyNoInteractions(caseStateUpdateService, ccdCaseService);
     }
 
     @DisplayName("When listing Status is Fixed and and HmcStatus is valid, "
@@ -186,7 +184,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, never()).updateListed(any(), any());
+        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
@@ -315,7 +313,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, never()).updateCancelled(any(), any());
+        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
@@ -356,9 +354,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, never()).updateListed(any(), any());
-        verify(caseStateUpdateService, never()).updateCancelled(any(), any());
-        verify(caseStateUpdateService, never()).updateFailed(any());
+        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
