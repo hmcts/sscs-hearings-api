@@ -126,7 +126,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getDwpUnavailabilityRange());
+        partyDetails.unavailabilityRanges(getPartyUnavailabilityRangeAllDay(null));
 
         return partyDetails.build();
     }
@@ -330,11 +330,6 @@ public final class HearingsPartiesMapping {
                         .unavailableToDate(LocalDate.parse(dateRange.getEnd()))
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    public static List<UnavailabilityRange> getDwpUnavailabilityRange() {
-        // Not used as of now
-        return getPartyUnavailabilityRangeAllDay(null);
     }
 }
 
