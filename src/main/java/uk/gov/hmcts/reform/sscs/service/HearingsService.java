@@ -20,6 +20,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping.getVersionNumber;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
@@ -34,8 +36,9 @@ public class HearingsService {
 
     private final IdamService idamService;
 
-    private final ReferenceData referenceData;
+    private final HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
 
+    private final ReferenceData referenceData;
 
 
 
@@ -118,7 +121,13 @@ public class HearingsService {
     }
 
     private void partyNotified(HearingWrapper wrapper) {
-        // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
+        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
+                idamService.getIdamTokens().getIdamOauth2Token(),
+                idamService.getIdamTokens().getServiceAuthorization(),
+                getHearingId(wrapper),
+                getVersionNumber(wrapper),
+                buildUpdatePartiesNotifiedPayload(wrapper)
+        );
     }
 
     private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {

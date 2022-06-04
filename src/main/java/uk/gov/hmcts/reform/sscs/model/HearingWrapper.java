@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 
@@ -13,5 +14,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 @Builder
 public class HearingWrapper {
     private SscsCaseData caseData;
+    private SscsCaseData updatedCaseData;
+    private EventType event;
     private HearingState state;
 }

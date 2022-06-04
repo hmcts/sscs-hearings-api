@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpHeaders;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequest;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.ServiceData;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -58,7 +60,6 @@ public class ContractTestDataProvider {
     public static final String BAD_REQUEST = "BAD_REQUEST";
     public static final String FIELD_MESSAGE = "message";
     public static final String FIELD_ERRORS = "errors";
-    public static final int ZERO_LENGTH = 0;
     public static final Number ZERO_NUMBER_LENGTH = 0;
     public static final String FIELD_ID = "id";
     public static final String VALID_CASE_ID = "123";
@@ -68,6 +69,7 @@ public class ContractTestDataProvider {
     public static final String HEARING_RESPONSE_STATUS = "HEARING_REQUESTED";
     public static final String HEARING_DATE = "2030-08-20T12:40";
     public static final String ACTIVE = "ACTIVE";
+    public static final String PARTIES_NOTIFIED_PATH = "/partiesNotified";
 
     private ContractTestDataProvider() {
 
@@ -481,6 +483,20 @@ public class ContractTestDataProvider {
 
 
         return result;
+    }
+
+    public static PartiesNotifiedRequest generatePartiesPutRequest() throws JsonProcessingException {
+        PartiesNotifiedRequest partiesNotifiedRequest = new PartiesNotifiedRequest();
+        partiesNotifiedRequest.setRequestVersion(123L);
+        partiesNotifiedRequest.setServiceData(ServiceData.builder().testData("Test Data").build());
+        return partiesNotifiedRequest;
+    }
+
+    public static PartiesNotifiedRequest generateInvalidPartiesPutRequest() {
+
+        PartiesNotifiedRequest partiesNotifiedRequest = new PartiesNotifiedRequest();
+        partiesNotifiedRequest.setRequestVersion(123L);
+        return partiesNotifiedRequest;
     }
 
 }

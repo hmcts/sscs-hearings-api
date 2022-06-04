@@ -37,6 +37,8 @@ import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.PARTY_NOTIFIED;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATED_CASE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,6 +67,9 @@ class HearingsServiceTest {
 
     @Mock
     private IdamService idamService;
+
+    @Mock
+    private HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -109,19 +114,31 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceData);
+
+        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, hmcHearingPartiesNotifiedApi, referenceData);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "UPDATED_CASE",
-        "PARTY_NOTIFIED",
-    }, nullValues = {"null"})
-    void processHearingRequest(HearingState state) throws GetCaseException, InvalidIdException {
+    @Test
+    void processHearingRequest() throws GetCaseException, InvalidIdException {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
-        request.setHearingState(state);
+        request.setHearingState(UPDATED_CASE);
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingRequest(request));
+    }
+
+    @DisplayName("When wrapper with a PARTY_NOTIFIED Hearing State is given partyNotified should run without error")
+    @Test
+    void partyNotified() throws GetCaseException, InvalidIdException {
+        given(idamService.getIdamTokens())
+                .willReturn(IdamTokens.builder()
+                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                        .serviceAuthorization(SERVICE_AUTHORIZATION)
+                        .build());
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+
+        request.setHearingState(PARTY_NOTIFIED);
         assertThatNoException()
                 .isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
