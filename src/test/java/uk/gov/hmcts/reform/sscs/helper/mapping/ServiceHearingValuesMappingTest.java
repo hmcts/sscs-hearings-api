@@ -237,7 +237,7 @@ class ServiceHearingValuesMappingTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertThat(serviceHearingValues.getListingComments()).isEqualToIgnoringWhitespace(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY);
+        assertThat(serviceHearingValues.getListingComments()).isEqualToNormalizingNewlines(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY);
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
