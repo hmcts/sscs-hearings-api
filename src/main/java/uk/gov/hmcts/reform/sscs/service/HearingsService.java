@@ -38,11 +38,15 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException, InvalidMappingException {
-        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
+
+
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
+        UnhandleableHearingStateException, UpdateCaseException, InvalidIdException, InvalidMappingException {
+        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
-                hearingRequest.getHearingRoute());
+                hearingRequest.getHearingRoute(),
+                hearingRequest.getCancellationReason());
 
         processHearingWrapper(createWrapper(hearingRequest));
     }
@@ -148,11 +152,11 @@ public class HearingsService {
     }
 
     public HearingResponse sendCancelHearingRequest(HearingWrapper wrapper) {
-        HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(null); // TODO: Get Reason in Ticket: SSCS-10366
-        log.debug("Sending Update Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
+        HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
+        log.debug("Sending Cancel Hearing Request for Case ID ({}), Hearing State ({}) and reason ({})",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
-                hearingPayload.toString());
+                hearingPayload.getCancellationReasonCode());
         return hmcHearingApi.cancelHearingRequest(
                 idamService.getIdamTokens().getIdamOauth2Token(),
                 idamService.getIdamTokens().getServiceAuthorization(),
