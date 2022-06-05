@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.ArrayList;
@@ -36,10 +35,9 @@ public class HearingUpdateService {
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
             throws MessageProcessingException, InvalidMappingException {
 
-        HearingResponse hearingResponse = hearingGetResponse.getHearingResponse();
-        String hearingId = String.valueOf(hearingResponse.getHearingRequestId());
+        String hearingId = hearingGetResponse.getRequestDetails().getHearingRequestId();
 
-        List<HearingDaySchedule> hearingSessions = hearingResponse.getHearingSessions();
+        List<HearingDaySchedule> hearingSessions = hearingGetResponse.getHearingResponse().getHearingSessions();
 
         if (hearingSessions.size() != EXPECTED_SESSIONS) {
             throw new InvalidHearingDataException(

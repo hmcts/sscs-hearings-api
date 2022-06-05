@@ -30,7 +30,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -174,7 +174,7 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
-                .willReturn(HearingResponse.builder().build());
+                .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(CREATE_HEARING);
 
@@ -200,7 +200,7 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
-                .willReturn(HearingResponse.builder().build());
+                .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(UPDATE_HEARING);
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
@@ -214,7 +214,7 @@ class HearingsServiceTest {
     void processHearingWrapperCancel() {
 
         given(hmcHearingApiService.sendCancelHearingRequest(any(HearingCancelRequestPayload.class), anyString()))
-                .willReturn(HearingResponse.builder().build());
+                .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(CANCEL_HEARING);
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
@@ -238,7 +238,7 @@ class HearingsServiceTest {
 
         wrapper.setState(state);
 
-        HearingResponse response = HearingResponse.builder()
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .versionNumber(VERSION)
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .build();
@@ -263,7 +263,7 @@ class HearingsServiceTest {
                 anyString()))
                 .willThrow(UpdateCaseException.class);
 
-        HearingResponse response = HearingResponse.builder()
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .versionNumber(VERSION)
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .build();

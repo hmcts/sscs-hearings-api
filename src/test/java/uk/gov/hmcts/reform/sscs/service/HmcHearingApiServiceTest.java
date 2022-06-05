@@ -12,6 +12,8 @@ import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 
+import java.util.ArrayList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -49,7 +51,13 @@ class HmcHearingApiServiceTest {
     @DisplayName("When getHearingRequest is given the correct parameters it returns a valid response without error")
     @Test
     void testGetHearingRequest() throws GetHearingException {
-        HearingGetResponse response = HearingGetResponse.builder().build();
+        HearingGetResponse response = HearingGetResponse.builder()
+                .hearingDetails(HearingDetails.builder().build())
+                .partyDetails(new ArrayList<>())
+                .hearingResponse(HearingResponse.builder().build())
+                .caseDetails(CaseDetails.builder().build())
+                .requestDetails(RequestDetails.builder().build())
+                .build();
 
         given(hmcHearingApi.getHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, HEARING_ID))
                 .willReturn(response);
@@ -81,15 +89,14 @@ class HmcHearingApiServiceTest {
                         .build())
                 .build();
 
-        HearingResponse response = HearingResponse.builder()
-                .hearingCancellationReason(CANCEL_REASON_TEMP)
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .versionNumber(VERSION)
                 .build();
 
         given(hmcHearingApi.createHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, payload)).willReturn(response);
 
-        HearingResponse result = hmcHearingsService.sendCreateHearingRequest(payload);
+        HmcUpdateResponse result = hmcHearingsService.sendCreateHearingRequest(payload);
 
         assertThat(result)
                 .isNotNull()
@@ -105,15 +112,14 @@ class HmcHearingApiServiceTest {
                         .build())
                 .build();
 
-        HearingResponse response = HearingResponse.builder()
-                .hearingCancellationReason(CANCEL_REASON_TEMP)
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .versionNumber(VERSION)
                 .build();
 
         given(hmcHearingApi.updateHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
 
-        HearingResponse result = hmcHearingsService.sendUpdateHearingRequest(payload, String.valueOf(HEARING_REQUEST_ID));
+        HmcUpdateResponse result = hmcHearingsService.sendUpdateHearingRequest(payload, String.valueOf(HEARING_REQUEST_ID));
 
         assertThat(result)
                 .isNotNull()
@@ -126,15 +132,14 @@ class HmcHearingApiServiceTest {
     void testSendDeleteHearingRequest() {
         HearingCancelRequestPayload payload = HearingCancelRequestPayload.builder().build();
 
-        HearingResponse response = HearingResponse.builder()
-                .hearingCancellationReason(CANCEL_REASON_TEMP)
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .versionNumber(VERSION)
                 .build();
 
         given(hmcHearingApi.cancelHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
 
-        HearingResponse result = hmcHearingsService.sendCancelHearingRequest(payload, String.valueOf(HEARING_REQUEST_ID));
+        HmcUpdateResponse result = hmcHearingsService.sendCancelHearingRequest(payload, String.valueOf(HEARING_REQUEST_ID));
 
         assertThat(result)
                 .isNotNull()

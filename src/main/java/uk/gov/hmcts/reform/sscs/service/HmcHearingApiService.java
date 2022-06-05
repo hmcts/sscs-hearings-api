@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import static java.util.Objects.isNull;
 
@@ -34,7 +34,7 @@ public class HmcHearingApiService {
         return hearingResponse;
     }
 
-    public HearingResponse sendCreateHearingRequest(HearingRequestPayload hearingPayload) {
+    public HmcUpdateResponse sendCreateHearingRequest(HearingRequestPayload hearingPayload) {
         log.debug("Sending Create Hearing Request for Case ID {} and request:\n{}",
                 hearingPayload.getCaseDetails().getCaseId(),
                 hearingPayload);
@@ -44,7 +44,7 @@ public class HmcHearingApiService {
                 hearingPayload);
     }
 
-    public HearingResponse sendUpdateHearingRequest(HearingRequestPayload hearingPayload, String hearingId) {
+    public HmcUpdateResponse sendUpdateHearingRequest(HearingRequestPayload hearingPayload, String hearingId) {
         log.debug("Sending Update Hearing Request for Case ID {}, HearingId {} and request:\n{}",
                 hearingPayload.getCaseDetails().getCaseId(),
                 hearingId,
@@ -56,7 +56,7 @@ public class HmcHearingApiService {
                 hearingPayload);
     }
 
-    public HearingResponse sendCancelHearingRequest(HearingCancelRequestPayload hearingPayload, String hearingId) {
+    public HmcUpdateResponse sendCancelHearingRequest(HearingCancelRequestPayload hearingPayload, String hearingId) {
         log.debug("Sending Update Hearing Request for Hearing ID {} and request:\n{}",
                 hearingId,
                 hearingPayload);
