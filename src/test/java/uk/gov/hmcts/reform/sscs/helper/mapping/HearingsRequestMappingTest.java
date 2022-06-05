@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
