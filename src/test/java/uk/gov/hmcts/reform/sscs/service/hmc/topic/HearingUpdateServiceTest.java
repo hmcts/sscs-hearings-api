@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
@@ -21,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,10 +54,14 @@ class HearingUpdateServiceTest {
     void setUp() {
 
         hearingGetResponse = HearingGetResponse.builder()
-                .requestDetails(RequestDetails.builder().build())
-                .hearingResponse(HearingResponse.builder()
-                        .hearingRequestId(Long.valueOf(HEARING_ID))
+                .hearingResponse(HearingResponse.builder().build())
+                .requestDetails(RequestDetails.builder()
+                        .hearingRequestId(HEARING_ID)
                         .build())
+                .hearingDetails(uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build())
+                .caseDetails(CaseDetails.builder().build())
+                .partyDetails(new ArrayList<>())
+                .hearingResponse(HearingResponse.builder().build())
                 .build();
 
         caseData = SscsCaseData.builder()

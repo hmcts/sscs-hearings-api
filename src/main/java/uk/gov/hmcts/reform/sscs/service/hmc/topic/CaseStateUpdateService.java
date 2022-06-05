@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import javax.validation.Valid;
 
@@ -35,7 +35,7 @@ public class CaseStateUpdateService {
 
     public void updateCancelled(HearingGetResponse hearingResponse, @Valid SscsCaseData sscsCaseData)
             throws InvalidHmcMessageException {
-        String cancellationReason = hearingResponse.getHearingResponse().getHearingCancellationReason();
+        CancellationReason cancellationReason = hearingResponse.getHearingResponse().getHearingCancellationReason();
 
         State state = mapHmcCancelledToCcdState(cancellationReason, sscsCaseData.getCcdCaseId());
         setState(sscsCaseData, state);
@@ -52,7 +52,6 @@ public class CaseStateUpdateService {
 
     private State mapHmcCreatedOrUpdatedToCcd(ListAssistCaseStatus listAssistCaseStatus, String caseId)
             throws InvalidHmcMessageException {
-
         if (isNull(listAssistCaseStatus) || isNull(listAssistCaseStatus.getCaseStateUpdate())) {
             throw new InvalidHmcMessageException(String.format("Can not map listing Case Status %s for Case ID %s",
                     listAssistCaseStatus, caseId));
@@ -60,12 +59,11 @@ public class CaseStateUpdateService {
         return listAssistCaseStatus.getCaseStateUpdate();
     }
 
-    private State mapHmcCancelledToCcdState(String cancellationReasonLabel, String caseId)
+    private State mapHmcCancelledToCcdState(CancellationReason cancellationReason, String caseId)
             throws InvalidHmcMessageException {
-        CancellationReason cancellationReason = CancellationReason.getCancellationReasonByLabel(cancellationReasonLabel);
         if (isNull(cancellationReason)) {
-            throw new InvalidHmcMessageException(String.format("Can not map cancellation reason label %s for Case ID %s",
-                    cancellationReasonLabel, caseId));
+            throw new InvalidHmcMessageException(String.format("Can not map cancellation reason %s for Case ID %s",
+                    cancellationReason, caseId));
         }
 
         return cancellationReason.getCaseStateUpdate();

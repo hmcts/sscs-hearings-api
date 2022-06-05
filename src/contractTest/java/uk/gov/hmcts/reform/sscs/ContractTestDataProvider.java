@@ -41,6 +41,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.EXCLUDE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
 
 public class ContractTestDataProvider {
 
@@ -75,8 +76,6 @@ public class ContractTestDataProvider {
     public static final String VALID_CASE_ID = "123";
     public static final String FORBIDDEN_CASE_ID = "456";
     public static final String NOT_FOUND_CASE_ID = "789";
-
-    public static final String HEARING_RESPONSE_STATUS = "HEARING_REQUESTED";
     public static final String HEARING_DATE = "2030-08-20T12:40";
     public static final String ACTIVE = "ACTIVE";
 
@@ -115,13 +114,13 @@ public class ContractTestDataProvider {
 
     public static HearingCancelRequestPayload generateHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode("Cancel reason");
+        request.setCancellationReasonCode(WITHDRAWN);
         return request;
     }
 
     public static HearingCancelRequestPayload generateInvalidHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode("");
+        request.setCancellationReasonCode(null);
         return request;
     }
 
@@ -352,8 +351,8 @@ public class ContractTestDataProvider {
         result
             .object("requestDetails")
             .integerType("versionNumber", 123)
-            .stringType("hearingRequestID", "hearingRequestID123")
-            .stringType("status", "status123")
+            .stringType("hearingRequestID", "hearingRequestId123")
+            .stringType("status", "HEARING_REQUESTED")
             .stringType("timestamp", date.toString())
             .stringType("hearingGroupRequestId", "hearingGroupRequestId123")
             .stringType("partiesNotified", date.toString())
@@ -466,17 +465,12 @@ public class ContractTestDataProvider {
             .closeObject().closeArray()
             .closeObject().closeArray()
             .object("hearingResponse")
-            .integerType("hearingRequestID", 123L)
-            .integerType("versionNumber", 123)
-            .stringType("status", ACTIVE)
-            .stringType("timeStamp", date.toString())
             .stringType("listAssistTransactionID", "ListAssistTransactionID123123")
             .stringType("receivedDateTime", date.toString())
+            .integerType("responseVersion", 321)
             .stringType("laCaseStatus", "Listed")
             .stringType("listingStatus", "Fixed")
-            .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
-            .stringType("partiesNotified", date.toString())
-            .integerType("requestVersion", 321)
+            .stringType("hearingCancellationReason", "notatt")
             .minArrayLike("hearingDaySchedule", 0, 1)
             .stringType("listAssistSessionID", "listAssistSessionID123")
             .stringType("hearingVenueId", "hearingVenueId123")
@@ -488,8 +482,6 @@ public class ContractTestDataProvider {
             .stringType("hearingSubChannel", "hearingSubChannel123")
             .closeObject().closeArray()
             .closeObject().closeArray()
-            .object("serviceData")
-            .closeObject()
             .closeObject();
 
 

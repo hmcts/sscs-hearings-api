@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartiesNotified;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.HmcPartiesNotifiedResponse;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -18,7 +18,7 @@ public interface HmcHearingPartiesNotifiedApi {
     String ID = "id";
 
     @GetMapping(value = PARTIES_NOTIFIED_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    PartiesNotified getPartiesNotifiedRequest(
+    HmcPartiesNotifiedResponse getPartiesNotifiedRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam(ID) String id

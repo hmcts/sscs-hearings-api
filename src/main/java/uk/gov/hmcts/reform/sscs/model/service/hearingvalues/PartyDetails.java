@@ -7,10 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.model.hmc.reference;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
@@ -23,8 +22,7 @@ public enum HmcStatus {
     COMPLETED("Completed", null, "", ""),
     ADJOURNED("Adjourned", null, "", "");
 
-    @JsonValue
-    private final String state;
+    private final String label;
     private final EventType ccdUpdateEventType;
     private final String ccdUpdateSummary;
     private final String ccdUpdateDescription;

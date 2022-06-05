@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import java.time.ZonedDateTime;
 
@@ -46,7 +46,7 @@ class HearingsServiceHelperTest {
         wrapper.getCaseData().setSchedulingAndListingFields(SchedulingAndListingFields.builder()
                 .activeHearingId(original)
                 .build());
-        HearingResponse response = HearingResponse.builder()
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .hearingRequestId(updated)
                 .build();
 
@@ -69,7 +69,7 @@ class HearingsServiceHelperTest {
         wrapper.getCaseData().setSchedulingAndListingFields(SchedulingAndListingFields.builder()
                 .activeHearingVersionNumber(original)
                 .build());
-        HearingResponse response = HearingResponse.builder()
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .versionNumber(updated)
                 .build();
 

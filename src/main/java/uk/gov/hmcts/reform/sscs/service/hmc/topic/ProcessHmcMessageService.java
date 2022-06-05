@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -49,18 +50,24 @@ public class ProcessHmcMessageService {
             return;
         }
 
-        HmcStatus hmcStatus = hmcMessage.getHearingUpdate().getHmcStatus();
-
+        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
         log.info("Message relevant to this service, processing for hearing status '{}'"
                         + " from hearings event queue for Case ID {}, Hearing ID {} and service code {}",
-                hmcStatus.getState(),
+                hmcMessageStatus.getLabel(),
                 caseId,
                 hearingId,
                 hmcMessage.getHmctsServiceCode());
 
         HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
-        SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
+        HmcStatus hmcStatus = hearingResponse.getRequestDetails().getStatus();
 
+        if (hmcMessageStatus != hmcStatus) {
+            throw new InvalidHmcMessageException(String.format("HMC Message Status '%s' does not match the GET request status '%s' "
+                    + "for Case ID %s and Hearing ID %s",
+                    hmcMessageStatus, hmcStatus, caseId, hearingId));
+        }
+
+        SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
         if (isHearingUpdated(hmcStatus, hearingResponse)) {
             caseStateUpdateService.updateListed(hearingResponse, caseData);
@@ -105,11 +112,6 @@ public class ProcessHmcMessageService {
 
     private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return hmcStatus == CANCELLED
-                && isHearingGetResponseCancelled(hearingResponse);
-    }
-
-    private boolean isHearingGetResponseCancelled(HearingGetResponse hearingResponse) {
-        return REQUEST_CANCELLED.equalsIgnoreCase(hearingResponse.getRequestDetails().getStatus())
                 || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
     }
 

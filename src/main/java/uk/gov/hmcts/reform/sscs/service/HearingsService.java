@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
@@ -76,7 +76,7 @@ public class HearingsService {
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
-        HearingResponse response = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+        HmcUpdateResponse response = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
         log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -90,7 +90,7 @@ public class HearingsService {
         updateIds(wrapper);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         String hearingId = getHearingId(wrapper);
-        HearingResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
+        HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -108,7 +108,7 @@ public class HearingsService {
     private void cancelHearing(HearingWrapper wrapper) {
         String hearingId = getHearingId(wrapper);
         HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(null); // TODO: Get Reason in Ticket: SSCS-10366
-        HearingResponse response = hmcHearingApiService.sendCancelHearingRequest(hearingPayload, hearingId);// TODO: Get Reason in Ticket: SSCS-10366
+        HmcUpdateResponse response = hmcHearingApiService.sendCancelHearingRequest(hearingPayload, hearingId);// TODO: Get Reason in Ticket: SSCS-10366
 
         log.debug("Received Cancel Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -121,7 +121,7 @@ public class HearingsService {
         // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
-    public void hearingResponseUpdate(HearingWrapper wrapper, HearingResponse response)
+    public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response)
         throws UpdateCaseException {
 
         log.info("Updating Case with Hearing Response for Case ID {} and Hearing State {}",
