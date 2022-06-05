@@ -153,7 +153,7 @@ public class HearingsService {
 
     public HearingResponse sendCancelHearingRequest(HearingWrapper wrapper) {
         HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
-        log.debug("Sending Update Hearing Request for Case ID ({}), Hearing State ({}) and reason ({})",
+        log.debug("Sending Cancel Hearing Request for Case ID ({}), Hearing State ({}) and reason ({})",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState(),
                 hearingPayload.getCancellationReasonCode());

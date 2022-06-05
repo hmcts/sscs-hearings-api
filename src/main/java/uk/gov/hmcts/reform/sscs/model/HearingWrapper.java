@@ -15,7 +15,5 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 public class HearingWrapper {
     private SscsCaseData caseData;
     private HearingState state;
-    private String sscsServiceCode;
-    private String exUiUrl;
     private CancellationReason cancellationReason;
 }
