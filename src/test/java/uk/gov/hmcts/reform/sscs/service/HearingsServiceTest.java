@@ -26,14 +26,16 @@ import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.CancellationReason;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -78,13 +80,16 @@ class HearingsServiceTest {
     private IdamService idamService;
 
     @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
     public HearingDurationsService hearingDurations;
 
     @Mock
     public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public ReferenceData referenceData;
+    private VenueService venueService;
 
     @BeforeEach
     void setup() {
@@ -123,7 +128,8 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceData);
+
+        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceDataServiceHolder);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
@@ -159,29 +165,30 @@ class HearingsServiceTest {
     @Test
     void processHearingWrapperCreate() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        60,75,30));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60,75,30));
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(idamService.getIdamTokens())
-                .willReturn(IdamTokens.builder()
-                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                        .serviceAuthorization(SERVICE_AUTHORIZATION)
-                        .build());
+            .willReturn(IdamTokens.builder()
+                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                .serviceAuthorization(SERVICE_AUTHORIZATION)
+                .build());
 
         given(hmcHearingApi.createHearingRequest(any(), any(), any()))
-                .willReturn(HearingResponse.builder().build());
+            .willReturn(HearingResponse.builder().build());
 
         wrapper.setState(CREATE_HEARING);
 
         assertThatNoException()
-                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
@@ -190,29 +197,30 @@ class HearingsServiceTest {
 
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        60,75,30));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60,75,30));
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(idamService.getIdamTokens())
-                .willReturn(IdamTokens.builder()
-                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                        .serviceAuthorization(SERVICE_AUTHORIZATION)
-                        .build());
+            .willReturn(IdamTokens.builder()
+                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                .serviceAuthorization(SERVICE_AUTHORIZATION)
+                .build());
 
         given(hmcHearingApi.updateHearingRequest(any(), any(), any(), any()))
-                .willReturn(HearingResponse.builder().build());
+            .willReturn(HearingResponse.builder().build());
 
         wrapper.setState(UPDATE_HEARING);
 
         assertThatNoException()
-                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")

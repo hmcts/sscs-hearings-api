@@ -5,8 +5,33 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Contact;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ReasonableAdjustmentDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
@@ -19,9 +44,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,32 +67,43 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest {
+    public static final String FACE_TO_FACE = "faceToFace";
+    public static final String BENEFIT_CODE = "002";
 
     private static SscsCaseDetails sscsCaseDetails;
 
     @Mock
     public HearingDurationsService hearingDurations;
-    @Mock
-    private static ReferenceData referenceData;
 
     @Mock
-    private static SessionCategoryMapService sessionCategoryMaps;
-  
-    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
-    private static final String NOTE_FROM_APPELLANT = "appellant note";
-    public static final String FACE_TO_FACE = "faceToFace";
+    public VerbalLanguagesService verbalLanguages;
+
+    @Mock
+    public SignLanguagesService signLanguages;
+
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
+    private SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    private VenueService venueService;
+
+    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
+    private static final String NOTE_FROM_OTHER_APPELLANT = "Appellant - Mr Fred Flintstone:\n";
 
     @BeforeEach
     public void setUp() {
         sscsCaseDetails = SscsCaseDetails.builder()
             .data(SscsCaseData.builder()
                       .ccdCaseId("1234")
-                      .benefitCode("002")
-                      .issueCode("DD")
+                      .benefitCode(BENEFIT_CODE)
+                      .issueCode(ISSUE_CODE)
                       .urgentCase("Yes")
                       .adjournCaseCanCaseBeListedRightAway("Yes")
                       .caseManagementLocation(CaseManagementLocation.builder()
@@ -90,8 +130,8 @@ class ServiceHearingValuesMappingTest {
                                                       .wantsToAttend("Yes")
                                                       .wantsSupport("Yes")
                                                       .languageInterpreter("Yes")
-                                                      .languages("Telugu")
-                                                      .signLanguageType("Sign language")
+                                                      .languages("Bulgarian")
+                                                      .signLanguageType("Makaton")
                                                       .arrangements(Arrays.asList(
                                                           "signLanguageInterpreter",
                                                           "hearingLoop",
@@ -100,7 +140,7 @@ class ServiceHearingValuesMappingTest {
                                                       .scheduleHearing("No")
                                                       .excludeDates(getExcludeDates())
                                                       .agreeLessNotice("No")
-                                                      .other(NOTE_FROM_APPELLANT)
+                                                      .other(NOTE_FROM_OTHER_APPELLANT)
                                                       .build())
                                   .rep(Representative.builder()
                                            .id("12321")
@@ -139,26 +179,40 @@ class ServiceHearingValuesMappingTest {
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
 
-        given(sessionCategoryMaps.getSessionCategory("002", ISSUE_CODE,true,false))
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,true,false))
                 .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002");
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002-DD");
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        given(hearingDurations.getHearingDuration("002",ISSUE_CODE)).willReturn(null);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        given(verbalLanguages.getVerbalLanguageReference("Bulgarian"))
+                .willReturn("bul");
+
+        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        given(signLanguages.getSignLanguageReference("Makaton"))
+                .willReturn("sign-mkn");
+
+        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
+
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully() {
+    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
                 .hearingWindowDateRange(HearingWindowDateRange.builder()
                 .hearingWindowStartDateRange(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY).toString()).build()).build();
@@ -183,9 +237,7 @@ class ServiceHearingValuesMappingTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertThat(serviceHearingValues.getListingComments())
-                .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
-                        + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
+        assertThat(serviceHearingValues.getListingComments()).isEqualToIgnoringWhitespace(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY);
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
@@ -199,11 +251,14 @@ class ServiceHearingValuesMappingTest {
     }
 
     @Test
-    void shouldMapPartiesInServiceHearingValues() {
+    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
@@ -249,7 +304,7 @@ class ServiceHearingValuesMappingTest {
                                                        .wantsToAttend("Yes")
                                                        .wantsSupport("Yes")
                                                        .languageInterpreter("Yes")
-                                                       .languages("Telugu")
+                                                       .languages("Bulgarian")
                                                        .scheduleHearing("No")
                                                        .excludeDates(getExcludeDates())
                                                        .agreeLessNotice("No")
