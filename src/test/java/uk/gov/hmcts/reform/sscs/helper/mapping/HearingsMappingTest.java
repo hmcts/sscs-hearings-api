@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
@@ -60,10 +61,10 @@ class HearingsMappingTest extends HearingsMappingBase {
     void buildHearingPayload() throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        60,75,30));
+                                                60,75,30));
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+                                                   false, false, SessionCategory.CATEGORY_03, null));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
@@ -114,6 +115,7 @@ class HearingsMappingTest extends HearingsMappingBase {
     @Test
     void updateIds() {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        JointParty jointParty = JointParty.builder().id("3").appointee(Appointee.builder().build()).build();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .id("2")
                 .appointee(Appointee.builder().build())
@@ -126,7 +128,9 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .rep(Representative.builder().build())
                         .build())
                 .otherParties(otherParties)
+                .jointParty(jointParty)
                 .build();
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .caseData(caseData)
@@ -143,6 +147,9 @@ class HearingsMappingTest extends HearingsMappingBase {
         assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getRep().getId());
 
         assertNotNull(wrapper.getCaseData().getOtherParties().get(1).getValue().getId());
+
+        assertThat(wrapper.getCaseData().getJointParty().getAppointee().getId()).isNotNull();
+        assertThat(wrapper.getCaseData().getJointParty().getId()).isNotNull();
     }
 
     @DisplayName("getMaxId Test")
