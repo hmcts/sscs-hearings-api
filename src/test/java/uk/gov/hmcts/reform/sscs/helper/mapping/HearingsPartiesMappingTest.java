@@ -555,26 +555,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .withMessageContaining("The language {} cannot be mapped", values);
     }
 
-    @DisplayName("When a invalid verbal language is given getIndividualInterpreterLanguage should throw the correct error and message")
-    @ParameterizedTest
-    @ValueSource(strings = {"Test"})
-    @NullAndEmptySource
-    void testGetIndividualInterpreterLanguage(String value) throws InvalidMappingException {
-        given(verbalLanguages.getVerbalLanguageReference(value))
-                .willReturn(null);
-
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
-
-        HearingOptions hearingOptions = HearingOptions.builder()
-                .languageInterpreter("Yes")
-                .languages(value)
-                .build();
-
-        assertThatExceptionOfType(InvalidMappingException.class)
-                .isThrownBy(() -> getIndividualInterpreterLanguage(hearingOptions, referenceData))
-                .withMessageContaining("The language %s cannot be mapped", value);
-    }
-
     @DisplayName("When a valid sign language is given getIndividualInterpreterLanguage should return correct hmcReference")
     @ParameterizedTest
     @CsvSource({"American Sign Language (ASL),americanSignLanguage",

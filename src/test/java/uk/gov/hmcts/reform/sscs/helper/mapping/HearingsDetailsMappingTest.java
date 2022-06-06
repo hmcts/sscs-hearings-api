@@ -270,23 +270,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case when not autolist and an urgent case, buildHearingWindow returns start date of tomorrow")
-    @Test
-    void testBuildHearingWindowNotAutoListIsUrgent() {
-        SscsCaseData caseData = SscsCaseData.builder()
-                .dwpResponseDate("2021-12-01")
-                .urgentCase("Yes")
-                .build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
-
-        assertThat(result).isNotNull();
-
-        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-15");
-
-        assertThat(result.getFirstDateTimeMustBe()).isNull();
-        assertThat(result.getDateRangeEnd()).isNull();
-    }
-
     @DisplayName("When .. is given getFirstDateTimeMustBe returns the valid LocalDateTime")
     @Test
     void testBetFirstDateTimeMustBe() {
