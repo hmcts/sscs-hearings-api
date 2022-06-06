@@ -35,6 +35,6 @@ public final class HearingsRequestMapping {
     }
 
     public static String getCancellationReason(HearingWrapper wrapper) {
-        return wrapper.getCancellationReason().name();
+        return wrapper.getCancellationReason().getHmcReference();
     }
 }

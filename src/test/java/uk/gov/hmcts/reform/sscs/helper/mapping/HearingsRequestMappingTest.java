@@ -87,6 +87,6 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
         HearingCancelRequestPayload result = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
 
         assertThat(result).isNotNull();
-        assertEquals(CancellationReason.OTHER.name(), result.getCancellationReasonCode());
+        assertEquals(CancellationReason.OTHER.getHmcReference(), result.getCancellationReasonCode());
     }
 }
