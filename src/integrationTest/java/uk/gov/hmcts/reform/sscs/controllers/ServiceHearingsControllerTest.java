@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -222,6 +224,7 @@ class ServiceHearingsControllerTest {
                 .build();
 
         String actualJson = ResourceLoader.loadJson("serviceHearingValuesForControllerTest.json");
+        actualJson = replaceMockValues(actualJson);
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
                         .contentType(APPLICATION_JSON)
@@ -311,5 +314,11 @@ class ServiceHearingsControllerTest {
 
     public static String asJsonString(final Object obj) throws JsonProcessingException {
         return mapper.writeValueAsString(obj);
+    }
+
+    @NotNull
+    private static String replaceMockValues(String actualJson) {
+        String dateTomorrow = LocalDate.now().plusDays(1).toString();
+        return actualJson.replace("MOCK_DATE_TOMORROW", dateTomorrow);
     }
 }
