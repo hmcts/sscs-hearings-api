@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -124,7 +125,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyChannelSubType(getPartyChannelSubType());
         partyDetails.organisationDetails(getPartyOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
+        partyDetails.unavailabilityRanges(getPartyUnavailabilityRangeAllDay(hearingOptions));
 
         return partyDetails.build();
     }
@@ -347,6 +348,12 @@ public final class HearingsPartiesMapping {
     public static List<UnavailabilityDayOfWeek> getDwpUnavailabilityDayOfWeek() {
         // Not used as of now
         return getPartyUnavailabilityDayOfWeek();
+    }
+
+    public static List<UnavailabilityRange> getPartyUnavailabilityRangeAllDay(HearingOptions hearingOptions) {
+        List<UnavailabilityRange> partyUnavailabilityRange = getPartyUnavailabilityRange(hearingOptions);
+        partyUnavailabilityRange.forEach(unavailabilityRange -> unavailabilityRange.setUnavailabilityType(ALL_DAY.getLabel()));
+        return partyUnavailabilityRange;
     }
 
     public static List<UnavailabilityRange> getPartyUnavailabilityRange(HearingOptions hearingOptions) {

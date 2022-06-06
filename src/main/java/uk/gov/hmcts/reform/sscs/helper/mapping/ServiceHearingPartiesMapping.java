@@ -149,6 +149,14 @@ public final class ServiceHearingPartiesMapping {
                 .build();
     }
 
+    public static OrganisationDetails getOrganisationDetails(String name, String type, String id) {
+        OrganisationDetails.OrganisationDetailsBuilder organisationDetails = OrganisationDetails.builder();
+        organisationDetails.name(name);
+        organisationDetails.organisationType(type);
+        organisationDetails.cftOrganisationID(id);
+        return organisationDetails.build();
+    }
+
     public static PartyType getPartyType(Entity entity) {
         return isNotBlank(entity.getOrganisation()) ? ORG : IND;
     }

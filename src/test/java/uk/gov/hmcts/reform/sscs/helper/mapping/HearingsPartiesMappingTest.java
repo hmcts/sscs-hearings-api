@@ -518,7 +518,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     }
 
-    @DisplayName("When language passed in should return correct LOV format")
+    @DisplayName("When a valid verbal language is given getIndividualInterpreterLanguage should return correct hmcReference")
     @ParameterizedTest
     @CsvSource({"Acholi,ach", "Afrikaans,afr", "Akan,aka", "Albanian,alb", "Zaza,zza", "Zulu,zul"})
     void testGetIndividualInterpreterLanguage(String lang, String expected) throws InvalidMappingException {
@@ -555,7 +555,27 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .withMessageContaining("The language {} cannot be mapped", values);
     }
 
-    @DisplayName("When sign language passed in should return correct LOV format")
+    @DisplayName("When a invalid verbal language is given getIndividualInterpreterLanguage should throw the correct error and message")
+    @ParameterizedTest
+    @ValueSource(strings = {"Test"})
+    @NullAndEmptySource
+    void testGetIndividualInterpreterLanguage(String value) throws InvalidMappingException {
+        given(verbalLanguages.getVerbalLanguageReference(value))
+                .willReturn(null);
+
+        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        HearingOptions hearingOptions = HearingOptions.builder()
+                .languageInterpreter("Yes")
+                .languages(value)
+                .build();
+
+        assertThatExceptionOfType(InvalidMappingException.class)
+                .isThrownBy(() -> getIndividualInterpreterLanguage(hearingOptions, referenceData))
+                .withMessageContaining("The language %s cannot be mapped", value);
+    }
+
+    @DisplayName("When a valid sign language is given getIndividualInterpreterLanguage should return correct hmcReference")
     @ParameterizedTest
     @CsvSource({"American Sign Language (ASL),americanSignLanguage",
                 "Hands on signing,handsOnSigning",
@@ -834,7 +854,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .build())
                 .build());
         HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
-        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRangeAllDay(hearingOptions);
 
         assertThat(result)
                 .extracting("unavailableFromDate", "unavailableToDate", "unavailabilityType")
@@ -851,7 +871,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void getPartyUnavailabilityRangeNullValue() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRangeAllDay(hearingOptions);
 
         assertThat(result).isEmpty();
     }

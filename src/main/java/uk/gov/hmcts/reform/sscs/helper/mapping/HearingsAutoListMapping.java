@@ -1,6 +1,10 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -64,7 +68,8 @@ public final class HearingsAutoListMapping {
         return isNotBlank(HearingsDetailsMapping.getListingComments(caseData));
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData,
+                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
         SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceDataServiceHolder);
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);

@@ -92,7 +92,7 @@ public final class HearingsCaseMapping {
     }
 
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
-                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
+            ReferenceDataServiceHolder referenceDataServiceHolder) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         List<CaseCategory> categories = new ArrayList<>();
 
@@ -105,7 +105,7 @@ public final class HearingsCaseMapping {
     }
 
     public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode,
-                                                  ReferenceDataServiceHolder referenceDataServiceHolder) {
+            ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
@@ -114,7 +114,8 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode,
+            ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)

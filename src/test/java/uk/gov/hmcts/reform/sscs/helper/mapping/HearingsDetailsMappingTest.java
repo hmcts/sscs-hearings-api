@@ -270,6 +270,23 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
+    @DisplayName("When case when not autolist and an urgent case, buildHearingWindow returns start date of tomorrow")
+    @Test
+    void testBuildHearingWindowNotAutoListIsUrgent() {
+        SscsCaseData caseData = SscsCaseData.builder()
+                .dwpResponseDate("2021-12-01")
+                .urgentCase("Yes")
+                .build();
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+
+        assertThat(result).isNotNull();
+
+        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-15");
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
     @DisplayName("When .. is given getFirstDateTimeMustBe returns the valid LocalDateTime")
     @Test
     void testBetFirstDateTimeMustBe() {
@@ -307,8 +324,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().build())
-                .build())
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
@@ -316,7 +333,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
-            referenceDataServiceHolder);
+                                                                                  referenceDataServiceHolder);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getLocationId()).isEqualTo("9876");

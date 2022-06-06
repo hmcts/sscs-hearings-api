@@ -66,7 +66,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
@@ -140,7 +139,7 @@ class ServiceHearingValuesMappingTest {
                                                       .scheduleHearing("No")
                                                       .excludeDates(getExcludeDates())
                                                       .agreeLessNotice("No")
-                                                      .other(NOTE_FROM_OTHER_APPELLANT)
+                                                      .other(NOTE_FROM_APPELLANT)
                                                       .build())
                                   .rep(Representative.builder()
                                            .id("12321")
@@ -237,7 +236,9 @@ class ServiceHearingValuesMappingTest {
             "hearingLoop",
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
-        assertThat(serviceHearingValues.getListingComments()).isEqualToNormalizingNewlines(NOTE_FROM_OTHER_APPELLANT + NOTE_FROM_OTHER_APPELLANT + "\n" + "\n" + NOTE_FROM_OTHER_PARTY + NOTE_FROM_OTHER_PARTY);
+        assertThat(serviceHearingValues.getListingComments())
+                .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
+                        + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
