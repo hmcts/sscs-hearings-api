@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public final class HearingsCaseMapping {
 
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceData referenceData) {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData) {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
                 .hmctsServiceCode(getServiceCode(referenceData))
@@ -43,7 +43,7 @@ public final class HearingsCaseMapping {
                 .build();
     }
 
-    public static String getServiceCode(ReferenceData referenceData) {
+    public static String getServiceCode(ReferenceDataServiceHolder referenceData) {
         return referenceData.getSscsServiceCode();
     }
 
@@ -51,7 +51,7 @@ public final class HearingsCaseMapping {
         return caseData.getCcdCaseId();
     }
 
-    public static String getCaseDeepLink(HearingWrapper wrapper, ReferenceData referenceData) {
+    public static String getCaseDeepLink(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData) {
         return String.format(CASE_DETAILS_URL, referenceData.getExUiUrl(), getCaseID(wrapper.getCaseData()));
     }
 
@@ -90,7 +90,7 @@ public final class HearingsCaseMapping {
         return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
-    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceData referenceData) {
+    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         List<CaseCategory> categories = new ArrayList<>();
 
@@ -102,7 +102,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
+    public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
@@ -111,7 +111,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceData referenceData) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUB_TYPE)
