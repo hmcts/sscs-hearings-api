@@ -62,6 +62,7 @@ public final class HearingsMapping {
         int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep());
 
         maxId = updatePartyIds(appellant, appeal.getRep(), maxId);
+        maxId = updatePartyIds(caseData.getJointParty(), null, maxId);
         updateOtherPartiesIds(caseData.getOtherParties(), maxId);
     }
 

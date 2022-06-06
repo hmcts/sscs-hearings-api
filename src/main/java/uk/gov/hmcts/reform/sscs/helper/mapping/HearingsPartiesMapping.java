@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
@@ -75,7 +76,12 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.add(createJointPartyDetails(caseData));
+            partiesDetails.addAll(
+                buildHearingPartiesPartyDetails(
+                    caseData.getJointParty(),
+                    appellant.getId(),
+                    referenceDataServiceHolder
+                ));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -89,11 +95,15 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
+                       null, otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
             }
         }
 
         return partiesDetails;
+    }
+
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId, referenceData);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions,
@@ -140,11 +150,6 @@ public final class HearingsPartiesMapping {
         partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(null));
 
         return partyDetails.build();
-    }
-
-    public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
-        // TODO SSCS-10378 - Add joint party logic
-        return PartyDetails.builder().build();
     }
 
     public static String getPartyId(Entity entity) {
@@ -196,7 +201,7 @@ public final class HearingsPartiesMapping {
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
         if (eitherNull(hearingType, hearingSubtype)) {
-            throw new IllegalStateException("hearingType and/or hearingSubtype null");
+            return null;
         }
 
         HearingChannel preferredHearingChannel =
@@ -231,6 +236,11 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+
+        if (isNull(hearingOptions)) {
+            return EMPTY;
+        }
+
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguage = hearingOptions.getSignLanguageType();
             String signLanguageReference = referenceData.getSignLanguages().getSignLanguageReference(signLanguage);
