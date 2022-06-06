@@ -10,17 +10,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.InterpreterLanguage;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.SignLanguage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -34,12 +30,12 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityR
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
 import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.NOT_ATTENDING;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.PAPER;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.TELEPHONE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingChannel.VIDEO;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports"})
 // TODO Unsuppress in future
@@ -81,7 +77,7 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        null, otherParty.getHearingSubtype(), appellant.getId(), referenceData));
+                        appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceData));
             }
         }
 

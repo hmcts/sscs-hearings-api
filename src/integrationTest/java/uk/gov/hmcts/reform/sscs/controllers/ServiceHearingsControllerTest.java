@@ -57,7 +57,6 @@ import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
