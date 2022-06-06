@@ -160,14 +160,18 @@ class ServiceHearingsControllerTest {
             .appellant(appellant)
             .build();
 
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceDataServiceHolder))
-            .thenReturn("Telugu");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn(APPELLANT_ID);
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(appellant)).thenReturn(APPELLANT_ROLE);
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class))).thenReturn("BBA3-j");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class))).thenReturn("BBA3-d");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,
+            referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype, hearingOptions))
             .thenReturn(FACE_TO_FACE.getHmcReference());
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn(APPELLANT_ID);
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(appellant)).thenReturn(APPELLANT_ROLE);
         SscsCaseData sscsCaseData = SscsCaseData.builder()
             .caseAccessManagementFields(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
