@@ -10,6 +10,27 @@
     <cve>CVE-2022-22965</cve>
     <cve>CVE-2022-22968</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+     incorrectly tagging spring-boot-starter-security as spring-security
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-security@.+$</packageUrl>
+    <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+     incorrectly tagging spring-security-rsa as spring-security
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-rsa@.+$</packageUrl>
+    <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+     incorrectly tagging spring-security-crypto, Affects versions prior to 5.3.2
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.+?$</packageUrl>
+    <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
+  </suppress>
   <suppress until="2022-06-20">
     <notes><![CDATA[ file name: netty-*-4.1.76.Final.jar ]]></notes>
     <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@4\.1\.76\.Final$</packageUrl>
