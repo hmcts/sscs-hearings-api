@@ -302,11 +302,11 @@ class HearingsServiceTest {
                         .build());
 
         HearingCancelRequestPayload payload = HearingCancelRequestPayload.builder()
-                .cancellationReasonCode(CancellationReason.OTHER.name())
+                .cancellationReasonCode(CancellationReason.OTHER.getHmcReference())
                 .build();
 
         HearingResponse response = HearingResponse.builder()
-                .hearingCancellationReason(CancellationReason.OTHER.name())
+                .hearingCancellationReason(CancellationReason.OTHER.getHmcReference())
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .versionNumber(VERSION)
                 .build();
@@ -321,7 +321,6 @@ class HearingsServiceTest {
         HearingResponse result = hearingsService.sendCancelHearingRequest(wrapper);
 
         assertThat(result).isNotNull();
-        // assertThat(result.getHearingCancellationReason()).isEqualTo(CANCEL_REASON_TEMP);  // TODO: Uncomment when implemented
         assertThat(result.getHearingRequestId()).isEqualTo(HEARING_REQUEST_ID);
         assertThat(result.getVersionNumber()).isEqualTo(VERSION);
     }
