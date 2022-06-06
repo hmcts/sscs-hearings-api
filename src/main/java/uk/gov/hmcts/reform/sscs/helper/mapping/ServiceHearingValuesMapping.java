@@ -2,12 +2,13 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,13 +23,13 @@ public final class ServiceHearingValuesMapping {
     }
 
 
-    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceData referenceData) {
+    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
         if (caseDetails == null) {
             return null;
         }
 
         SscsCaseData caseData = caseDetails.getData();
-        boolean shouldBeAutoListed = HearingsDetailsMapping.shouldBeAutoListed(caseData);
+        boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         return ServiceHearingValues.builder()
                 .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
@@ -46,20 +47,20 @@ public final class ServiceHearingValuesMapping {
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getCaseManagementLocation()))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
-                .listingComments(HearingsDetailsMapping.getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
+                .listingComments(HearingsDetailsMapping.getListingComments(caseData))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(getJudiciary(caseDetails, referenceData))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
-                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData))
+                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
             .build();
     }
 
-    public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceData referenceData) {
+    public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceData) {
         SscsCaseData sscsCaseData = caseDetails.getData();
         return Judiciary.builder()
                 .roleType(HearingsDetailsMapping.getRoleTypes())

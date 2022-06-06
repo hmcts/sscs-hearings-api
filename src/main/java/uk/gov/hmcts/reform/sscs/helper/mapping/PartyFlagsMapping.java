@@ -16,6 +16,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.isCaseUrgent;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_PHME;
@@ -125,7 +126,7 @@ public final class PartyFlagsMapping {
 
     public static PartyFlags urgentCase(SscsCaseData caseData) {
         PartyFlags urgentCasePartyFlag = null;
-        if (isYes(caseData.getUrgentCase())) {
+        if (isCaseUrgent(caseData)) {
             urgentCasePartyFlag = PartyFlags.builder()
                 .flagId(URGENT_CASE.getFlagId())
                 .flagDescription(URGENT_CASE.getFlagDescription())
