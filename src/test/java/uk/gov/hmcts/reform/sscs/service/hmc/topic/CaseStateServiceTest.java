@@ -102,9 +102,11 @@ class CaseStateServiceTest {
                 .withMessageContaining("Can not map listing Case Status null for Case ID");
     }
 
-    @DisplayName("When the cancellation reason is valid, updateCancelled updates the case state correctly")
+    @DisplayName("When the cancellation reason is valid, updateCancelled updates the status to a valid non-null value")
     @ParameterizedTest
-    @EnumSource(value = CancellationReason.class)
+    @EnumSource(value = CancellationReason.class,
+            mode = EnumSource.Mode.INCLUDE,
+            names = {"WITHDRAWN", "STRUCK_OUT", "LAPSED"})
     void testUpdateCancelled(CancellationReason value)
             throws InvalidHmcMessageException {
         // given
@@ -115,7 +117,31 @@ class CaseStateServiceTest {
         caseStateUpdateService.updateCancelled(hearingGetResponse, caseData);
 
         // then
-        assertThat(caseData.getState()).isEqualTo(value.getCaseStateUpdate());
+        assertThat(caseData.getState())
+                .isNotNull()
+                .isEqualTo(value.getCaseStateUpdate());
+    }
+
+    @DisplayName("When the cancellation reason is valid but state doesnt need changing, updateCancelled does not update the state")
+    @ParameterizedTest
+    @EnumSource(value = CancellationReason.class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = {"WITHDRAWN", "STRUCK_OUT", "LAPSED"})
+    void testUpdateCancelledNoStateChange(CancellationReason value)
+            throws InvalidHmcMessageException {
+        // given
+        hearingGetResponse.getHearingResponse().setHearingCancellationReason(value);
+        hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
+
+        caseData.setState(UNKNOWN);
+
+        // when
+        caseStateUpdateService.updateCancelled(hearingGetResponse, caseData);
+
+        // then
+        assertThat(caseData.getState())
+                .isNotNull()
+                .isEqualTo(UNKNOWN);
     }
 
     @DisplayName("When a invalid cancellation reason is given, updateCancelled throws the correct error and message")

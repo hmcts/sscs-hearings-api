@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
@@ -38,7 +39,9 @@ public class CaseStateUpdateService {
         CancellationReason cancellationReason = hearingResponse.getHearingResponse().getHearingCancellationReason();
 
         State state = mapHmcCancelledToCcdState(cancellationReason, sscsCaseData.getCcdCaseId());
-        setState(sscsCaseData, state);
+        if (nonNull(state)) {
+            setState(sscsCaseData, state);
+        }
     }
 
     public void updateFailed(@Valid SscsCaseData sscsCaseData) {
