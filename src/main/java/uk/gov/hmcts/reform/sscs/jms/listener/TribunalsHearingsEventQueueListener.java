@@ -11,8 +11,6 @@ import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
-import javax.jms.JMSException;
-
 @Slf4j
 @Component
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
@@ -31,7 +29,7 @@ public class TribunalsHearingsEventQueueListener {
         destination = "${azure.service-bus.tribunals-to-hearings-api.queueName}",
         containerFactory = "tribunalsHearingsEventQueueContainerFactory"
     )
-    public void onMessage(String message) throws TribunalsEventProcessingException, JMSException {
+    public void handleIncomingMessage(String message) {
         log.info("Message Received");
         String caseId = null;
         try {
