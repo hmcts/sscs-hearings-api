@@ -361,6 +361,8 @@ dependencies {
   implementation group: 'com.azure', name: 'azure-core', version: versions.azureCore
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: versions.azureMessagingServicebus
 
+  implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: versions.qpidJmsClient
+
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
 
