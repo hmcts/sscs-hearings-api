@@ -2,11 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +12,6 @@ import java.util.List;
 public class HearingsMappingBase {
 
     public static final String CASE_CREATED = "2022-04-01";
-
-    @Mock
-    public HearingDurationsService hearingDurations;
-
-    @Mock
-    public SessionCategoryMapService sessionCategoryMaps;
-
-    @Mock
-    public ReferenceData referenceData;
 
     protected HearingsMappingBase() {
 
