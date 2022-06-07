@@ -69,12 +69,13 @@ jackson:
 azure:
   service-bus:
     hmc-to-hearings-api:
-      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
-      topicName: ${HEARINGS_TOPIC_NAME:}
-      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
-      retryTimeout: ${HEARINGS_TOPIC_RETRY_TIMEOUT:1}
-      maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
-      retryDelay: ${HEARINGS_TOPIC_RETRY_DELAY:1}
+      connectionString: ${HMC_HEARINGS_TOPIC_CONNECTION_STRING:}
+      topicName: ${HMC_HEARINGS_TOPIC_NAME:}
+      subscriptionName: ${HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
+      receiveTimeout: ${HMC_HEARINGS_TOPIC_RECEIVE_TIMEOUT:1}
+      idleTimeout: ${HMC_HEARINGS_TOPIC_IDLE_TIMEOUT:3600000}
+      username: ${HMC_HEARINGS_TOPIC_POLICY_NAME:}
+      password: ${HMC_HEARINGS_TOPIC_ACCESS_KEY:}
     tribunals-to-hearings-api:
       connectionString: ${TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING:}
       queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}

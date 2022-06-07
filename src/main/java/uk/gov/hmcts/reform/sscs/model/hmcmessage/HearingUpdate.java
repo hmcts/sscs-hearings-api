@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.model.hmcmessage;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,15 +15,24 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class HearingUpdate {
 
+    @JsonProperty("HMCStatus")
+    private String hmcStatus;
+
+    @JsonProperty("ListAssistCaseStatus")
+    private String listAssistCaseStatus;
+
     private String hearingResponseReceivedDateTime;
     private String hearingEventBroadcastDateTime;
-    private String hmcStatus;
+
     private HearingListingStatus hearingListingStatus;
     private String nextHearingDate;
-    private String listAssistCaseStatus;
+
     private String listAssistSessionID;
+
     private String hearingVenueId;
+
     private String hearingRoomId;
+
     private String hearingJudgeId;
 
     public LocalDateTime getHearingResponseReceivedDateTime() {

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class HmcMessage {
 
-    private String hmctsServiceID;
+    private String hmctsServiceCode;
     private String caseRef;
     private String hearingID;
     private HearingUpdate hearingUpdate;
