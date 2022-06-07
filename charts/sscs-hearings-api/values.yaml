@@ -16,14 +16,15 @@ java:
           alias: IDAM_SSCS_SYSTEMUPDATE_USER
         - name: idam-sscs-systemupdate-password
           alias: IDAM_SSCS_SYSTEMUPDATE_PASSWORD
-        - name: hmc-servicebus-connection-string
-          alias: HEARINGS_TOPIC_CONNECTION_STRING
         - name: sscs-asb-connection-string
           alias: SSCS_SERVICEBUS_CONNECTION_STRING
         - name: idam-oauth-user
           alias: IDAM_OAUTH2_CLIENT_ID
         - name: idam-sscs-oauth2-client-secret
           alias: IDAM_OAUTH2_CLIENT_SECRET
+        #Will be uncommented once merged - pipeline needs to complete for this.
+        #- name: hmc-servicebus-shared-access-key
+        #  alias: HMC_HEARINGS_TOPIC_ACCESS_KEY
   environment:
     SERVER_PORT: 8083
     REFORM_TEAM: sscs
@@ -38,9 +39,11 @@ java:
     CORE_CASE_DATA_API_URL: "http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     COMMON_REF_API_URL: "http://rd-commondata-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JUDICIAL_REF_API_URL: "http://judicial-ref-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
-    HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
-    HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_CONNECTION_STRING: "hmc-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
+    HMC_HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARING_LISTENING_ENABLED: false
+    HMC_HEARINGS_TOPIC_POLICY_NAME: SendAndListenSharedAccessKey
     TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
     TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
     EXUI_API_URL: "https://manage-case.{{ .Values.global.environment }}.platform.hmcts.net"

@@ -118,5 +118,4 @@ public class ProcessHmcMessageService {
     private boolean isStatusException(HmcStatus hmcStatus) {
         return hmcStatus == EXCEPTION;
     }
-
 }
