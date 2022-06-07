@@ -156,6 +156,7 @@ public class HearingsService {
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
+                .cancellationReason(hearingRequest.getCancellationReason())
                 .build();
     }
 }
