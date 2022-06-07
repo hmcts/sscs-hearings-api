@@ -12,8 +12,7 @@ import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Session;
+import javax.jms.*;
 
 @Slf4j
 @Configuration
@@ -67,5 +66,4 @@ public class TribunalsHearingsJmsConfig {
         defaultJmsListenerContainerFactoryConfigurer.configure(factory, tribunalsHearingsJmsConnectionFactory);
         return factory;
     }
-
 }
