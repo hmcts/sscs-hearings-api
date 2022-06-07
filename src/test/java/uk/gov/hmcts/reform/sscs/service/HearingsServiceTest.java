@@ -270,5 +270,4 @@ class HearingsServiceTest {
         assertThatExceptionOfType(UpdateCaseException.class)
                 .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
     }
-
 }
