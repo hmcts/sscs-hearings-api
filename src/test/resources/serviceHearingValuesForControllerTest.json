@@ -2,7 +2,7 @@
   "caseName":null,
   "caseNamePublic":"Test Case Name",
   "autoListFlag":false,
-  "hearingType":"BBA3-substantive",
+  "hearingType":"BBA3-SUB",
   "caseType":"Benefit",
   "caseCategories":[
     {
