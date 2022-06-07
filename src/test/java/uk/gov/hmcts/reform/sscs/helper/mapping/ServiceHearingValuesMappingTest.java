@@ -39,7 +39,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBST
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
-
     private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
@@ -199,8 +198,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             "disabledAccess"
         ), serviceHearingValues.getFacilitiesRequired());
         assertThat(serviceHearingValues.getListingComments())
-                .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
-                        + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
+            .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
+                + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
         assertNull(serviceHearingValues.getHearingRequester());
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
