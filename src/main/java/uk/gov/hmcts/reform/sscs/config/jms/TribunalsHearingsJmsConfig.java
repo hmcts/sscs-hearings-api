@@ -34,15 +34,28 @@ public class TribunalsHearingsJmsConfig {
     @Value("${azure.service-bus.tribunals-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
 
-    @Bean
-    @ConditionalOnProperty("flag.tribunals-to-hearings-api.enabled")
-    public ConnectionFactory tribunalsHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
-        String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
+    private String deadLetter = "/$deadletterqueue";
+
+    private JmsConnectionFactory jmsConnectionFactory(String connection, final String clientId){
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
         jmsConnectionFactory.setUsername(username);
         jmsConnectionFactory.setPassword(password);
         jmsConnectionFactory.setClientID(clientId);
-        return new CachingConnectionFactory(jmsConnectionFactory);
+        return jmsConnectionFactory;
+    }
+
+    @Bean
+    @ConditionalOnProperty("flag.tribunals-to-hearings-api.enabled")
+    public ConnectionFactory tribunalsHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
+        String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
+        return new CachingConnectionFactory(jmsConnectionFactory(connection, clientId));
+    }
+
+    @Bean
+    @ConditionalOnProperty("flag.tribunals-to-hearings-api-dead-letter.enabled")
+    public ConnectionFactory tribunalsHearingDeadLetterJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
+        String connection = String.format("amqps://%1s/%2s?amqp.idleTimeout=%3d", connectionString, deadLetter, idleTimeout);
+        return new CachingConnectionFactory(jmsConnectionFactory(connection, clientId));
     }
 
     @Bean
@@ -53,7 +66,6 @@ public class TribunalsHearingsJmsConfig {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(tribunalsHearingsJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
-        factory.setSubscriptionDurable(Boolean.TRUE);
         factory.setSessionTransacted(Boolean.TRUE);
         factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
