@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.HmcEventProcessingException;
-import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
+import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageService;
 
 import java.nio.charset.StandardCharsets;
@@ -48,12 +50,12 @@ public class HmcHearingsEventTopicListener {
             HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
 
             if (isMessageRelevantForService(hmcMessage, serviceCode)) {
-                log.info("Processing hearing ID: {} for case reference: {}", hmcMessage.getHearingID(),
-                    hmcMessage.getCaseRef());
+                log.info("Processing hearing ID: {} for case reference: {}", hmcMessage.getHearingId(),
+                    hmcMessage.getCaseId());
 
                 processHmcMessageService.processEventMessage(hmcMessage);
             }
-        }  catch (JsonProcessingException | HmcEventProcessingException ex) {
+        }  catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
             throw new HmcEventProcessingException(String.format("Unable to successfully deliver HMC message: %s",
                 convertedMessage), ex);
         }
