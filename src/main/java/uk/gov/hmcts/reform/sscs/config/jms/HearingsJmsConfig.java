@@ -19,6 +19,7 @@ import javax.jms.Session;
 @Configuration
 public class HearingsJmsConfig {
 
+    public static final String AMQP_CONNECTION_STRING_TEMPLATE = "amqps://%1s?amqp.idleTimeout=%2d";
     @Value("${azure.service-bus.hmc-to-hearings-api.connectionString}")
     private String connectionString;
 
@@ -37,7 +38,7 @@ public class HearingsJmsConfig {
     @Bean
     @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
     public ConnectionFactory hmcHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
-        String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
+        String connection = String.format(AMQP_CONNECTION_STRING_TEMPLATE, connectionString, idleTimeout);
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
         jmsConnectionFactory.setUsername(username);
         jmsConnectionFactory.setPassword(password);
