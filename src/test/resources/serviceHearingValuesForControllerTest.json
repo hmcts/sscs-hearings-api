@@ -49,10 +49,10 @@
     {
       "partyID":"1",
       "partyType":"IND",
-      "partyChannel":"faceToFace",
+      "partyChannel":"INTER",
       "partyRole":"BBA3-a",
       "individualDetails":{
-        "preferredHearingChannel":"faceToFace",
+        "preferredHearingChannel":"INTER",
         "interpreterLanguage":"bul",
         "reasonableAdjustments":[],
         "vulnerableFlag":false,
