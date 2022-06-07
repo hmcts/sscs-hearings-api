@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 @Component
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 @RequiredArgsConstructor
-public class TribunalsHearingsEventQueueListenerConfig {
+public class OldTribunalsHearingsEventQueueListenerConfig {
 
     private final HearingsService hearingsService;
 
