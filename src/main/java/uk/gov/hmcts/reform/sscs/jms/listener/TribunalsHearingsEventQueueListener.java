@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.sscs.jms.listener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.qpid.jms.message.JmsBytesMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
@@ -13,22 +12,17 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
 import javax.jms.JMSException;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
-@ConditionalOnProperty("flag.tribunals-to-hearings-api.enabled")
+@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 public class TribunalsHearingsEventQueueListener {
 
     private final ObjectMapper objectMapper;
 
-    private final HearingRequest hearingRequest;
-
     private final HearingsService hearingsService;
 
-    public TribunalsHearingsEventQueueListener(HearingRequest hearingRequest,
-                                               HearingsService hearingsService) {
-        this.hearingRequest = hearingRequest;
+    public TribunalsHearingsEventQueueListener(HearingsService hearingsService) {
         this.hearingsService = hearingsService;
         this.objectMapper = new ObjectMapper();
     }
@@ -37,14 +31,12 @@ public class TribunalsHearingsEventQueueListener {
         destination = "${azure.service-bus.tribunals-to-hearings-api.queueName}",
         containerFactory = "tribunalsHearingsEventQueueContainerFactory"
     )
-    public void onMessage(JmsBytesMessage message) throws TribunalsEventProcessingException, JMSException {
-        byte[] messageBytes = new byte[(int) message.getBodyLength()];
-        message.readBytes(messageBytes);
-        String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
-
+    public void onMessage(String message) throws TribunalsEventProcessingException, JMSException {
+        log.info("Message Received");
+        String caseId = null;
         try {
-            HearingRequest hearingRequest = objectMapper.readValue(convertedMessage, HearingRequest.class);
-            String caseId = hearingRequest.getCcdCaseId();
+            HearingRequest hearingRequest = objectMapper.readValue(message, HearingRequest.class);
+            caseId = hearingRequest.getCcdCaseId();
             HearingState event = hearingRequest.getHearingState();
             log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                      event, caseId
@@ -55,7 +47,7 @@ public class TribunalsHearingsEventQueueListener {
         } catch (JsonProcessingException | GetCaseException | UnhandleableHearingStateException | UpdateCaseException | InvalidIdException | InvalidMappingException ex) {
             ex.printStackTrace();
             log.error("An exception occurred whilst processing hearing event for case ID {}."
-                          + " Abandoning message", message.getJMSMessageID(), ex);
+                          + " Abandoning message", caseId, ex);
         }
     }
 }

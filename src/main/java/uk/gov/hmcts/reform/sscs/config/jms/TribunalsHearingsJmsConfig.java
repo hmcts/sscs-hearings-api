@@ -45,27 +45,22 @@ public class TribunalsHearingsJmsConfig {
     }
 
     @Bean
-    @ConditionalOnProperty("flag.tribunals-to-hearings-api.enabled")
-    public ConnectionFactory tribunalsHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
+    @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+    public ConnectionFactory tribunalsHearingsJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
         String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
+        log.info(connection);
         return new CachingConnectionFactory(jmsConnectionFactory(connection, clientId));
     }
 
     @Bean
-    @ConditionalOnProperty("flag.tribunals-to-hearings-api-dead-letter.enabled")
-    public ConnectionFactory tribunalsHearingDeadLetterJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
-        String connection = String.format("amqps://%1s/%2s?amqp.idleTimeout=%3d", connectionString, deadLetter, idleTimeout);
-        return new CachingConnectionFactory(jmsConnectionFactory(connection, clientId));
-    }
-
-    @Bean
-    @ConditionalOnProperty("flag.tribunals-to-hearings-api.enabled")
-    public JmsListenerContainerFactory<DefaultMessageListenerContainer> tribunalsHearingsEventTopicContainerFactory(
+    @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+    public JmsListenerContainerFactory<DefaultMessageListenerContainer> tribunalsHearingsEventQueueContainerFactory(
         ConnectionFactory tribunalsHearingsJmsConnectionFactory,
         DefaultJmsListenerContainerFactoryConfigurer defaultJmsListenerContainerFactoryConfigurer){
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(tribunalsHearingsJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
+        factory.setSubscriptionDurable(Boolean.TRUE);
         factory.setSessionTransacted(Boolean.TRUE);
         factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
