@@ -6,7 +6,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,14 +27,15 @@ public final class HearingsAutoListMapping {
 
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData,
+                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
         return !(HearingsDetailsMapping.isCaseUrgent(caseData)
                 || hasOrgRepresentative(caseData)
                 || shouldBeAdditionalSecurityFlag(caseData)
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
                 || isPaperCaseAndPoNotAttending(caseData)
-                || hasMqpmOrFqpm(caseData, referenceData)
+                || hasMqpmOrFqpm(caseData, referenceDataServiceHolder)
                 || isThereOtherComments(caseData)
             );
     }
@@ -67,8 +68,9 @@ public final class HearingsAutoListMapping {
         return isNotBlank(HearingsDetailsMapping.getListingComments(caseData));
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
-        SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData,
+                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
+        SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceDataServiceHolder);
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);
     }

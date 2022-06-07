@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -52,7 +51,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -64,7 +64,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -78,7 +77,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("integration")
 class ServiceHearingsControllerTest {
-
     private static final long CASE_ID = 1625080769409918L;
     private static final long CASE_ID_LINKED = 3456385374124L;
     private static final long MISSING_CASE_ID = 99250807409918L;
@@ -87,9 +85,10 @@ class ServiceHearingsControllerTest {
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
     private static final String CASE_NAME = "Test Case Name";
-
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
+    public static final String PROCESSING_VENUE = "Liverpool";
+    public static final String APPELLANT_ID = "1";
+    public static final String APPELLANT_ROLE = "BBA3-a";
 
     @Autowired
     private MockMvc mockMvc;
@@ -105,13 +104,16 @@ class ServiceHearingsControllerTest {
     private CcdService ccdService;
 
     @MockBean
-    private ReferenceDataServiceHolder referenceData;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    public SessionCategoryMapService sessionCategoryMaps;
+    private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public HearingDurationsService hearingDurations;
+    private HearingDurationsService hearingDurations;
+
+    @Mock
+    private VenueService venueService;
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
 
@@ -134,57 +136,65 @@ class ServiceHearingsControllerTest {
                         .build())
                 .build());
 
-        Appeal appeal = mock(Appeal.class);
-        Appellant appellant = mock(Appellant.class);
-        Mockito.when(appeal.getAppellant()).thenReturn(appellant);
-        Representative representative = mock(Representative.class);
-        Mockito.when(appeal.getRep()).thenReturn(representative);
-        OtherParty otherParty = mock(OtherParty.class);
+        HearingOptions hearingOptions = HearingOptions.builder().build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder()
+            .hearingVideoEmail("test2@gmail.com")
+            .hearingTelephoneNumber("0999733735")
+            .build();
+
+        Representative representative = Representative.builder().id("2").build();
+        Appellant appellant = Appellant.builder().id(APPELLANT_ID).build();
+
+        OtherParty otherParty = OtherParty.builder().id("3")
+            .hearingSubtype(hearingSubtype)
+            .hearingOptions(hearingOptions)
+            .build();
+
         CcdValue<OtherParty> otherPartyCcdValue = new CcdValue<>(otherParty);
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(otherPartyCcdValue);
-        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
-        Mockito.when(hearingSubtype.getHearingVideoEmail()).thenReturn("test2@gmail.com");
-        Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
-        Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
-        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
-        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
 
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn("1");
+        Appeal appeal = Appeal.builder()
+            .rep(representative)
+            .hearingSubtype(hearingSubtype)
+            .hearingOptions(hearingOptions)
+            .appellant(appellant)
+            .build();
+
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn(APPELLANT_ID);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyType(appellant)).thenReturn(INDIVIDUAL);
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Appellant.class))).thenReturn("BBA3-a");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(appellant)).thenReturn(APPELLANT_ROLE);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class))).thenReturn("BBA3-j");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class))).thenReturn("BBA3-d");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceData)).thenReturn("bul");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,
+            referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype)).thenReturn(Optional.ofNullable(FACE_TO_FACE.getHmcReference()));
-        Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
-        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
-
-        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
-        Mockito.when(sscsCaseData.getCaseAccessManagementFields()).thenReturn(CaseAccessManagementFields.builder()
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype, hearingOptions))
+            .thenReturn(FACE_TO_FACE.getHmcReference());
+        SscsCaseData sscsCaseData = SscsCaseData.builder()
+            .caseAccessManagementFields(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
-                .build());
-        Mockito.when(sscsCaseData.getCaseManagementLocation()).thenReturn(CaseManagementLocation.builder()
-                .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
-                .region("North West")
-                .build());
-        Mockito.when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
-        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
-        Mockito.when(sscsCaseData.getCcdCaseId()).thenReturn(String.valueOf(CASE_ID));
-        SscsIndustrialInjuriesData sscsIndustrialInjuriesData = mock(SscsIndustrialInjuriesData.class);
-        Mockito.when(sscsIndustrialInjuriesData.getSecondPanelDoctorSpecialism()).thenReturn("");
-        Mockito.when(sscsCaseData.getSscsIndustrialInjuriesData()).thenReturn(sscsIndustrialInjuriesData);
-        Mockito.when(sscsCaseData.getIsFqpmRequired()).thenReturn(YesNo.NO);
-        JointParty jointParty = mock(JointParty.class);
-        Mockito.when(jointParty.getHasJointParty()).thenReturn(YesNo.NO);
-        Mockito.when(sscsCaseData.getJointParty()).thenReturn(jointParty);
+                .build())
+            .linkedCase(linkedCases)
+            .appeal(appeal)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                .secondPanelDoctorSpecialism("")
+                .build())
+            .isFqpmRequired(YesNo.NO)
+            .jointParty(JointParty.builder()
+                .hasJointParty(YesNo.NO)
+                .build())
+            .processingVenue(PROCESSING_VENUE)
+            .build();
+
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
+
         given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class))).willReturn(caseDetails);
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
@@ -203,11 +213,13 @@ class ServiceHearingsControllerTest {
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-    }
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE))
+            .willReturn(Optional.of("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"));
 
-    // TODO These are holder tests that will need to be implemented alongside service hearing controller
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+    }
 
     @DisplayName("When Authorization and Case ID valid "
             + "should return the case name with a with 200 response code")

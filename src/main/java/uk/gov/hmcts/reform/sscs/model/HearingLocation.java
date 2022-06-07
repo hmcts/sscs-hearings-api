@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +13,8 @@ import uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HearingLocation {
-
     private LocationType locationType;
 
     private String locationId;

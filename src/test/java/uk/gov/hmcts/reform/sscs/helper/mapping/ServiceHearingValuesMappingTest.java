@@ -47,7 +47,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
@@ -70,12 +72,12 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATIO
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceHearingValuesMappingTest extends HearingsMappingBase {
+class ServiceHearingValuesMappingTest {
 
-
-    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
-    private static final String NOTE_FROM_APPELLANT = "appellant note";
     public static final String FACE_TO_FACE = "faceToFace";
+    public static final String BENEFIT_CODE = "002";
+    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
+    private static final String NOTE_FROM_APPELLANT = "appellant note";
 
     private static SscsCaseDetails sscsCaseDetails;
 
@@ -89,10 +91,13 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     public SignLanguagesService signLanguages;
 
     @Mock
-    private static ReferenceDataServiceHolder referenceData;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    private static SessionCategoryMapService sessionCategoryMaps;
+    private SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    private VenueService venueService;
 
     @BeforeEach
     public void setUp() {
@@ -183,21 +188,21 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002-DD");
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(verbalLanguages.getVerbalLanguageReference("Bulgarian"))
                 .willReturn("bul");
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
 
         given(signLanguages.getSignLanguageReference("Makaton"))
                 .willReturn("sign-mkn");
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
 
     }
 
@@ -205,8 +210,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
                 .hearingWindowDateRange(HearingWindowDateRange.builder()
                 .hearingWindowStartDateRange(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY).toString()).build()).build();
@@ -251,8 +259,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
         SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceData);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());

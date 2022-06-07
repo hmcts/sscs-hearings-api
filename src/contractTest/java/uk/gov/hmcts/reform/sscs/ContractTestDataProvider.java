@@ -153,7 +153,6 @@ public class ContractTestDataProvider {
         hearingDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
         hearingDetails.setHearingPriorityType("Priority type");
         HearingLocation location1 = new HearingLocation();
-        location1.setLocationId("court");
         location1.setLocationType(LocationType.COURT);
         List<HearingLocation> hearingLocations = new ArrayList<>();
         hearingLocations.add(location1);
