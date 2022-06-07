@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
@@ -34,6 +33,7 @@ import java.util.Map;
 
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.TUESDAY;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.AM;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.PM;
@@ -84,15 +84,25 @@ public class ContractTestDataProvider {
     }
 
     public static final Map<String, String> authorisedHeaders = Map.of(
-        HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
+        AUTHORIZATION, IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
 
+    public static final Map<String, String> authorisedHeadersGet = Map.of(
+            AUTHORIZATION, IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN
+    );
+
     public static final Map<String, String> unauthorisedHeaders = Map.of(
-        HttpHeaders.AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+        AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
+    );
+
+    public static final Map<String, String> unauthorisedHeadersGet = Map.of(
+            AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN
     );
 
     public static HearingRequestPayload generateHearingRequest() {

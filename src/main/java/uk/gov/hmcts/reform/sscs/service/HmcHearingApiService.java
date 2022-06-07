@@ -26,7 +26,8 @@ public class HmcHearingApiService {
         HearingGetResponse hearingResponse = hmcHearingApi.getHearingRequest(
                 getIdamTokens().getIdamOauth2Token(),
                 getIdamTokens().getServiceAuthorization(),
-                hearingId);
+                hearingId,
+            null);
         if (isNull(hearingResponse)) {
             throw new GetHearingException(String.format("Failed to retrieve hearing with Id: %s from HMC", hearingId));
         }
