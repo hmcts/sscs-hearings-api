@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.sscs.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
@@ -19,14 +19,13 @@ import static java.util.Objects.isNull;
 public class HmcHearingApiService {
 
     private final HmcHearingApi hmcHearingApi;
-    private final AuthTokenGenerator serviceAuthTokenGenerator;
     private final IdamService idamService;
 
     public HearingGetResponse getHearingRequest(String hearingId) throws GetHearingException {
         log.debug("Sending Get Hearing Request for Hearing ID {}", hearingId);
         HearingGetResponse hearingResponse = hmcHearingApi.getHearingRequest(
-                serviceAuthTokenGenerator.generate(),
-                idamService.generateServiceAuthorization(),
+                getIdamTokens().getIdamOauth2Token(),
+                getIdamTokens().getServiceAuthorization(),
                 hearingId);
         if (isNull(hearingResponse)) {
             throw new GetHearingException(String.format("Failed to retrieve hearing with Id: %s from HMC", hearingId));
@@ -39,8 +38,8 @@ public class HmcHearingApiService {
                 hearingPayload.getCaseDetails().getCaseId(),
                 hearingPayload);
         return hmcHearingApi.createHearingRequest(
-                serviceAuthTokenGenerator.generate(),
-                idamService.generateServiceAuthorization(),
+                getIdamTokens().getIdamOauth2Token(),
+                getIdamTokens().getServiceAuthorization(),
                 hearingPayload);
     }
 
@@ -50,8 +49,8 @@ public class HmcHearingApiService {
                 hearingId,
                 hearingPayload);
         return hmcHearingApi.updateHearingRequest(
-                serviceAuthTokenGenerator.generate(),
-                idamService.generateServiceAuthorization(),
+                getIdamTokens().getIdamOauth2Token(),
+                getIdamTokens().getServiceAuthorization(),
                 hearingId,
                 hearingPayload);
     }
@@ -61,9 +60,13 @@ public class HmcHearingApiService {
                 hearingId,
                 hearingPayload);
         return hmcHearingApi.cancelHearingRequest(
-                serviceAuthTokenGenerator.generate(),
-                idamService.generateServiceAuthorization(),
+                getIdamTokens().getIdamOauth2Token(),
+                getIdamTokens().getServiceAuthorization(),
                 hearingId,
                 hearingPayload);
+    }
+
+    private IdamTokens getIdamTokens() {
+        return idamService.getIdamTokens();
     }
 }
