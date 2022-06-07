@@ -5,13 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
@@ -19,7 +16,6 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -30,9 +26,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
 import java.util.ArrayList;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -44,7 +38,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_REQUESTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.DRAFT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
@@ -75,8 +68,6 @@ class ProcessHmcMessageServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(processHmcMessageService, "sscsServiceCode", SSCS_SERVICE_CODE);
-
         hearingGetResponse = HearingGetResponse.builder()
                 .requestDetails(RequestDetails.builder().build())
                 .hearingDetails(HearingDetails.builder().build())
@@ -102,50 +93,6 @@ class ProcessHmcMessageServiceTest {
                         .hmcStatus(ADJOURNED)
                         .build())
                 .build();
-    }
-
-    @DisplayName("When the service code of a message matches the correct this services code "
-            + "isMessageRelevantForService returns false")
-    @Test
-    void testMessageRelevantForService() {
-        hmcMessage.setHmctsServiceCode(SSCS_SERVICE_CODE);
-
-        boolean result = processHmcMessageService.messageIsNotRelevantForService(hmcMessage);
-
-        assertThat(result)
-                .as("This message does not have the correct service ID.")
-                .isFalse();
-    }
-
-    @DisplayName("When the service code of a message does not match this service's code "
-            + "isMessageRelevantForService returns true")
-    @ParameterizedTest
-    @ValueSource(strings = {"PP4","SSA1"})
-    @EmptySource
-    void testMessageRelevantForService(String value) {
-        hmcMessage.setHmctsServiceCode(value);
-
-        boolean result = processHmcMessageService.messageIsNotRelevantForService(hmcMessage);
-
-        assertThat(result)
-                .as("This service ID should not of matched.")
-                .isTrue();
-    }
-
-    @DisplayName("When hmcMessage is valid but message not relevant, no error is thrown but no call further calls are made")
-    @Test
-    void testCheckMessageWrongServiceCode() {
-        // given
-        hmcMessage.setHmctsServiceCode("SBC3");
-        hmcMessage.getHearingUpdate().setHmcStatus(UPDATE_REQUESTED);
-        hmcMessage.getHearingUpdate().setListAssistCaseStatus(ListAssistCaseStatus.LISTED);
-
-        // when
-        assertThatNoException()
-                .isThrownBy(() -> processHmcMessageService.processEventMessage(hmcMessage));
-
-        // then
-        verifyNoInteractions(caseStateUpdateService, ccdCaseService);
     }
 
     @DisplayName("When listing Status is Fixed and and HmcStatus is valid, "
