@@ -99,7 +99,7 @@ class FeignClientErrorDecoderTest {
         requestTemplate.queries(queries);
 
         Request request =
-            Request.create(Request.HttpMethod.GET, "url",
+            Request.create(Request.HttpMethod.DELETE, "url",
                            headers, Request.Body.empty(), requestTemplate);
         Response response = buildResponse(request, statusCode);
 
