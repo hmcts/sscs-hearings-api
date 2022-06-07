@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 
 import java.util.List;
 

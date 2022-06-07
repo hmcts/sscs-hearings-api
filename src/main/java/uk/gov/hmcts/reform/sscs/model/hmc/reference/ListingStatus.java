@@ -1,5 +1,6 @@
-package uk.gov.hmcts.reform.sscs.model.single.hearing;
+package uk.gov.hmcts.reform.sscs.model.hmc.reference;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,6 +11,6 @@ public enum ListingStatus {
     PROVISIONAL("Provisional"),
     FIXED("Fixed");
 
-    private final String listingStatusLabel;
-
+    @JsonValue
+    private final String label;
 }

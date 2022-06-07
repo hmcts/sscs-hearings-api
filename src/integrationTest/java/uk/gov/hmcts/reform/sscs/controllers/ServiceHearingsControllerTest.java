@@ -69,6 +69,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 
 @ExtendWith(SpringExtension.class)
@@ -163,6 +164,7 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn(APPELLANT_ID);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyType(appellant)).thenReturn(INDIVIDUAL);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(appellant)).thenReturn(APPELLANT_ROLE);
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class))).thenReturn("BBA3-j");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class))).thenReturn("BBA3-d");
@@ -238,20 +240,6 @@ class ServiceHearingsControllerTest {
                 .andExpect(content().json(actualJson));
     }
 
-    @DisplayName("When Case Reference is Invalid should return a with 400 response code")
-    @Test
-    void testPostRequestServiceHearingValues_badCaseID() throws Exception {
-        ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(BAD_CASE_ID)
-                .build();
-
-        mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
     @DisplayName("When Case Not Found should return a with 404 response code")
     @Test
     void testPostRequestServiceHearingValues_missingCase() throws Exception {
@@ -285,21 +273,6 @@ class ServiceHearingsControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
-    }
-
-    @DisplayName("When Case Reference is Invalid should return a with 400 response code")
-    @Test
-    void testPostRequestServiceLinkedCases_badCaseID() throws Exception {
-        ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(BAD_CASE_ID)
-                .hearingId(String.valueOf(HEARING_ID))
-                .build();
-
-        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
     }
 
     @Test

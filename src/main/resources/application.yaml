@@ -65,13 +65,15 @@ feign:
 jackson:
   serialization:
     WRITE_DATES_AS_TIMESTAMPS: false
+    ACCEPT_CASE_INSENSITIVE_ENUMS: true
+    ACCEPT_CASE_INSENSITIVE_PROPERTIES: true
 
 azure:
   service-bus:
     hmc-to-hearings-api:
-      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
-      topicName: ${HEARINGS_TOPIC_NAME:}
-      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
+      connection-string: ${HEARINGS_TOPIC_CONNECTION_STRING:}
+      topicName: ${HEARINGS_TOPIC_NAME:lucas-topic}
+      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:S1}
       retryTimeout: ${HEARINGS_TOPIC_RETRY_TIMEOUT:1}
       maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
       retryDelay: ${HEARINGS_TOPIC_RETRY_DELAY:1}

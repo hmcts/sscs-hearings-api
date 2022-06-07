@@ -4,6 +4,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import static java.util.Objects.nonNull;
 
@@ -34,7 +35,7 @@ public final class HearingsRequestMapping {
         return null;
     }
 
-    public static String getCancellationReason(HearingWrapper wrapper) {
-        return wrapper.getCancellationReason().getHmcReference();
+    public static CancellationReason getCancellationReason(HearingWrapper wrapper) {
+        return wrapper.getCancellationReason();
     }
 }

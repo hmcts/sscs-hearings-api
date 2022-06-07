@@ -23,16 +23,14 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
-import uk.gov.hmcts.reform.sscs.idam.IdamService;
-import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -74,16 +72,13 @@ class HearingsServiceTest {
     private SscsCaseDetails expectedCaseDetails;
 
     @Mock
-    private HmcHearingApi hmcHearingApi;
+    private HmcHearingApiService hmcHearingApiService;
 
     @Mock
     private CcdCaseService ccdCaseService;
 
     @Mock
-    private IdamService idamService;
-
-    @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder referenceData;
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -131,8 +126,7 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-
-        hearingsService = new HearingsService(hmcHearingApi, ccdCaseService, idamService, referenceDataServiceHolder);
+        hearingsService = new HearingsService(hmcHearingApiService, ccdCaseService, referenceData);
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
@@ -141,7 +135,7 @@ class HearingsServiceTest {
         "UPDATED_CASE",
         "PARTY_NOTIFIED",
     }, nullValues = {"null"})
-    void processHearingRequest(HearingState state) throws GetCaseException, InvalidIdException {
+    void processHearingRequest(HearingState state) throws GetCaseException {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
@@ -175,18 +169,12 @@ class HearingsServiceTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceData.getVenueService()).willReturn(venueService);
 
-        given(idamService.getIdamTokens())
-            .willReturn(IdamTokens.builder()
-                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                .serviceAuthorization(SERVICE_AUTHORIZATION)
-                .build());
-
-        given(hmcHearingApi.createHearingRequest(any(), any(), any()))
-            .willReturn(HearingResponse.builder().build());
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
+                .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(CREATE_HEARING);
 
@@ -207,20 +195,15 @@ class HearingsServiceTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceData.getVenueService()).willReturn(venueService);
 
-        given(idamService.getIdamTokens())
-            .willReturn(IdamTokens.builder()
-                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                .serviceAuthorization(SERVICE_AUTHORIZATION)
-                .build());
-
-        given(hmcHearingApi.updateHearingRequest(any(), any(), any(), any()))
-            .willReturn(HearingResponse.builder().build());
+        given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
+                .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(UPDATE_HEARING);
+        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -229,16 +212,12 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCancel() {
-        given(idamService.getIdamTokens())
-                .willReturn(IdamTokens.builder()
-                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                        .serviceAuthorization(SERVICE_AUTHORIZATION)
-                        .build());
 
-        given(hmcHearingApi.cancelHearingRequest(any(), any(), any(), any()))
-                .willReturn(HearingResponse.builder().build());
+        given(hmcHearingApiService.sendCancelHearingRequest(any(HearingCancelRequestPayload.class), anyString()))
+                .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(CANCEL_HEARING);
+        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
         wrapper.setCancellationReason(CancellationReason.OTHER);
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -259,7 +238,7 @@ class HearingsServiceTest {
 
         wrapper.setState(state);
 
-        HearingResponse response = HearingResponse.builder()
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .versionNumber(VERSION)
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .build();
@@ -284,44 +263,11 @@ class HearingsServiceTest {
                 anyString()))
                 .willThrow(UpdateCaseException.class);
 
-        HearingResponse response = HearingResponse.builder()
+        HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .versionNumber(VERSION)
                 .hearingRequestId(HEARING_REQUEST_ID)
                 .build();
         assertThatExceptionOfType(UpdateCaseException.class)
                 .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
-    }
-
-    @DisplayName("sendDeleteHearingRequest should send request successfully")
-    @Test
-    void sendDeleteHearingRequest() {
-        given(idamService.getIdamTokens())
-                .willReturn(IdamTokens.builder()
-                        .idamOauth2Token(IDAM_OAUTH2_TOKEN)
-                        .serviceAuthorization(SERVICE_AUTHORIZATION)
-                        .build());
-
-        HearingCancelRequestPayload payload = HearingCancelRequestPayload.builder()
-                .cancellationReasonCode(CancellationReason.OTHER.getHmcReference())
-                .build();
-
-        HearingResponse response = HearingResponse.builder()
-                .hearingCancellationReason(CancellationReason.OTHER.getHmcReference())
-                .hearingRequestId(HEARING_REQUEST_ID)
-                .versionNumber(VERSION)
-                .build();
-
-        given(hmcHearingApi.cancelHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION,
-            String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
-
-        wrapper.setCancellationReason(CancellationReason.OTHER);
-        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
-        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingVersionNumber(VERSION);
-
-        HearingResponse result = hearingsService.sendCancelHearingRequest(wrapper);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getHearingRequestId()).isEqualTo(HEARING_REQUEST_ID);
-        assertThat(result.getVersionNumber()).isEqualTo(VERSION);
     }
 }

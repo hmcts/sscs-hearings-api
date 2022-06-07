@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +14,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingCancelRequestPayload {
 
-    private String cancellationReasonCode;
+    private CancellationReason cancellationReasonCode;
 
 }

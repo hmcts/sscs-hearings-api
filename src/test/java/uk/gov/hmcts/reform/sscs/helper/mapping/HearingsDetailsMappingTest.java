@@ -32,9 +32,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
@@ -64,6 +64,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
@@ -320,7 +321,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getLocationId()).isEqualTo("9876");
-        assertThat(result.get(0).getLocationType()).isEqualTo("court");
+        assertThat(result.get(0).getLocationType()).isEqualTo(COURT);
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
@@ -386,7 +387,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertEquals(1, result.size());
         assertEquals("219164", result.get(0).getLocationId());
-        assertEquals("court", result.get(0).getLocationType());
+        assertEquals(COURT, result.get(0).getLocationType());
     }
 
     @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")

@@ -37,11 +37,9 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -57,9 +55,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -67,6 +65,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
@@ -223,10 +225,11 @@ class ServiceHearingValuesMappingTest {
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
-        List<String> categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
-        assertEquals("BBA3-002", categoryValueList.stream().findFirst().orElse(""));
-        categoryValueList = serviceHearingValues.getCaseCategories().stream().filter(c -> "caseSubType".equals(c.getCategoryType())).map(CaseCategory::getCategoryValue).collect(Collectors.toList());
-        assertEquals("BBA3-002-DD", categoryValueList.stream().findFirst().orElse(""));
+        assertThat(serviceHearingValues.getCaseCategories())
+                .extracting("categoryType","categoryValue")
+                .containsExactlyInAnyOrder(
+                        tuple(CASE_TYPE,"BBA3-002"),
+                        tuple(CASE_SUBTYPE,"BBA3-002-DD"));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
         assertEquals("high", serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
@@ -264,7 +267,7 @@ class ServiceHearingValuesMappingTest {
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-j", serviceHearingValues.getParties().stream().filter(partyDetails -> PartyType.ORG == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals("BBA3-j", serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
         assertEquals("BBA3-d", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
@@ -340,7 +343,7 @@ class ServiceHearingValuesMappingTest {
         return new ArrayList<>() {{
                 add(PartyDetails.builder()
                         .partyID(null)
-                        .partyType(PartyType.IND.getPartyLabel())
+                        .partyType(INDIVIDUAL)
                         .partyChannelSubType(FACE_TO_FACE)
                         .partyRole("BBA3-appellant")
                         .individualDetails(getIndividualDetails())
@@ -350,7 +353,7 @@ class ServiceHearingValuesMappingTest {
                         .build());
                 add(PartyDetails.builder()
                     .partyID("party_id_1")
-                    .partyType(PartyType.IND.getPartyLabel())
+                    .partyType(INDIVIDUAL)
                     .partyChannelSubType(FACE_TO_FACE)
                     .partyRole("party_role")
                     .individualDetails(getIndividualDetails())
