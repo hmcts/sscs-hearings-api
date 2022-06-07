@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -65,7 +64,7 @@ class CcdCaseServiceTest {
     }
 
     @Test
-    void getByCaseId_shouldReturnCaseDetailsWithString() throws GetCaseException, InvalidIdException {
+    void getByCaseId_shouldReturnCaseDetailsWithString() throws GetCaseException {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
 
         SscsCaseDetails expectedCaseDetails =
@@ -88,7 +87,7 @@ class CcdCaseServiceTest {
 
     @Test
     void getByCaseId_shouldThrowGetCaseExceptionWhenStringNotLong() {
-        assertThatExceptionOfType(InvalidIdException.class).isThrownBy(
+        assertThatExceptionOfType(NumberFormatException.class).isThrownBy(
                 () -> ccdCaseService.getCaseDetails(INVALID_CASE_ID));
     }
 

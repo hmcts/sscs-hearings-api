@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
@@ -32,14 +33,15 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ORGANISATION_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityRoleCode;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType.ALL_DAY;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.IND;
-import static uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType.ORG;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
@@ -75,7 +77,12 @@ public final class HearingsPartiesMapping {
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
-            partiesDetails.add(createJointPartyDetails(caseData));
+            partiesDetails.addAll(
+                buildHearingPartiesPartyDetails(
+                    caseData.getJointParty(),
+                    appellant.getId(),
+                    referenceDataServiceHolder
+                ));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
@@ -89,11 +96,15 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
+                       null, otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
             }
         }
 
         return partiesDetails;
+    }
+
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId, referenceData);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions,
@@ -124,7 +135,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyChannelSubType(getPartyChannelSubType());
         partyDetails.organisationDetails(getPartyOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
+        partyDetails.unavailabilityRanges(getPartyUnavailabilityRangeAllDay(hearingOptions));
 
         return partyDetails.build();
     }
@@ -133,7 +144,7 @@ public final class HearingsPartiesMapping {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(DWP_ID);
-        partyDetails.partyType(ORG.name());
+        partyDetails.partyType(ORGANISATION);
         partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
@@ -142,17 +153,12 @@ public final class HearingsPartiesMapping {
         return partyDetails.build();
     }
 
-    public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
-        // TODO SSCS-10378 - Add joint party logic
-        return PartyDetails.builder().build();
-    }
-
     public static String getPartyId(Entity entity) {
         return entity.getId();
     }
 
-    public static String getPartyType(Entity entity) {
-        return isNotBlank(entity.getOrganisation()) ? ORG.name() : IND.name();
+    public static PartyType getPartyType(Entity entity) {
+        return isNotBlank(entity.getOrganisation()) ? ORGANISATION : INDIVIDUAL;
     }
 
     public static String getPartyRole(Entity entity) {
@@ -196,7 +202,7 @@ public final class HearingsPartiesMapping {
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
         if (eitherNull(hearingType, hearingSubtype)) {
-            throw new IllegalStateException("hearingType and/or hearingSubtype null");
+            return null;
         }
 
         HearingChannel preferredHearingChannel =
@@ -231,6 +237,11 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+
+        if (isNull(hearingOptions)) {
+            return EMPTY;
+        }
+
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguage = hearingOptions.getSignLanguageType();
             String signLanguageReference = referenceData.getSignLanguages().getSignLanguageReference(signLanguage);
@@ -347,6 +358,12 @@ public final class HearingsPartiesMapping {
     public static List<UnavailabilityDayOfWeek> getDwpUnavailabilityDayOfWeek() {
         // Not used as of now
         return getPartyUnavailabilityDayOfWeek();
+    }
+
+    public static List<UnavailabilityRange> getPartyUnavailabilityRangeAllDay(HearingOptions hearingOptions) {
+        List<UnavailabilityRange> partyUnavailabilityRange = getPartyUnavailabilityRange(hearingOptions);
+        partyUnavailabilityRange.forEach(unavailabilityRange -> unavailabilityRange.setUnavailabilityType(ALL_DAY.getLabel()));
+        return partyUnavailabilityRange;
     }
 
     public static List<UnavailabilityRange> getPartyUnavailabilityRange(HearingOptions hearingOptions) {
