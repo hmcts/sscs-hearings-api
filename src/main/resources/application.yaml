@@ -76,11 +76,12 @@ azure:
       maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
       retryDelay: ${HEARINGS_TOPIC_RETRY_DELAY:1}
     tribunals-to-hearings-api:
-      connectionString: ${SSCS_SERVICEBUS_CONNECTION_STRING:}
+      connectionString: ${TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING:}
       queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}
-      retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
-      maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
-      retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
+      receiveTimeout: ${TRIBUNALS_EVENT_QUEUE_RECIVE_TIMEOUT:1}
+      idleTimeout: ${TRIBUNALS_EVENT_QUEUE_IDLE_TIMEOUT:3600000}
+      username: ${TRIBUNALS_EVENT_QUEUE_POLICY_NAME:}
+      password: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY:}
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}
