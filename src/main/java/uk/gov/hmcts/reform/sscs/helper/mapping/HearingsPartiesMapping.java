@@ -96,7 +96,7 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                       null, otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
+                       appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
             }
         }
 

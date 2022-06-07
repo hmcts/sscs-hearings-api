@@ -57,7 +57,7 @@ public final class ServiceHearingPartiesMapping {
             for (CcdValue<OtherParty> ccdOtherParty : otherParties) {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildServiceHearingPartiesPartyDetails(
-                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
+                        otherParty, otherParty.getRep(), otherParty.getHearingOptions(), null, otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
             }
         }
 

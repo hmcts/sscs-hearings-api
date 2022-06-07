@@ -57,7 +57,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -174,6 +173,8 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype, hearingOptions))
             .thenReturn(FACE_TO_FACE.getHmcReference());
+        Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
+        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         SscsCaseData sscsCaseData = SscsCaseData.builder()
             .caseAccessManagementFields(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
