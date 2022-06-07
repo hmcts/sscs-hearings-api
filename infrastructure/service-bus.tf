@@ -23,24 +23,13 @@ resource "azurerm_key_vault_secret" "hmc-servicebus-connection-string" {
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }
 
-data "azurerm_key_vault_secret" "hmc-servicebus-connection-string-SharedAccessKey" {
+data "azurerm_key_vault_secret" "hmc-servicebus-shared-access-key" {
   key_vault_id = data.azurerm_key_vault.hmc-key-vault.id
-  name         = "hmc-servicebus-connection-string-SharedAccessKey"
+  name         = "hmc-servicebus-shared-access-key"
 }
 
-resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-connection-string-SharedAccessKey" {
-  name         = "hmc-servicebus-connection-string-SharedAccessKey"
-  value        = data.azurerm_key_vault_secret.hmc-servicebus-connection-string-SharedAccessKey.value
-  key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
-}
-
-data "azurerm_key_vault_secret" "hmc-servicebus-connection-string-SharedAccessKeyName" {
-  key_vault_id = data.azurerm_key_vault.hmc-key-vault.id
-  name         = "hmc-servicebus-connection-string-SharedAccessKeyName"
-}
-
-resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-connection-string-SharedAccessKeyName" {
-  name         = "hmc-servicebus-connection-string-SharedAccessKeyName"
-  value        = data.azurerm_key_vault_secret.hmc-servicebus-connection-string-SharedAccessKeyName.value
+resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-hared-access-key" {
+  name         = "hmc-servicebus-shared-access-key"
+  value        = data.azurerm_key_vault_secret.hmc-servicebus-shared-access-key.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }
