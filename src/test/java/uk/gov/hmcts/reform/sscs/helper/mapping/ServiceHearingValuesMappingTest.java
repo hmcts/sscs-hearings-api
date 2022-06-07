@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -79,6 +80,7 @@ class ServiceHearingValuesMappingTest {
     private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
 
+    public static final String BENEFIT = "Benefit";
     private static SscsCaseDetails sscsCaseDetails;
 
     @Mock
@@ -224,7 +226,7 @@ class ServiceHearingValuesMappingTest {
         assertFalse(serviceHearingValues.isAutoListFlag());
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
-        assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
+        assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
                 .extracting("categoryType","categoryValue")
                 .containsExactlyInAnyOrder(
@@ -258,17 +260,15 @@ class ServiceHearingValuesMappingTest {
     @Test
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
-        SscsCaseData sscsCaseData = sscsCaseDetails.getData();
-
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
-        assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-j", serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-d", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {
