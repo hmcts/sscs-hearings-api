@@ -45,18 +45,18 @@
   },
   "parties": [
     {
-      "partyID": "1",
-      "partyType": "IND",
-      "partyChannel": "INTER",
-      "partyRole": "BBA3-a",
-      "individualDetails": {
-        "preferredHearingChannel": "INTER",
-        "interpreterLanguage": "bul",
-        "reasonableAdjustments": [],
-        "vulnerableFlag": false,
-        "hearingChannelEmail": [],
-        "hearingChannelPhone": [],
-        "relatedParties": []
+      "partyID":"1",
+      "partyType":"IND",
+      "partyChannel":"INTER",
+      "partyRole":"APEL",
+      "individualDetails":{
+        "preferredHearingChannel":"INTER",
+        "interpreterLanguage":"bul",
+        "reasonableAdjustments":[],
+        "vulnerableFlag":false,
+        "hearingChannelEmail":[],
+        "hearingChannelPhone":[],
+        "relatedParties":[]
       },
       "unavailabilityRanges": []
     }
