@@ -291,34 +291,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         };
     }
 
-
-
-    private List<PartyDetails> getParties() {
-        return new ArrayList<>() {{
-                add(PartyDetails.builder()
-                        .partyID(null)
-                        .partyType(PartyType.IND.getPartyLabel())
-                        .partyChannelSubType(FACE_TO_FACE)
-                        .partyRole("BBA3-appellant")
-                        .individualDetails(getIndividualDetails())
-                        .organisationDetails(OrganisationDetails.builder().build())
-                        .unavailabilityDayOfWeek(null)
-                        .unavailabilityRanges(getUnavailabilityRanges())
-                        .build());
-                add(PartyDetails.builder()
-                    .partyID("party_id_1")
-                    .partyType(PartyType.IND.getPartyLabel())
-                    .partyChannelSubType(FACE_TO_FACE)
-                    .partyRole("party_role")
-                    .individualDetails(getIndividualDetails())
-                    .organisationDetails(OrganisationDetails.builder().build())
-                    .unavailabilityDayOfWeek(null)
-                    .unavailabilityRanges(getUnavailabilityRanges())
-                    .build());
-            }
-        };
-    }
-
     private List<UnavailabilityRange> getUnavailabilityRanges() {
         return new ArrayList<>() {
             {

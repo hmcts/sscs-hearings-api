@@ -48,6 +48,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -150,9 +151,12 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Appellant.class))).thenReturn("BBA3-a");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class))).thenReturn("BBA3-j");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class))).thenReturn("BBA3-d");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Appellant.class))).thenReturn(
+            EntityRoleCode.APPELLANT.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class)))
+            .thenReturn(EntityRoleCode.REPRESENTATIVE.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class)))
+            .thenReturn(EntityRoleCode.OTHER_PARTY.getHmcReference());
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceData)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
