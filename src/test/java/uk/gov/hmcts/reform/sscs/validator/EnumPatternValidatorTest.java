@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.sscs.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.LocationType;
 
 import java.util.Set;
@@ -25,15 +25,15 @@ public class EnumPatternValidatorTest {
 
     @Test
     void given_LocationIdIsValid_ThenSetEnumValue() {
-        HearingLocations location = new HearingLocations();
+        HearingLocation location = new HearingLocation();
         location.setLocationId(LocationType.COURT.toString());
         location.setLocationType("LocType");
-        Set<ConstraintViolation<HearingLocations>> violations = validator.validate(location);
+        Set<ConstraintViolation<HearingLocation>> violations = validator.validate(location);
         assertTrue(violations.isEmpty());
     }
 
-    private HearingLocations getHearingLocation() {
-        HearingLocations location = new HearingLocations();
+    private HearingLocation getHearingLocation() {
+        HearingLocation location = new HearingLocation();
         location.setLocationType("LocType");
         return location;
     }
