@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.model.hmc.reference;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
@@ -18,7 +17,6 @@ public enum ListAssistCaseStatus {
     HEARING_COMPLETED("Hearing Completed", null),
     CASE_CLOSED("Case Closed", null);
 
-    @JsonValue
     private final String label;
     private final State caseStateUpdate;
 }
