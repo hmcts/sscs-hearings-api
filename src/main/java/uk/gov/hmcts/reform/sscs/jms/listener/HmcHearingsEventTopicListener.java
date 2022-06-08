@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.jms.listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.qpid.jms.message.JmsBytesMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ public class HmcHearingsEventTopicListener {
         this.sscsServiceCode = sscsServiceCode;
         this.processHmcMessageService = processHmcMessageService;
         this.objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
     }
 
     @JmsListener(
