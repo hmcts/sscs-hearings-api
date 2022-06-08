@@ -37,11 +37,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -54,7 +50,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +63,6 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAY
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
@@ -192,20 +186,19 @@ class ServiceHearingValuesMappingTest {
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
+        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
+
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(verbalLanguages.getVerbalLanguageReference("Bulgarian"))
+        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguageReference("Bulgarian"))
                 .willReturn("bul");
 
-        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
-
-        given(signLanguages.getSignLanguageReference("Makaton"))
+        given(referenceDataServiceHolder.getSignLanguages().getSignLanguageReference("Makaton"))
                 .willReturn("sign-mkn");
-
-        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
-
     }
 
     @Test
@@ -335,59 +328,6 @@ class ServiceHearingValuesMappingTest {
                                    .build()));
             }
         };
-    }
-
-
-
-    private List<PartyDetails> getParties() {
-        return new ArrayList<>() {{
-                add(PartyDetails.builder()
-                        .partyID(null)
-                        .partyType(INDIVIDUAL)
-                        .partyChannelSubType(FACE_TO_FACE)
-                        .partyRole("BBA3-appellant")
-                        .individualDetails(getIndividualDetails())
-                        .organisationDetails(OrganisationDetails.builder().build())
-                        .unavailabilityDayOfWeek(null)
-                        .unavailabilityRanges(getUnavailabilityRanges())
-                        .build());
-                add(PartyDetails.builder()
-                    .partyID("party_id_1")
-                    .partyType(INDIVIDUAL)
-                    .partyChannelSubType(FACE_TO_FACE)
-                    .partyRole("party_role")
-                    .individualDetails(getIndividualDetails())
-                    .organisationDetails(OrganisationDetails.builder().build())
-                    .unavailabilityDayOfWeek(null)
-                    .unavailabilityRanges(getUnavailabilityRanges())
-                    .build());
-            }
-        };
-    }
-
-    private List<UnavailabilityRange> getUnavailabilityRanges() {
-        return new ArrayList<>() {
-            {
-                add(UnavailabilityRange.builder()
-                    .unavailableFromDate(LocalDate.of(2022, 1,12))
-                    .unavailableToDate(LocalDate.of(2022,1,19))
-                    .build());
-            }};
-    }
-
-    private IndividualDetails getIndividualDetails() {
-        return IndividualDetails.builder()
-            .firstName("Barny")
-            .lastName("Boulderstone")
-            .preferredHearingChannel(FACE_TO_FACE)
-            .interpreterLanguage("tel")
-            .reasonableAdjustments(new ArrayList<>())
-            .vulnerableFlag(false)
-            .vulnerabilityDetails(null)
-            .hearingChannelEmail(Collections.singletonList("test2@gmail.com"))
-            .hearingChannelPhone(Collections.singletonList("0999733735"))
-            .relatedParties(getRelatedParties()) // TODO this field would be populated when the corresponding method is finished
-            .build();
     }
 
     private List<RelatedParty> getRelatedParties() {

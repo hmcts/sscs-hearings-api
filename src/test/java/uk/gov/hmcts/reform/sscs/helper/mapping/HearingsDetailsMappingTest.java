@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -334,8 +333,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
@@ -343,7 +342,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
-                                                                                  referenceDataServiceHolder);
+            referenceDataServiceHolder);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getLocationId()).isEqualTo("9876");
@@ -377,19 +376,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void shouldGetNumberOfPhysicalAttendees() {
         // given
-        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
-        Appeal appeal = Mockito.mock(Appeal.class);
-        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
-        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
-        Representative representative = Mockito.mock(Representative.class);
-        // when
-        Mockito.when(representative.getHasRepresentative()).thenReturn(YesNo.YES.getValue());
-        Mockito.when(hearingOptions.getWantsToAttend()).thenReturn(YesNo.YES.getValue());
-        Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
-        Mockito.when(appeal.getRep()).thenReturn(representative);
-        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
-        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
-        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .wantsToAttend(YesNo.YES.getValue())
+            .build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder()
+            .wantsHearingTypeFaceToFace(YesNo.YES.getValue())
+            .build();
+        Representative representative = Representative.builder()
+            .hasRepresentative(YesNo.YES.getValue())
+            .build();
+
+        Appeal appeal = Appeal.builder()
+            .rep(representative)
+            .hearingSubtype(hearingSubtype)
+            .hearingOptions(hearingOptions)
+            .build();
+
+        SscsCaseData sscsCaseData = SscsCaseData.builder()
+            .appeal(appeal)
+            .build();
+
         //then
         assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
     }

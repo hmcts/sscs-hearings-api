@@ -48,7 +48,6 @@ public final class HearingsMapping {
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper,
                                                             ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
-
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
             .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
@@ -141,8 +140,7 @@ public final class HearingsMapping {
 
     public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData,
                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
-        boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData()
-                                                        .getSecondPanelDoctorSpecialism());
+        boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
         return referenceDataServiceHolder.getSessionCategoryMaps()
                 .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
