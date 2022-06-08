@@ -27,7 +27,7 @@ public class ReferenceDataServiceHolder {
     private final SignLanguagesService signLanguages;
 
     @Autowired
-    private VenueService venueService;
+    private final VenueService venueService;
 
     @Value("${exui.url}")
     private String exUiUrl;

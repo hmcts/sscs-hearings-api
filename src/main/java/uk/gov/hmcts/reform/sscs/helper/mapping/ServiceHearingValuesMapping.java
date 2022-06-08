@@ -23,14 +23,14 @@ public final class ServiceHearingValuesMapping {
     }
 
 
-    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder) 
+    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
         if (caseDetails == null) {
             return null;
         }
 
         SscsCaseData caseData = caseDetails.getData();
-        boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
+        boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
 
         return ServiceHearingValues.builder()
                 .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
@@ -54,7 +54,7 @@ public final class ServiceHearingValuesMapping {
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(getJudiciary(caseDetails, referenceDataServiceHolder))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
-                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceData))
+                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceDataServiceHolder))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .screenFlow(null)
                 .vocabulary(null)

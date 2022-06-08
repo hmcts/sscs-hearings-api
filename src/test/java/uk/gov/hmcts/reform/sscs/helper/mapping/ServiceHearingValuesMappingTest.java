@@ -28,26 +28,29 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,10 +82,10 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     public SignLanguagesService signLanguages;
 
     @Mock
-    private static ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    private static SessionCategoryMapService sessionCategoryMaps;
+    private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
     private VenueService venueService;
@@ -178,20 +181,19 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
+        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
+
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(referenceDataServiceHolder.getVerbalLanguageReference("Bulgarian"))
+        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguageReference("Bulgarian"))
                 .willReturn("bul");
 
-        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
-
-        given(referenceDataServiceHolder.getSignLanguageReference("Makaton"))
+        given(referenceDataServiceHolder.getSignLanguages().getSignLanguageReference("Makaton"))
                 .willReturn("sign-mkn");
-
-        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
-
     }
 
     @Test
@@ -324,58 +326,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         };
     }
 
-
-
-    private List<PartyDetails> getParties() {
-        return new ArrayList<>() {{
-                add(PartyDetails.builder()
-                        .partyID(null)
-                        .partyType(PartyType.IND.getPartyLabel())
-                        .partyChannelSubType(FACE_TO_FACE)
-                        .partyRole("BBA3-appellant")
-                        .individualDetails(getIndividualDetails())
-                        .organisationDetails(OrganisationDetails.builder().build())
-                        .unavailabilityDayOfWeek(null)
-                        .unavailabilityRanges(getUnavailabilityRanges())
-                        .build());
-                add(PartyDetails.builder()
-                    .partyID("party_id_1")
-                    .partyType(PartyType.IND.getPartyLabel())
-                    .partyChannelSubType(FACE_TO_FACE)
-                    .partyRole("party_role")
-                    .individualDetails(getIndividualDetails())
-                    .organisationDetails(OrganisationDetails.builder().build())
-                    .unavailabilityDayOfWeek(null)
-                    .unavailabilityRanges(getUnavailabilityRanges())
-                    .build());
-            }
-        };
-    }
-
-    private List<UnavailabilityRange> getUnavailabilityRanges() {
-        return new ArrayList<>() {
-            {
-                add(UnavailabilityRange.builder()
-                    .unavailableFromDate(LocalDate.of(2022, 1,12))
-                    .unavailableToDate(LocalDate.of(2022,1,19))
-                    .build());
-            }};
-    }
-
-    private IndividualDetails getIndividualDetails() {
-        return IndividualDetails.builder()
-            .firstName("Barny")
-            .lastName("Boulderstone")
-            .preferredHearingChannel(FACE_TO_FACE)
-            .interpreterLanguage("tel")
-            .reasonableAdjustments(new ArrayList<>())
-            .vulnerableFlag(false)
-            .vulnerabilityDetails(null)
-            .hearingChannelEmail(Collections.singletonList("test2@gmail.com"))
-            .hearingChannelPhone(Collections.singletonList("0999733735"))
-            .relatedParties(getRelatedParties()) // TODO this field would be populated when the corresponding method is finished
-            .build();
-    }
 
     private List<RelatedParty> getRelatedParties() {
         return new ArrayList<>();

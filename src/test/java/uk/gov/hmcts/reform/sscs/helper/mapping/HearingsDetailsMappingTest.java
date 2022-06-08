@@ -18,9 +18,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.service.AirLookupService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
-import uk.gov.hmcts.reform.sscs.service.VenueDataLoader;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -306,7 +305,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).isFalse();
     }
-    
+
     @Test
     void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -354,19 +353,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void shouldGetNumberOfPhysicalAttendees() {
         // given
-        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
-        Appeal appeal = Mockito.mock(Appeal.class);
-        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
-        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
-        Representative representative = Mockito.mock(Representative.class);
-        // when
-        Mockito.when(representative.getHasRepresentative()).thenReturn(YesNo.YES.getValue());
-        Mockito.when(hearingOptions.getWantsToAttend()).thenReturn(YesNo.YES.getValue());
-        Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
-        Mockito.when(appeal.getRep()).thenReturn(representative);
-        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
-        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
-        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .wantsToAttend(YesNo.YES.getValue())
+            .build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder()
+            .wantsHearingTypeFaceToFace(YesNo.YES.getValue())
+            .build();
+        Representative representative = Representative.builder()
+            .hasRepresentative(YesNo.YES.getValue())
+            .build();
+
+        Appeal appeal = Appeal.builder()
+            .rep(representative)
+            .hearingSubtype(hearingSubtype)
+            .hearingOptions(hearingOptions)
+            .build();
+
+        SscsCaseData sscsCaseData = SscsCaseData.builder()
+            .appeal(appeal)
+            .build();
+
         //then
         assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
     }

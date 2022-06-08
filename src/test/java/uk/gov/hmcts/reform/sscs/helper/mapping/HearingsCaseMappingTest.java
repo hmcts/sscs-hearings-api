@@ -24,8 +24,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
-import uk.gov.hmcts.reform.sscs.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -42,14 +41,11 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_S
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_TYPE;
 
 class HearingsCaseMappingTest extends HearingsMappingBase {
-
     @Mock
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
-
-
 
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
