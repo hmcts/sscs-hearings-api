@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
