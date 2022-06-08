@@ -83,6 +83,7 @@ azure:
       queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}
       receiveTimeout: ${TRIBUNALS_EVENT_QUEUE_RECIVE_TIMEOUT:1}
       idleTimeout: ${TRIBUNALS_EVENT_QUEUE_IDLE_TIMEOUT:3600000}
+      maxRedeliveries: ${TRIBUNALS_EVENT_QUEUE_MAX_REDELIVERIES:1}
       username: ${TRIBUNALS_EVENT_QUEUE_POLICY_NAME:}
       password: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY:}
 idam:
@@ -134,4 +135,4 @@ flags:
   hmc-to-hearings-api:
     enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
   tribunals-to-hearings-api:
-    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
+    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:true}
