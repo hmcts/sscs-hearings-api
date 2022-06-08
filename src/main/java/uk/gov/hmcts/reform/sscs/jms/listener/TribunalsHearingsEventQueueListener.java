@@ -7,8 +7,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
+import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.TribunalsDeadLetterMessage;
-import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.AppInsightsService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
@@ -46,7 +51,8 @@ public class TribunalsHearingsEventQueueListener {
 
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
-        } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException | InvalidIdException | InvalidMappingException ex) {
+        } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException | InvalidIdException
+                 | InvalidMappingException ex) {
             ex.printStackTrace();
             log.error("An exception occurred whilst processing hearing event for case ID {}."
                           + " Abandoning message", caseId, ex);
