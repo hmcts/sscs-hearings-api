@@ -47,14 +47,6 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    @Mock
-    private SessionCategoryMapService sessionCategoryMaps;
-
-    @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
-
-
-
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
     void buildHearingCaseDetails() {
