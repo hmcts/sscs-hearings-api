@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HearingWindow {
-
     private LocalDate dateRangeStart;
     private LocalDate dateRangeEnd;
     private LocalDateTime firstDateTimeMustBe;

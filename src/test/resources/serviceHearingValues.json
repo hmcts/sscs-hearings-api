@@ -3,7 +3,7 @@
   "caseNamePublic": null,
   "autoListFlag": false,
   "hearingType": "final",
-  "caseType": "Personal Independence Payment",
+  "caseType": "Benefit",
   "caseCategories": null,
   "duration": 45,
   "hearingPriorityType": "standard",
@@ -18,7 +18,7 @@
   "privateHearingRequiredFlag": false,
   "leadJudgeContractType": "",
   "hearingIsLinkedFlag": false,
-  "hmctsServiceID": null,
+  "hmctsServiceID": "BBA3",
   "hearingWindow": {
     "hearingWindowFirstDate": "2022-12-01",
     "hearingWindowDateRange": {
@@ -89,7 +89,8 @@
       "unavailabilityRanges": [
         {
           "unavailableFromDate": "2021-12-10",
-          "unavailableToDate": "2021-12-31"
+          "unavailableToDate": "2021-12-31",
+          "unavailabilityType": "ALL_DAY"
         }
       ]
     },
