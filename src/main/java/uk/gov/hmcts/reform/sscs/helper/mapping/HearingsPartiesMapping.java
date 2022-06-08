@@ -196,10 +196,13 @@ public final class HearingsPartiesMapping {
     public static String getIndividualPreferredHearingChannel(String hearingType,
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
+        if (eitherNull(hearingType, hearingSubtype)) {
+            return null;
+        }
 
         HearingChannel preferredHearingChannel =
             shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING
-            : nonNull(hearingSubtype) && isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
+            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
             : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO
             : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE
             : null;
@@ -209,6 +212,10 @@ public final class HearingsPartiesMapping {
         }
 
         return preferredHearingChannel.getHmcReference();
+    }
+
+    private static boolean eitherNull(String hearingType, HearingSubtype hearingSubtype) {
+        return hearingType == null || hearingSubtype == null;
     }
 
     private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {

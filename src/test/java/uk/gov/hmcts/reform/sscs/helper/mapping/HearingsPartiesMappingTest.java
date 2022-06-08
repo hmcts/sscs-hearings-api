@@ -53,7 +53,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPEL
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
 
@@ -503,7 +502,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(getIndividualPreferredHearingChannel(null,
                 HearingSubtype.builder().build(),
-                hearingOptions)).isEqualTo(NOT_ATTENDING.getHmcReference());
+                hearingOptions)).isNull();
     }
 
     @DisplayName("When hearingSubType not set then throw IllegalStateException")
@@ -513,7 +512,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(getIndividualPreferredHearingChannel("TEST",
                 null,
-                hearingOptions)).isEqualTo(NOT_ATTENDING.getHmcReference());
+                hearingOptions)).isNull();
 
     }
 
@@ -614,7 +613,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(getIndividualPreferredHearingChannel(null,
                 null,
-                hearingOptions)).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
+                hearingOptions)).isNull();
     }
 
     @DisplayName("When hearing type oral and video then return LOV VIDEO")
