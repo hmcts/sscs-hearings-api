@@ -2,8 +2,8 @@
   "caseName":null,
   "caseNamePublic":"Test Case Name",
   "autoListFlag":false,
-  "hearingType":"BBA3-substantive",
-  "caseType":null,
+  "hearingType":"BBA3-SUB",
+  "caseType":"Benefit",
   "caseCategories":[
     {
       "categoryType":"caseType"
@@ -50,7 +50,7 @@
       "partyID":"1",
       "partyType":"IND",
       "partyChannel":"INTER",
-      "partyRole":"BBA3-a",
+      "partyRole":"APEL",
       "individualDetails":{
         "preferredHearingChannel":"INTER",
         "interpreterLanguage":"bul",
