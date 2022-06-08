@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ public class HearingResponse {
     @EnumPattern(enumClass = ListingStatus.class, fieldName = "listingStatus")
     private String listingStatus;
 
-    private String hearingCancellationReason;
+    private CancellationReason hearingCancellationReason;
 
     private LocalDateTime partiesNotified;
 

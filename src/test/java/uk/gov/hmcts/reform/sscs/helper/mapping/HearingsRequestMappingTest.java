@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HearingsRequestMappingTest extends HearingsMappingBase {
-
-    public static final String CANCELLATION_REASON = "AWAITING_LISTING";
 
     @DisplayName("When a valid hearing wrapper is given buildHearingRequestDetails returns the correct Hearing Request")
     @Test
@@ -82,11 +81,11 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildCancelHearingPayloadTest() {
         HearingWrapper wrapper = HearingWrapper.builder()
-                // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
+                .cancellationReason(CancellationReason.OTHER)
                 .build();
         HearingCancelRequestPayload result = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
 
         assertThat(result).isNotNull();
-        // assertThat(result.getCancellationReasonCode()).isEqualTo(CANCELLATION_REASON); // TODO: Uncomment when implemented.
+        assertThat(result.getCancellationReasonCode()).isEqualTo(CancellationReason.OTHER);
     }
 }

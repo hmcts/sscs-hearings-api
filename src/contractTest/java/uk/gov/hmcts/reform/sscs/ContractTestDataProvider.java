@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
+
 public class ContractTestDataProvider {
 
     public static final String CONSUMER_NAME = "sscs_hearingsApi";
@@ -104,13 +106,13 @@ public class ContractTestDataProvider {
 
     public static HearingCancelRequestPayload generateHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode("Cancel reason");
+        request.setCancellationReasonCode(WITHDRAWN);
         return request;
     }
 
     public static HearingCancelRequestPayload generateInvalidHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode("");
+        request.setCancellationReasonCode(null);
         return request;
     }
 
