@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.sscs.config.jms;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.jms.JmsConnectionListener;
+import org.apache.qpid.jms.message.JmsInboundMessageDispatch;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
@@ -11,8 +14,10 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import uk.gov.hmcts.reform.sscs.model.TribunalsHearingsRedeliveryPolicy;
 
 import javax.jms.*;
+import java.net.URI;
 
 @Slf4j
 @Configuration
@@ -33,11 +38,10 @@ public class TribunalsHearingsJmsConfig {
     @Value("${azure.service-bus.tribunals-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
 
-    private String deadLetter = "/$deadletterqueue";
-
     private JmsConnectionFactory jmsConnectionFactory(String connection, final String clientId){
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
         jmsConnectionFactory.setUsername(username);
+        jmsConnectionFactory.setRedeliveryPolicy(new TribunalsHearingsRedeliveryPolicy());
         jmsConnectionFactory.setPassword(password);
         jmsConnectionFactory.setClientID(clientId);
         return jmsConnectionFactory;
@@ -62,8 +66,32 @@ public class TribunalsHearingsJmsConfig {
         factory.setSubscriptionDurable(Boolean.TRUE);
         factory.setSessionTransacted(Boolean.TRUE);
         factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
-
+        factory.setMessageConverter(new CustomMessageConverter());
         defaultJmsListenerContainerFactoryConfigurer.configure(factory, tribunalsHearingsJmsConnectionFactory);
+        return factory;
+    }
+
+    @Bean
+    @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+    public ConnectionFactory tribunalsDeadLetterConnectionFactory(@Value("${spring.application.name}") final String clientId) {
+        String connection = String.format("amqps://%1s/$DeadLetterQueue?amqp.idleTimeout=%2d", connectionString, idleTimeout);
+        log.info(connection);
+        return new CachingConnectionFactory(jmsConnectionFactory(connection, clientId));
+    }
+
+    @Bean
+    @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+    public JmsListenerContainerFactory<DefaultMessageListenerContainer> tribunalsDeadLetterFactoryContainer(
+        ConnectionFactory tribunalsDeadLetterConnectionFactory,
+        DefaultJmsListenerContainerFactoryConfigurer defaultJmsListenerContainerFactoryConfigurer){
+        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        factory.setConnectionFactory(tribunalsDeadLetterConnectionFactory);
+        factory.setReceiveTimeout(receiveTimeout);
+        factory.setSubscriptionDurable(Boolean.TRUE);
+        factory.setSessionTransacted(Boolean.TRUE);
+        factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+        factory.setMessageConverter(new CustomMessageConverter());
+        defaultJmsListenerContainerFactoryConfigurer.configure(factory, tribunalsDeadLetterConnectionFactory);
         return factory;
     }
 }
