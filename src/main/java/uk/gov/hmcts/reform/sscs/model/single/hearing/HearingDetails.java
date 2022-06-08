@@ -32,7 +32,7 @@ public class HearingDetails {
 
     private boolean hearingInWelshFlag;
 
-    private List<HearingLocations> hearingLocations;
+    private List<HearingLocation> hearingLocations;
 
     private List<String> facilitiesRequired;
 

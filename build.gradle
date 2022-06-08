@@ -212,7 +212,8 @@ sonarqube {
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
             "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
-            "src/main/java/uk/gov/hmcts/reform/sscs/model/**,"
+            "src/main/java/uk/gov/hmcts/reform/sscs/model/**," +
+            "src/main/java/uk/gov/hmcts/reform/sscs/service/holder/**,"
   }
 }
 
