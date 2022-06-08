@@ -2,10 +2,10 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping;
@@ -35,15 +35,12 @@ public class HearingsService {
 
     private final IdamService idamService;
 
-    private final ReferenceData referenceData;
-
-    @Value("${exui.url}")
-    private String exUiUrl;
-    @Value("${sscs.serviceCode}")
-    private String sscsServiceCode;
+    private final ReferenceDataServiceHolder referenceData;
 
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException {
+
+
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidIdException, InvalidMappingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
@@ -52,7 +49,7 @@ public class HearingsService {
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
-    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException, UpdateCaseException {
+    public void processHearingWrapper(HearingWrapper wrapper) throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -81,7 +78,7 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException {
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
         HearingResponse response = sendCreateHearingRequest(wrapper);
 
@@ -94,7 +91,7 @@ public class HearingsService {
     }
 
 
-    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException {
+    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
         HearingResponse response = sendUpdateHearingRequest(wrapper);
 
@@ -125,7 +122,7 @@ public class HearingsService {
         // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
-    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) {
+    private HearingResponse sendCreateHearingRequest(HearingWrapper wrapper) throws InvalidMappingException {
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         log.debug("Sending Create Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -138,7 +135,7 @@ public class HearingsService {
         );
     }
 
-    private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) {
+    private HearingResponse sendUpdateHearingRequest(HearingWrapper wrapper) throws InvalidMappingException {
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
         log.debug("Sending Update Hearing Request for Case ID {}, Hearing State {} and request:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -198,8 +195,6 @@ public class HearingsService {
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
-                .exUiUrl(exUiUrl)
-                .sscsServiceCode(sscsServiceCode)
                 .build();
     }
 }

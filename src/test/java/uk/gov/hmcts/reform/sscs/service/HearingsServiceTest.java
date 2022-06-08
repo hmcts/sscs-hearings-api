@@ -15,13 +15,15 @@ import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -73,7 +75,7 @@ class HearingsServiceTest {
     public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    public ReferenceData referenceData;
+    public ReferenceDataServiceHolder referenceData;
 
     @BeforeEach
     void setup() {
@@ -85,7 +87,10 @@ class HearingsServiceTest {
                 .issueCode(ISSUE_CODE)
                 .caseManagementLocation(CaseManagementLocation.builder().build())
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .rep(Representative.builder().hasRepresentative("No").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .name(Name.builder().build())
                                 .build())

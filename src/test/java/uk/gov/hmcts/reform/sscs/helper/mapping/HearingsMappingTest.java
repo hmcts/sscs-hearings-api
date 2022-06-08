@@ -5,10 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ class HearingsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
-    void buildHearingPayload() {
+    void buildHearingPayload() throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
@@ -45,7 +46,10 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())
                 .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
+                        .rep(Representative.builder().hasRepresentative("no").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                 .id("1")
                                 .name(Name.builder()
