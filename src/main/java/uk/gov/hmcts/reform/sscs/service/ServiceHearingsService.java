@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
 
@@ -28,13 +29,13 @@ public class ServiceHearingsService {
 
     private final CcdCaseService ccdCaseService;
 
-    private final ReferenceDataServiceHolder referenceData;
+    private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
             throws GetCaseException, InvalidIdException, UpdateCaseException, InvalidMappingException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
         HearingsMapping.updateIds(caseDetails.getData());
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails, referenceData);
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails, referenceDataServiceHolder);
         ccdCaseService.updateCaseData(
                 caseDetails.getData(), EventType.UPDATE_CASE_ONLY,
                 "Updating caseDetails IDs",

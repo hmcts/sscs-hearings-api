@@ -7,22 +7,27 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,37 +44,52 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAY
 
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
+    @Mock
+    private HearingDurationsService hearingDurations;
+
+    @Mock
+    private SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
+    private VenueService venueService;
+
+    public static final String PROCESSING_VENUE_1 = "test_place";
+
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
     void buildHearingDetails() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        60,75,30));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60,75,30));
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
-                .caseManagementLocation(CaseManagementLocation.builder()
-                                            .baseLocation(EPIMS_ID)
-                                            .region(REGION)
-                                            .build())
-                .build();
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
+            .caseManagementLocation(CaseManagementLocation.builder()
+                .baseLocation(EPIMS_ID)
+                .region(REGION)
+                .build())
+            .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .build();
+            .caseData(caseData)
+            .build();
 
-        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, referenceData);
+        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, referenceDataServiceHolder);
 
         assertNotNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
@@ -260,6 +280,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
+    @Test
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
+            referenceDataServiceHolder);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getLocationId()).isEqualTo("9876");
+        assertThat(result.get(0).getLocationType()).isEqualTo("court");
+    }
+
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
@@ -287,19 +327,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void shouldGetNumberOfPhysicalAttendees() {
         // given
-        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
-        Appeal appeal = Mockito.mock(Appeal.class);
-        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
-        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
-        Representative representative = Mockito.mock(Representative.class);
-        // when
-        Mockito.when(representative.getHasRepresentative()).thenReturn(YesNo.YES.getValue());
-        Mockito.when(hearingOptions.getWantsToAttend()).thenReturn(YesNo.YES.getValue());
-        Mockito.when(hearingSubtype.isWantsHearingTypeFaceToFace()).thenReturn(true);
-        Mockito.when(appeal.getRep()).thenReturn(representative);
-        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
-        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
-        Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .wantsToAttend(YesNo.YES.getValue())
+            .build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder()
+            .wantsHearingTypeFaceToFace(YesNo.YES.getValue())
+            .build();
+        Representative representative = Representative.builder()
+            .hasRepresentative(YesNo.YES.getValue())
+            .build();
+
+        Appeal appeal = Appeal.builder()
+            .rep(representative)
+            .hearingSubtype(hearingSubtype)
+            .hearingOptions(hearingOptions)
+            .build();
+
+        SscsCaseData sscsCaseData = SscsCaseData.builder()
+            .appeal(appeal)
+            .build();
+
         //then
         assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
     }
@@ -307,12 +354,19 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingLocations Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations(String baseLocation, String region) {
-        CaseManagementLocation managementLocation = CaseManagementLocation.builder()
-                .baseLocation(baseLocation)
-                .region(region)
-                .build();
-        List<HearingLocations> result = HearingsDetailsMapping.getHearingLocations(managementLocation);
+    void getHearingLocations() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
+            referenceDataServiceHolder);
 
         assertEquals(1, result.size());
         assertEquals("219164", result.get(0).getLocationId());
@@ -514,11 +568,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getPanelRequirements() {
         // TODO Finish Test when method done
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceData);
+        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
         assertThat(result.getRoleTypes()).isEmpty();
@@ -608,7 +662,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -619,7 +673,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
                 .build();
-        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceData);
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(30, result);
     }
@@ -642,7 +696,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
                 .build();
-        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceData);
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(expected, result);
     }
@@ -658,7 +712,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         given(hearingDurations.getHearingDuration(benefitCode,issueCode)).willReturn(null);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(benefitCode)
@@ -669,7 +723,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNull();
     }
@@ -683,7 +737,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -695,7 +749,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(30);
     }
@@ -711,7 +765,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(hearingDurations.addExtraTimeIfNeeded(eq(60),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
                 .willReturn(60);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -723,7 +777,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(60);
     }
@@ -739,7 +793,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(hearingDurations.addExtraTimeIfNeeded(eq(75),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
                 .willReturn(75);
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
@@ -752,7 +806,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
                 .build();
 
-        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceData);
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(75);
     }
