@@ -1,6 +1,16 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
@@ -22,6 +32,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
@@ -88,8 +99,8 @@ public final class HearingsPartiesMapping {
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) {
-        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId);
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) throws InvalidMappingException {
+        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId, null);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions,
@@ -185,42 +196,38 @@ public final class HearingsPartiesMapping {
     public static String getIndividualPreferredHearingChannel(String hearingType,
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
-        if (eitherNull(hearingType, hearingSubtype)) {
-            throw new IllegalStateException("hearingType and/or hearingSubtype null");
-        }
 
         HearingChannel preferredHearingChannel =
             shouldPreferNotAttendingHearingChannel(hearingType, hearingOptions) ? NOT_ATTENDING
-            : isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
+            : nonNull(hearingSubtype) && isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
             : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO
             : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE
             : null;
 
-        if (preferredHearingChannel == null) {
-            throw new IllegalStateException("Failed to determine a preferred hearing channel");
+        if (isNull(preferredHearingChannel)) {
+            return null;
         }
 
         return preferredHearingChannel.getHmcReference();
     }
 
-    private static boolean eitherNull(String hearingType, HearingSubtype hearingSubtype) {
-        return hearingType == null || hearingSubtype == null;
-    }
-
     private static boolean shouldPreferNotAttendingHearingChannel(String hearingType, HearingOptions hearingOptions) {
-        return PAPER.getHmcReference().equals(hearingType) || !hearingOptions.isWantsToAttendHearing();
+        return PAPER.getHmcReference().equals(hearingType) || nonNull(hearingOptions) && !hearingOptions.isWantsToAttendHearing();
     }
 
     private static boolean shouldPreferTelephoneHearingChannel(HearingSubtype hearingSubtype) {
-        return isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber());
+        return nonNull(hearingSubtype) && isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber());
     }
 
     private static boolean shouldPreferVideoHearingChannel(HearingSubtype hearingSubtype) {
-        return isYes(hearingSubtype.getWantsHearingTypeVideo())
+        return nonNull(hearingSubtype) && isYes(hearingSubtype.getWantsHearingTypeVideo())
             && nonNull(hearingSubtype.getHearingVideoEmail());
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+        if (isNull(hearingOptions) || isNull(referenceData)) {
+            return EMPTY;
+        }
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguage = hearingOptions.getSignLanguageType();
             String signLanguageReference = referenceData.getSignLanguages().getSignLanguageReference(signLanguage);

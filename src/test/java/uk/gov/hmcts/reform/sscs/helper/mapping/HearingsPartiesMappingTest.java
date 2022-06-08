@@ -10,7 +10,22 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.DayOfWeekUnavailabilityType;
@@ -23,7 +38,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +53,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPEL
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
 
@@ -233,7 +248,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .jointParty(JointParty.builder().hasJointParty(jointParty).build())
+                .jointParty(jointPartyDetails)
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
@@ -259,11 +274,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When HearingOption is  Null return empty string")
     @Test
-    void getIndividualInterpreterLanguageWhenHearingOptionsNull() {
+    void getIndividualInterpreterLanguageWhenHearingOptionsNull() throws InvalidMappingException {
 
-        Optional<String> individualInterpreterLanguage = HearingsPartiesMapping.getIndividualInterpreterLanguage(null);
+        String individualInterpreterLanguage = HearingsPartiesMapping.getIndividualInterpreterLanguage(null, null);
 
-        assertThat(individualInterpreterLanguage.isEmpty());
+        assertThat(individualInterpreterLanguage).isEmpty();
     }
 
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")
@@ -486,11 +501,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelNullHearingTypeTest() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-            getIndividualPreferredHearingChannel(null,
+        assertThat(getIndividualPreferredHearingChannel(null,
                 HearingSubtype.builder().build(),
-                hearingOptions));
+                hearingOptions)).isEqualTo(NOT_ATTENDING.getHmcReference());
     }
 
     @DisplayName("When hearingSubType not set then throw IllegalStateException")
@@ -498,11 +511,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelNullHearingSubtypeTest() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-            getIndividualPreferredHearingChannel("TEST",
+        assertThat(getIndividualPreferredHearingChannel("TEST",
                 null,
-                hearingOptions));
+                hearingOptions)).isEqualTo(NOT_ATTENDING.getHmcReference());
 
     }
 
@@ -601,11 +612,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void whenHearingTypeAndHearingSubTypeIsNull() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
 
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-            getIndividualPreferredHearingChannel(null,
+        assertThat(getIndividualPreferredHearingChannel(null,
                 null,
-                hearingOptions));
+                hearingOptions)).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
     }
 
     @DisplayName("When hearing type oral and video then return LOV VIDEO")
@@ -632,11 +641,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
 
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-            getIndividualPreferredHearingChannel("oral",
+        assertThat(getIndividualPreferredHearingChannel("oral",
                 hearingSubtype,
-                hearingOptions));
+                hearingOptions)).isNull();
     }
 
     @DisplayName("When hearing type oral and face to face then return LOV FACE TO FACE")
@@ -663,11 +670,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
 
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-            getIndividualPreferredHearingChannel("oral",
-                hearingSubtype,
-                hearingOptions));
+        assertThat(getIndividualPreferredHearingChannel("oral",
+                hearingSubtype, hearingOptions)).isNull();
     }
 
     @DisplayName("getIndividualReasonableAdjustments Test")
