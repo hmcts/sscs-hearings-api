@@ -27,11 +27,8 @@ public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
 
-    private final AppInsightsService appInsightsService;
-
-    public TribunalsHearingsEventQueueListener(HearingsService hearingsService, AppInsightsService appInsightsService) {
+    public TribunalsHearingsEventQueueListener(HearingsService hearingsService) {
         this.hearingsService = hearingsService;
-        this.appInsightsService = appInsightsService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -56,38 +53,7 @@ public class TribunalsHearingsEventQueueListener {
             ex.printStackTrace();
             log.error("An exception occurred whilst processing hearing event for case ID {}."
                           + " Abandoning message", caseId, ex);
-            handleDeadLetter(message);
             throw new TribunalsEventProcessingException("Abandoned Message", ex);
         }
     }
-
-    @JmsListener(
-        destination = "${azure.service-bus.tribunals-to-hearings-api.queueName}/$DeadLetterQueue",
-        containerFactory = "tribunalsDeadLetterFactoryContainer"
-    )
-    public void handleDeadLetterListener(HearingRequest message) {
-        log.info("Handling dead letter");
-        handleDeadLetter(message);
-    }
-
-    private void handleDeadLetter(HearingRequest message) {
-        TribunalsDeadLetterMessage failMsg = obtainFailedMessage(message);
-        try {
-            appInsightsService.sendAppInsightsEvent(failMsg);
-        } catch (JsonProcessingException ex) {
-            ex.printStackTrace();
-            log.error("Sending to appInsights has failed");
-        }
-    }
-
-    private TribunalsDeadLetterMessage obtainFailedMessage(HearingRequest message) {
-        log.info("Obtaining Failed Message Information");
-        Long caseId = Long.valueOf(message.getCcdCaseId());
-        return TribunalsDeadLetterMessage.builder()
-            .hearingsRequest(message)
-            .caseID(caseId)
-            .build();
-    }
-
-
 }
