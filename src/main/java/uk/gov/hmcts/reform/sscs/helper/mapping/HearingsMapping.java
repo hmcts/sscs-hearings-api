@@ -45,7 +45,8 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
@@ -69,6 +70,7 @@ public final class HearingsMapping {
         int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep());
 
         maxId = updatePartyIds(appellant, appeal.getRep(), maxId);
+        maxId = updatePartyIds(caseData.getJointParty(), null, maxId);
         updateOtherPartiesIds(caseData.getOtherParties(), maxId);
     }
 
