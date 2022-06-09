@@ -23,7 +23,6 @@ public final class ServiceHearingValuesMapping {
     private ServiceHearingValuesMapping() {
     }
 
-
     public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
         if (caseDetails == null) {

@@ -17,10 +17,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static feign.Request.HttpMethod.GET;
 
 @Slf4j
 public class FeignClientErrorDecoder implements ErrorDecoder {
-
+    public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?/hearing/)(\\d+)");
     private final AppInsightsService appInsightsService;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -74,8 +78,17 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                     String.valueOf(response.status()),
                     getOriginalErrorMessage(response));
             }
+        } else if (GET.equals(httpMethod)) {
+            Long caseId = getPathId(response);
+
+            failMsg = buildFailureMessage(httpMethod.toString(),
+                    caseId,
+                    LocalDateTime.now(),
+                    String.valueOf(response.status()),
+                    getOriginalErrorMessage(response));
         } else {
             Long caseId = getQueryId(response);
+
             failMsg = buildFailureMessage(httpMethod.toString(),
                 caseId,
                 LocalDateTime.now(),
@@ -84,6 +97,15 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
         }
 
         return failMsg;
+    }
+
+    private Long getPathId(Response response) {
+        String url = response.request().requestTemplate().url();
+        Matcher matches = HEARING_PATH_REGEX.matcher(url);
+        if (matches.find()) {
+            return Long.parseLong(matches.group(2));
+        }
+        return null;
     }
 
     private long getQueryId(Response response) {

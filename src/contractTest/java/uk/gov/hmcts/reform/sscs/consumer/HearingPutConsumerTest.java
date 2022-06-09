@@ -19,7 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.*;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
@@ -59,7 +59,7 @@ class HearingPutConsumerTest extends BasePactTest {
             .body(toJsonString(generateHearingRequest()))
             .headers(authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value())
-            .body(generateHearingsJsonBody(MSG_200_HEARING, HEARING_RESPONSE_STATUS))
+            .body(generateHearingsJsonBody(MSG_200_HEARING, HEARING_REQUESTED))
             .toPact();
     }
 
@@ -143,18 +143,18 @@ class HearingPutConsumerTest extends BasePactTest {
     @Test
     @PactTestFor(pactMethod = "updateHearingRequestForValidRequest")
     void shouldSuccessfullyPutHearingRequest() {
-        HearingResponse hearingResponse = hmcHearingApi.updateHearingRequest(
+        HmcUpdateResponse hmcUpdateResponse = hmcHearingApi.updateHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
             VALID_CASE_ID,
             generateHearingRequest()
         );
 
-        assertNotNull(hearingResponse.getHearingRequestId());
-        assertTrue(hearingResponse.getStatus().equalsIgnoreCase(HEARING_RESPONSE_STATUS));
-        assertNotNull(hearingResponse.getVersionNumber());
-        assertNotSame(ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
-        assertThat(hearingResponse.getTimeStamp()).isEqualToIgnoringSeconds(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE));
+        assertNotNull(hmcUpdateResponse.getHearingRequestId());
+        assertThat(hmcUpdateResponse.getStatus()).isEqualTo(HEARING_REQUESTED);
+        assertNotNull(hmcUpdateResponse.getVersionNumber());
+        assertNotSame(ZERO_NUMBER_LENGTH, hmcUpdateResponse.getVersionNumber());
+        assertThat(hmcUpdateResponse.getTimeStamp()).isEqualToIgnoringSeconds(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE));
     }
 
     @Test

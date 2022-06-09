@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
+
+import java.time.DayOfWeek;
 
 @Data
 @NoArgsConstructor
@@ -16,10 +18,8 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 public class UnavailabilityDayOfWeek {
 
     @JsonProperty("DOW")
-    @EnumPattern(enumClass = DayOfWeek.class, fieldName = "dayOfWeek")
-    private String dayOfWeek;
+    private DayOfWeek dayOfWeek;
 
     @JsonProperty("DOWUnavailabilityType")
-    @EnumPattern(enumClass = DayOfWeekUnavailabilityType.class, fieldName = "dayOfWeekUnavailabilityType")
-    private String dayOfWeekUnavailabilityType;
+    private DayOfWeekUnavailabilityType dayOfWeekUnavailabilityType;
 }
