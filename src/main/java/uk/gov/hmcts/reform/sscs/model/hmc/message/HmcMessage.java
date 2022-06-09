@@ -13,7 +13,6 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class HmcMessage {
     @NonNull
-    @JsonProperty("hmctsServiceID")
     private String hmctsServiceCode;
 
     @NonNull

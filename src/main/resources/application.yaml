@@ -47,6 +47,11 @@ spring:
       - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    mapper:
+      accept-case-insensitive-enums: true
 
 feign:
   httpclient:
@@ -61,12 +66,6 @@ feign:
       period: 500
       maxPeriod: 2000
       maxAttempts: 3
-
-jackson:
-  serialization:
-    WRITE_DATES_AS_TIMESTAMPS: false
-    ACCEPT_CASE_INSENSITIVE_ENUMS: true
-    ACCEPT_CASE_INSENSITIVE_PROPERTIES: true
 
 azure:
   service-bus:
