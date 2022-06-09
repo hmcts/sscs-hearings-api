@@ -27,15 +27,14 @@ public final class HearingsAutoListMapping {
 
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData,
-                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
         return !(HearingsDetailsMapping.isCaseUrgent(caseData)
                 || hasOrgRepresentative(caseData)
                 || shouldBeAdditionalSecurityFlag(caseData)
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
                 || isPaperCaseAndPoNotAttending(caseData)
-                || hasMqpmOrFqpm(caseData, referenceDataServiceHolder)
+                || hasMqpmOrFqpm(caseData, referenceData)
                 || isThereOtherComments(caseData)
             );
     }
@@ -68,9 +67,8 @@ public final class HearingsAutoListMapping {
         return isNotBlank(HearingsDetailsMapping.getListingComments(caseData));
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData,
-                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
-        SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceDataServiceHolder);
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+        SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);
     }
