@@ -21,8 +21,6 @@ public class IndividualDetails {
 
     private String lastName;
 
-    private String title;
-
     private String preferredHearingChannel;
 
     private String interpreterLanguage;
