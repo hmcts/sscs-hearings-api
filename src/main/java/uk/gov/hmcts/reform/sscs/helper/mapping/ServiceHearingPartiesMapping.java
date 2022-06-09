@@ -145,4 +145,5 @@ public final class ServiceHearingPartiesMapping {
                 .otherReasonableAdjustmentDetails(HearingsPartiesMapping.getIndividualOtherReasonableAdjustmentDetails())
                 .build();
     }
+
 }
