@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sscs.config;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.ErrorDecoder;
@@ -21,8 +23,16 @@ public class FeignClientConfig {
 
     @Bean
     @Primary
-    Decoder feignDecoder(ObjectMapper objectMapper) {
-        return new JacksonDecoder(objectMapper);
+    public Decoder feignDecoder() {
+        return new JacksonDecoder(objectMapper());
+    }
+
+    private ObjectMapper objectMapper() {
+        JsonMapper objectMapper = new JsonMapper();
+
+        return new JsonMapper.Builder(objectMapper)
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+            .build();
     }
 
     @Bean
