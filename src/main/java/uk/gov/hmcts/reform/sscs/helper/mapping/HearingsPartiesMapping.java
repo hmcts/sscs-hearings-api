@@ -57,12 +57,14 @@ public final class HearingsPartiesMapping {
 
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceData)
+    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper,
+                                                                ReferenceDataServiceHolder referenceDataServiceHolder)
             throws InvalidMappingException {
-        return buildHearingPartiesDetails(wrapper.getCaseData(), referenceData);
+        return buildHearingPartiesDetails(wrapper.getCaseData(), referenceDataServiceHolder);
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData, ReferenceDataServiceHolder referenceData)
+    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData,
+                                                                ReferenceDataServiceHolder referenceDataServiceHolder)
             throws InvalidMappingException {
 
         Appeal appeal = caseData.getAppeal();
@@ -78,13 +80,14 @@ public final class HearingsPartiesMapping {
             partiesDetails.addAll(
                 buildHearingPartiesPartyDetails(
                     caseData.getJointParty(),
-                    appellant.getId()
+                    appellant.getId(),
+                    referenceDataServiceHolder
                 ));
         }
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
                 appellant, appeal.getRep(), appeal.getHearingOptions(),
-                appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId(), referenceData));
+                appeal.getHearingType(), appeal.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
 
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
@@ -93,11 +96,15 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceData));
+                       appeal.getHearingType(), otherParty.getHearingSubtype(), appellant.getId(), referenceDataServiceHolder));
             }
         }
 
         return partiesDetails;
+    }
+
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+        return buildHearingPartiesPartyDetails(party, null, null, null, null, appellantId, referenceData);
     }
 
     public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId) throws InvalidMappingException {
@@ -145,7 +152,7 @@ public final class HearingsPartiesMapping {
         partyDetails.partyRole(RESPONDENT.getHmcReference());
         partyDetails.organisationDetails(getDwpOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getPartyUnavailabilityRangeAllDay(null));
+        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(null));
 
         return partyDetails.build();
     }
@@ -169,7 +176,8 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype, hearingOptions))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype,
+                    hearingOptions))
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, referenceData))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
@@ -233,9 +241,11 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
-        if (isNull(hearingOptions) || isNull(referenceData)) {
+
+        if (isNull(hearingOptions)) {
             return EMPTY;
         }
+
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguage = hearingOptions.getSignLanguageType();
             String signLanguageReference = referenceData.getSignLanguages().getSignLanguageReference(signLanguage);
@@ -370,6 +380,7 @@ public final class HearingsPartiesMapping {
                 .map(dateRange -> UnavailabilityRange.builder()
                         .unavailableFromDate(LocalDate.parse(dateRange.getStart()))
                         .unavailableToDate(LocalDate.parse(dateRange.getEnd()))
+                        .unavailabilityType(ALL_DAY.getLabel())
                         .build())
                 .collect(Collectors.toList());
     }

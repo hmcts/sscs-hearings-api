@@ -45,7 +45,8 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
