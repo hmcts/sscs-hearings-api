@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 @Data
 @NoArgsConstructor
@@ -14,4 +15,5 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 public class HearingWrapper {
     private SscsCaseData caseData;
     private HearingState state;
+    private CancellationReason cancellationReason;
 }
