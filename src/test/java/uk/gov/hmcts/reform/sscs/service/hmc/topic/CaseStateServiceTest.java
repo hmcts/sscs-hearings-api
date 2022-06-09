@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.willDoNothing;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.State.HANDLING_ERROR;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.State.NOT_LISTABLE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.UNKNOWN;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 
@@ -159,6 +159,6 @@ class CaseStateServiceTest {
     void testShouldSetCcdStateForFailedHearingsCorrectly() {
         caseStateUpdateService.updateFailed(caseData);
 
-        assertThat(caseData.getState()).isEqualTo(HANDLING_ERROR);
+        assertThat(caseData.getState()).isEqualTo(NOT_LISTABLE);
     }
 }

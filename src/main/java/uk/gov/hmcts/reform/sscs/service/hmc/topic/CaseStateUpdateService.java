@@ -45,7 +45,7 @@ public class CaseStateUpdateService {
     }
 
     public void updateFailed(@Valid SscsCaseData sscsCaseData) {
-        setState(sscsCaseData, State.HANDLING_ERROR);
+        setState(sscsCaseData, State.NOT_LISTABLE);
     }
 
     private void setState(SscsCaseData sscsCaseData, State state) {
