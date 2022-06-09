@@ -35,9 +35,8 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    public void processHearingRequest(HearingRequest hearingRequest)
-        throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
-        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
                 hearingRequest.getHearingRoute(),
@@ -110,8 +109,8 @@ public class HearingsService {
 
     private void cancelHearing(HearingWrapper wrapper) {
         String hearingId = getHearingId(wrapper);
-        HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
-        HmcUpdateResponse response = hmcHearingApiService.sendCancelHearingRequest(hearingPayload, hearingId);
+        HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(null); // TODO: Get Reason in Ticket: SSCS-10366
+        HmcUpdateResponse response = hmcHearingApiService.sendCancelHearingRequest(hearingPayload, hearingId);// TODO: Get Reason in Ticket: SSCS-10366
 
         log.debug("Received Cancel Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -126,6 +125,7 @@ public class HearingsService {
 
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response)
         throws UpdateCaseException {
+
         log.info("Updating Case with Hearing Response for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getState().getState());

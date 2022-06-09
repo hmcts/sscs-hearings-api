@@ -274,6 +274,7 @@ public final class HearingsDetailsMapping {
         HearingLocation hearingLocation = new HearingLocation();
         hearingLocation.setLocationId(epimsId);
         hearingLocation.setLocationType(COURT);
+
         List<HearingLocation> hearingLocations = new ArrayList<>();
         hearingLocations.add(hearingLocation);
 

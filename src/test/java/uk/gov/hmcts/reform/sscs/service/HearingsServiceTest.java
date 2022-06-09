@@ -31,7 +31,6 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
-import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -126,6 +125,7 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
+
         hearingsService = new HearingsService(hmcHearingApiService, ccdCaseService, referenceDataServiceHolder);
     }
 
@@ -218,7 +218,6 @@ class HearingsServiceTest {
 
         wrapper.setState(CANCEL_HEARING);
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
-        wrapper.setCancellationReason(CancellationReason.OTHER);
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }

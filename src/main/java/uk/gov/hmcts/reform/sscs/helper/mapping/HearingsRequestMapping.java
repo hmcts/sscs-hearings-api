@@ -36,6 +36,7 @@ public final class HearingsRequestMapping {
     }
 
     public static CancellationReason getCancellationReason(HearingWrapper wrapper) {
-        return wrapper.getCancellationReason();
+        // TODO Get Reason in Ticket: SSCS-10366
+        return null;
     }
 }

@@ -154,15 +154,13 @@ class ServiceHearingsControllerTest {
         CcdValue<OtherParty> otherPartyCcdValue = new CcdValue<>(otherParty);
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(otherPartyCcdValue);
-
-        Appeal appeal = Appeal.builder()
-            .rep(representative)
-            .hearingSubtype(hearingSubtype)
-            .hearingOptions(hearingOptions)
-            .appellant(appellant)
-            .build();
-
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn(APPELLANT_ID);
+        HearingSubtype hearingSubtype = Mockito.mock(HearingSubtype.class);
+        Mockito.when(hearingSubtype.getHearingVideoEmail()).thenReturn("test2@gmail.com");
+        Mockito.when(hearingSubtype.getHearingTelephoneNumber()).thenReturn("0999733735");
+        Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
+        Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
+        HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyType(appellant)).thenReturn(INDIVIDUAL);
@@ -177,9 +175,11 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(),
-                hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
-        SscsCaseData sscsCaseData = SscsCaseData.builder()
-            .caseAccessManagementFields(CaseAccessManagementFields.builder()
+            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
+        Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
+        Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
+        SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
+        Mockito.when(sscsCaseData.getCaseAccessManagementFields()).thenReturn(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
                 .build())
             .linkedCase(linkedCases)
