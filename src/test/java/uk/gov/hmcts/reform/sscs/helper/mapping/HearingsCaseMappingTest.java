@@ -37,8 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_SUB_TYPE;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
 class HearingsCaseMappingTest extends HearingsMappingBase {
     @Mock
@@ -360,7 +360,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         assertThat(result)
                 .extracting("categoryType", "categoryValue", "categoryParent")
                 .as("Case sub type categories should have a parent set.")
-                .contains(tuple(CASE_TYPE, parentValue, null), tuple(CASE_SUB_TYPE, subTypeValue, parentValue));
+                .contains(tuple(CASE_TYPE, parentValue, null), tuple(CASE_SUBTYPE, subTypeValue, parentValue));
     }
 
 

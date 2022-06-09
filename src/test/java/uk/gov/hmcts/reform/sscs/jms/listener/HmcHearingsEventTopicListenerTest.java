@@ -7,16 +7,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.exception.HmcEventProcessingException;
-import uk.gov.hmcts.reform.sscs.model.hmcmessage.HmcMessage;
+import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
+import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageService;
 
 import java.nio.charset.StandardCharsets;
 import javax.jms.JMSException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -24,6 +30,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -48,12 +55,12 @@ class HmcHearingsEventTopicListenerTest {
     void setup() {
         hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "sscsServiceCode", SERVICE_CODE);
     }
 
     @Test
     @DisplayName("Messages should not be processed if their service code does not match the service.")
-    void testOnMessage_serviceCodeNotApplicable() throws HmcEventProcessingException, JsonProcessingException,
-        JMSException {
+    void testOnMessage_serviceCodeNotApplicable() throws Exception {
 
         HmcMessage hmcMessage = createHmcMessage("BBA4");
 
@@ -69,8 +76,7 @@ class HmcHearingsEventTopicListenerTest {
 
     @Test
     @DisplayName("Messages should be processed if their service code matches the service.")
-    void testOnMessage_serviceCodeApplicable()
-        throws HmcEventProcessingException, JsonProcessingException, JMSException {
+    void testOnMessage_serviceCodeApplicable() throws Exception {
 
         HmcMessage hmcMessage = createHmcMessage(SERVICE_CODE);
 
@@ -103,8 +109,7 @@ class HmcHearingsEventTopicListenerTest {
 
     @Test
     @DisplayName("A HmcEventProcessingException exception should be thrown an exception is encountered.")
-    void testOnMessage_HmcEventProcessingException()
-        throws JsonProcessingException, JMSException, HmcEventProcessingException {
+    void testOnMessage_HmcEventProcessingException() throws Exception {
 
         HmcMessage hmcMessage = createHmcMessage(SERVICE_CODE);
 
@@ -113,19 +118,51 @@ class HmcHearingsEventTopicListenerTest {
         given(bytesMessage.getBodyLength()).willReturn((long) messageBytes.length);
         given(mockObjectMapper.readValue(any(String.class), eq(HmcMessage.class))).willReturn(hmcMessage);
 
-        doThrow(HmcEventProcessingException.class)
+        doThrow(MessageProcessingException.class)
             .when(processHmcMessageService)
             .processEventMessage(hmcMessage);
 
         assertThatExceptionOfType(HmcEventProcessingException.class)
             .isThrownBy(() -> hmcHearingsEventTopicListener.onMessage(bytesMessage))
-            .withCauseInstanceOf(HmcEventProcessingException.class);
+            .withCauseInstanceOf(MessageProcessingException.class);
+    }
+
+    @DisplayName("When the service code of a message matches the correct this services code "
+            + "isMessageRelevantForService returns true")
+    @Test
+    void testMessageRelevantForService() {
+        HmcMessage hmcMessage = createHmcMessage(SERVICE_CODE);
+
+        boolean result = hmcHearingsEventTopicListener.isMessageRelevantForService(hmcMessage);
+
+        assertThat(result)
+                .as("This message does not have the correct service ID.")
+                .isTrue();
+    }
+
+    @DisplayName("When the service code of a message does not match this service's code "
+            + "isMessageRelevantForService returns false")
+    @ParameterizedTest
+    @ValueSource(strings = {"PP4","SSA1"})
+    @EmptySource
+    void testMessageRelevantForService(String value) {
+        HmcMessage hmcMessage = createHmcMessage(value);
+
+        boolean result = hmcHearingsEventTopicListener.isMessageRelevantForService(hmcMessage);
+
+        assertThat(result)
+                .as("This service ID should not of matched.")
+                .isFalse();
     }
 
     private HmcMessage createHmcMessage(String messageServiceCode) {
         return HmcMessage.builder()
-            .hmctsServiceCode(messageServiceCode)
-            .hearingID("testId")
-            .build();
+                .hmctsServiceCode(messageServiceCode)
+                .caseId(1234L)
+                .hearingId("testId")
+                .hearingUpdate(HearingUpdate.builder()
+                        .hmcStatus(ADJOURNED)
+                        .build())
+                .build();
     }
 }

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
 
 import java.util.List;
 
@@ -19,8 +19,7 @@ public class PartyDetails {
 
     private String partyID;
 
-    @EnumPattern(enumClass = PartyType.class, fieldName = "partyType")
-    private String partyType;
+    private PartyType partyType;
 
     private String partyRole;
 

@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping;
@@ -32,7 +31,7 @@ public class ServiceHearingsService {
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
-            throws GetCaseException, InvalidIdException, UpdateCaseException, InvalidMappingException {
+            throws GetCaseException, UpdateCaseException, InvalidMappingException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
         HearingsMapping.updateIds(caseDetails.getData());
         ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails, referenceDataServiceHolder);
@@ -43,9 +42,8 @@ public class ServiceHearingsService {
         return model;
     }
 
-
     public ServiceLinkedCases getServiceLinkedCases(ServiceHearingRequest request)
-            throws GetCaseException, InvalidIdException {
+            throws GetCaseException {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
 
