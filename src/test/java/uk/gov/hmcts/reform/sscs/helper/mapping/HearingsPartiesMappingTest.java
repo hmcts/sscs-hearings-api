@@ -495,7 +495,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When hearingType not set then throw IllegalStateException")
+    @DisplayName("When hearingType not set then return null")
     @Test
     void getIndividualPreferredHearingChannelNullHearingTypeTest() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
@@ -505,7 +505,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 hearingOptions)).isNull();
     }
 
-    @DisplayName("When hearingSubType not set then throw IllegalStateException")
+    @DisplayName("When hearingSubType not set then return null")
     @Test
     void getIndividualPreferredHearingChannelNullHearingSubtypeTest() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
@@ -634,7 +634,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
 
-    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set throw IllegalStateException")
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set return null")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsTelephoneExample() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
@@ -663,7 +663,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(HearingChannel.FACE_TO_FACE.getHmcReference());
     }
 
-    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set throw IllegalStateException")
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set return null")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsVideoExample() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
