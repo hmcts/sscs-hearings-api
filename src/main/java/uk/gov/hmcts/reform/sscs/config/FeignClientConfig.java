@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.config;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.ErrorDecoder;
@@ -32,6 +33,7 @@ public class FeignClientConfig {
 
         return new JsonMapper.Builder(objectMapper)
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+            .addModule(new JavaTimeModule())
             .build();
     }
 

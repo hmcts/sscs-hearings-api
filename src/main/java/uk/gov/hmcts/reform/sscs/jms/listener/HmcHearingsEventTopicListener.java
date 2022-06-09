@@ -25,13 +25,13 @@ public class HmcHearingsEventTopicListener {
 
     private final ObjectMapper objectMapper;
 
-    private final String serviceCode;
+    private final String sscsServiceCode;
 
     private final ProcessHmcMessageService processHmcMessageService;
 
-    public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String serviceCode,
+    public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
                                          ProcessHmcMessageService processHmcMessageService) {
-        this.serviceCode = serviceCode;
+        this.sscsServiceCode = sscsServiceCode;
         this.processHmcMessageService = processHmcMessageService;
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -51,7 +51,8 @@ public class HmcHearingsEventTopicListener {
         try {
             HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
 
-            if (isMessageRelevantForService(hmcMessage, serviceCode)) {
+            if (isMessageRelevantForService(hmcMessage)) {
+
                 log.info("Processing hearing ID: {} for case reference: {}", hmcMessage.getHearingId(),
                     hmcMessage.getCaseId());
 
@@ -63,8 +64,8 @@ public class HmcHearingsEventTopicListener {
         }
     }
 
-    private boolean isMessageRelevantForService(HmcMessage hmcMessage, String serviceCode) {
-        return serviceCode.equals(hmcMessage.getHmctsServiceCode());
+    public boolean isMessageRelevantForService(HmcMessage hmcMessage) {
+        return sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }
 
 }

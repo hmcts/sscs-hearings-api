@@ -52,6 +52,7 @@ class HmcHearingsEventTopicListenerTest {
     void setup() {
         hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "sscsServiceCode", SERVICE_CODE);
     }
 
     @Test
@@ -122,6 +123,7 @@ class HmcHearingsEventTopicListenerTest {
         assertThatExceptionOfType(HmcEventProcessingException.class)
             .isThrownBy(() -> hmcHearingsEventTopicListener.onMessage(bytesMessage))
             .withCauseInstanceOf(MessageProcessingException.class);
+
     }
 
     private HmcMessage createHmcMessage(String messageServiceCode) {
