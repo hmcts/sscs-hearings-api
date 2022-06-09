@@ -220,7 +220,8 @@ class HearingsServiceTest {
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
         wrapper.setCancellationReason(CancellationReason.OTHER);
 
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")

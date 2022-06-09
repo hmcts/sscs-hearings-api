@@ -85,11 +85,4 @@
     <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.+$</packageUrl>
     <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
   </suppress>
-  <suppress until="2022-06-20">
-    <notes><![CDATA[
-     activemq-broker-5.16.5.jar
-     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.+$</packageUrl>
-    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
-  </suppress>
 </suppressions>

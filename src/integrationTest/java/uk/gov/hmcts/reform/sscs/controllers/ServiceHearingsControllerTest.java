@@ -132,10 +132,10 @@ class ServiceHearingsControllerTest {
     void setUp()  {
         List<CaseLink> linkedCases = new ArrayList<>();
         linkedCases.add(CaseLink.builder()
-            .value(CaseLinkDetails.builder()
-                .caseReference(String.valueOf(CASE_ID_LINKED))
-                .build())
-            .build());
+                .value(CaseLinkDetails.builder()
+                        .caseReference(String.valueOf(CASE_ID_LINKED))
+                        .build())
+                .build());
 
         HearingOptions hearingOptions = HearingOptions.builder().build();
         HearingSubtype hearingSubtype = HearingSubtype.builder()
@@ -194,7 +194,6 @@ class ServiceHearingsControllerTest {
                 .build())
             .processingVenue(PROCESSING_VENUE)
             .build();
-
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
@@ -204,17 +203,17 @@ class ServiceHearingsControllerTest {
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-            false, false, SessionCategory.CATEGORY_06, null);
+                false, false, SessionCategory.CATEGORY_06, null);
 
         given(sessionCategoryMaps.getSessionCategory(anyString(), anyString(),anyBoolean(),anyBoolean()))
-            .willReturn(sessionCategoryMap);
+                .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
-            .willReturn("BBA3-002");
+                .willReturn("BBA3-002");
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
-            .willReturn("BBA3-002-DD");
+                .willReturn("BBA3-002-DD");
         given(hearingDurations.getHearingDuration(anyString(),anyString()))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                60,75,30));
+                .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                        60,75,30));
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE))
             .willReturn(Optional.of("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"));
 
@@ -224,36 +223,36 @@ class ServiceHearingsControllerTest {
     }
 
     @DisplayName("When Authorization and Case ID valid "
-        + "should return the case name with a with 200 response code")
+            + "should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceHearingValues() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-            .caseId(String.valueOf(CASE_ID))
-            .build();
+                .caseId(String.valueOf(CASE_ID))
+                .build();
 
         String actualJson = ResourceLoader.loadJson("serviceHearingValuesForControllerTest.json");
         actualJson = replaceMockValues(actualJson);
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                .contentType(APPLICATION_JSON)
-                .content(asJsonString(request)))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().json(actualJson));
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(actualJson));
     }
 
     @DisplayName("When Case Not Found should return a with 404 response code")
     @Test
     void testPostRequestServiceHearingValues_missingCase() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-            .caseId(String.valueOf(MISSING_CASE_ID))
-            .build();
+                .caseId(String.valueOf(MISSING_CASE_ID))
+                .build();
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                .contentType(APPLICATION_JSON)
-                .content(asJsonString(request)))
-            .andDo(print())
-            .andExpect(status().isNotFound());
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
@@ -265,30 +264,30 @@ class ServiceHearingsControllerTest {
         String json = asJsonString(model);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-            .caseId(String.valueOf(CASE_ID))
-            .hearingId(String.valueOf(HEARING_ID))
-            .build();
+                .caseId(String.valueOf(CASE_ID))
+                .hearingId(String.valueOf(HEARING_ID))
+                .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                .contentType(APPLICATION_JSON)
-                .content(asJsonString(request)))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().json(json));
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(json));
     }
 
     @Test
     void testPostRequestServiceLinkedCases_missingCase() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
-            .caseId(String.valueOf(MISSING_CASE_ID))
-            .hearingId(String.valueOf(HEARING_ID))
-            .build();
+                .caseId(String.valueOf(MISSING_CASE_ID))
+                .hearingId(String.valueOf(HEARING_ID))
+                .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                .contentType(APPLICATION_JSON)
-                .content(asJsonString(request)))
-            .andDo(print())
-            .andExpect(status().isNotFound());
+                        .contentType(APPLICATION_JSON)
+                        .content(asJsonString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     public static String asJsonString(final Object obj) throws JsonProcessingException {
