@@ -45,11 +45,12 @@ public class CaseStateUpdateService {
     }
 
     public void updateFailed(@Valid SscsCaseData sscsCaseData) {
-        setState(sscsCaseData, State.NOT_LISTABLE);
+        setState(sscsCaseData, State.HANDLING_ERROR);
     }
 
     private void setState(SscsCaseData sscsCaseData, State state) {
-        sscsCaseData.setState(state);
+        // Todo Work out why we cant set the state
+        //sscsCaseData.setState(state);
         log.info("CCD state has been updated to {} for caseId {}", state, sscsCaseData.getCcdCaseId());
     }
 
