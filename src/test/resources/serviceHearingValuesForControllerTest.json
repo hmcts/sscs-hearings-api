@@ -6,10 +6,10 @@
   "caseType":"Benefit",
   "caseCategories":[
     {
-      "categoryType": "caseType"
+      "categoryType":"caseType"
     },
     {
-      "categoryType": "caseSubType"
+      "categoryType":"caseSubType"
     }
   ],
   "duration":30,
@@ -17,7 +17,9 @@
   "numberOfPhysicalAttendees":0,
   "hearingInWelshFlag":false,
   "caseAdditionalSecurityFlag":false,
-  "facilitiesRequired":[],
+  "facilitiesRequired":[
+
+  ],
   "listingComments":null,
   "hearingRequester":null,
   "privateHearingRequiredFlag":false,
@@ -29,21 +31,21 @@
       "hearingWindowStartDateRange":"MOCK_DATE_TOMORROW"
     }
   },
-  "hearingLocations": [
+  "hearingLocations":[
     {
-      "locationType": "court",
-      "locationId": "LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
+      "locationType":"court",
+      "locationId":"LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
     }
   ],
-  "panelRequirements": null,
-  "judiciary": {
-    "roleType": [],
-    "authorisationTypes": [],
-    "authorisationSubType": [],
-    "judiciaryPreferences": [],
-    "judiciarySpecialisms": []
+  "panelRequirements":null,
+  "judiciary":{
+    "roleType":[],
+    "authorisationTypes":[],
+    "authorisationSubType":[],
+    "judiciaryPreferences":[],
+    "judiciarySpecialisms":[]
   },
-  "parties": [
+  "parties":[
     {
       "partyID":"1",
       "partyType":"IND",
@@ -58,13 +60,13 @@
         "hearingChannelPhone":[],
         "relatedParties":[]
       },
-      "unavailabilityRanges": []
+      "unavailabilityRanges":[]
     }
   ],
-  "caseFlags": {
-    "flags": [],
-    "flagAmendURL": ""
+  "caseFlags":{
+    "flags":[],
+    "flagAmendURL":""
   },
-  "screenFlow": null,
-  "vocabulary": null
+  "screenFlow":null,
+  "vocabulary":null
 }

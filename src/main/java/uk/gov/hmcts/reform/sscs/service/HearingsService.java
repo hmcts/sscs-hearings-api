@@ -39,8 +39,7 @@ public class HearingsService {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Hearing Route {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
-                hearingRequest.getHearingRoute(),
-                hearingRequest.getCancellationReason());
+                hearingRequest.getHearingRoute());
 
         processHearingWrapper(createWrapper(hearingRequest));
     }
@@ -156,7 +155,6 @@ public class HearingsService {
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
-                .cancellationReason(hearingRequest.getCancellationReason())
                 .build();
     }
 }

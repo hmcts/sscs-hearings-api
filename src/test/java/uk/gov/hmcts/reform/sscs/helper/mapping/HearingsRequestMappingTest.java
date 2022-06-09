@@ -22,14 +22,14 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildHearingRequestDetails() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .activeHearingVersionNumber(1L)
-                .build())
-            .build();
+                .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                        .activeHearingVersionNumber(1L)
+                        .build())
+                .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-            .caseData(caseData)
-            .caseData(caseData)
-            .build();
+                .caseData(caseData)
+                .caseData(caseData)
+                .build();
 
         RequestDetails requestDetails = HearingsRequestMapping.buildHearingRequestDetails(wrapper);
 
@@ -40,10 +40,10 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void getVersion() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .activeHearingVersionNumber(1L)
-                .build())
-            .build();
+                .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                        .activeHearingVersionNumber(1L)
+                        .build())
+                .build();
         Long result = HearingsRequestMapping.getVersion(caseData);
 
         assertEquals(1L, result);
@@ -58,10 +58,10 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getVersion(Long version) {
         SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .activeHearingVersionNumber(version)
-                .build())
-            .build();
+                .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                        .activeHearingVersionNumber(version)
+                        .build())
+                .build();
 
         Long result = HearingsRequestMapping.getVersion(caseData);
 
@@ -82,8 +82,8 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildCancelHearingPayloadTest() {
         HearingWrapper wrapper = HearingWrapper.builder()
-            // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
-            .build();
+                // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
+                .build();
         HearingCancelRequestPayload result = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
 
         assertThat(result).isNotNull();
