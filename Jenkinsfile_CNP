@@ -51,11 +51,11 @@ withPipeline(type, product, component) {
 // Disabled until tests are available
    env.PACT_BROKER_FULL_URL = 'https://pact-broker.platform.hmcts.net'
 
-      enablePactAs([
-              AppPipelineDsl.PactRoles.CONSUMER
-
-               // It requires the provider tests to be available
-              //Will re-enable when provider tests are available
-              //AppPipelineDsl.PactRoles.CONSUMER_DEPLOY_CHECK
-      ])
+//      enablePactAs([
+//              AppPipelineDsl.PactRoles.CONSUMER
+//
+//               // It requires the provider tests to be available
+//              //Will re-enable when provider tests are available
+//              //AppPipelineDsl.PactRoles.CONSUMER_DEPLOY_CHECK
+//      ])
 }
