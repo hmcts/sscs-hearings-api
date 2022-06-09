@@ -251,7 +251,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     @Test
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
-
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
