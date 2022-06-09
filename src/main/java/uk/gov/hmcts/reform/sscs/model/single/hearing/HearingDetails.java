@@ -52,5 +52,4 @@ public class HearingDetails {
     private String amendReasonCode;
 
     private boolean multiDayHearing;
-
 }
