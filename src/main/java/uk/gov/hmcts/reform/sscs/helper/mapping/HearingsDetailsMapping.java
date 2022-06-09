@@ -39,8 +39,8 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.HIGH;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.NORMAL;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
@@ -227,9 +227,9 @@ public final class HearingsDetailsMapping {
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
         if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
-            return HIGH.getHmcReference();
+            return URGENT.getHmcReference();
         }
-        return NORMAL.getHmcReference();
+        return STANDARD.getHmcReference();
     }
 
     public static int getNumberOfPhysicalAttendees(SscsCaseData caseData) {

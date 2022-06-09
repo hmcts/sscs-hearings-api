@@ -226,7 +226,7 @@ class ServiceHearingValuesMappingTest {
                         tuple(CASE_TYPE,"BBA3-002"),
                         tuple(CASE_SUBTYPE,"BBA3-002-DD"));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
-        assertEquals("high", serviceHearingValues.getHearingPriorityType());
+        assertEquals("urgent", serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());

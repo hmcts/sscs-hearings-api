@@ -13,7 +13,7 @@
     }
   ],
   "duration":30,
-  "hearingPriorityType":"normal",
+  "hearingPriorityType":"standard",
   "numberOfPhysicalAttendees":0,
   "hearingInWelshFlag":false,
   "caseAdditionalSecurityFlag":false,
