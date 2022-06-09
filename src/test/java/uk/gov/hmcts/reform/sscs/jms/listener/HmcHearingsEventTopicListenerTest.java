@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.HmcEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;

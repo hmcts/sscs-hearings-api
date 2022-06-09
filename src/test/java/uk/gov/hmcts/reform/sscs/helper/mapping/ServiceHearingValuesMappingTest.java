@@ -66,7 +66,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATIO
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceHearingValuesMappingTest {
+class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     public static final String FACE_TO_FACE = "faceToFace";
     public static final String BENEFIT_CODE = "002";

@@ -4,12 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
-import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,18 +16,20 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HearingsRequestMappingTest extends HearingsMappingBase {
 
+    public static final String CANCELLATION_REASON = "AWAITING_LISTING";
+
     @DisplayName("When a valid hearing wrapper is given buildHearingRequestDetails returns the correct Hearing Request")
     @Test
     void buildHearingRequestDetails() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                        .activeHearingVersionNumber(1L)
-                        .build())
-                .build();
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .activeHearingVersionNumber(1L)
+                .build())
+            .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .caseData(caseData)
-                .build();
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
 
         RequestDetails requestDetails = HearingsRequestMapping.buildHearingRequestDetails(wrapper);
 
@@ -40,10 +40,10 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void getVersion() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                        .activeHearingVersionNumber(1L)
-                        .build())
-                .build();
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .activeHearingVersionNumber(1L)
+                .build())
+            .build();
         Long result = HearingsRequestMapping.getVersion(caseData);
 
         assertEquals(1L, result);
@@ -58,10 +58,10 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getVersion(Long version) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                        .activeHearingVersionNumber(version)
-                        .build())
-                .build();
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .activeHearingVersionNumber(version)
+                .build())
+            .build();
 
         Long result = HearingsRequestMapping.getVersion(caseData);
 
@@ -82,11 +82,11 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildCancelHearingPayloadTest() {
         HearingWrapper wrapper = HearingWrapper.builder()
-                .cancellationReason(CancellationReason.OTHER)
-                .build();
+            // .cancellationReasonCode(CANCEL_REASON_TEMP) // TODO: Uncomment when implemented.
+            .build();
         HearingCancelRequestPayload result = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
 
         assertThat(result).isNotNull();
-        assertEquals(CancellationReason.OTHER, result.getCancellationReasonCode());
+        // assertThat(result.getCancellationReasonCode()).isEqualTo(CANCELLATION_REASON); // TODO: Uncomment when implemented.
     }
 }
