@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.service.hearingvalues;
+package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,15 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@AllArgsConstructor
-@NoArgsConstructor
 public class HearingLocation {
-
+    private String locationType;
     private String locationId;
     private String locationName;
-    private String locationType;
     private String region;
 }

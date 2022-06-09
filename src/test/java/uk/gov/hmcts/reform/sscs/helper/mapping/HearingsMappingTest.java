@@ -4,12 +4,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +25,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 
-
 class HearingsMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private HearingDurationsService hearingDurations;
+
+    @Mock
+    private SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
+    private VenueService venueService;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
@@ -33,8 +49,9 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
@@ -68,7 +85,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .caseData(caseData)
                 .build();
-        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
         assertThat(result.getRequestDetails()).isNotNull();
