@@ -220,7 +220,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         // TODO SSCS-10378 - Finish Test
         String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
-                .jointParty(jointPartyDetails)
+            .jointParty(JointParty.builder().hasJointParty(jointParty).build())
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
