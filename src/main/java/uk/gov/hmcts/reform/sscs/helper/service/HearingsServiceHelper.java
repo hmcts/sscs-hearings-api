@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import java.util.Optional;
 
@@ -12,11 +12,11 @@ public final class HearingsServiceHelper {
     private HearingsServiceHelper() {
     }
 
-    public static void updateHearingId(HearingWrapper wrapper, HearingResponse response) {
+    public static void updateHearingId(HearingWrapper wrapper, HmcUpdateResponse response) {
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(response.getHearingRequestId());
     }
 
-    public static void updateVersionNumber(HearingWrapper wrapper, HearingResponse response) {
+    public static void updateVersionNumber(HearingWrapper wrapper, HmcUpdateResponse response) {
         wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingVersionNumber(response.getVersionNumber());
     }
 

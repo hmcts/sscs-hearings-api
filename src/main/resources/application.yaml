@@ -65,6 +65,8 @@ feign:
 jackson:
   serialization:
     WRITE_DATES_AS_TIMESTAMPS: false
+    ACCEPT_CASE_INSENSITIVE_ENUMS: true
+    ACCEPT_CASE_INSENSITIVE_PROPERTIES: true
 
 azure:
   service-bus:

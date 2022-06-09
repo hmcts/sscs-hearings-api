@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.single.hearing;
+package uk.gov.hmcts.reform.sscs.model.hmc.reference;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,5 @@ public enum ListingStatus {
     PROVISIONAL("Provisional"),
     FIXED("Fixed");
 
-    private final String listingStatusLabel;
-
+    private final String label;
 }

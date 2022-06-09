@@ -1,9 +1,13 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -13,13 +17,13 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
 
 @RestController
 public final class HearingsCaseMapping {
 
-    public static final String CASE_TYPE = "caseType";
-    public static final String CASE_SUB_TYPE = "caseSubType";
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
 
     private HearingsCaseMapping() {
@@ -117,7 +121,7 @@ public final class HearingsCaseMapping {
     public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
-                .categoryType(CASE_SUB_TYPE)
+                .categoryType(CASE_SUBTYPE)
                 .categoryParent(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());

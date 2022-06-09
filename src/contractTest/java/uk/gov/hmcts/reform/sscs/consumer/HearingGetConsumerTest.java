@@ -7,7 +7,6 @@ import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,11 +25,24 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.IDAM_OAUTH2_TOKEN;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.UNAUTHORISED_IDAM_OAUTH2_TOKEN;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.authorisedHeadersGet;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.unauthorisedHeadersGet;
 
 @SpringBootTest
 @ExtendWith(PactConsumerTestExt.class)
@@ -43,7 +54,8 @@ class HearingGetConsumerTest extends BasePactTest {
     private static final String PATH_HEARING = "/hearing";
     private static final String FIELD_ID = "id";
     private static final String VALID_CASE_ID = "123";
-    private static final String OPTION_FIELD_IS_VALID = "?isValid";
+    private static final String OPTION_FIELD_IS_VALID = "isValid";
+    private static final boolean OPTION_FIELD_IS_VALID_VALUE = false;
     private static final String VALID_NO_CONTENT_CASE_ID = "0";
 
     private static final String BAD_REQUEST_CASE_ID = "400";
@@ -70,10 +82,9 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given(STATE)
             .uponReceiving("Request to GET hearing for given valid case id")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID)
-            .headers(ContractTestDataProvider.authorisedHeaders)
+            .matchPath(PATH_HEARING + "/" + VALID_CASE_ID)
+            .method(GET.toString())
+            .headers(authorisedHeadersGet)
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date))
@@ -85,14 +96,15 @@ class HearingGetConsumerTest extends BasePactTest {
     void shouldSuccessfullyGetHearing() throws JsonProcessingException {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
-            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
-            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
-            VALID_CASE_ID
+            IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION_TOKEN,
+            VALID_CASE_ID,
+            null
         );
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
         HearingGetResponse expected = objectMapper.readValue(
             ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
             HearingGetResponse.class
@@ -108,10 +120,10 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given("sscs hearing api successfully returns case and with ref check")
             .uponReceiving("Request to GET hearing for given valid case id and with ?isValid")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID + OPTION_FIELD_IS_VALID)
-            .headers(ContractTestDataProvider.authorisedHeaders)
+            .path(PATH_HEARING + "/" + VALID_CASE_ID)
+            .method(GET.toString())
+            .headers(authorisedHeadersGet)
+            .query(OPTION_FIELD_IS_VALID + "=" + OPTION_FIELD_IS_VALID_VALUE)
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date))
@@ -124,14 +136,15 @@ class HearingGetConsumerTest extends BasePactTest {
     void shouldSuccessfullyGetHearingWithRefCheck() throws JsonProcessingException {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
-            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
-            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
-            VALID_CASE_ID + OPTION_FIELD_IS_VALID
+            IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION_TOKEN,
+            VALID_CASE_ID,
+            OPTION_FIELD_IS_VALID_VALUE
         );
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
         HearingGetResponse expected = objectMapper.readValue(
             ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
             HearingGetResponse.class
@@ -146,12 +159,11 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given("sscs hearing api successfully returns no case")
             .uponReceiving("Request to GET hearing and get nothing")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + VALID_NO_CONTENT_CASE_ID)
-            .headers(ContractTestDataProvider.authorisedHeaders)
+            .path(PATH_HEARING + "/" + VALID_NO_CONTENT_CASE_ID)
+            .method(GET.toString())
+            .headers(authorisedHeadersGet)
             .willRespondWith()
-            .status(HttpStatus.NO_CONTENT.value())
+            .status(NO_CONTENT.value())
             .body("")
             .toPact();
     }
@@ -162,9 +174,10 @@ class HearingGetConsumerTest extends BasePactTest {
     void shouldSuccessfullyGetHearingWithNoContent() {
 
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
-            ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
-            ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
-            VALID_NO_CONTENT_CASE_ID
+            IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION_TOKEN,
+            VALID_NO_CONTENT_CASE_ID,
+            null
         );
 
         assertNull(result);
@@ -177,12 +190,11 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given("sscs hearing api fail return with bad request status")
             .uponReceiving("Request to GET hearing for with bad request case id")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + BAD_REQUEST_CASE_ID)
-            .headers(ContractTestDataProvider.authorisedHeaders)
+            .path(PATH_HEARING + "/" + BAD_REQUEST_CASE_ID)
+            .method(GET.toString())
+            .headers(authorisedHeadersGet)
             .willRespondWith()
-            .status(HttpStatus.BAD_REQUEST.value())
+            .status(BAD_REQUEST.value())
             .body("")
             .toPact();
     }
@@ -194,10 +206,11 @@ class HearingGetConsumerTest extends BasePactTest {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
-                ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
-                BAD_REQUEST_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.BAD_REQUEST);
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                BAD_REQUEST_CASE_ID,
+                null
+            )).extracting("status").isEqualTo(BAD_REQUEST);
     }
 
 
@@ -207,12 +220,11 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given(STATE)
             .uponReceiving("Request to GET hearing for with unauthorized case id")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + UNAUTHORISED_CASE_ID)
-            .headers(ContractTestDataProvider.unauthorisedHeaders)
+            .path(PATH_HEARING + "/" + UNAUTHORISED_CASE_ID)
+            .method(GET.toString())
+            .headers(unauthorisedHeadersGet)
             .willRespondWith()
-            .status(HttpStatus.UNAUTHORIZED.value())
+            .status(UNAUTHORIZED.value())
             .body("")
             .toPact();
     }
@@ -224,10 +236,11 @@ class HearingGetConsumerTest extends BasePactTest {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                ContractTestDataProvider.UNAUTHORISED_IDAM_OAUTH2_TOKEN,
-                ContractTestDataProvider.UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
-                UNAUTHORISED_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.UNAUTHORIZED);
+                UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+                UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
+                UNAUTHORISED_CASE_ID,
+                null
+            )).extracting("status").isEqualTo(UNAUTHORIZED);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
@@ -236,12 +249,11 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given(STATE)
             .uponReceiving("Request to GET hearing for with forbidden case id")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
-            .headers(ContractTestDataProvider.authorisedHeaders)
+            .path(PATH_HEARING + "/" + FORBIDDEN_CASE_ID)
+            .method(GET.toString())
+            .headers(authorisedHeadersGet)
             .willRespondWith()
-            .status(HttpStatus.FORBIDDEN.value())
+            .status(FORBIDDEN.value())
             .body("")
             .toPact();
     }
@@ -253,10 +265,11 @@ class HearingGetConsumerTest extends BasePactTest {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
-                ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
-                FORBIDDEN_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.FORBIDDEN);
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                FORBIDDEN_CASE_ID,
+                null
+            )).extracting("status").isEqualTo(FORBIDDEN);
     }
 
 
@@ -266,12 +279,11 @@ class HearingGetConsumerTest extends BasePactTest {
         return builder
             .given(STATE)
             .uponReceiving("Request to GET hearing for with not found case id")
-            .path(PATH_HEARING)
-            .method(HttpMethod.GET.toString())
-            .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
-            .headers(ContractTestDataProvider.authorisedHeaders)
+            .path(PATH_HEARING + "/" + NOT_FOUND_CASE_ID)
+            .method(GET.toString())
+            .headers(authorisedHeadersGet)
             .willRespondWith()
-            .status(HttpStatus.NOT_FOUND.value())
+            .status(NOT_FOUND.value())
             .body("")
             .toPact();
     }
@@ -283,10 +295,11 @@ class HearingGetConsumerTest extends BasePactTest {
 
         assertThatExceptionOfType(ResponseStatusException.class).isThrownBy(
             () -> hmcHearingApi.getHearingRequest(
-                ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
-                ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
-                NOT_FOUND_CASE_ID
-            )).extracting("status").isEqualTo(HttpStatus.NOT_FOUND);
+                IDAM_OAUTH2_TOKEN,
+                SERVICE_AUTHORIZATION_TOKEN,
+                NOT_FOUND_CASE_ID,
+                null
+            )).extracting("status").isEqualTo(NOT_FOUND);
 
     }
 }

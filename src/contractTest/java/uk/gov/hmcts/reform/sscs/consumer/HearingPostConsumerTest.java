@@ -18,7 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.sscs.ContractTestDataProvider;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 
@@ -28,10 +28,9 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
-import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.HEARING_RESPONSE_STATUS;
 import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 
 @ExtendWith(PactConsumerTestExt.class)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
@@ -53,7 +52,7 @@ class HearingPostConsumerTest extends BasePactTest {
                 ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value())
-            .body(generateHearingsJsonBody(ContractTestDataProvider.MSG_200_HEARING, HEARING_RESPONSE_STATUS))
+            .body(generateHearingsJsonBody(ContractTestDataProvider.MSG_200_HEARING, HEARING_REQUESTED))
             .toPact();
     }
 
@@ -132,17 +131,17 @@ class HearingPostConsumerTest extends BasePactTest {
     @Test
     @PactTestFor(pactMethod = "createHearingRequestForValidRequest")
     void shouldSuccessfullyPostHearingRequest() {
-        HearingResponse hearingResponse = hmcHearingApi.createHearingRequest(
+        HmcUpdateResponse hmcUpdateResponse = hmcHearingApi.createHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
             ContractTestDataProvider.generateHearingRequest()
         );
 
-        assertNotNull(hearingResponse.getHearingRequestId());
-        assertTrue(hearingResponse.getStatus().equalsIgnoreCase(ContractTestDataProvider.HEARING_RESPONSE_STATUS));
-        assertNotNull(hearingResponse.getVersionNumber());
-        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hearingResponse.getVersionNumber());
-        assertThat(hearingResponse.getTimeStamp()).isEqualToIgnoringSeconds(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE));
+        assertNotNull(hmcUpdateResponse.getHearingRequestId());
+        assertThat(hmcUpdateResponse.getStatus()).isEqualTo(HEARING_REQUESTED);
+        assertNotNull(hmcUpdateResponse.getVersionNumber());
+        assertNotSame(ContractTestDataProvider.ZERO_NUMBER_LENGTH, hmcUpdateResponse.getVersionNumber());
+        assertThat(hmcUpdateResponse.getTimeStamp()).isEqualToIgnoringSeconds(LocalDateTime.parse(ContractTestDataProvider.HEARING_DATE));
     }
 
 

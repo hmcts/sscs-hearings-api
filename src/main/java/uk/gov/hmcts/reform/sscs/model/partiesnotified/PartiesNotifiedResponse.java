@@ -1,11 +1,11 @@
-package uk.gov.hmcts.reform.sscs.model.single.hearing;
+package uk.gov.hmcts.reform.sscs.model.partiesnotified;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -13,12 +13,12 @@ import org.joda.time.DateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PartiesNotifiedResponse {
-    
-    private DateTime partiesNotified;
 
-    private int requestVersion;
+    private LocalDateTime partiesNotified;
 
-    private DateTime responseReceivedDateTime;
+    private Long requestVersion;
 
-    private Object serviceData;
+    private LocalDateTime responseReceivedDateTime;
+
+    private ServiceData serviceData;
 }
