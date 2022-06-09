@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.model.single.hearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,8 @@ public class HearingDaySchedule {
 
     private String listAssistSessionID;
 
-    private String hearingVenueId;
+    @JsonProperty("hearingVenueId")
+    private String hearingVenueEpimsId;
 
     private String hearingRoomId;
 

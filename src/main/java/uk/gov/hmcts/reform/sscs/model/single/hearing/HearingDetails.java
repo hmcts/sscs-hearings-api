@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 
 import java.util.List;
 
@@ -49,4 +50,6 @@ public class HearingDetails {
     private boolean hearingIsLinkedFlag;
 
     private String amendReasonCode;
+
+    private boolean multiDayHearing;
 }
