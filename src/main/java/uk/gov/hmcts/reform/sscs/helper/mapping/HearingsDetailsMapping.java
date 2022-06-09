@@ -85,11 +85,6 @@ public final class HearingsDetailsMapping {
             .build();
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
-        Appeal appeal = caseData.getAppeal();
-        return !isCaseLinked(caseData) && !isCaseUrgent(caseData) && appeal.getHearingOptions().isWantsToAttendHearing();
-    }
-
     public static String getHearingType() {
         return SUBSTANTIVE.getHmcReference();
     }
