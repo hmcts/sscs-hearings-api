@@ -49,7 +49,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.TooManyMethods"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
