@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -137,13 +136,5 @@ public final class ServiceHearingPartiesMapping {
                 .custodyStatus(HearingsPartiesMapping.getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(HearingsPartiesMapping.getIndividualOtherReasonableAdjustmentDetails())
                 .build();
-    }
-
-    public static OrganisationDetails getOrganisationDetails(String name, String type, String id) {
-        OrganisationDetails.OrganisationDetailsBuilder organisationDetails = OrganisationDetails.builder();
-        organisationDetails.name(name);
-        organisationDetails.organisationType(type);
-        organisationDetails.cftOrganisationID(id);
-        return organisationDetails.build();
     }
 }
