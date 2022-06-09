@@ -68,10 +68,9 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBST
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
-    public static final String FACE_TO_FACE = "faceToFace";
-    public static final String BENEFIT_CODE = "002";
-    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
+    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
+    public static final String FACE_TO_FACE = "faceToFace";
 
     public static final String BENEFIT = "Benefit";
     private static SscsCaseDetails sscsCaseDetails;
@@ -252,6 +251,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     @Test
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
+
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);

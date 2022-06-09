@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -24,9 +23,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
-import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
 
@@ -38,15 +34,6 @@ import static org.mockito.BDDMockito.given;
 class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     private SscsCaseData caseData;
-
-    @Mock
-    private HearingDurationsService hearingDurations;
-
-    @Mock
-    private SessionCategoryMapService sessionCategoryMaps;
-
-    @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @BeforeEach
     void setUp() {
@@ -74,9 +61,9 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_01,null));
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isTrue();
     }
@@ -90,7 +77,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                         .build())
                 .build()));
 
-        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isFalse();
     }
@@ -262,11 +249,11 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_06,null));
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         caseData.getAppeal().getHearingOptions().setOther("Test");
 
-        boolean result = HearingsAutoListMapping.hasMqpmOrFqpm(caseData, referenceDataServiceHolder);
+        boolean result = HearingsAutoListMapping.hasMqpmOrFqpm(caseData, referenceData);
 
         assertThat(result).isTrue();
     }
@@ -279,9 +266,9 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_01,null));
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        boolean result = HearingsAutoListMapping.hasMqpmOrFqpm(caseData, referenceDataServiceHolder);
+        boolean result = HearingsAutoListMapping.hasMqpmOrFqpm(caseData, referenceData);
 
         assertThat(result).isFalse();
     }
