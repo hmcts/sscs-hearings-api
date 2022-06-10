@@ -326,14 +326,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,high", "Yes,No,high", "No,Yes,high",
-        "No,No,normal",
-        "Yes,null,high", "No,null,normal",
-        "null,Yes,high", "null,No,normal",
-        "null,null,normal",
-        "Yes,,high", "No,,normal",
-        ",Yes,high", ",No,normal",
-        ",,normal"
+        "Yes,Yes,urgent", "Yes,No,urgent", "No,Yes,urgent",
+        "No,No,standard",
+        "Yes,null,urgent", "No,null,standard",
+        "null,Yes,urgent", "null,No,standard",
+        "null,null,standard",
+        "Yes,,urgent", "No,,standard",
+        ",Yes,urgent", ",No,standard",
+        ",,standard"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
