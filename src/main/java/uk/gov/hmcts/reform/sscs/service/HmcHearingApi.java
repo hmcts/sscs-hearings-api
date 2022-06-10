@@ -40,11 +40,11 @@ public interface HmcHearingApi {
         @RequestBody HearingRequestPayload hearingPayload
     );
 
-    @DeleteMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(HEARING_ENDPOINT + "/{id}")
     HmcUpdateResponse cancelHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam(ID) String id,
+        @PathVariable String id,
         @RequestBody HearingCancelRequestPayload hearingDeletePayload
     );
 
