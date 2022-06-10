@@ -17,8 +17,6 @@ public class IndividualDetails {
 
     private String firstName;
 
-    private String title;
-
     private String lastName;
 
     private String preferredHearingChannel;
