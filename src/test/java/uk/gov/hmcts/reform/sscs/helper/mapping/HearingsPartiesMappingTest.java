@@ -244,7 +244,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         HearingWrapper wrapper = HearingWrapper.builder()
             .caseData(caseData)
-            .caseData(caseData)
             .build();
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
