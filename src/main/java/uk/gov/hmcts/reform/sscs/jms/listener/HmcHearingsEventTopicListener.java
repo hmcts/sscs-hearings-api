@@ -52,9 +52,11 @@ public class HmcHearingsEventTopicListener {
             HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
 
             if (isMessageRelevantForService(hmcMessage)) {
+                Long caseId = hmcMessage.getCaseId();
+                String hearingId = hmcMessage.getHearingId();
 
-                log.info("Processing hearing ID: {} for case reference: {}", hmcMessage.getHearingId(),
-                    hmcMessage.getCaseId());
+                log.info("Attempting to process message from HMC hearings topic for Case ID {}, and Hearing ID {}.",
+                    caseId, hearingId);
 
                 processHmcMessageService.processEventMessage(hmcMessage);
             }
@@ -64,7 +66,7 @@ public class HmcHearingsEventTopicListener {
         }
     }
 
-    public boolean isMessageRelevantForService(HmcMessage hmcMessage) {
+    private boolean isMessageRelevantForService(HmcMessage hmcMessage) {
         return sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }
 
