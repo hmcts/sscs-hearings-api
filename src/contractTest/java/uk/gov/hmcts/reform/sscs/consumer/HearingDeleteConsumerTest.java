@@ -194,9 +194,8 @@ class HearingDeleteConsumerTest extends BasePactTest {
                              HearingCancelRequestPayload payload, HttpStatus status) {
         RestAssured.given().headers(headers)
             .contentType(ContentType.JSON)
-            .queryParam(ID, caseId)
             .body(ContractTestDataProvider.toJsonString(payload)).when()
-            .delete(mockServer.getUrl() + ContractTestDataProvider.HEARING_PATH)
+            .delete(mockServer.getUrl() + ContractTestDataProvider.HEARING_PATH + "/" + caseId)
             .then().statusCode(status.value())
             .and().extract()
             .body()
