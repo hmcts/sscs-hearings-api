@@ -34,7 +34,7 @@ class HearingUpdateServiceTest {
 
     public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
     public static final LocalDateTime HEARING_END_DATE_TIME = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
-    private static final String HEARING_ID = "789";
+    private static final Long HEARING_ID = 789L;
     private static final String EPIMS_ID = "123";
     private static final String NEW_EPIMS_ID = "456";
     private static final String CASE_ID = "777";
@@ -56,7 +56,7 @@ class HearingUpdateServiceTest {
         hearingGetResponse = HearingGetResponse.builder()
                 .hearingResponse(HearingResponse.builder().build())
                 .requestDetails(RequestDetails.builder()
-                        .hearingRequestId(HEARING_ID)
+                        .hearingRequestId(String.valueOf(HEARING_ID))
                         .build())
                 .hearingDetails(uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build())
                 .caseDetails(CaseDetails.builder().build())
@@ -89,13 +89,13 @@ class HearingUpdateServiceTest {
         caseData.setHearings(Lists.newArrayList(
                 Hearing.builder()
                         .value(HearingDetails.builder()
-                                .venueId(EPIMS_ID)
-                                .hearingId(HEARING_ID)
+                                .epimsId(EPIMS_ID)
+                                .hearingId(String.valueOf(HEARING_ID))
                                 .build())
                         .build(),
                 Hearing.builder()
                         .value(HearingDetails.builder()
-                                .venueId("23453")
+                                .epimsId("23453")
                                 .hearingId("35533")
                                 .build())
                         .build()));
@@ -111,9 +111,9 @@ class HearingUpdateServiceTest {
         assertThat(hearings)
                 .hasSize(2)
                 .extracting(Hearing::getValue)
-                .filteredOn("hearingId", HEARING_ID)
+                .filteredOn("hearingId", String.valueOf(HEARING_ID))
                 .hasSize(1)
-                .allSatisfy(hearing -> assertThat(hearing.getVenueId()).isEqualTo(NEW_EPIMS_ID))
+                .allSatisfy(hearing -> assertThat(hearing.getEpimsId()).isEqualTo(NEW_EPIMS_ID))
                 .extracting(HearingDetails::getVenue)
                 .extracting("name")
                 .containsOnly(VENUE_NAME);
@@ -133,7 +133,7 @@ class HearingUpdateServiceTest {
         caseData.setHearings(Lists.newArrayList(
                 Hearing.builder()
                         .value(HearingDetails.builder()
-                                .venueId("23453")
+                                .epimsId("23453")
                                 .hearingId("35533")
                                 .build())
                         .build()));
@@ -149,9 +149,9 @@ class HearingUpdateServiceTest {
         assertThat(hearings)
                 .hasSize(2)
                 .extracting(Hearing::getValue)
-                .filteredOn("hearingId", HEARING_ID)
+                .filteredOn("hearingId", String.valueOf(HEARING_ID))
                 .hasSize(1)
-                .allSatisfy(hearing -> assertThat(hearing.getVenueId()).isEqualTo(NEW_EPIMS_ID))
+                .allSatisfy(hearing -> assertThat(hearing.getEpimsId()).isEqualTo(NEW_EPIMS_ID))
                 .extracting(HearingDetails::getVenue)
                 .extracting("name")
                 .containsOnly(VENUE_NAME);
@@ -184,7 +184,7 @@ class HearingUpdateServiceTest {
         caseData.setHearings(Lists.newArrayList(
                 Hearing.builder()
                         .value(HearingDetails.builder()
-                                .venueId("23453")
+                                .epimsId("23453")
                                 .hearingId("35533")
                                 .build())
                         .build()));

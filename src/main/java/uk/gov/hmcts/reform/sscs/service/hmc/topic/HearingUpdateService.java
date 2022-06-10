@@ -10,15 +10,13 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
+import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
@@ -35,7 +33,7 @@ public class HearingUpdateService {
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
             throws MessageProcessingException, InvalidMappingException {
 
-        String hearingId = hearingGetResponse.getRequestDetails().getHearingRequestId();
+        Long hearingId = Long.valueOf(hearingGetResponse.getRequestDetails().getHearingRequestId());
 
         List<HearingDaySchedule> hearingSessions = hearingGetResponse.getHearingResponse().getHearingSessions();
 
@@ -61,41 +59,21 @@ public class HearingUpdateService {
 
         Venue venue = mapVenueDetailsToVenue(venueDetails);
 
-        Hearing hearing = findOrCreateHearingInCaseData(hearingId, sscsCaseData);
+        Hearing hearing = HearingsServiceHelper.findOrCreateHearingInCaseData(hearingId, sscsCaseData);
 
         HearingDetails hearingDetails = hearing.getValue();
-        hearingDetails.setHearingId(hearingId);
-        hearingDetails.setVenueId(hearingEpimsId);
+        hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setVenue(venue);
+        hearingDetails.setStart(hearingDaySchedule.getHearingStartDateTime());
+        hearingDetails.setEnd(hearingDaySchedule.getHearingEndDateTime());
+
 
         // TODO SSCS-10620 - Set StartDateTime and EndDateTime
 
-        log.info("Venue has been updated from epimsId {} to {} for Case Id: {} with hearingId {}",
-            hearingDetails.getHearingId(),
+        log.info("Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
+            hearingDetails.getEpimsId(),
             hearingEpimsId,
             sscsCaseData.getCcdCaseId(),
             hearingId);
-    }
-
-    public Hearing findOrCreateHearingInCaseData(String hearingId, @Valid SscsCaseData caseData) {
-        List<Hearing> hearings = new ArrayList<>(Optional
-                .ofNullable(caseData.getHearings())
-                .orElse(Collections.emptyList()));
-
-        Hearing targetHearing = hearings.stream()
-                .filter(hearing -> hearing.getValue().getHearingId().equals(hearingId))
-                .findFirst()
-                .orElse(null);
-
-        if (isNull(targetHearing)) {
-            targetHearing = Hearing.builder()
-                    .value(HearingDetails.builder().build())
-                    .build();
-            hearings.add(targetHearing);
-        }
-
-        caseData.setHearings(hearings);
-
-        return targetHearing;
     }
 }

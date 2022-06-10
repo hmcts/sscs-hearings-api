@@ -5,28 +5,28 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
-import java.time.ZonedDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 class HearingsServiceHelperTest {
 
     private HearingWrapper wrapper;
-    private ZonedDateTime testStart;
 
     @BeforeEach
     void setup() {
         wrapper = HearingWrapper.builder()
-                .caseData(SscsCaseData.builder().build())
                 .caseData(SscsCaseData.builder().build())
                 .build();
     }
@@ -39,20 +39,22 @@ class HearingsServiceHelperTest {
         "1,1,1",
         "2,1,1",
         "null,2,2",
-        "1,null,null",
+        "1,null,1",
         "null,null,null",
     }, nullValues = {"null"})
-    void updateHearingId(Long original, Long updated, Long expected) {
-        wrapper.getCaseData().setSchedulingAndListingFields(SchedulingAndListingFields.builder()
-                .activeHearingId(original)
-                .build());
+    void updateHearingId(String original, Long updated, String expected) {
+        Hearing hearing = Hearing.builder()
+            .value(HearingDetails.builder()
+                .hearingId(original)
+                .build())
+            .build();
         HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .hearingRequestId(updated)
                 .build();
 
-        HearingsServiceHelper.updateHearingId(wrapper, response);
+        HearingsServiceHelper.updateHearingId(hearing, response);
 
-        assertThat(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingId()).isEqualTo(expected);
+        assertThat(hearing.getValue().getHearingId()).isEqualTo(expected);
     }
 
     @DisplayName("updateVersionNumber Parameterised Tests")
@@ -66,21 +68,27 @@ class HearingsServiceHelperTest {
         "null,null,null",
     }, nullValues = {"null"})
     void updateVersionNumber(Long original, Long updated, Long expected) {
-        wrapper.getCaseData().setSchedulingAndListingFields(SchedulingAndListingFields.builder()
-                .activeHearingVersionNumber(original)
-                .build());
+        Hearing hearing = Hearing.builder()
+            .value(HearingDetails.builder()
+                .hmcVersionNumber(original)
+                .build())
+            .build();
         HmcUpdateResponse response = HmcUpdateResponse.builder()
                 .versionNumber(updated)
                 .build();
 
-        HearingsServiceHelper.updateVersionNumber(wrapper, response);
+        HearingsServiceHelper.updateVersionNumber(hearing, response);
 
-        assertThat(wrapper.getCaseData().getSchedulingAndListingFields().getActiveHearingVersionNumber()).isEqualTo(expected);
+        assertThat(hearing.getValue().getHmcVersionNumber()).isEqualTo(expected);
     }
 
     @Test
     void shouldReturnHearingId_givenValidWrapper() {
-        HearingWrapper wrapper = activeHearingIdFixture(12345L);
+        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+            .value(HearingDetails.builder()
+                .hearingId("12345")
+                .build())
+            .build()));
 
         final String actualHearingId = getHearingId(wrapper);
 
@@ -89,27 +97,55 @@ class HearingsServiceHelperTest {
 
     @Test
     void shouldReturnNullHearingId_givenNullValue() {
-        HearingWrapper wrapper = activeHearingIdFixture(null);
+        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+            .value(HearingDetails.builder()
+                .hearingId(null)
+                .build())
+            .build()));
 
         final String actualHearingId = getHearingId(wrapper);
 
         assertNull(actualHearingId);
     }
 
+    @DisplayName("getVersion Test")
     @Test
-    void shouldReturnNull_givenInvalidWrapper() {
-        final String actualHearingId = getHearingId(new HearingWrapper());
+    void getVersion() {
+        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+            .value(HearingDetails.builder()
+                .hmcVersionNumber(1L)
+                .build())
+            .build()));
+        Long result = HearingsServiceHelper.getVersion(wrapper);
 
-        assertNull(actualHearingId);
+        assertEquals(1L, result);
     }
 
-    private HearingWrapper activeHearingIdFixture(final Long hearingId) {
-        return HearingWrapper.builder()
-            .caseData(SscsCaseData.builder()
-                    .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                            .activeHearingId(hearingId)
-                            .build())
-                    .build())
-            .build();
+    @DisplayName("getVersion null return ParameterisedTest Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null",
+        "0",
+        "-1",
+    }, nullValues = {"null"})
+    void getVersion(Long version) {
+        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+            .value(HearingDetails.builder()
+                .hmcVersionNumber(version)
+                .build())
+            .build()));
+
+        Long result = HearingsServiceHelper.getVersion(wrapper);
+
+        assertNull(result);
+    }
+
+    @DisplayName("getVersion when hearings is null ParameterisedTest Tests")
+    @Test
+    void getVersionNull() {
+
+        Long result = HearingsServiceHelper.getVersion(wrapper);
+
+        assertNull(result);
     }
 }

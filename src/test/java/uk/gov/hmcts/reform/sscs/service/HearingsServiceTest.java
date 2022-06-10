@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -37,6 +39,9 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -204,7 +209,12 @@ class HearingsServiceTest {
                 .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(UPDATE_HEARING);
-        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
+        wrapper.getCaseData()
+            .setHearings(new ArrayList<>(List.of(Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_REQUEST_ID))
+                    .build())
+                .build())));
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -218,7 +228,12 @@ class HearingsServiceTest {
                 .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(CANCEL_HEARING);
-        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(HEARING_REQUEST_ID);
+        wrapper.getCaseData()
+            .setHearings(List.of(Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_REQUEST_ID))
+                    .build())
+                .build()));
         wrapper.setCancellationReason(CancellationReason.OTHER);
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
