@@ -1,26 +1,19 @@
 package uk.gov.hmcts.reform.sscs.utility;
 
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 
 public class BasePactTest {
 
-    private static final String STATUS_OPTIONS_STRING = "HEARING_REQUESTED|UPDATE_REQUESTED|"
-         + "UPDATE_SUBMITTED|AWAITING_LISTING|LISTED|CANCELLATION_REQUESTED|EXCEPTION";
-
-
-    public  PactDslJsonBody generateHearingsJsonBody(String statusMessage, String responseStatus) {
-        return genericHearingJsonBody(statusMessage, responseStatus);
-    }
-
-    private  PactDslJsonBody genericHearingJsonBody(String statusMessage, String responseStatus) {
+    public  PactDslJsonBody generateHearingsJsonBody(String statusMessage, HmcStatus responseStatus) {
         PactDslJsonBody pactDslJsonBody = new PactDslJsonBody();
 
         addStatusMessage(pactDslJsonBody, statusMessage);
 
         pactDslJsonBody
             .integerType("versionNumber", "123")
-            .integerType("hearingRequestID", "^[a-zA-Z0-9]{1,30}$", "1880163574")
-            .stringMatcher("status", STATUS_OPTIONS_STRING, responseStatus)
+            .integerType("hearingRequestId", "^[a-zA-Z0-9]{1,30}$", "1880163574")
+            .stringType("status", responseStatus.toString())
             .stringMatcher("timeStamp", "2030-08-20T12:40:00")
             .asBody();
 

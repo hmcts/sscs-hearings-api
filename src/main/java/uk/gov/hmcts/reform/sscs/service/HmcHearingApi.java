@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.sscs.config.FeignClientConfig;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -25,18 +25,26 @@ public interface HmcHearingApi {
     String ID = "id";
 
     @PostMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse createHearingRequest(
+    HmcUpdateResponse createHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestBody HearingRequestPayload hearingPayload
     );
 
     @PutMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse updateHearingRequest(
+    HmcUpdateResponse updateHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam(ID) String id,
         @RequestBody HearingRequestPayload hearingPayload
+    );
+
+    @DeleteMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    HmcUpdateResponse cancelHearingRequest(
+        @RequestHeader(AUTHORIZATION) String authorisation,
+        @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestParam(ID) String id,
+        @RequestBody HearingCancelRequestPayload hearingDeletePayload
     );
 
     @GetMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -44,14 +52,6 @@ public interface HmcHearingApi {
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
         @RequestParam(ID) String id
-    );
-
-    @DeleteMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    HearingResponse cancelHearingRequest(
-        @RequestHeader(AUTHORIZATION) String authorisation,
-        @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam(ID) String id,
-        @RequestBody HearingCancelRequestPayload hearingDeletePayload
     );
 
 }

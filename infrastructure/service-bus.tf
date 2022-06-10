@@ -17,8 +17,19 @@ data "azurerm_key_vault_secret" "hmc-servicebus-connection-string" {
   name         = "hmc-servicebus-connection-string"
 }
 
-resource "azurerm_key_vault_secret" "hmc-to-sscs-hearings-api-secret" {
+resource "azurerm_key_vault_secret" "hmc-servicebus-connection-string" {
   name         = "hmc-servicebus-connection-string"
   value        = data.azurerm_key_vault_secret.hmc-servicebus-connection-string.value
+  key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "hmc-servicebus-shared-access-key" {
+  key_vault_id = data.azurerm_key_vault.hmc-key-vault.id
+  name         = "hmc-servicebus-shared-access-key"
+}
+
+resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-hared-access-key" {
+  name         = "hmc-servicebus-shared-access-key"
+  value        = data.azurerm_key_vault_secret.hmc-servicebus-shared-access-key.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }

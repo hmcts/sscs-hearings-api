@@ -12,9 +12,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
@@ -40,6 +40,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.HIGH;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.NORMAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
@@ -281,9 +282,11 @@ public final class HearingsDetailsMapping {
 
         HearingLocation hearingLocation = new HearingLocation();
         hearingLocation.setLocationId(epimsId);
-        hearingLocation.setLocationType("court");
+        hearingLocation.setLocationType(COURT);
+        List<HearingLocation> hearingLocations = new ArrayList<>();
+        hearingLocations.add(hearingLocation);
 
-        return List.of(hearingLocation);
+        return hearingLocations;
     }
 
     public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
