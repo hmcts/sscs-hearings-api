@@ -50,13 +50,13 @@ public class ProcessHmcMessageService {
 
         checkStatuses(caseId, hearingId, hmcMessageStatus, hmcStatus);
 
-        SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
-
         if (stateNotHandled(hmcStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                 hearingId, caseId);
             return;
         }
+
+        SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
         if (isHearingUpdated(hmcStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
