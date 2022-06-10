@@ -40,7 +40,8 @@ public class HearingsService {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
-                hearingRequest.getHearingRoute());
+                hearingRequest.getHearingRoute(),
+                hearingRequest.getCancellationReason());
 
         processHearingWrapper(createWrapper(hearingRequest));
     }
