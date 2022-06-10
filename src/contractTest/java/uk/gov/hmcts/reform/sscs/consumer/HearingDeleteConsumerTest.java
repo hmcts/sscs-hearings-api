@@ -54,9 +54,8 @@ class HearingDeleteConsumerTest extends BasePactTest {
     RequestResponsePact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully deleting a hearing request ")
             .uponReceiving("Request to delete hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH)
+            .path(ContractTestDataProvider.HEARING_PATH + "/" + VALID_CASE_ID)
             .method(HttpMethod.DELETE.toString())
-            .query(ID + "=" + VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith()
@@ -70,9 +69,8 @@ class HearingDeleteConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws bad request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for bad hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH)
+            .path(ContractTestDataProvider.HEARING_PATH + "/" + VALID_CASE_ID)
             .method(HttpMethod.DELETE.toString())
-            .query(ID + "=" + VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateInvalidHearingDeleteRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.BAD_REQUEST.value())
@@ -90,9 +88,8 @@ class HearingDeleteConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for unauthorised hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH)
+            .path(ContractTestDataProvider.HEARING_PATH + "/" + VALID_CASE_ID)
             .method(HttpMethod.DELETE.toString())
-            .query(ID + "=" + VALID_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
             .headers(ContractTestDataProvider.unauthorisedHeaders)
             .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
@@ -110,8 +107,8 @@ class HearingDeleteConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws forbidden error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for forbidden hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.DELETE.toString())
-            .query(ID + "=" + FORBIDDEN_CASE_ID)
+            .path(ContractTestDataProvider.HEARING_PATH + "/" + FORBIDDEN_CASE_ID)
+            .method(HttpMethod.DELETE.toString())
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.FORBIDDEN.value())
@@ -129,7 +126,8 @@ class HearingDeleteConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws not found request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for not found hearing request")
-            .path(ContractTestDataProvider.HEARING_PATH).method(HttpMethod.DELETE.toString())
+            .path(ContractTestDataProvider.HEARING_PATH + "/" + NOT_FOUND_CASE_ID)
+            .method(HttpMethod.DELETE.toString())
             .query(ID + "=" + NOT_FOUND_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
