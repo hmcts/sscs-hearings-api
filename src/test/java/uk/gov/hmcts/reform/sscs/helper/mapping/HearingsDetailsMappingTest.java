@@ -8,7 +8,31 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideSchedulingListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -702,8 +726,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration " +
-        "is present then override the duration of hearing")
+    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
+        + "is present then override the duration of hearing")
     @Test
     void getHearingDurationWillReturnOverrideDurationWhenPresent() {
         SscsCaseData caseData = SscsCaseData.builder()
