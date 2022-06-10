@@ -1,10 +1,5 @@
 package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,13 +8,14 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
+
+import java.util.function.Function;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
@@ -68,14 +64,27 @@ public class ProcessHmcMessageService {
 
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
 
-        ccdCaseService.updateCaseData(caseData,
-                hmcStatus.getCcdUpdateEventType(),
-                hmcStatus.getCcdUpdateSummary(),
-                ccdUpdateDescription);
+        resolveEventAndUpdateCase(hearingResponse, hmcStatus, caseData, ccdUpdateDescription);
 
         log.info("Hearing message {} processed for case reference {}",
                 hmcMessage.getHearingId(),
                 hmcMessage.getCaseId());
+    }
+
+    private void resolveEventAndUpdateCase(HearingGetResponse hearingResponse, HmcStatus hmcStatus, SscsCaseData caseData,
+                           String ccdUpdateDescription) throws UpdateCaseException {
+
+        Function<HearingGetResponse, EventType> eventMapper = hmcStatus.getEventMapper();
+
+        if (eventMapper != null) {
+            EventType eventType = eventMapper.apply(hearingResponse);
+            if (eventType != null) {
+                ccdCaseService.updateCaseData(caseData,
+                    eventType,
+                    hmcStatus.getCcdUpdateSummary(),
+                    ccdUpdateDescription);
+            }
+        }
     }
 
     private void checkStatuses(Long caseId, String hearingId, HmcStatus hmcMessageStatus, HmcStatus hmcStatus)
@@ -89,7 +98,7 @@ public class ProcessHmcMessageService {
 
 
     private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        return !(isHearingUpdated(hmcStatus, hearingResponse) ||isHearingCancelled(hmcStatus, hearingResponse)
+        return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
     }
 

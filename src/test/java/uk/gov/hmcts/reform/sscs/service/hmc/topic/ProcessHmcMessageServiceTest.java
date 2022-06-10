@@ -32,7 +32,6 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.State.UNKNOWN;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
@@ -45,7 +44,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.W
 @ExtendWith(MockitoExtension.class)
 class ProcessHmcMessageServiceTest {
 
-    public static final String SSCS_SERVICE_CODE = "BBA3";
     public static final String HEARING_ID = "abcdef";
     public static final long CASE_ID = 123L;
 
@@ -56,7 +54,7 @@ class ProcessHmcMessageServiceTest {
     private CcdCaseService ccdCaseService;
 
     @Mock
-    private CaseStateUpdateService caseStateUpdateService;
+    private HearingUpdateService hearingUpdateService;
 
     @InjectMocks
     private ProcessHmcMessageService processHmcMessageService;
@@ -119,8 +117,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateListed(hearingGetResponse, caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
     }
 
@@ -144,7 +140,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
@@ -153,7 +148,7 @@ class ProcessHmcMessageServiceTest {
     @EnumSource(
         value = HmcStatus.class,
         mode = EnumSource.Mode.EXCLUDE,
-        names = {"LISTED", "UPDATE_SUBMITTED"})
+        names = {"LISTED", "UPDATE_SUBMITTED", "AWAITING_LISTING"})
     void testUpdateListedNotFixed(HmcStatus hmcStatus) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
@@ -170,7 +165,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, never()).updateListed(any(), any());
+        verify(ccdCaseService, never()).updateCaseData(any(), any(), any(), any());
     }
 
     @DisplayName("When valid listing Status and list assist case status is given, "
@@ -194,8 +189,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateCancelled(hearingGetResponse, caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
     }
 
@@ -220,8 +213,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateCancelled(hearingGetResponse, caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
     }
 
@@ -245,8 +236,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateCancelled(hearingGetResponse, caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
 
     }
@@ -270,8 +259,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateFailed(caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, EXCEPTION);
     }
 
@@ -297,7 +284,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
@@ -320,7 +306,7 @@ class ProcessHmcMessageServiceTest {
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), HEARING_ID);
         verify(ccdCaseService, times(1))
                 .updateCaseData(caseData,
-                        hmcStatus.getCcdUpdateEventType(),
+                        hmcStatus.getEventMapper().apply(hearingGetResponse),
                         hmcStatus.getCcdUpdateSummary(),
                         ccdUpdateDescription);
     }
@@ -329,7 +315,7 @@ class ProcessHmcMessageServiceTest {
             throws UpdateCaseException {
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), HEARING_ID);
         given(ccdCaseService.updateCaseData(sscsCaseDetails.getData(),
-                hmcStatus.getCcdUpdateEventType(),
+                hmcStatus.getEventMapper().apply(hearingGetResponse),
                 hmcStatus.getCcdUpdateSummary(),
                 ccdUpdateDescription))
                 .willReturn(sscsCaseDetails);
