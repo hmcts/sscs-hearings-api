@@ -24,9 +24,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideSchedulingListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
@@ -722,6 +724,29 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(expected, result);
+    }
+
+    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
+        + "is present then override the duration of hearing")
+    @Test
+    void getHearingDurationWillReturnOverrideDurationWhenPresent() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDuration(null)
+            .adjournCaseNextHearingListingDurationUnits(null)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                                            .overrideSchedulingListingFields(OverrideSchedulingListingFields.builder()
+                                                                                 .overrideDuration(60)
+                                                                                 .build())
+                                            .build())
+            .build();
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+
+        assertEquals(60, result);
     }
 
     @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")

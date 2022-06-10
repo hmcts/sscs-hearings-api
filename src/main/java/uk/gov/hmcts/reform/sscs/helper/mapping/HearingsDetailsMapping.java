@@ -7,8 +7,10 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideSchedulingListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -127,7 +129,15 @@ public final class HearingsDetailsMapping {
 
         Integer duration = getHearingDurationAdjournment(caseData);
         if (isNull(duration)) {
-            duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
+
+            Integer overrideDuration = Optional.ofNullable(caseData.getSchedulingAndListingFields())
+                .map(SchedulingAndListingFields::getOverrideSchedulingListingFields)
+                .map(OverrideSchedulingListingFields::getOverrideDuration)
+                .orElse(0);
+
+            duration = overrideDuration > 0
+                ? overrideDuration
+                : getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
         }
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
