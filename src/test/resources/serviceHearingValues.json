@@ -80,6 +80,13 @@
       "partyID": "P1",
       "partyType": "IND",
       "partyName": "Jane Smith",
+      "individualDetails":
+        {
+          "firstName": "Jane",
+          "lastName": "Smith",
+          "vulnerableFlag": false
+        }
+      ,
       "partyChannel": "byVideo",
       "individualDetails": {
         "firstName": "Jane",
