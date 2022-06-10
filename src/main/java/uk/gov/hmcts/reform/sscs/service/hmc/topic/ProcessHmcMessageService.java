@@ -22,8 +22,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
-import java.util.function.Function;
-
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
@@ -36,6 +34,11 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 @Service
 @RequiredArgsConstructor
 public class ProcessHmcMessageService {
+
+    private static final String REQUEST_CANCELLED = "Cancelled";
+
+    @Value("${sscs.serviceCode}")
+    private String sscsServiceCode;
 
     private final HmcHearingApiService hmcHearingApiService;
 
@@ -71,17 +74,10 @@ public class ProcessHmcMessageService {
 
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
 
-        Function<HearingGetResponse, EventType> eventMapper = hmcStatus.getEventMapper();
-
-        if (eventMapper != null) {
-            EventType eventType = eventMapper.apply(hearingResponse);
-            if (eventType != null) {
-                ccdCaseService.updateCaseData(caseData,
-                    eventType,
-                    hmcStatus.getCcdUpdateSummary(),
-                    ccdUpdateDescription);
-            }
-        }
+        ccdCaseService.updateCaseData(caseData,
+                hmcStatus.getCcdUpdateEventType(),
+                hmcStatus.getCcdUpdateSummary(),
+                ccdUpdateDescription);
 
         log.info("Hearing message {} processed for case reference {}",
                 hmcMessage.getHearingId(),
