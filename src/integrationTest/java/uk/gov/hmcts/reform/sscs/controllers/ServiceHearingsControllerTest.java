@@ -47,6 +47,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -86,6 +87,7 @@ class ServiceHearingsControllerTest {
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
     private static final String CASE_NAME = "Test Case Name";
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
     public static final String PROCESSING_VENUE = "Liverpool";
     public static final String APPELLANT_ID = "1";
     public static final String APPELLANT_ROLE = "BBA3-a";
@@ -95,7 +97,6 @@ class ServiceHearingsControllerTest {
 
     @MockBean
     private IdamService idamApiService;
-
 
     @MockBean
     private AuthTokenGenerator authTokenGenerator;
@@ -165,15 +166,18 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyType(appellant)).thenReturn(INDIVIDUAL);
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(appellant)).thenReturn(APPELLANT_ROLE);
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class))).thenReturn("BBA3-j");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class))).thenReturn("BBA3-d");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,
-            referenceDataServiceHolder)).thenReturn("bul");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Appellant.class))).thenReturn(
+            EntityRoleCode.APPELLANT.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class)))
+            .thenReturn(EntityRoleCode.REPRESENTATIVE.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class)))
+            .thenReturn(EntityRoleCode.OTHER_PARTY.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, referenceDataServiceHolder))
+            .thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype, hearingOptions))
-            .thenReturn(FACE_TO_FACE.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(),
+                hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
         SscsCaseData sscsCaseData = SscsCaseData.builder()
             .caseAccessManagementFields(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
@@ -190,11 +194,9 @@ class ServiceHearingsControllerTest {
                 .build())
             .processingVenue(PROCESSING_VENUE)
             .build();
-
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
-
         given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class))).willReturn(caseDetails);
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
@@ -212,7 +214,6 @@ class ServiceHearingsControllerTest {
         given(hearingDurations.getHearingDuration(anyString(),anyString()))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
-
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE))
             .willReturn(Optional.of("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"));
 

@@ -33,15 +33,14 @@ public class HearingsService {
 
     private final CcdCaseService ccdCaseService;
 
-    private final ReferenceDataServiceHolder referenceData;
+    private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
     public void processHearingRequest(HearingRequest hearingRequest)
         throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
-                hearingRequest.getHearingRoute(),
-                hearingRequest.getCancellationReason());
+                hearingRequest.getHearingRoute());
 
         processHearingWrapper(createWrapper(hearingRequest));
     }
@@ -78,7 +77,7 @@ public class HearingsService {
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         HmcUpdateResponse response = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
         log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -91,7 +90,7 @@ public class HearingsService {
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 

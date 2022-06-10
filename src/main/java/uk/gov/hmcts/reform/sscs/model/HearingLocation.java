@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HearingLocation {
+
     private LocationType locationType;
 
     private String locationId;

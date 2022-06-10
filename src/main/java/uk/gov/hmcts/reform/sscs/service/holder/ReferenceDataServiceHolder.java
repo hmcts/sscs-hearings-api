@@ -15,19 +15,19 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 public class ReferenceDataServiceHolder {
 
     @Autowired
-    private HearingDurationsService hearingDurations;
+    private final HearingDurationsService hearingDurations;
+    
+    @Autowired
+    private final SessionCategoryMapService sessionCategoryMaps;
 
     @Autowired
-    private SessionCategoryMapService sessionCategoryMaps;
+    private final VerbalLanguagesService verbalLanguages;
 
     @Autowired
-    private VerbalLanguagesService verbalLanguages;
+    private final SignLanguagesService signLanguages;
 
     @Autowired
-    private SignLanguagesService signLanguages;
-
-    @Autowired
-    private VenueService venueService;
+    private final VenueService venueService;
 
     @Value("${exui.url}")
     private String exUiUrl;

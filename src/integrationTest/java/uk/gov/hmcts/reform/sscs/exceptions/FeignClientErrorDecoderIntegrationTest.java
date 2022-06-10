@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("integration")
 public class FeignClientErrorDecoderIntegrationTest {
 
-    private static final String PATH_HEARING = "/hearing?";
+    private static final String PATH_HEARING = "/hearing";
     private static final String STATUS = "status";
     private static final String IDAM_OAUTH2_TOKEN = "test-idam-token";
     private static final String SERVICE_AUTHORIZATION_TOKEN = "test-s2s-token";
@@ -81,7 +81,7 @@ public class FeignClientErrorDecoderIntegrationTest {
     void testMockReturnBadRequest400(int statusCode, HttpStatus expectedHttpStatus, String expectedErrorMessage)
             throws JsonProcessingException {
         wireMockServer.stubFor(WireMock.get(
-                urlEqualTo(PATH_HEARING + FIELD_ID + "=" + CASE_ID))
+                urlEqualTo(PATH_HEARING + "/" + CASE_ID))
             .willReturn(aResponse()
                 .withStatus(statusCode)
                 .withBody(expectedErrorMessage.getBytes(StandardCharsets.UTF_8))));
@@ -90,7 +90,8 @@ public class FeignClientErrorDecoderIntegrationTest {
                 () -> hmcHearingApi.getHearingRequest(
                     IDAM_OAUTH2_TOKEN,
                     SERVICE_AUTHORIZATION_TOKEN,
-                    CASE_ID))
+                    CASE_ID,
+                    null))
             .extracting(STATUS).isEqualTo(expectedHttpStatus);
 
         verify(appInsightsService, times(1)).sendAppInsightsEvent(argument.capture());

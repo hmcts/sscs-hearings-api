@@ -93,6 +93,7 @@ public class ProcessHmcMessageService {
                 hmcMessage.getCaseId());
     }
 
+
     public boolean messageIsNotRelevantForService(HmcMessage hmcMessage) {
         return !sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }

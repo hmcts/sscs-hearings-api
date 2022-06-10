@@ -1,9 +1,13 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -92,7 +96,7 @@ public final class HearingsCaseMapping {
     }
 
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
-            ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         List<CaseCategory> categories = new ArrayList<>();
 
@@ -105,7 +109,7 @@ public final class HearingsCaseMapping {
     }
 
     public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode,
-            ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                  ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
@@ -114,8 +118,7 @@ public final class HearingsCaseMapping {
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode,
-            ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUBTYPE)

@@ -18,13 +18,13 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSession
 
 public final class ServiceHearingValuesMapping {
 
+    public static final String BENEFIT = "Benefit";
+
     private ServiceHearingValuesMapping() {
-        throw new IllegalStateException("Utility class");
     }
 
 
-    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails,
-                                                               ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
         if (caseDetails == null) {
             return null;
@@ -38,7 +38,7 @@ public final class ServiceHearingValuesMapping {
                 .caseNamePublic(HearingsCaseMapping.getPublicCaseName(caseData))
                 .autoListFlag(shouldBeAutoListed)
                 .hearingType(HearingsDetailsMapping.getHearingType())
-                .caseType(caseData.getBenefitCode())
+                .caseType(BENEFIT)
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder))
                 .hearingWindow(buildHearingWindow(caseData, shouldBeAutoListed))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
@@ -46,8 +46,7 @@ public final class ServiceHearingValuesMapping {
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
                 // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
-                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(),
-                    referenceDataServiceHolder))
+                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData))
@@ -56,9 +55,9 @@ public final class ServiceHearingValuesMapping {
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
                 .judiciary(getJudiciary(caseDetails, referenceDataServiceHolder))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
-                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData,
-                    referenceDataServiceHolder))
+                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceDataServiceHolder))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
+                .hmctsServiceID(referenceDataServiceHolder.getSscsServiceCode())
                 .screenFlow(null)
                 .vocabulary(null)
             .build();

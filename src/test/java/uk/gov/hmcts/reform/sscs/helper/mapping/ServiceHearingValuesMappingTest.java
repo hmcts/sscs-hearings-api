@@ -37,11 +37,8 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -53,7 +50,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,21 +60,21 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest {
 
-    public static final String FACE_TO_FACE = "faceToFace";
-    public static final String BENEFIT_CODE = "002";
-    private static final String NOTE_FROM_OTHER_PARTY = "party_role - Mr Barny Boulderstone:\n";
+    private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
+    public static final String FACE_TO_FACE = "faceToFace";
 
+    public static final String BENEFIT = "Benefit";
     private static SscsCaseDetails sscsCaseDetails;
 
     @Mock
@@ -190,20 +186,19 @@ class ServiceHearingValuesMappingTest {
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
+        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
+
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(verbalLanguages.getVerbalLanguageReference("Bulgarian"))
+        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguageReference("Bulgarian"))
                 .willReturn("bul");
 
-        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
-
-        given(signLanguages.getSignLanguageReference("Makaton"))
+        given(referenceDataServiceHolder.getSignLanguages().getSignLanguageReference("Makaton"))
                 .willReturn("sign-mkn");
-
-        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
-
     }
 
     @Test
@@ -224,14 +219,14 @@ class ServiceHearingValuesMappingTest {
         assertFalse(serviceHearingValues.isAutoListFlag());
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
-        assertEquals(sscsCaseData.getBenefitCode(), serviceHearingValues.getCaseType());
+        assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
                 .extracting("categoryType","categoryValue")
                 .containsExactlyInAnyOrder(
                         tuple(CASE_TYPE,"BBA3-002"),
                         tuple(CASE_SUBTYPE,"BBA3-002-DD"));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
-        assertEquals("high", serviceHearingValues.getHearingPriorityType());
+        assertEquals("urgent", serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());
@@ -258,17 +253,15 @@ class ServiceHearingValuesMappingTest {
     @Test
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
-        SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
-        assertEquals("BBA3-a", serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-j", serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
-        assertEquals("BBA3-d", serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {
@@ -335,59 +328,6 @@ class ServiceHearingValuesMappingTest {
                                    .build()));
             }
         };
-    }
-
-
-
-    private List<PartyDetails> getParties() {
-        return new ArrayList<>() {{
-                add(PartyDetails.builder()
-                        .partyID(null)
-                        .partyType(INDIVIDUAL)
-                        .partyChannelSubType(FACE_TO_FACE)
-                        .partyRole("BBA3-appellant")
-                        .individualDetails(getIndividualDetails())
-                        .organisationDetails(OrganisationDetails.builder().build())
-                        .unavailabilityDayOfWeek(null)
-                        .unavailabilityRanges(getUnavailabilityRanges())
-                        .build());
-                add(PartyDetails.builder()
-                    .partyID("party_id_1")
-                    .partyType(INDIVIDUAL)
-                    .partyChannelSubType(FACE_TO_FACE)
-                    .partyRole("party_role")
-                    .individualDetails(getIndividualDetails())
-                    .organisationDetails(OrganisationDetails.builder().build())
-                    .unavailabilityDayOfWeek(null)
-                    .unavailabilityRanges(getUnavailabilityRanges())
-                    .build());
-            }
-        };
-    }
-
-    private List<UnavailabilityRange> getUnavailabilityRanges() {
-        return new ArrayList<>() {
-            {
-                add(UnavailabilityRange.builder()
-                    .unavailableFromDate(LocalDate.of(2022, 1,12))
-                    .unavailableToDate(LocalDate.of(2022,1,19))
-                    .build());
-            }};
-    }
-
-    private IndividualDetails getIndividualDetails() {
-        return IndividualDetails.builder()
-            .firstName("Barny")
-            .lastName("Boulderstone")
-            .preferredHearingChannel(FACE_TO_FACE)
-            .interpreterLanguage("tel")
-            .reasonableAdjustments(new ArrayList<>())
-            .vulnerableFlag(false)
-            .vulnerabilityDetails(null)
-            .hearingChannelEmail(Collections.singletonList("test2@gmail.com"))
-            .hearingChannelPhone(Collections.singletonList("0999733735"))
-            .relatedParties(getRelatedParties()) // TODO this field would be populated when the corresponding method is finished
-            .build();
     }
 
     private List<RelatedParty> getRelatedParties() {

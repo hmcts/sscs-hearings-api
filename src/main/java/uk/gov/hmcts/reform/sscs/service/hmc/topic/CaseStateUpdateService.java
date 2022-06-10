@@ -49,7 +49,8 @@ public class CaseStateUpdateService {
     }
 
     private void setState(SscsCaseData sscsCaseData, State state) {
-        sscsCaseData.setState(state);
+        // Todo Work out why we cant set the state
+        //sscsCaseData.setState(state);
         log.info("CCD state has been updated to {} for caseId {}", state, sscsCaseData.getCcdCaseId());
     }
 

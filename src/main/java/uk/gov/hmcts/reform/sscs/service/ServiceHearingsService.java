@@ -34,8 +34,7 @@ public class ServiceHearingsService {
             throws GetCaseException, UpdateCaseException, InvalidMappingException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
         HearingsMapping.updateIds(caseDetails.getData());
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails,
-            referenceDataServiceHolder);
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails, referenceDataServiceHolder);
         ccdCaseService.updateCaseData(
                 caseDetails.getData(), EventType.UPDATE_CASE_ONLY,
                 "Updating caseDetails IDs",

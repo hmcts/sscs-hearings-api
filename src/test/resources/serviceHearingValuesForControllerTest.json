@@ -1,23 +1,25 @@
 {
-  "caseName": null,
-  "caseNamePublic": "Test Case Name",
-  "autoListFlag": false,
-  "hearingType": "BBA3-substantive",
-  "caseType": null,
-  "caseCategories": [
+  "caseName":null,
+  "caseNamePublic":"Test Case Name",
+  "autoListFlag":false,
+  "hearingType":"BBA3-SUB",
+  "caseType":"Benefit",
+  "caseCategories":[
     {
-      "categoryType": "caseType"
+      "categoryType":"caseType"
     },
     {
-      "categoryType": "caseSubType"
+      "categoryType":"caseSubType"
     }
   ],
   "duration":30,
-  "hearingPriorityType":"normal",
+  "hearingPriorityType":"standard",
   "numberOfPhysicalAttendees":0,
   "hearingInWelshFlag":false,
   "caseAdditionalSecurityFlag":false,
-  "facilitiesRequired":[],
+  "facilitiesRequired":[
+
+  ],
   "listingComments":null,
   "hearingRequester":null,
   "privateHearingRequiredFlag":false,
@@ -29,42 +31,42 @@
       "hearingWindowStartDateRange":"MOCK_DATE_TOMORROW"
     }
   },
-  "hearingLocations": [
+  "hearingLocations":[
     {
-      "locationType": "court",
-      "locationId": "LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
+      "locationType":"court",
+      "locationId":"LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"
     }
   ],
-  "panelRequirements": null,
-  "judiciary": {
-    "roleType": [],
-    "authorisationTypes": [],
-    "authorisationSubType": [],
-    "judiciaryPreferences": [],
-    "judiciarySpecialisms": []
+  "panelRequirements":null,
+  "judiciary":{
+    "roleType":[],
+    "authorisationTypes":[],
+    "authorisationSubType":[],
+    "judiciaryPreferences":[],
+    "judiciarySpecialisms":[]
   },
-  "parties": [
+  "parties":[
     {
-      "partyID": "1",
-      "partyType": "IND",
-      "partyChannel": "INTER",
-      "partyRole": "BBA3-a",
-      "individualDetails": {
-        "preferredHearingChannel": "INTER",
-        "interpreterLanguage": "bul",
-        "reasonableAdjustments": [],
-        "vulnerableFlag": false,
-        "hearingChannelEmail": [],
-        "hearingChannelPhone": [],
-        "relatedParties": []
+      "partyID":"1",
+      "partyType":"IND",
+      "partyChannel":"INTER",
+      "partyRole":"APEL",
+      "individualDetails":{
+        "preferredHearingChannel":"INTER",
+        "interpreterLanguage":"bul",
+        "reasonableAdjustments":[],
+        "vulnerableFlag":false,
+        "hearingChannelEmail":[],
+        "hearingChannelPhone":[],
+        "relatedParties":[]
       },
-      "unavailabilityRanges": []
+      "unavailabilityRanges":[]
     }
   ],
-  "caseFlags": {
-    "flags": [],
-    "flagAmendURL": ""
+  "caseFlags":{
+    "flags":[],
+    "flagAmendURL":""
   },
-  "screenFlow": null,
-  "vocabulary": null
+  "screenFlow":null,
+  "vocabulary":null
 }

@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 
 import java.util.ArrayList;
@@ -34,9 +34,6 @@ class HmcHearingApiServiceTest {
     private HmcHearingApi hmcHearingApi;
 
     @Mock
-    private AuthTokenGenerator serviceAuthTokenGenerator;
-
-    @Mock
     private IdamService idamService;
 
     @InjectMocks
@@ -44,8 +41,10 @@ class HmcHearingApiServiceTest {
 
     @BeforeEach
     void setUp() {
-        given(serviceAuthTokenGenerator.generate()).willReturn(IDAM_OAUTH2_TOKEN);
-        given(idamService.generateServiceAuthorization()).willReturn(SERVICE_AUTHORIZATION);
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder()
+                .serviceAuthorization(SERVICE_AUTHORIZATION)
+                .idamOauth2Token(IDAM_OAUTH2_TOKEN)
+                .build());
     }
 
     @DisplayName("When getHearingRequest is given the correct parameters it returns a valid response without error")
@@ -59,7 +58,7 @@ class HmcHearingApiServiceTest {
                 .requestDetails(RequestDetails.builder().build())
                 .build();
 
-        given(hmcHearingApi.getHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, HEARING_ID))
+        given(hmcHearingApi.getHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, HEARING_ID, null))
                 .willReturn(response);
 
         HearingGetResponse result = hmcHearingsService.getHearingRequest(HEARING_ID);
@@ -72,7 +71,7 @@ class HmcHearingApiServiceTest {
     @DisplayName("When the api getHearingRequest returns a null the correct error and message is thrown")
     @Test
     void testGetHearingRequestNullResponse() {
-        given(hmcHearingApi.getHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, HEARING_ID))
+        given(hmcHearingApi.getHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, HEARING_ID, null))
                 .willReturn(null);
 
         assertThatExceptionOfType(GetHearingException.class)

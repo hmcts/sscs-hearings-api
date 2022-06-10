@@ -1,7 +1,7 @@
 # sscs-hearings-api
 
 [![Build Status](https://travis-ci.com/hmcts/sscs-hearings-api.svg?branch=master)](https://travis-ci.org/hmcts/sscs-hearings-api)
-[![Coverage Status](https://coveralls.io/repos/github/hmcts/sscs-hearings-api/badge.svg?branch=master)](https://coveralls.io/github/hmcts/sscs-hearings-api?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/hmcts/sscs-hearings-api/badge.svg?branch=master)](https://coveralls.io/github/hmcts/sscs-hearings-api?branch=master) 
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=coverage)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=SSCSHA&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=SSCSHA)
@@ -21,12 +21,6 @@ To build the project execute the following command:
 ```bash
   ./gradlew build
 ```
-
-
-
-
-
-
 
 ### Running the application
 

@@ -41,14 +41,11 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
 class HearingsCaseMappingTest extends HearingsMappingBase {
-
     @Mock
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
-
-
 
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
