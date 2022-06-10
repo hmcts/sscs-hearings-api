@@ -128,7 +128,6 @@ class HearingDeleteConsumerTest extends BasePactTest {
             .uponReceiving("Request to DELETE hearing for not found hearing request")
             .path(ContractTestDataProvider.HEARING_PATH + "/" + NOT_FOUND_CASE_ID)
             .method(HttpMethod.DELETE.toString())
-            .query(ID + "=" + NOT_FOUND_CASE_ID)
             .body(ContractTestDataProvider.toJsonString(ContractTestDataProvider.generateHearingDeleteRequest()))
             .headers(ContractTestDataProvider.authorisedHeaders)
             .willRespondWith().status(HttpStatus.NOT_FOUND.value())
