@@ -60,13 +60,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceHearingValuesMappingTest extends HearingsMappingBase {
+class ServiceHearingValuesMappingTest {
 
     private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
@@ -219,10 +221,10 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
         assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
-            .extracting("categoryType","categoryValue")
-            .containsExactlyInAnyOrder(
-                tuple(CASE_TYPE,"BBA3-002"),
-                tuple(CASE_SUBTYPE,"BBA3-002-DD"));
+                .extracting("categoryType","categoryValue")
+                .containsExactlyInAnyOrder(
+                        tuple(CASE_TYPE,"BBA3-002"),
+                        tuple(CASE_SUBTYPE,"BBA3-002-DD"));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
         assertEquals("urgent", serviceHearingValues.getHearingPriorityType());
         assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());

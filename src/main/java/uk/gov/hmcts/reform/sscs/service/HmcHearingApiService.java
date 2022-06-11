@@ -57,7 +57,7 @@ public class HmcHearingApiService {
     }
 
     public HmcUpdateResponse sendCancelHearingRequest(HearingCancelRequestPayload hearingPayload, String hearingId) {
-        log.debug("Sending Update Hearing Request for Hearing ID {} and request:\n{}",
+        log.debug("Sending Cancel Hearing Request for Hearing ID {} and request:\n{}",
                 hearingId,
                 hearingPayload);
         return hmcHearingApi.cancelHearingRequest(

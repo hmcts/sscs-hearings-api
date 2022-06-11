@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -30,6 +31,11 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 @RequiredArgsConstructor
 public class ProcessHmcMessageService {
 
+    private static final String REQUEST_CANCELLED = "Cancelled";
+
+    @Value("${sscs.serviceCode}")
+    private String sscsServiceCode;
+
     private final HmcHearingApiService hmcHearingApiService;
 
     private final CcdCaseService ccdCaseService;
@@ -42,8 +48,21 @@ public class ProcessHmcMessageService {
         Long caseId = hmcMessage.getCaseId();
         String hearingId = hmcMessage.getHearingId();
 
-        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
+        log.info("Attempting to process message from hearings topic for Case ID {}, Hearing ID {} and Service Code {}",
+                 caseId, hearingId, hmcMessage.getHmctsServiceCode());
 
+        if (messageIsNotRelevantForService(hmcMessage)) {
+            log.info("Message with Service Code {} not for this service, regarding hearing ID {} and Case ID: {}",
+                     hmcMessage.getHmctsServiceCode(), hearingId, caseId);
+            return;
+        }
+
+        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
+        log.info("Attempting to process message from hearings topic, processing for hearing status '{}', Case ID {}, Hearing ID {} and Service Code {}",
+                 hmcMessageStatus.getLabel(),
+                 caseId,
+                 hearingId,
+                 hmcMessage.getHmctsServiceCode());
         HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
 
         HmcStatus hmcStatus = hearingResponse.getRequestDetails().getStatus();
@@ -100,6 +119,10 @@ public class ProcessHmcMessageService {
     private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
+    }
+
+    public boolean messageIsNotRelevantForService(HmcMessage hmcMessage) {
+        return !sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }
 
     private boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
