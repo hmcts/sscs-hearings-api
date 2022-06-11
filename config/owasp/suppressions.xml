@@ -17,12 +17,13 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-security@.+$</packageUrl>
     <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
   </suppress>
-  <suppress>
+  <suppress until="2022-06-20">
     <notes><![CDATA[
      incorrectly tagging spring-security-rsa as spring-security
      ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-rsa@.+$</packageUrl>
     <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -52,37 +53,16 @@
   </suppress>
   <suppress until="2022-06-20">
     <notes><![CDATA[
-     spring-security-crypto-5.6.3.jar
+     activemq-broker-5.16.5.jar
      ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.+$</packageUrl>
-    <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-     incorrectly tagging spring-security-crypto, Affects versions prior to 5.3.2
-     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@(([5-9])|(\d+\d))\.(([3-9])|(\d+\d))\.(([2-9])|(\d+\d))$</packageUrl>
-    <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.+$</packageUrl>
+    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
   </suppress>
   <suppress until="2022-06-20">
     <notes><![CDATA[
-   file name: spring-boot-starter-security-2.6.8.jar
+   file name: spring-boot-starter-security-2.7.0.jar
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-security@.*$</packageUrl>
-    <cve>CVE-2022-22976</cve>
-  </suppress>
-  <suppress until="2022-06-20">
-    <notes><![CDATA[
-     activemq-broker-5.16.5.jar
-     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.+$</packageUrl>
-    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
-  </suppress>
-  <suppress until="2022-06-20">
-    <notes><![CDATA[
-     activemq-broker-5.16.5.jar
-     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.+$</packageUrl>
-    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
+    <cve>CVE-2022-22978</cve>
   </suppress>
 </suppressions>
