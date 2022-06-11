@@ -4,12 +4,34 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
+import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,21 +42,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 
-
 class HearingsMappingTest extends HearingsMappingBase {
+
+    @Mock
+    private HearingDurationsService hearingDurations;
+
+    @Mock
+    private SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
+    private VenueService venueService;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
     void buildHearingPayload() throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        60,75,30));
+                                                60,75,30));
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+                                                   false, false, SessionCategory.CATEGORY_03, null));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
@@ -68,7 +102,7 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .caseData(caseData)
                 .caseData(caseData)
                 .build();
-        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceData);
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
         assertThat(result.getRequestDetails()).isNotNull();
@@ -81,6 +115,7 @@ class HearingsMappingTest extends HearingsMappingBase {
     @Test
     void updateIds() {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        JointParty jointParty = JointParty.builder().id("3").appointee(Appointee.builder().build()).build();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                 .id("2")
                 .appointee(Appointee.builder().build())
@@ -93,7 +128,9 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .rep(Representative.builder().build())
                         .build())
                 .otherParties(otherParties)
+                .jointParty(jointParty)
                 .build();
+
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .caseData(caseData)
@@ -110,6 +147,9 @@ class HearingsMappingTest extends HearingsMappingBase {
         assertNotNull(wrapper.getCaseData().getOtherParties().get(0).getValue().getRep().getId());
 
         assertNotNull(wrapper.getCaseData().getOtherParties().get(1).getValue().getId());
+
+        assertThat(wrapper.getCaseData().getJointParty().getAppointee().getId()).isNotNull();
+        assertThat(wrapper.getCaseData().getJointParty().getId()).isNotNull();
     }
 
     @DisplayName("getMaxId Test")

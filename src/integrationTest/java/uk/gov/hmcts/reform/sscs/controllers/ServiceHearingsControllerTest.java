@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -48,15 +47,18 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -69,6 +71,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 
 @ExtendWith(SpringExtension.class)
@@ -88,13 +91,13 @@ class ServiceHearingsControllerTest {
 
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
+    public static final String PROCESSING_VENUE = "Liverpool";
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private IdamService idamApiService;
-
 
     @MockBean
     private AuthTokenGenerator authTokenGenerator;
@@ -103,13 +106,17 @@ class ServiceHearingsControllerTest {
     private CcdService ccdService;
 
     @MockBean
-    private ReferenceDataServiceHolder referenceData;
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
     public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
     public HearingDurationsService hearingDurations;
+
+    @Mock
+    private VenueService venueService;
+
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
 
@@ -147,26 +154,31 @@ class ServiceHearingsControllerTest {
         Mockito.when(otherParty.getHearingSubtype()).thenReturn(hearingSubtype);
         Mockito.when(appeal.getHearingSubtype()).thenReturn(hearingSubtype);
         HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
+
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(appellant)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(representative)).thenReturn("1");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyId(otherParty)).thenReturn("1");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Appellant.class))).thenReturn("BBA3-a");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class))).thenReturn("BBA3-j");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class))).thenReturn("BBA3-d");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,referenceData)).thenReturn("bul");
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyType(appellant)).thenReturn(INDIVIDUAL);
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Appellant.class))).thenReturn(
+            EntityRoleCode.APPELLANT.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(Representative.class)))
+            .thenReturn(EntityRoleCode.REPRESENTATIVE.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class)))
+            .thenReturn(EntityRoleCode.OTHER_PARTY.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,
+            referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(), hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
+        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(),
+            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
         Mockito.when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
+
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         Mockito.when(sscsCaseData.getCaseAccessManagementFields()).thenReturn(CaseAccessManagementFields.builder()
                 .caseNamePublic(CASE_NAME)
                 .build());
-        Mockito.when(sscsCaseData.getCaseManagementLocation()).thenReturn(CaseManagementLocation.builder()
-                .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
-                .region("North West")
-                .build());
+        Mockito.when(sscsCaseData.getProcessingVenue()).thenReturn(PROCESSING_VENUE);
         Mockito.when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
         Mockito.when(sscsCaseData.getCcdCaseId()).thenReturn(String.valueOf(CASE_ID));
@@ -197,9 +209,12 @@ class ServiceHearingsControllerTest {
         given(hearingDurations.getHearingDuration(anyString(),anyString()))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         60,75,30));
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE))
+            .willReturn(Optional.of("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL"));
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
     }
 
     // TODO These are holder tests that will need to be implemented alongside service hearing controller
@@ -221,20 +236,6 @@ class ServiceHearingsControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(actualJson));
-    }
-
-    @DisplayName("When Case Reference is Invalid should return a with 400 response code")
-    @Test
-    void testPostRequestServiceHearingValues_badCaseID() throws Exception {
-        ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(BAD_CASE_ID)
-                .build();
-
-        mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("When Case Not Found should return a with 404 response code")
@@ -270,21 +271,6 @@ class ServiceHearingsControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
-    }
-
-    @DisplayName("When Case Reference is Invalid should return a with 400 response code")
-    @Test
-    void testPostRequestServiceLinkedCases_badCaseID() throws Exception {
-        ServiceHearingRequest request = ServiceHearingRequest.builder()
-                .caseId(BAD_CASE_ID)
-                .hearingId(String.valueOf(HEARING_ID))
-                .build();
-
-        mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
     }
 
     @Test

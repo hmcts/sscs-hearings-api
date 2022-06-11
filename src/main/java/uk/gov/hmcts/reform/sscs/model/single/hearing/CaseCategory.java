@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType;
 
 @Data
 @NoArgsConstructor
@@ -14,8 +14,7 @@ import uk.gov.hmcts.reform.sscs.validator.EnumPattern;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CaseCategory {
 
-    @EnumPattern(enumClass = CaseCategoryType.class, fieldName = "categoryType")
-    private String categoryType;
+    private CaseCategoryType categoryType;
 
     private String categoryValue;
 

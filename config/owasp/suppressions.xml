@@ -30,6 +30,7 @@
      ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.+?$</packageUrl>
     <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
   </suppress>
   <suppress until="2022-06-20">
     <notes><![CDATA[ file name: netty-*-4.1.76.Final.jar ]]></notes>
@@ -41,5 +42,19 @@
     https://github.com/spring-projects/spring-framework/issues/24434#issuecomment-1132113566]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*?@[1-5]\..*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
+  </suppress>
+  <suppress until="2022-06-20">
+    <notes><![CDATA[
+     spring-security-web-5.6.3.jar
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-web@.+$</packageUrl>
+    <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
+  </suppress>
+  <suppress until="2022-06-20">
+    <notes><![CDATA[
+     activemq-broker-5.16.5.jar
+     ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.+$</packageUrl>
+    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
   </suppress>
 </suppressions>

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.model.single.hearing;
+package uk.gov.hmcts.reform.sscs.model.partiesnotified;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,10 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PartiesNotified {
-
-    private String hearingID;
+public class HmcPartiesNotifiedResponse {
+    private String hearingId;
 
     private List<PartiesNotifiedResponse> responses;
-
 }
