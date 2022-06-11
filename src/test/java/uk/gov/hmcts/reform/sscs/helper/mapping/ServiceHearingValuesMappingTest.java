@@ -33,10 +33,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -70,7 +69,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
-    public static final String FACE_TO_FACE = "faceToFace";
 
     public static final String BENEFIT = "Benefit";
     private static SscsCaseDetails sscsCaseDetails;
@@ -202,18 +200,14 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     @Test
     void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
         // given
-        SscsCaseData sscsCaseData = sscsCaseDetails.getData();
-
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
-                .hearingWindowDateRange(HearingWindowDateRange.builder()
-                .hearingWindowStartDateRange(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY).toString()).build()).build();
+            .dateRangeStart(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY))
+            .build();
         //then
-        assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNameHmctsInternal(), serviceHearingValues.getCaseName());
-        assertEquals(sscsCaseData.getCaseAccessManagementFields().getCaseNamePublic(), serviceHearingValues.getCaseNamePublic());
         assertFalse(serviceHearingValues.isAutoListFlag());
         assertEquals(30, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());

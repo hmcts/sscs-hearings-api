@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.ErrorDecoder;
@@ -23,13 +22,12 @@ public class FeignClientConfig {
     @Bean
     @Primary
     Decoder feignDecoder(ObjectMapper objectMapper) {
-        objectMapper.registerModule(new JavaTimeModule());
         return new JacksonDecoder(objectMapper);
     }
 
     @Bean
-    public ErrorDecoder errorDecoder() {
-        return new FeignClientErrorDecoder(appInsightsService);
+    public ErrorDecoder errorDecoder(ObjectMapper objectMapper) {
+        return new FeignClientErrorDecoder(appInsightsService, objectMapper);
     }
 
     @Bean

@@ -16,4 +16,15 @@ public class HmcFailureMessage implements Message {
     private LocalDateTime timeStamp;
     private String errorCode;
     private String errorMessage;
+
+    @Override
+    public String toString() {
+        return "HmcFailureMessage{"
+            + "requestType='" + requestType + '\''
+            + ", caseID=" + caseID
+            + ", timeStamp=" + timeStamp
+            + ", errorCode='" + errorCode + '\''
+            + ", errorMessage='" + errorMessage + '\''
+            + '}';
+    }
 }
