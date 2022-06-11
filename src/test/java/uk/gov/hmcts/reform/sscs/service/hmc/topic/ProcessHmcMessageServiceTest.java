@@ -25,6 +25,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
@@ -43,6 +44,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.State.UNKNOWN;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_REQUESTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.DRAFT;
@@ -63,7 +65,7 @@ class ProcessHmcMessageServiceTest {
     private CcdCaseService ccdCaseService;
 
     @Mock
-    private CaseStateUpdateService caseStateUpdateService;
+    private HearingUpdateService hearingUpdateService;
 
     @InjectMocks
     private ProcessHmcMessageService processHmcMessageService;
@@ -145,14 +147,14 @@ class ProcessHmcMessageServiceTest {
                 .isThrownBy(() -> processHmcMessageService.processEventMessage(hmcMessage));
 
         // then
-        verifyNoInteractions(caseStateUpdateService, ccdCaseService);
+        verifyNoInteractions(hearingUpdateService, ccdCaseService);
     }
 
     @DisplayName("When listing Status is Fixed and and HmcStatus is valid, "
-            + "updateListed and updateCaseData are called once")
+            + "updateHearing and updateCaseData are called once")
     @ParameterizedTest
-    @EnumSource(value = HmcStatus.class, names = {"LISTED", "UPDATE_SUBMITTED"})
-    void testUpdateListed(HmcStatus hmcStatus) throws Exception {
+    @EnumSource(value = HmcStatus.class, names = {"LISTED", "AWAITING_LISTING", "UPDATE_SUBMITTED"})
+    void testUpdateHearing(HmcStatus hmcStatus) throws Exception {
         // given
 
         hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
@@ -163,8 +165,6 @@ class ProcessHmcMessageServiceTest {
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
 
-        givenHmcStatusUpdateCaseDataWillReturnSscsCaseDetails(sscsCaseDetails, hmcStatus);
-
         given(ccdCaseService.getCaseDetails(CASE_ID))
                 .willReturn(sscsCaseDetails);
 
@@ -172,16 +172,13 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateListed(hearingGetResponse, caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
+        verify(hearingUpdateService).updateHearing(hearingGetResponse, caseData);
     }
 
-
-
-    @DisplayName("When listing Status is not Fixed, updateListed and updateCaseData are not called")
+    @DisplayName("When listing Status is not Fixed, updateHearing and updateCaseData are not called")
     @Test
-    void testUpdateListedNotFixed() throws Exception {
+    void testUpdateHearingNotFixed() throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(LISTED);
         hearingGetResponse.getHearingResponse().setListingStatus(DRAFT);
@@ -190,92 +187,88 @@ class ProcessHmcMessageServiceTest {
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
 
-        given(ccdCaseService.getCaseDetails(CASE_ID))
-                .willReturn(sscsCaseDetails);
-
         // when
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
+        verify(hearingUpdateService, never()).updateHearing(any(), any());
     }
 
-    @DisplayName("When listing Status is Fixed but HmcStatus is not valid, updateListed is not called")
+    @DisplayName("When (non) Cancelled status given in but hearingCancellationReason is valid, "
+        + "updateCancelled and updateCaseData are called")
     @ParameterizedTest
     @EnumSource(
         value = HmcStatus.class,
+        mode = EnumSource.Mode.INCLUDE,
+        names = {"CANCELLED", "UPDATE_SUBMITTED"})
+    void testShouldSetCcdStateForCancelledHearingsCorrectly(HmcStatus status) throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(status);
+        hearingGetResponse.getHearingResponse().setHearingCancellationReason(WITHDRAWN);
+        hmcMessage.getHearingUpdate().setHmcStatus(status);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+                .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+                .willReturn(sscsCaseDetails);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, status);
+    }
+
+    @DisplayName("Should update the case state to Dormant for correct cancellation reasons")
+    @ParameterizedTest
+    @EnumSource(
+        value = CancellationReason.class,
+        mode = EnumSource.Mode.INCLUDE,
+        names = {"WITHDRAWN", "STRUCK_OUT", "LAPSED"})
+    void testShouldUpdateCcdStateDormantForCancelledHearings(CancellationReason reason) throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
+        hearingGetResponse.getHearingResponse().setHearingCancellationReason(reason);
+        hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
+    }
+
+    @DisplayName("Should not update the case state to Dormant for wrong cancellation reasons")
+    @ParameterizedTest
+    @EnumSource(
+        value = CancellationReason.class,
         mode = EnumSource.Mode.EXCLUDE,
-        names = {"LISTED", "UPDATE_SUBMITTED"})
-    void testUpdateListedNotFixed(HmcStatus hmcStatus) throws Exception {
-        // given
-        hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
-        hearingGetResponse.getHearingResponse().setListingStatus(FIXED);
-        hmcMessage.getHearingUpdate().setHmcStatus(hmcStatus);
-
-        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
-                .willReturn(hearingGetResponse);
-
-        given(ccdCaseService.getCaseDetails(CASE_ID))
-                .willReturn(sscsCaseDetails);
-
-        // when
-        processHmcMessageService.processEventMessage(hmcMessage);
-
-        // then
-        verify(caseStateUpdateService, never()).updateListed(any(), any());
-    }
-
-    @DisplayName("When valid listing Status and list assist case status is given, "
-            + "updateListed and updateCaseData are called once")
-    @Test
-    void testShouldSetCcdStateForCancelledHearingsCorrectly() throws Exception {
+        names = {"WITHDRAWN", "STRUCK_OUT", "LAPSED"})
+    void testShouldNotUpdateCcdStateForCancelledHearings(CancellationReason reason) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
-        hearingGetResponse.getHearingResponse().setHearingCancellationReason(WITHDRAWN);
+        hearingGetResponse.getHearingResponse().setHearingCancellationReason(reason);
         hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
-                .willReturn(hearingGetResponse);
-
-        givenHmcStatusUpdateCaseDataWillReturnSscsCaseDetails(sscsCaseDetails, CANCELLED);
+            .willReturn(hearingGetResponse);
 
         given(ccdCaseService.getCaseDetails(CASE_ID))
-                .willReturn(sscsCaseDetails);
+            .willReturn(sscsCaseDetails);
 
         // when
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateCancelled(hearingGetResponse, caseData);
-        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
-    }
-
-    @DisplayName("When non Cancelled status given in but hearingCancellationReason is valid, "
-            + "updateCancelled and updateCaseData are called")
-    @Test
-    void testUpdateCancelledNonCancelledStatusRequest() throws Exception {
-        // given
-        hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
-        hearingGetResponse.getHearingResponse().setHearingCancellationReason(WITHDRAWN);
-        hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
-
-        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
-                .willReturn(hearingGetResponse);
-
-        givenHmcStatusUpdateCaseDataWillReturnSscsCaseDetails(sscsCaseDetails, CANCELLED);
-
-        given(ccdCaseService.getCaseDetails(CASE_ID))
-                .willReturn(sscsCaseDetails);
-
-        // when
-        processHmcMessageService.processEventMessage(hmcMessage);
-
-        // then
-        verify(caseStateUpdateService, times(1))
-                .updateCancelled(hearingGetResponse, caseData);
-        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
+        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
     @DisplayName("When no cancellation reason is given but status is Cancelled, "
@@ -289,8 +282,6 @@ class ProcessHmcMessageServiceTest {
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
 
-        givenHmcStatusUpdateCaseDataWillReturnSscsCaseDetails(sscsCaseDetails, CANCELLED);
-
         given(ccdCaseService.getCaseDetails(CASE_ID))
                 .willReturn(sscsCaseDetails);
 
@@ -298,9 +289,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateCancelled(hearingGetResponse, caseData);
-        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
+        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
 
     }
 
@@ -310,8 +299,6 @@ class ProcessHmcMessageServiceTest {
         // given
         hearingGetResponse.getRequestDetails().setStatus(EXCEPTION);
         hmcMessage.getHearingUpdate().setHmcStatus(EXCEPTION);
-
-        givenHmcStatusUpdateCaseDataWillReturnSscsCaseDetails(sscsCaseDetails, EXCEPTION);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
@@ -323,9 +310,24 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(caseStateUpdateService, times(1))
-                .updateFailed(caseData);
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, EXCEPTION);
+    }
+
+    @DisplayName("When HmcStatus is Exception updateFailed and updateCaseData are called")
+    @Test
+    void testHmcStatusWithNoEventMapperShouldNotUpdateCaseData() throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(HEARING_REQUESTED);
+        hmcMessage.getHearingUpdate().setHmcStatus(HEARING_REQUESTED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
     @DisplayName("When not listed, updated, canceled or exception nothing is called")
@@ -340,9 +342,6 @@ class ProcessHmcMessageServiceTest {
 
         hmcMessage.getHearingUpdate().setHmcStatus(value);
 
-        given(ccdCaseService.getCaseDetails(CASE_ID))
-                .willReturn(sscsCaseDetails);
-
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
 
@@ -350,7 +349,6 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verifyNoInteractions(caseStateUpdateService);
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
     }
 
@@ -373,18 +371,9 @@ class ProcessHmcMessageServiceTest {
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), HEARING_ID);
         verify(ccdCaseService, times(1))
                 .updateCaseData(caseData,
-                        hmcStatus.getCcdUpdateEventType(),
+                        hmcStatus.getEventMapper().apply(hearingGetResponse),
                         hmcStatus.getCcdUpdateSummary(),
                         ccdUpdateDescription);
     }
 
-    private void givenHmcStatusUpdateCaseDataWillReturnSscsCaseDetails(SscsCaseDetails sscsCaseDetails, HmcStatus hmcStatus)
-            throws UpdateCaseException {
-        String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), HEARING_ID);
-        given(ccdCaseService.updateCaseData(sscsCaseDetails.getData(),
-                hmcStatus.getCcdUpdateEventType(),
-                hmcStatus.getCcdUpdateSummary(),
-                ccdUpdateDescription))
-                .willReturn(sscsCaseDetails);
-    }
 }
