@@ -26,6 +26,11 @@ public class AppInsightsService {
         log.info("Event {} sent to AppInsights for Case ID {}", message, message.getCaseID());
     }
 
+    public void sendAppInsightsEvent(String message) {
+        client.trackEvent(new EventTelemetry(message));
+        log.info("Event {} sent to AppInsights.", message);
+    }
+
     private String messageToJson(Message message) throws JsonProcessingException {
         om.findAndRegisterModules();
 

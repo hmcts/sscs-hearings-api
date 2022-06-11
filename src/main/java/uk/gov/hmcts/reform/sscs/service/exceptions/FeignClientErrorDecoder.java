@@ -26,35 +26,32 @@ import static feign.Request.HttpMethod.GET;
 public class FeignClientErrorDecoder implements ErrorDecoder {
     public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?/hearing/)(\\d+)");
     private final AppInsightsService appInsightsService;
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public FeignClientErrorDecoder(AppInsightsService appInsightsService) {
+    public FeignClientErrorDecoder(AppInsightsService appInsightsService, ObjectMapper objectMapper) {
         this.appInsightsService = appInsightsService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public Exception decode(String methodKey, Response response) {
         HmcFailureMessage failMsg = extractFailMsg(methodKey, response);
 
-        switch (response.status()) {
-            case 400:
-            case 401:
-            case 403:
-            case 404: {
-                log.error("Error in calling Feign client. Status code "
-                              + response.status() + ", methodKey = " + methodKey);
-                log.error("Error details: {}", response.body().toString());
-                try {
-                    appInsightsService.sendAppInsightsEvent(failMsg);
-                } catch (JsonProcessingException e) {
-                    log.error("Error sending app insight for event {}", failMsg);
-                }
-                return new ResponseStatusException(HttpStatus.valueOf(response.status()),
-                                                   "Error in calling the client method:" + methodKey);
+        log.error("Error in calling Feign client. Status code "
+            + response.status() + ", methodKey = " + methodKey);
+
+        if (failMsg == null) {
+            appInsightsService.sendAppInsightsEvent(getOriginalErrorMessage(response));
+        } else {
+            try {
+                appInsightsService.sendAppInsightsEvent(failMsg);
+            } catch (JsonProcessingException e) {
+                log.debug("Error serialising event message, falling back to String: {} ", failMsg);
+                appInsightsService.sendAppInsightsEvent(failMsg.toString());
             }
-            default:
-                return new ResponseStatusException(HttpStatus.valueOf(response.status()), response.reason());
         }
+        return new ResponseStatusException(HttpStatus.valueOf(response.status()),
+            "Error in calling the client method:" + methodKey);
     }
 
     private HmcFailureMessage extractFailMsg(String methodKey, Response response) {
@@ -139,7 +136,7 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
         HearingRequestPayload hearingRequestPayload;
         String requestBody = new String(request.body(), StandardCharsets.UTF_8);
         try {
-            hearingRequestPayload = OBJECT_MAPPER.readValue(requestBody, HearingRequestPayload.class);
+            hearingRequestPayload = objectMapper.readValue(requestBody, HearingRequestPayload.class);
         } catch (JsonProcessingException e) {
             log.error("JsonProcessingException when mapping for: {}", requestBody);
             throw e;
