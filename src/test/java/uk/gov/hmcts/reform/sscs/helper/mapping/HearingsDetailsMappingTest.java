@@ -610,8 +610,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003|BBA3-?",
-        "null,carer,BBA3-MQPM1|BBA3-MQPM2-002|BBA3-?",
+        "cardiologist,eyeSurgeon,58-1|58-3",
+        "null,carer,58|58-2",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
 
@@ -638,8 +638,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with no second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "generalPractitioner,BBA3-MQPM1-004|BBA3-?",
-        "null,BBA3-MQPM1|BBA3-?",
+        "generalPractitioner,58-4",
+        "null,58",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism,String expected) {
 

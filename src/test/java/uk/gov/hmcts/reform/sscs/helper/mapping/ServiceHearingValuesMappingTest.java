@@ -235,9 +235,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
         assertNull(serviceHearingValues.getLeadJudgeContractType());
         assertThat(serviceHearingValues.getJudiciary()).isNotNull();
-        assertThat(serviceHearingValues.getJudiciary().getJudiciarySpecialisms())
-                .hasSize(3)
-                .contains("BBA3-MQPM1-001","BBA3-MQPM2-003","BBA3-?");
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
