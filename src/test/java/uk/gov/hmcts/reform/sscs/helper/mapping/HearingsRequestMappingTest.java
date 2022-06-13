@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -21,7 +21,7 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildHearingRequestDetails() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .hearings(List.of(Hearing.builder()
+            .hearings(Arrays.asList(Hearing.builder()
                 .value(HearingDetails.builder()
                     .versionNumber(1L)
                     .build())

@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
-import java.util.List;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
@@ -84,7 +84,7 @@ class HearingsServiceHelperTest {
 
     @Test
     void shouldReturnHearingId_givenValidWrapper() {
-        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+        wrapper.getCaseData().setHearings(Collections.singletonList(Hearing.builder()
             .value(HearingDetails.builder()
                 .hearingId("12345")
                 .build())
@@ -97,7 +97,7 @@ class HearingsServiceHelperTest {
 
     @Test
     void shouldReturnNullHearingId_givenNullValue() {
-        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+        wrapper.getCaseData().setHearings(Collections.singletonList(Hearing.builder()
             .value(HearingDetails.builder()
                 .hearingId(null)
                 .build())
@@ -111,7 +111,7 @@ class HearingsServiceHelperTest {
     @DisplayName("getVersion Test")
     @Test
     void getVersion() {
-        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+        wrapper.getCaseData().setHearings(Collections.singletonList(Hearing.builder()
             .value(HearingDetails.builder()
                 .versionNumber(1L)
                 .build())
@@ -129,7 +129,7 @@ class HearingsServiceHelperTest {
         "-1",
     }, nullValues = {"null"})
     void getVersion(Long version) {
-        wrapper.getCaseData().setHearings(List.of(Hearing.builder()
+        wrapper.getCaseData().setHearings(Collections.singletonList(Hearing.builder()
             .value(HearingDetails.builder()
                 .versionNumber(version)
                 .build())

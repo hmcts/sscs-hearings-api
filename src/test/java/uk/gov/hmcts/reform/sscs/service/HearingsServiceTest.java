@@ -41,7 +41,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -210,7 +210,7 @@ class HearingsServiceTest {
 
         wrapper.setState(UPDATE_HEARING);
         wrapper.getCaseData()
-            .setHearings(new ArrayList<>(List.of(Hearing.builder()
+            .setHearings(new ArrayList<>(Collections.singletonList(Hearing.builder()
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_REQUEST_ID))
                     .build())
@@ -229,7 +229,7 @@ class HearingsServiceTest {
 
         wrapper.setState(CANCEL_HEARING);
         wrapper.getCaseData()
-            .setHearings(List.of(Hearing.builder()
+            .setHearings(Collections.singletonList(Hearing.builder()
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_REQUEST_ID))
                     .build())
