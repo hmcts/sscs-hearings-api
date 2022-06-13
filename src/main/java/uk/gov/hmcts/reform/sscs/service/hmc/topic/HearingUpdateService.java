@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
@@ -75,5 +76,11 @@ public class HearingUpdateService {
             hearingEpimsId,
             sscsCaseData.getCcdCaseId(),
             hearingId);
+    }
+
+    public void setHearingStatus(String hearingId, @Valid SscsCaseData sscsCaseData, HearingStatus hearingStatus) {
+        Hearing hearing = HearingsServiceHelper.findOrCreateHearingInCaseData(Long.valueOf(hearingId), sscsCaseData);
+        HearingDetails hearingDetails = hearing.getValue();
+        hearingDetails.setHearingStatus(hearingStatus);
     }
 }
