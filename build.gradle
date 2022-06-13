@@ -92,6 +92,7 @@ task smoke(type: Test) {
   group = 'Verification'
   description = 'Executes non-destructive smoke tests against a running SSCS hearings API application.'
   setTestClassesDirs(sourceSets.smokeTest.output.classesDirs)
+  setClasspath(sourceSets.smokeTest.runtimeClasspath)
 }
 
 task contract(type: Test) {
