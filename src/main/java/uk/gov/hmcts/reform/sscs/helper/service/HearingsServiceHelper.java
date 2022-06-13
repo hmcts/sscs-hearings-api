@@ -1,23 +1,34 @@
 package uk.gov.hmcts.reform.sscs.helper.service;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import org.jetbrains.annotations.Nullable;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
+import java.util.ArrayList;
 import java.util.Optional;
+import javax.validation.Valid;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public final class HearingsServiceHelper {
 
     private HearingsServiceHelper() {
     }
 
-    public static void updateHearingId(HearingWrapper wrapper, HmcUpdateResponse response) {
-        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingId(response.getHearingRequestId());
+    public static void updateHearingId(Hearing hearing, HmcUpdateResponse response) {
+        if (nonNull(response.getHearingRequestId())) {
+            hearing.getValue().setHearingId(String.valueOf(response.getHearingRequestId()));
+        }
     }
 
-    public static void updateVersionNumber(HearingWrapper wrapper, HmcUpdateResponse response) {
-        wrapper.getCaseData().getSchedulingAndListingFields().setActiveHearingVersionNumber(response.getVersionNumber());
+    public static void updateVersionNumber(Hearing hearing, HmcUpdateResponse response) {
+        hearing.getValue().setVersionNumber(response.getVersionNumber());
     }
 
     public static HearingEvent getHearingEvent(HearingState state) {
@@ -25,10 +36,46 @@ public final class HearingsServiceHelper {
     }
 
     public static String getHearingId(HearingWrapper wrapper) {
-        return Optional.of(wrapper)
-            .map(HearingWrapper::getCaseData)
-            .map(SscsCaseData::getSchedulingAndListingFields)
-            .map(SchedulingAndListingFields::getActiveHearingId)
-            .map(Object::toString).orElse(null);
+        return Optional.ofNullable(wrapper.getCaseData().getLatestHearing())
+            .map(Hearing::getValue)
+            .map(HearingDetails::getHearingId)
+            .orElse(null);
+    }
+
+    public static Long getVersion(HearingWrapper wrapper) {
+        return Optional.ofNullable(wrapper.getCaseData().getLatestHearing())
+            .map(Hearing::getValue)
+            .map(HearingDetails::getVersionNumber)
+            .filter(version -> version > 0)
+            .orElse(null);
+    }
+
+    public static Hearing createHearing(Long hearingId) {
+        return Hearing.builder()
+            .value(HearingDetails.builder()
+                .hearingId(String.valueOf(hearingId))
+                .build())
+            .build();
+    }
+
+    public static void addHearing(Hearing hearing, @Valid SscsCaseData caseData) {
+        caseData.getHearings().add(hearing);
+    }
+
+    @Nullable
+    public static Hearing getHearingById(Long hearingId, @Valid SscsCaseData caseData) {
+        if (isNull(caseData.getHearings())) {
+            caseData.setHearings(new ArrayList<>());
+        }
+
+        return caseData.getHearings().stream()
+            .filter(hearing -> doHearingIdsMatch(hearing, hearingId))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private static boolean doHearingIdsMatch(Hearing hearing, Long hearingId) {
+        return hearing.getValue().getHearingId()
+            .equals(String.valueOf(hearingId));
     }
 }

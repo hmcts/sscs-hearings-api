@@ -62,6 +62,8 @@ public class ProcessHmcMessageService {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
+        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcStatus);
+
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
 
         resolveEventAndUpdateCase(hearingResponse, hmcStatus, caseData, ccdUpdateDescription);
