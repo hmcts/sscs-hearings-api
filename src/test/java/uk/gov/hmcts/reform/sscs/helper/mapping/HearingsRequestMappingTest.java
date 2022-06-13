@@ -23,7 +23,7 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .hearings(List.of(Hearing.builder()
                 .value(HearingDetails.builder()
-                    .hmcVersionNumber(1L)
+                    .versionNumber(1L)
                     .build())
                 .build()))
             .build();

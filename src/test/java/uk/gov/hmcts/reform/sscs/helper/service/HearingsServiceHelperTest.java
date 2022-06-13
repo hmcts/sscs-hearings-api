@@ -70,7 +70,7 @@ class HearingsServiceHelperTest {
     void updateVersionNumber(Long original, Long updated, Long expected) {
         Hearing hearing = Hearing.builder()
             .value(HearingDetails.builder()
-                .hmcVersionNumber(original)
+                .versionNumber(original)
                 .build())
             .build();
         HmcUpdateResponse response = HmcUpdateResponse.builder()
@@ -79,7 +79,7 @@ class HearingsServiceHelperTest {
 
         HearingsServiceHelper.updateVersionNumber(hearing, response);
 
-        assertThat(hearing.getValue().getHmcVersionNumber()).isEqualTo(expected);
+        assertThat(hearing.getValue().getVersionNumber()).isEqualTo(expected);
     }
 
     @Test
@@ -113,7 +113,7 @@ class HearingsServiceHelperTest {
     void getVersion() {
         wrapper.getCaseData().setHearings(List.of(Hearing.builder()
             .value(HearingDetails.builder()
-                .hmcVersionNumber(1L)
+                .versionNumber(1L)
                 .build())
             .build()));
         Long result = HearingsServiceHelper.getVersion(wrapper);
@@ -131,7 +131,7 @@ class HearingsServiceHelperTest {
     void getVersion(Long version) {
         wrapper.getCaseData().setHearings(List.of(Hearing.builder()
             .value(HearingDetails.builder()
-                .hmcVersionNumber(version)
+                .versionNumber(version)
                 .build())
             .build()));
 

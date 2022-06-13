@@ -27,7 +27,7 @@ public final class HearingsServiceHelper {
     }
 
     public static void updateVersionNumber(Hearing hearing, HmcUpdateResponse response) {
-        hearing.getValue().setHmcVersionNumber(response.getVersionNumber());
+        hearing.getValue().setVersionNumber(response.getVersionNumber());
     }
 
     public static HearingEvent getHearingEvent(HearingState state) {
@@ -45,7 +45,7 @@ public final class HearingsServiceHelper {
     public static Long getVersion(HearingWrapper wrapper) {
         Hearing hearing = wrapper.getCaseData().getLatestHearing();
         if (nonNull(hearing)) {
-            Long version = hearing.getValue().getHmcVersionNumber();
+            Long version = hearing.getValue().getVersionNumber();
             if (nonNull(version) && version > 0) {
                 return version;
             }
@@ -53,27 +53,22 @@ public final class HearingsServiceHelper {
         return null;
     }
 
-    public static Hearing findOrCreateHearingInCaseData(Long hearingId, @Valid SscsCaseData caseData) {
-        if (isNull(caseData.getHearings())) {
-            caseData.setHearings(new ArrayList<>());
-        }
-
-        Hearing hearing = getHearingById(hearingId, caseData);
-
-        if (isNull(hearing)) {
-            hearing = Hearing.builder()
-                .value(HearingDetails.builder()
-                    .hearingId(String.valueOf(hearingId))
-                    .build())
-                .build();
-            caseData.getHearings().add(hearing);
-        }
-
+    public static Hearing createHearing(Long hearingId, @Valid SscsCaseData caseData) {
+        Hearing hearing = Hearing.builder()
+            .value(HearingDetails.builder()
+                .hearingId(String.valueOf(hearingId))
+                .build())
+            .build();
+        caseData.getHearings().add(hearing);
         return hearing;
     }
 
     @Nullable
-    private static Hearing getHearingById(Long hearingId, @Valid SscsCaseData caseData) {
+    public static Hearing getHearingById(Long hearingId, @Valid SscsCaseData caseData) {
+        if (isNull(caseData.getHearings())) {
+            caseData.setHearings(new ArrayList<>());
+        }
+
         return caseData.getHearings().stream()
             .filter(hearing -> hearing.getValue().getHearingId().equals(String.valueOf(hearingId)))
             .findFirst()

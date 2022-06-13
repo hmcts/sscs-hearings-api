@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
@@ -60,7 +61,11 @@ public class HearingUpdateService {
 
         Venue venue = mapVenueDetailsToVenue(venueDetails);
 
-        Hearing hearing = HearingsServiceHelper.findOrCreateHearingInCaseData(hearingId, sscsCaseData);
+        Hearing hearing = HearingsServiceHelper.getHearingById(hearingId, sscsCaseData);
+
+        if (isNull(hearing)) {
+            hearing = HearingsServiceHelper.createHearing(hearingId, sscsCaseData);
+        }
 
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
@@ -78,8 +83,17 @@ public class HearingUpdateService {
             hearingId);
     }
 
-    public void setHearingStatus(String hearingId, @Valid SscsCaseData sscsCaseData, HearingStatus hearingStatus) {
-        Hearing hearing = HearingsServiceHelper.findOrCreateHearingInCaseData(Long.valueOf(hearingId), sscsCaseData);
+    public void setHearingStatus(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
+        HearingStatus hearingStatus = hmcStatus.getHearingStatus();
+        if (isNull(hearingStatus)) {
+            return;
+        }
+
+        Hearing hearing = HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData);
+        if (isNull(hearing)) {
+            return;
+        }
+
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setHearingStatus(hearingStatus);
     }

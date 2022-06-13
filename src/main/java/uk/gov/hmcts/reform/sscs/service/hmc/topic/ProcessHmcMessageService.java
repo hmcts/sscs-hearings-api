@@ -62,9 +62,8 @@ public class ProcessHmcMessageService {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
-        if (nonNull(hmcStatus.getHearingStatus())) {
-            hearingUpdateService.setHearingStatus(hearingId, caseData, hmcStatus.getHearingStatus());
-        }
+        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcStatus);
+
 
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
 

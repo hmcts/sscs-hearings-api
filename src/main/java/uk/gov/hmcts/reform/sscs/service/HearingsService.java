@@ -136,8 +136,11 @@ public class HearingsService {
             hearingRequestId,
             wrapper.getState().getState());
 
+        Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
 
-        Hearing hearing = HearingsServiceHelper.findOrCreateHearingInCaseData(hearingRequestId, caseData);
+        if (isNull(hearing)) {
+            hearing = HearingsServiceHelper.createHearing(hearingRequestId, caseData);
+        }
 
         HearingsServiceHelper.updateHearingId(hearing, response);
         HearingsServiceHelper.updateVersionNumber(hearing, response);
