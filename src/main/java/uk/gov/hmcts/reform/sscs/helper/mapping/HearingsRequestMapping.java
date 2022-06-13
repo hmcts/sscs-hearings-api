@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import static java.util.Objects.nonNull;
@@ -36,7 +35,6 @@ public final class HearingsRequestMapping {
     }
 
     public static CancellationReason getCancellationReason(HearingWrapper wrapper) {
-        // TODO Get Reason in Ticket: SSCS-10366
-        return null;
+        return wrapper.getCancellationReason();
     }
 }
