@@ -64,7 +64,8 @@ public class HearingUpdateService {
         Hearing hearing = HearingsServiceHelper.getHearingById(hearingId, sscsCaseData);
 
         if (isNull(hearing)) {
-            hearing = HearingsServiceHelper.createHearing(hearingId, sscsCaseData);
+            hearing = HearingsServiceHelper.createHearing(hearingId);
+            HearingsServiceHelper.addHearing(hearing, sscsCaseData);
         }
 
         HearingDetails hearingDetails = hearing.getValue();
@@ -94,7 +95,6 @@ public class HearingUpdateService {
             return;
         }
 
-        HearingDetails hearingDetails = hearing.getValue();
-        hearingDetails.setHearingStatus(hearingStatus);
+        hearing.getValue().setHearingStatus(hearingStatus);
     }
 }

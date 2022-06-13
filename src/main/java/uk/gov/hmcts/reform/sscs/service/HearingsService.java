@@ -139,7 +139,8 @@ public class HearingsService {
         Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
 
         if (isNull(hearing)) {
-            hearing = HearingsServiceHelper.createHearing(hearingRequestId, caseData);
+            hearing = HearingsServiceHelper.createHearing(hearingRequestId);
+            HearingsServiceHelper.addHearing(hearing, caseData);
         }
 
         HearingsServiceHelper.updateHearingId(hearing, response);

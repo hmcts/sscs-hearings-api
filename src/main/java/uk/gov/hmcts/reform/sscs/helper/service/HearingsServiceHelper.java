@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
@@ -35,32 +36,30 @@ public final class HearingsServiceHelper {
     }
 
     public static String getHearingId(HearingWrapper wrapper) {
-        Hearing hearing = wrapper.getCaseData().getLatestHearing();
-        if (nonNull(hearing)) {
-            return hearing.getValue().getHearingId();
-        }
-        return null;
+        return Optional.ofNullable(wrapper.getCaseData().getLatestHearing())
+            .map(Hearing::getValue)
+            .map(HearingDetails::getHearingId)
+            .orElse(null);
     }
 
     public static Long getVersion(HearingWrapper wrapper) {
-        Hearing hearing = wrapper.getCaseData().getLatestHearing();
-        if (nonNull(hearing)) {
-            Long version = hearing.getValue().getVersionNumber();
-            if (nonNull(version) && version > 0) {
-                return version;
-            }
-        }
-        return null;
+        return Optional.ofNullable(wrapper.getCaseData().getLatestHearing())
+            .map(Hearing::getValue)
+            .map(HearingDetails::getVersionNumber)
+            .filter(version -> version > 0)
+            .orElse(null);
     }
 
-    public static Hearing createHearing(Long hearingId, @Valid SscsCaseData caseData) {
-        Hearing hearing = Hearing.builder()
+    public static Hearing createHearing(Long hearingId) {
+        return Hearing.builder()
             .value(HearingDetails.builder()
                 .hearingId(String.valueOf(hearingId))
                 .build())
             .build();
+    }
+
+    public static void addHearing(Hearing hearing, @Valid SscsCaseData caseData) {
         caseData.getHearings().add(hearing);
-        return hearing;
     }
 
     @Nullable
@@ -70,8 +69,13 @@ public final class HearingsServiceHelper {
         }
 
         return caseData.getHearings().stream()
-            .filter(hearing -> hearing.getValue().getHearingId().equals(String.valueOf(hearingId)))
+            .filter(hearing -> doHearingIdsMatch(hearing, hearingId))
             .findFirst()
             .orElse(null);
+    }
+
+    private static boolean doHearingIdsMatch(Hearing hearing, Long hearingId) {
+        return hearing.getValue().getHearingId()
+            .equals(String.valueOf(hearingId));
     }
 }
