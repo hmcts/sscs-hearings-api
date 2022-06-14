@@ -11,7 +11,6 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import uk.gov.hmcts.reform.sscs.model.TribunalsHearingsRedeliveryPolicy;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -35,21 +34,16 @@ public class TribunalsHearingsJmsConfig {
     @Value("${azure.service-bus.tribunals-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
 
-    private JmsConnectionFactory jmsConnectionFactory(String connection, final String clientId) {
-        JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
-        jmsConnectionFactory.setUsername(username);
-        jmsConnectionFactory.setRedeliveryPolicy(new TribunalsHearingsRedeliveryPolicy());
-        jmsConnectionFactory.setPassword(password);
-        jmsConnectionFactory.setClientID(clientId);
-        return jmsConnectionFactory;
-    }
+    private final String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
 
     @Bean
     @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
     public ConnectionFactory tribunalsHearingsJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
-        String connection = String.format("amqps://%1s?amqp.idleTimeout=%2d", connectionString, idleTimeout);
-        log.info(connection);
-        return new CachingConnectionFactory(jmsConnectionFactory(connection, clientId));
+        JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
+        jmsConnectionFactory.setUsername(username);
+        jmsConnectionFactory.setPassword(password);
+        jmsConnectionFactory.setClientID(clientId);
+        return new CachingConnectionFactory(jmsConnectionFactory);
     }
 
     @Bean

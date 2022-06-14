@@ -30,21 +30,18 @@ public class TribunalsHearingsEventQueueListener {
     )
     public void handleIncomingMessage(HearingRequest message) throws TribunalsEventProcessingException {
         log.info("Message Received");
-        String caseId = null;
+        String caseId;
         try {
             caseId = message.getCcdCaseId();
             HearingState event = message.getHearingState();
             log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
-                     event, caseId
-            );
+                     event, caseId);
 
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException
                  | InvalidMappingException ex) {
-            log.error("An exception occurred whilst processing hearing event for case ID {}."
-                          + " Abandoning message", caseId, ex);
-            throw new TribunalsEventProcessingException("Abandoned Message", ex);
+            throw new TribunalsEventProcessingException("An exception occurred whilst processing hearing event", ex);
         }
     }
 }
