@@ -33,3 +33,14 @@ resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-hared-access-key" {
   value        = data.azurerm_key_vault_secret.hmc-servicebus-shared-access-key.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }
+
+data "azurerm_key_vault_secret" "tribunals-servicebus-shared-access-key" {
+  key_vault_id = data.azurerm_key_vault.tribunals-key-vault.id
+  name         = "tribunals-servicebus-shared-access-key"
+}
+
+resource "azurerm_key_vault_secret" "sscs-tribunals-servicebus-hared-access-key" {
+  name         = "tribunals-servicebus-shared-access-key"
+  value        = data.azurerm_key_vault_secret.tribunals-servicebus-shared-access-key.value
+  key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
+}

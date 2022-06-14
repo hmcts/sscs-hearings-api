@@ -57,7 +57,7 @@ public class TribunalsHearingsJmsConfig {
         factory.setSubscriptionDurable(Boolean.TRUE);
         factory.setSessionTransacted(Boolean.TRUE);
         factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
-        factory.setMessageConverter(new CustomMessageConverter());
+        factory.setMessageConverter(new TribunalsHearingsCustomMessageConverter());
         defaultJmsListenerContainerFactoryConfigurer.configure(factory, tribunalsHearingsJmsConnectionFactory);
         return factory;
     }

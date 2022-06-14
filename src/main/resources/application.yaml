@@ -81,9 +81,8 @@ azure:
     tribunals-to-hearings-api:
       connectionString: ${TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING:}
       queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}
-      receiveTimeout: ${TRIBUNALS_EVENT_QUEUE_RECIVE_TIMEOUT:1}
+      receiveTimeout: ${TRIBUNALS_EVENT_QUEUE_RECEIVE_TIMEOUT:1}
       idleTimeout: ${TRIBUNALS_EVENT_QUEUE_IDLE_TIMEOUT:3600000}
-      maxRedeliveries: ${TRIBUNALS_EVENT_QUEUE_MAX_REDELIVERIES:1}
       username: ${TRIBUNALS_EVENT_QUEUE_POLICY_NAME:}
       password: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY:}
 idam:
