@@ -16,13 +16,15 @@
      ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-security@.+$</packageUrl>
     <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
   </suppress>
-  <suppress>
+  <suppress until="2022-06-20">
     <notes><![CDATA[
      incorrectly tagging spring-security-rsa as spring-security
      ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-rsa@.+$</packageUrl>
     <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[

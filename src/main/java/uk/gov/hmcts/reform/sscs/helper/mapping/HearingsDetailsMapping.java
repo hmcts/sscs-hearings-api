@@ -7,8 +7,10 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideSchedulingListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -39,8 +41,8 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.HIGH;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.NORMAL;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
@@ -127,7 +129,14 @@ public final class HearingsDetailsMapping {
 
         Integer duration = getHearingDurationAdjournment(caseData);
         if (isNull(duration)) {
-            duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
+            Integer overrideDuration = Optional.ofNullable(caseData.getSchedulingAndListingFields())
+                .map(SchedulingAndListingFields::getOverrideSchedulingListingFields)
+                .map(OverrideSchedulingListingFields::getOverrideDuration)
+                .orElse(0);
+
+            duration = overrideDuration > 0
+                ? overrideDuration
+                : getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
         }
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
@@ -227,9 +236,9 @@ public final class HearingsDetailsMapping {
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
         if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
-            return HIGH.getHmcReference();
+            return URGENT.getHmcReference();
         }
-        return NORMAL.getHmcReference();
+        return STANDARD.getHmcReference();
     }
 
     public static int getNumberOfPhysicalAttendees(SscsCaseData caseData) {

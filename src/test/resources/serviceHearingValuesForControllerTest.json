@@ -1,9 +1,9 @@
 {
-  "caseName":null,
-  "caseNamePublic":"Test Case Name",
+  "publicCaseName":"Test Case Name",
   "autoListFlag":false,
   "hearingType":"BBA3-SUB",
   "caseType":"Benefit",
+  "caseManagementLocationCode": "12345",
   "caseCategories":[
     {
       "categoryType":"caseType"
@@ -13,7 +13,7 @@
     }
   ],
   "duration":30,
-  "hearingPriorityType":"normal",
+  "hearingPriorityType":"Standard",
   "numberOfPhysicalAttendees":0,
   "hearingInWelshFlag":false,
   "caseAdditionalSecurityFlag":false,
@@ -27,9 +27,7 @@
   "hearingIsLinkedFlag":true,
   "hmctsServiceID":null,
   "hearingWindow":{
-    "hearingWindowDateRange":{
-      "hearingWindowStartDateRange":"MOCK_DATE_TOMORROW"
-    }
+    "dateRangeStart": "MOCK_DATE_TOMORROW"
   },
   "hearingLocations":[
     {

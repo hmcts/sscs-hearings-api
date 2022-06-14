@@ -24,9 +24,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideSchedulingListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
@@ -326,14 +328,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,high", "Yes,No,high", "No,Yes,high",
-        "No,No,normal",
-        "Yes,null,high", "No,null,normal",
-        "null,Yes,high", "null,No,normal",
-        "null,null,normal",
-        "Yes,,high", "No,,normal",
-        ",Yes,high", ",No,normal",
-        ",,normal"
+        "Yes,Yes,Urgent", "Yes,No,Urgent", "No,Yes,Urgent",
+        "No,No,Standard",
+        "Yes,null,Urgent", "No,null,Standard",
+        "null,Yes,Urgent", "null,No,Standard",
+        "null,null,Standard",
+        "Yes,,Urgent", "No,,Standard",
+        ",Yes,Urgent", ",No,Standard",
+        ",,Standard"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
@@ -608,8 +610,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "cardiologist,eyeSurgeon,BBA3-MQPM1-001|BBA3-MQPM2-003|BBA3-?",
-        "null,carer,BBA3-MQPM1|BBA3-MQPM2-002|BBA3-?",
+        "cardiologist,eyeSurgeon,58-1|58-3",
+        "null,carer,58|58-2",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
 
@@ -636,8 +638,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with no second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "generalPractitioner,BBA3-MQPM1-004|BBA3-?",
-        "null,BBA3-MQPM1|BBA3-?",
+        "generalPractitioner,58-4",
+        "null,58",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism,String expected) {
 
@@ -722,6 +724,29 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(expected, result);
+    }
+
+    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
+        + "is present then override the duration of hearing")
+    @Test
+    void getHearingDurationWillReturnOverrideDurationWhenPresent() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDuration(null)
+            .adjournCaseNextHearingListingDurationUnits(null)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                                            .overrideSchedulingListingFields(OverrideSchedulingListingFields.builder()
+                                                                                 .overrideDuration(60)
+                                                                                 .build())
+                                            .build())
+            .build();
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+
+        assertEquals(60, result);
     }
 
     @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")

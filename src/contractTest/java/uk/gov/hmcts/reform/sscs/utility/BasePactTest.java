@@ -11,8 +11,8 @@ public class BasePactTest {
         addStatusMessage(pactDslJsonBody, statusMessage);
 
         pactDslJsonBody
-            .integerType("versionNumber", "123")
-            .integerType("hearingRequestId", "^[a-zA-Z0-9]{1,30}$", "1880163574")
+            .numberType("versionNumber", 123L)
+            .stringType("hearingRequestId", "1880163574")
             .stringType("status", responseStatus.toString())
             .stringMatcher("timeStamp", "2030-08-20T12:40:00")
             .asBody();
@@ -22,6 +22,6 @@ public class BasePactTest {
 
     protected  void addStatusMessage(PactDslJsonBody pactDslJsonBody, String statusMessage) {
         pactDslJsonBody
-            .stringType("status_message", statusMessage);
+            .stringType("status", statusMessage);
     }
 }

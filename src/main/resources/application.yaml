@@ -52,6 +52,7 @@ spring:
       write-dates-as-timestamps: false
     mapper:
       accept-case-insensitive-enums: true
+      accept-case-insensitive-properties: true
 
 feign:
   httpclient:

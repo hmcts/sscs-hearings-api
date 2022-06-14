@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.HearingWindowDateRange;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
@@ -34,17 +32,20 @@ public final class ServiceHearingValuesMapping {
         boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
 
         return ServiceHearingValues.builder()
-                .caseName(HearingsCaseMapping.getInternalCaseName(caseData))
-                .caseNamePublic(HearingsCaseMapping.getPublicCaseName(caseData))
+                .publicCaseName(HearingsCaseMapping.getPublicCaseName(caseData))
+                .caseDeepLink(HearingsCaseMapping.getCaseDeepLink(caseData, referenceDataServiceHolder))
+                .caseManagementLocationCode(HearingsCaseMapping.getCaseManagementLocationCode(caseData))
+                .caseRestrictedFlag(HearingsCaseMapping.shouldBeSensitiveFlag())
+                .caseSlaStartDate(HearingsCaseMapping.getCaseCreated(caseData))
+                .hmctsInternalCaseName(HearingsCaseMapping.getInternalCaseName(caseData))
                 .autoListFlag(shouldBeAutoListed)
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(BENEFIT)
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder))
-                .hearingWindow(buildHearingWindow(caseData, shouldBeAutoListed))
+                .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, shouldBeAutoListed))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsDetailsMapping.getNumberOfPhysicalAttendees(caseData))
-                // TODO caseData.getLanguagePreferenceWelsh() is for bilingual documents only, future work
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
@@ -52,7 +53,7 @@ public final class ServiceHearingValuesMapping {
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
-                .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType()) // TODO ref data isn't available yet. List Assist may handle this value
+                .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType())
                 .judiciary(getJudiciary(caseDetails, referenceDataServiceHolder))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
                 .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceDataServiceHolder))
@@ -77,15 +78,5 @@ public final class ServiceHearingValuesMapping {
     public static List<PanelPreference> getPanelPreferences() {
         //TODO Need to retrieve PanelPreferences from caseData and/or ReferenceData
         return Collections.emptyList();
-    }
-
-    public static HearingWindow buildHearingWindow(SscsCaseData caseData, boolean autoListed) {
-        return HearingWindow.builder()
-                .hearingWindowFirstDate(null)
-                .hearingWindowDateRange(HearingWindowDateRange.builder()
-                        .hearingWindowStartDateRange(HearingsDetailsMapping.getHearingWindowStart(caseData, autoListed).toString())
-                        .hearingWindowEndDateRange(null)
-                        .build())
-                .build();
     }
 }
