@@ -794,7 +794,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .build())
                 .build());
         HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
-        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRangeAllDay(hearingOptions);
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result)
                 .extracting("unavailableFromDate", "unavailableToDate", "unavailabilityType")
@@ -811,9 +811,53 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void getPartyUnavailabilityRangeNullValue() {
         HearingOptions hearingOptions = HearingOptions.builder().build();
-        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRangeAllDay(hearingOptions);
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result).isEmpty();
+    }
+
+    @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
+    @Test
+    void buildHearingPartiesDetails_unavailabilityRanges() throws InvalidMappingException {
+
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(1);
+        String appellantId = "1";
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .excludeDates(List.of(ExcludeDate.builder()
+                        .value(DateRange.builder().start(start.toString())
+                            .end(end.toString()).build()).build()))
+                    .wantsToAttend("yes").build())
+                .hearingType("test")
+                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .appellant(Appellant.builder()
+                    .id(appellantId)
+                    .name(Name.builder()
+                        .title("title")
+                        .firstName("first")
+                        .lastName("last")
+                        .build())
+                    .build())
+                .build())
+            .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
+
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
+
+        PartyDetails partyDetails = partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(null);
+        assertThat(partyDetails).isNotNull();
+        assertThat(partyDetails.getUnavailabilityRanges()).hasSize(1);
+
+        UnavailabilityRange unavailabilityRange = partyDetails.getUnavailabilityRanges().get(0);
+
+        assertThat(unavailabilityRange.getUnavailabilityType()).isEqualTo(DayOfWeekUnavailabilityType.ALL_DAY.getLabel());
+        assertThat(unavailabilityRange.getUnavailableFromDate()).isEqualTo(start);
+        assertThat(unavailabilityRange.getUnavailableToDate()).isEqualTo(end);
     }
 
     private static Stream<Arguments> getPartyReferenceArgements() {
