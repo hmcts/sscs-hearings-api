@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
@@ -26,8 +27,7 @@ import javax.validation.Valid;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
 
 @Slf4j
 @Service
@@ -103,11 +103,11 @@ public class HearingUpdateService {
         hearing.getValue().setHearingStatus(hearingStatus);
     }
 
-    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
+    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, ListAssistCaseStatus listAssistCaseStatus) {
 
         WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
 
-        if (isCaseListed(hmcStatus)) {
+        if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
         } else {
@@ -124,8 +124,7 @@ public class HearingUpdateService {
         return null;
     }
 
-    public boolean isCaseListed(HmcStatus hmcStatus) {
-        return LISTED.equals(hmcStatus)
-            || UPDATE_SUBMITTED.equals(hmcStatus);
+    public boolean isCaseListed(ListAssistCaseStatus listAssistCaseStatus) {
+        return LISTED == listAssistCaseStatus;
     }
 }
