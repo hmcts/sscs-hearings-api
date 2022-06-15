@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.WorkBasketFields;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
@@ -22,7 +23,11 @@ import java.util.List;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
 
 @Slf4j
 @Service
@@ -96,5 +101,31 @@ public class HearingUpdateService {
         }
 
         hearing.getValue().setHearingStatus(hearingStatus);
+    }
+
+    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
+
+        WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
+
+        if (isCaseListed(hmcStatus)) {
+            String hearingEpimsId = getHearingEpimsId(hearingId, sscsCaseData);
+            workBasketFields.setHearingEpimsId(hearingEpimsId);
+        } else {
+            workBasketFields.setHearingEpimsId(null);
+        }
+
+    }
+
+    public boolean isCaseListed(HmcStatus hmcStatus) {
+        return LISTED.equals(hmcStatus)
+            || UPDATE_SUBMITTED.equals(hmcStatus);
+    }
+
+    public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
+        Hearing hearing = HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData);
+        if (nonNull(hearing) && isNotBlank(hearing.getValue().getEpimsId())) {
+            return hearing.getValue().getEpimsId();
+        }
+        return null;
     }
 }
