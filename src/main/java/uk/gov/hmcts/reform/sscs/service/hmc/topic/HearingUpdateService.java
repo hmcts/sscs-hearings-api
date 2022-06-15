@@ -21,11 +21,12 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
 
@@ -117,11 +118,11 @@ public class HearingUpdateService {
     }
 
     public LocalDate getHearingDate(String hearingId, @Valid SscsCaseData sscsCaseData) {
-        Hearing hearing = HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData);
-        if (nonNull(hearing) && nonNull(hearing.getValue().getStart())) {
-            return hearing.getValue().getStart().toLocalDate();
-        }
-        return null;
+        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
+            .map(Hearing::getValue)
+            .map(HearingDetails::getStart)
+            .map(LocalDateTime::toLocalDate)
+            .orElse(null);
     }
 
     public boolean isCaseListed(ListAssistCaseStatus listAssistCaseStatus) {
