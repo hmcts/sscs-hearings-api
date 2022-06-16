@@ -37,7 +37,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.CASE_CLOSED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.PENDING_RELISTING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
@@ -262,7 +261,7 @@ class HearingUpdateServiceTest {
 
     @DisplayName("When a HmcStatus with a listing and the hearing has a valid epims id, setWorkBasketFields updates getHearingEpimsId to the correct epims id")
     @Test
-    void testSetWorkBasketFields() {
+    void testSetWorkBasketFieldsEpims() {
         caseData.setHearings(Lists.newArrayList(
             Hearing.builder()
                 .value(HearingDetails.builder()
@@ -272,8 +271,29 @@ class HearingUpdateServiceTest {
                 .build()));
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
     }
+
+
+    @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates setHearingDate to the correct date")
+    @Test
+    void testSetWorkBasketFieldsStartDate() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .start(HEARING_START_DATE_TIME)
+                    .build())
+                .build()));
+
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
+        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
+    }
+
 
     @DisplayName("When a HmcStatus with no listing is given, setWorkBasketFields updates getHearingEpimsId to null")
     @Test
@@ -288,6 +308,7 @@ class HearingUpdateServiceTest {
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, CASE_CLOSED);
 
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
     }
 
@@ -330,38 +351,6 @@ class HearingUpdateServiceTest {
         String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
 
         assertThat(result).isNull();
-    }
-  
-    @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates setHearingDate to the correct date")
-    @Test
-    void testSetWorkBasketFields() {
-        caseData.setHearings(Lists.newArrayList(
-            Hearing.builder()
-                .value(HearingDetails.builder()
-                    .hearingId(String.valueOf(HEARING_ID))
-                    .start(HEARING_START_DATE_TIME)
-                    .build())
-                .build()));
-
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
-
-        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
-    }
-
-    @DisplayName("When a HmcStatus with no listing is given, setWorkBasketFields updates setHearingDate to null")
-    @Test
-    void testSetWorkBasketFieldsInvalidStatus() {
-        caseData.setHearings(Lists.newArrayList(
-            Hearing.builder()
-                .value(HearingDetails.builder()
-                    .hearingId(String.valueOf(HEARING_ID))
-                    .start(HEARING_START_DATE_TIME)
-                    .build())
-                .build()));
-
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, PENDING_RELISTING);
-
-        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
     }
 
     @DisplayName("When a hearing with a valid start is given, getHearingDate returns the correct date")

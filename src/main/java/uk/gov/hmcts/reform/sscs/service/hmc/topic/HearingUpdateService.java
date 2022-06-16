@@ -112,11 +112,12 @@ public class HearingUpdateService {
         if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
-          
+
             String hearingEpimsId = getHearingEpimsId(hearingId, sscsCaseData);
             workBasketFields.setHearingEpimsId(hearingEpimsId);
         } else {
             workBasketFields.setHearingDate(null);
+            workBasketFields.setHearingEpimsId(null);
         }
 
     }
@@ -128,7 +129,7 @@ public class HearingUpdateService {
             .map(LocalDateTime::toLocalDate)
             .orElse(null);
     }
-  
+
     public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
         return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
             .map(Hearing::getValue)
