@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -40,6 +41,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
@@ -84,8 +86,44 @@ public final class HearingsDetailsMapping {
             .panelRequirements(getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
+            .hearingChannels(getHearingChannels(caseData))
             .build();
     }
+
+    private static List<HearingChannel> getHearingChannels(SscsCaseData caseData) {
+        if(caseData.getDwpIsOfficerAttending().equals(true)){
+            return Collections.singletonList(HearingChannel.FACE_TO_FACE);
+        }
+
+        List<HearingChannel> hearingChannels = new ArrayList<>();
+
+        HearingChannel individualPreferredHearingChannel = getIndividualPreferredHearingChannel(
+            caseData.getAppeal().getHearingType(),
+            caseData.getAppeal().getHearingSubtype(),
+            caseData.getAppeal().getHearingOptions());
+        hearingChannels.add(individualPreferredHearingChannel);
+
+        if(nonNull(caseData.getOtherParties())){
+            hearingChannels.addAll(caseData.getOtherParties().stream().map(CcdValue::getValue).map(
+                otherParty -> getIndividualPreferredHearingChannel(null,
+                                                                   otherParty.getHearingSubtype(),
+                                                                   otherParty.getHearingOptions()))
+                               .collect(Collectors.toList()));
+        }
+
+        if (hearingChannels.contains(HearingChannel.FACE_TO_FACE)){
+            return Collections.singletonList(HearingChannel.FACE_TO_FACE);
+        } else if (hearingChannels.contains(HearingChannel.VIDEO)) {
+            Collections.singletonList(HearingChannel.VIDEO);
+        } else if (hearingChannels.contains(HearingChannel.TELEPHONE)) {
+            Collections.singletonList(HearingChannel.TELEPHONE);
+        } else {
+            return Collections.singletonList(HearingChannel.NOT_ATTENDING);
+        }
+
+        return hearingChannels;
+    }
+
 
     public static String getHearingType() {
         return SUBSTANTIVE.getHmcReference();
