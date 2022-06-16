@@ -178,7 +178,7 @@ public final class HearingsPartiesMapping {
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingType, hearingSubtype,
-                    hearingOptions))
+                    hearingOptions).getHmcReference())
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, referenceData))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
@@ -203,7 +203,7 @@ public final class HearingsPartiesMapping {
         return entity.getName().getFullNameNoTitle();
     }
 
-    public static String getIndividualPreferredHearingChannel(String hearingType,
+    public static HearingChannel getIndividualPreferredHearingChannel(String hearingType,
                                                                         HearingSubtype hearingSubtype,
                                                                         HearingOptions hearingOptions) {
         if (eitherNull(hearingType, hearingSubtype)) {
@@ -221,7 +221,7 @@ public final class HearingsPartiesMapping {
             throw new IllegalStateException("Failed to determine a preferred hearing channel");
         }
 
-        return preferredHearingChannel.getHmcReference();
+        return preferredHearingChannel;
     }
 
     private static boolean eitherNull(String hearingType, HearingSubtype hearingSubtype) {
