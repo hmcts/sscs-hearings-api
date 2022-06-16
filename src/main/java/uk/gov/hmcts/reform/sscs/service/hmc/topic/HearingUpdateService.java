@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
@@ -111,6 +112,9 @@ public class HearingUpdateService {
         if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
+          
+            String hearingEpimsId = getHearingEpimsId(hearingId, sscsCaseData);
+            workBasketFields.setHearingEpimsId(hearingEpimsId);
         } else {
             workBasketFields.setHearingDate(null);
         }
@@ -122,6 +126,14 @@ public class HearingUpdateService {
             .map(Hearing::getValue)
             .map(HearingDetails::getStart)
             .map(LocalDateTime::toLocalDate)
+            .orElse(null);
+    }
+  
+    public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
+        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
+            .map(Hearing::getValue)
+            .map(HearingDetails::getEpimsId)
+            .filter(StringUtils::isNotBlank)
             .orElse(null);
     }
 

@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus.EXCEPTION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.CASE_CLOSED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.PENDING_RELISTING;
 
@@ -259,6 +260,78 @@ class HearingUpdateServiceTest {
         assertThat(caseData.getHearings()).isEmpty();
     }
 
+    @DisplayName("When a HmcStatus with a listing and the hearing has a valid epims id, setWorkBasketFields updates getHearingEpimsId to the correct epims id")
+    @Test
+    void testSetWorkBasketFields() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .epimsId(EPIMS_ID)
+                    .build())
+                .build()));
+
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
+    }
+
+    @DisplayName("When a HmcStatus with no listing is given, setWorkBasketFields updates getHearingEpimsId to null")
+    @Test
+    void testSetWorkBasketFieldsInvalidStatus() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .epimsId(EPIMS_ID)
+                    .build())
+                .build()));
+
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, CASE_CLOSED);
+
+        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
+    }
+
+    @DisplayName("When a hearing with a valid epims Id is given, getHearingEpimsId returns the epims Id")
+    @Test
+    void testGetHearingEpims() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .epimsId(EPIMS_ID)
+                    .build())
+                .build()));
+
+        String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
+
+        assertThat(result).isEqualTo(EPIMS_ID);
+    }
+
+    @DisplayName("When caseData with no hearing is given, getHearingEpimsId returns null")
+    @Test
+    void testGetHearingEpimsIdNoHearing() {
+        caseData.setHearings(List.of());
+
+        String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
+
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When caseData with a hearing but the epimds Id is null, getHearingEpimsId returns null")
+    @Test
+    void testGetHearingEpimsNullStart() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .build())
+                .build()));
+
+        String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
+
+        assertThat(result).isNull();
+    }
+  
     @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates setHearingDate to the correct date")
     @Test
     void testSetWorkBasketFields() {
