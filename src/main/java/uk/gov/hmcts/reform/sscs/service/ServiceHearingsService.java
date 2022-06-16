@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,16 +30,28 @@ public class ServiceHearingsService {
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
-            throws GetCaseException, UpdateCaseException, InvalidMappingException {
+        throws GetCaseException, UpdateCaseException, InvalidMappingException, JsonProcessingException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
-        HearingsMapping.updateIds(caseDetails.getData());
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails, referenceDataServiceHolder);
-        ccdCaseService.updateCaseData(
-                caseDetails.getData(), EventType.UPDATE_CASE_ONLY,
+
+        SscsCaseData caseData = caseDetails.getData();
+        String originalCaseData = objectMapper.writeValueAsString(caseData);
+
+        HearingsMapping.updateIds(caseData);
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+
+        String updatedCaseData = objectMapper.writeValueAsString(caseData);
+
+        if (!originalCaseData.equals(updatedCaseData)) {
+            ccdCaseService.updateCaseData(
+                caseData,
+                EventType.UPDATE_CASE_ONLY,
                 "Updating caseDetails IDs",
                 "IDs updated for caseDetails due to ServiceHearingValues request");
+        }
+
         return model;
     }
 
@@ -53,6 +66,4 @@ public class ServiceHearingsService {
                 .linkedCases(linkedCases)
                 .build();
     }
-
-
 }
