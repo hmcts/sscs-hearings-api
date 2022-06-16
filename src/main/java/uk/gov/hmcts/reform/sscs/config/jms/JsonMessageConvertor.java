@@ -15,12 +15,12 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 @Component
-public class TribunalsHearingsCustomMessageConverter extends MappingJackson2MessageConverter {
+public class JsonMessageConvertor extends MappingJackson2MessageConverter {
 
     private static final String TYPE_ID_PROPERTY = "_type";
     private static final Symbol CONTENT_TYPE = Symbol.valueOf("application/json");
 
-    public TribunalsHearingsCustomMessageConverter() {
+    public JsonMessageConvertor() {
         super();
         this.setTargetType(MessageType.BYTES);
         this.setTypeIdPropertyName(TYPE_ID_PROPERTY);

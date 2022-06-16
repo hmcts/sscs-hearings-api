@@ -30,9 +30,8 @@ public class TribunalsHearingsEventQueueListener {
     )
     public void handleIncomingMessage(HearingRequest message) throws TribunalsEventProcessingException {
         log.info("Message Received");
-        String caseId;
         try {
-            caseId = message.getCcdCaseId();
+            String caseId = message.getCcdCaseId();
             HearingState event = message.getHearingState();
             log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                      event, caseId);
