@@ -2,27 +2,32 @@ package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.WorkBasketFields;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
 
 @Slf4j
 @Service
@@ -96,5 +101,30 @@ public class HearingUpdateService {
         }
 
         hearing.getValue().setHearingStatus(hearingStatus);
+    }
+
+    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, ListAssistCaseStatus listAssistCaseStatus) {
+
+        WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
+
+        if (isCaseListed(listAssistCaseStatus)) {
+            String hearingEpimsId = getHearingEpimsId(hearingId, sscsCaseData);
+            workBasketFields.setHearingEpimsId(hearingEpimsId);
+        } else {
+            workBasketFields.setHearingEpimsId(null);
+        }
+
+    }
+
+    public boolean isCaseListed(ListAssistCaseStatus listAssistCaseStatus) {
+        return LISTED == listAssistCaseStatus;
+    }
+
+    public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
+        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
+            .map(Hearing::getValue)
+            .map(HearingDetails::getEpimsId)
+            .filter(StringUtils::isNotBlank)
+            .orElse(null);
     }
 }
