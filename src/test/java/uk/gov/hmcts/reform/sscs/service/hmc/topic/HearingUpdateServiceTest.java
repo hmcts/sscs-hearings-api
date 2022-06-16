@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -260,7 +261,7 @@ class HearingUpdateServiceTest {
 
     @DisplayName("When a HmcStatus with a listing and the hearing has a valid epims id, setWorkBasketFields updates getHearingEpimsId to the correct epims id")
     @Test
-    void testSetWorkBasketFields() {
+    void testSetWorkBasketFieldsEpims() {
         caseData.setHearings(Lists.newArrayList(
             Hearing.builder()
                 .value(HearingDetails.builder()
@@ -272,7 +273,27 @@ class HearingUpdateServiceTest {
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
     }
+
+
+    @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates setHearingDate to the correct date")
+    @Test
+    void testSetWorkBasketFieldsStartDate() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .start(HEARING_START_DATE_TIME)
+                    .build())
+                .build()));
+
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
+        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
+    }
+
 
     @DisplayName("When a HmcStatus with no listing is given, setWorkBasketFields updates getHearingEpimsId to null")
     @Test
@@ -287,6 +308,7 @@ class HearingUpdateServiceTest {
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, CASE_CLOSED);
 
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
     }
 
@@ -327,6 +349,47 @@ class HearingUpdateServiceTest {
                 .build()));
 
         String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
+
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When a hearing with a valid start is given, getHearingDate returns the correct date")
+    @Test
+    void testGetHearingDate() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .start(HEARING_START_DATE_TIME)
+                    .build())
+                .build()));
+
+        LocalDate result = hearingUpdateService.getHearingDate(String.valueOf(HEARING_ID), caseData);
+
+        assertThat(result).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
+    }
+
+    @DisplayName("When caseData with no hearing is given, getHearingDate returns null")
+    @Test
+    void testGetHearingDateNoHearing() {
+        caseData.setHearings(List.of());
+
+        LocalDate result = hearingUpdateService.getHearingDate(String.valueOf(HEARING_ID), caseData);
+
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When caseData with a hearing but the start is null, getHearingDate returns null")
+    @Test
+    void testGetHearingDateNullStart() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_ID))
+                    .build())
+                .build()));
+
+        LocalDate result = hearingUpdateService.getHearingDate(String.valueOf(HEARING_ID), caseData);
 
         assertThat(result).isNull();
     }

@@ -21,6 +21,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -108,16 +110,24 @@ public class HearingUpdateService {
         WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
 
         if (isCaseListed(listAssistCaseStatus)) {
+            LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
+            workBasketFields.setHearingDate(hearingDate);
+
             String hearingEpimsId = getHearingEpimsId(hearingId, sscsCaseData);
             workBasketFields.setHearingEpimsId(hearingEpimsId);
         } else {
+            workBasketFields.setHearingDate(null);
             workBasketFields.setHearingEpimsId(null);
         }
 
     }
 
-    public boolean isCaseListed(ListAssistCaseStatus listAssistCaseStatus) {
-        return LISTED == listAssistCaseStatus;
+    public LocalDate getHearingDate(String hearingId, @Valid SscsCaseData sscsCaseData) {
+        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
+            .map(Hearing::getValue)
+            .map(HearingDetails::getStart)
+            .map(LocalDateTime::toLocalDate)
+            .orElse(null);
     }
 
     public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
@@ -126,5 +136,9 @@ public class HearingUpdateService {
             .map(HearingDetails::getEpimsId)
             .filter(StringUtils::isNotBlank)
             .orElse(null);
+    }
+
+    public boolean isCaseListed(ListAssistCaseStatus listAssistCaseStatus) {
+        return LISTED == listAssistCaseStatus;
     }
 }
