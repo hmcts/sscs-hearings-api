@@ -24,7 +24,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideSchedulingListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
@@ -727,6 +726,42 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
+        + "is not present then override the duration of hearing")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,75",
+        "0,75",
+        "-1, 75"
+    }, nullValues = {"null"})
+    void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60,75,30));
+
+        given(hearingDurations.addExtraTimeIfNeeded(eq(60),eq(BenefitCode.PIP_NEW_CLAIM),eq(Issue.DD),any()))
+            .willReturn(75);
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDuration(null)
+            .adjournCaseNextHearingListingDurationUnits(null)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes").build())
+                        .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                                            .overrideDuration(overrideDuration)
+                                            .build())
+            .build();
+        int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
     void getHearingDurationWillReturnOverrideDurationWhenPresent() {
@@ -736,17 +771,17 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .adjournCaseNextHearingListingDuration(null)
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes").build())
+                .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                            .overrideSchedulingListingFields(OverrideSchedulingListingFields.builder()
-                                                                                 .overrideDuration(60)
-                                                                                 .build())
-                                            .build())
+                .overrideDuration(60)
+                .build())
             .build();
+
         int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
-        assertEquals(60, result);
+        assertThat(result).isEqualTo(60);
     }
 
     @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")
