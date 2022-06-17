@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
@@ -29,7 +28,6 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
 
 @Slf4j
 @Service
@@ -105,11 +103,11 @@ public class HearingUpdateService {
         hearing.getValue().setHearingStatus(hearingStatus);
     }
 
-    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, ListAssistCaseStatus listAssistCaseStatus) {
+    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
 
         WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
 
-        if (isCaseListed(listAssistCaseStatus)) {
+        if (isCaseListed(hmcStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
 
@@ -138,7 +136,7 @@ public class HearingUpdateService {
             .orElse(null);
     }
 
-    public boolean isCaseListed(ListAssistCaseStatus listAssistCaseStatus) {
-        return LISTED == listAssistCaseStatus;
+    public boolean isCaseListed(HmcStatus hmcStatus) {
+        return HmcStatus.LISTED == hmcStatus;
     }
 }
