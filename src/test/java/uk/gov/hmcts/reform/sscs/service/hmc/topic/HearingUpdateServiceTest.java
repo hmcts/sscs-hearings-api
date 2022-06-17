@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -35,8 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus.EXCEPTION;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.CASE_CLOSED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
@@ -254,7 +252,7 @@ class HearingUpdateServiceTest {
 
         caseData.setHearings(List.of());
 
-        hearingUpdateService.setHearingStatus(String.valueOf(HEARING_ID), caseData, HmcStatus.LISTED);
+        hearingUpdateService.setHearingStatus(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getHearings()).isEmpty();
     }
@@ -306,7 +304,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, CASE_CLOSED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, HmcStatus.CANCELLED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
@@ -397,10 +395,10 @@ class HearingUpdateServiceTest {
     @DisplayName("When a HmcStatus with LISTED or UPDATE_SUBMITTED given, isCaseListed returns true")
     @ParameterizedTest
     @EnumSource(
-        value = ListAssistCaseStatus.class,
+        value = HmcStatus.class,
         mode = EnumSource.Mode.INCLUDE,
         names = {"LISTED"})
-    void testIsCaseListed(ListAssistCaseStatus value) {
+    void testIsCaseListed(HmcStatus value) {
         boolean result = hearingUpdateService.isCaseListed(value);
 
         assertThat(result).isTrue();
@@ -409,11 +407,11 @@ class HearingUpdateServiceTest {
     @DisplayName("When a HmcStatus not LISTED or UPDATE_SUBMITTED given, isCaseListed returns false")
     @ParameterizedTest
     @EnumSource(
-        value = ListAssistCaseStatus.class,
+        value = HmcStatus.class,
         mode = EnumSource.Mode.EXCLUDE,
         names = {"LISTED"})
     @NullSource
-    void testIsCaseListedInvalid(ListAssistCaseStatus value) {
+    void testIsCaseListedInvalid(HmcStatus value) {
         boolean result = hearingUpdateService.isCaseListed(value);
 
         assertThat(result).isFalse();
