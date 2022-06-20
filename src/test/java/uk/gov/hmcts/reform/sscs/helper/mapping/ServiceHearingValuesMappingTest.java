@@ -27,7 +27,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
@@ -72,7 +71,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     private static final String NOTE_FROM_APPELLANT = "appellant note";
 
     public static final String BENEFIT = "Benefit";
-    private static SscsCaseDetails sscsCaseDetails;
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -91,84 +89,83 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     @Mock
     private VenueService venueService;
+    private SscsCaseData caseData;
 
     @BeforeEach
     public void setUp() {
-        sscsCaseDetails = SscsCaseDetails.builder()
-            .data(SscsCaseData.builder()
-                      .ccdCaseId("1234")
-                      .benefitCode(BENEFIT_CODE)
-                      .issueCode(ISSUE_CODE)
-                      .urgentCase("Yes")
-                      .adjournCaseCanCaseBeListedRightAway("Yes")
-                      .caseManagementLocation(CaseManagementLocation.builder()
-                              .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
-                              .region("North West")
-                              .build())
-                      .appeal(Appeal.builder()
-                                  .hearingType("final")
-                                  .appellant(Appellant.builder()
-                                                 .name(Name.builder()
-                                                           .firstName("Fred")
-                                                           .lastName("Flintstone")
-                                                           .title("Mr")
-                                                           .build())
-                                                 .build())
-                                  .hearingSubtype(HearingSubtype.builder()
-                                                      .hearingTelephoneNumber("0999733733")
-                                                      .hearingVideoEmail("test@gmail.com")
-                                                      .wantsHearingTypeFaceToFace("Yes")
-                                                      .wantsHearingTypeTelephone("No")
-                                                      .wantsHearingTypeVideo("No")
-                                                      .build())
-                                  .hearingOptions(HearingOptions.builder()
-                                                      .wantsToAttend("Yes")
-                                                      .wantsSupport("Yes")
-                                                      .languageInterpreter("Yes")
-                                                      .languages("Bulgarian")
-                                                      .signLanguageType("Makaton")
-                                                      .arrangements(Arrays.asList(
-                                                          "signLanguageInterpreter",
-                                                          "hearingLoop",
-                                                          "disabledAccess"
-                                                      ))
-                                                      .scheduleHearing("No")
-                                                      .excludeDates(getExcludeDates())
-                                                      .agreeLessNotice("No")
-                                                      .other(NOTE_FROM_APPELLANT)
-                                                      .build())
-                                  .rep(Representative.builder()
-                                           .id("12321")
-                                           .hasRepresentative("Yes")
-                                           .name(Name.builder()
-                                                     .title("Mr")
-                                                     .firstName("Harry")
-                                                     .lastName("Potter")
-                                                     .build())
-                                           .address(Address.builder()
-                                                        .line1("123 Hairy Lane")
-                                                        .line2("Off Hairy Park")
-                                                        .town("Town")
-                                                        .county("County")
-                                                        .postcode("CM14 4LQ")
-                                                        .build())
-                                           .contact(Contact.builder()
-                                                        .email("harry.potter@wizards.com")
-                                                        .mobile("07411999999")
-                                                        .phone(null)
-                                                        .build())
-                                           .organisation("HP Ltd")
-                                           .build())
-                                  .build())
-                      .events(getEventsOfCaseData())
-                      .languagePreferenceWelsh("No")
-                      .otherParties(getOtherParties())
-                      .linkedCasesBoolean("No")
-                      .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
-                              .panelDoctorSpecialism("cardiologist")
-                              .secondPanelDoctorSpecialism("eyeSurgeon")
-                              .build())
-                      .build())
+        caseData = SscsCaseData.builder()
+            .ccdCaseId("1234")
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .urgentCase("Yes")
+            .adjournCaseCanCaseBeListedRightAway("Yes")
+            .caseManagementLocation(CaseManagementLocation.builder()
+                .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
+                .region("North West")
+                .build())
+            .appeal(Appeal.builder()
+                .hearingType("final")
+                .appellant(Appellant.builder()
+                    .name(Name.builder()
+                        .firstName("Fred")
+                        .lastName("Flintstone")
+                        .title("Mr")
+                        .build())
+                    .build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .hearingTelephoneNumber("0999733733")
+                    .hearingVideoEmail("test@gmail.com")
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeTelephone("No")
+                    .wantsHearingTypeVideo("No")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .wantsSupport("Yes")
+                    .languageInterpreter("Yes")
+                    .languages("Bulgarian")
+                    .signLanguageType("Makaton")
+                    .arrangements(Arrays.asList(
+                        "signLanguageInterpreter",
+                        "hearingLoop",
+                        "disabledAccess"
+                    ))
+                    .scheduleHearing("No")
+                    .excludeDates(getExcludeDates())
+                    .agreeLessNotice("No")
+                    .other(NOTE_FROM_APPELLANT)
+                    .build())
+                .rep(Representative.builder()
+                    .id("12321")
+                    .hasRepresentative("Yes")
+                    .name(Name.builder()
+                        .title("Mr")
+                        .firstName("Harry")
+                        .lastName("Potter")
+                        .build())
+                    .address(Address.builder()
+                        .line1("123 Hairy Lane")
+                        .line2("Off Hairy Park")
+                        .town("Town")
+                        .county("County")
+                        .postcode("CM14 4LQ")
+                        .build())
+                    .contact(Contact.builder()
+                        .email("harry.potter@wizards.com")
+                        .mobile("07411999999")
+                        .phone(null)
+                        .build())
+                    .organisation("HP Ltd")
+                    .build())
+                .build())
+            .events(getEventsOfCaseData())
+            .languagePreferenceWelsh("No")
+            .otherParties(getOtherParties())
+            .linkedCasesBoolean("No")
+            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                .panelDoctorSpecialism("cardiologist")
+                .secondPanelDoctorSpecialism("eyeSurgeon")
+                .build())
             .build();
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -204,7 +201,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
             .dateRangeStart(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY))
             .build();
@@ -246,7 +243,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(sscsCaseDetails, referenceDataServiceHolder);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
