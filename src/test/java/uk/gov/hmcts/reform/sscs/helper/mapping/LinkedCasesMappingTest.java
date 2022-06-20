@@ -42,8 +42,7 @@ class LinkedCasesMappingTest {
             .extracting("caseName")
             .containsOnly(String.valueOf(CASE_NAME));
 
-        List <String> reasonsForLinkTest = new ArrayList<>();
-
+        List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
@@ -75,8 +74,7 @@ class LinkedCasesMappingTest {
             .extracting("caseName")
             .containsOnly(String.valueOf(CASE_NAME));
 
-        List <String> reasonsForLinkTest = new ArrayList<>();
-
+        List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
@@ -114,8 +112,7 @@ class LinkedCasesMappingTest {
             .extracting("caseName")
             .containsOnly(String.valueOf(CASE_NAME));
 
-        List <String> reasonsForLinkTest = new ArrayList<>();
-
+        List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
@@ -137,7 +134,7 @@ class LinkedCasesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
-
+        
         assertThat(result).isEmpty();
     }
 
