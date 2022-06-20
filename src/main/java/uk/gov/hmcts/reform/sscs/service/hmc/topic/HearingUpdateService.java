@@ -18,8 +18,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.Valid;
 

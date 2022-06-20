@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
