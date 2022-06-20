@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
@@ -10,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
 import java.util.List;
+import javax.validation.Valid;
 
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
@@ -22,13 +22,9 @@ public final class ServiceHearingValuesMapping {
     }
 
 
-    public static ServiceHearingValues mapServiceHearingValues(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static ServiceHearingValues mapServiceHearingValues(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder)
         throws InvalidMappingException {
-        if (caseDetails == null) {
-            return null;
-        }
 
-        SscsCaseData caseData = caseDetails.getData();
         boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
 
         return ServiceHearingValues.builder()
@@ -54,7 +50,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType())
-                .judiciary(getJudiciary(caseDetails, referenceDataServiceHolder))
+                .judiciary(getJudiciary(caseData, referenceDataServiceHolder))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
                 .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceDataServiceHolder))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
@@ -64,8 +60,7 @@ public final class ServiceHearingValuesMapping {
             .build();
     }
 
-    public static Judiciary getJudiciary(SscsCaseDetails caseDetails, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        SscsCaseData sscsCaseData = caseDetails.getData();
+    public static Judiciary getJudiciary(@Valid SscsCaseData sscsCaseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         return Judiciary.builder()
                 .roleType(HearingsDetailsMapping.getRoleTypes())
                 .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes())
