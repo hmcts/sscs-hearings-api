@@ -59,7 +59,6 @@ public class ServiceHearingsService {
         throws GetCaseException, InvalidMappingException {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
-        SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
         List<LinkedCase> linkedCases = LinkedCasesMapping.getLinkedCases(caseData);
 
