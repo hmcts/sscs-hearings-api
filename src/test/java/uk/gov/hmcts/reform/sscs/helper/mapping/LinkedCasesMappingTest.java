@@ -26,6 +26,7 @@ class LinkedCasesMappingTest {
                 .build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
+                .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
@@ -53,6 +54,7 @@ class LinkedCasesMappingTest {
         linkedCases.add(CaseLink.builder().build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
+                .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
@@ -87,6 +89,7 @@ class LinkedCasesMappingTest {
                 .build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
+                .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
@@ -122,5 +125,13 @@ class LinkedCasesMappingTest {
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result).isEmpty();
+    }
+
+    private CaseAccessManagementFields setCaseAccessManagementFields() {
+        CaseAccessManagementFields caseAccessManagementFields = new CaseAccessManagementFields();
+        caseAccessManagementFields.setCaseNames(CASE_NAME);
+
+        return caseAccessManagementFields;
+
     }
 }
