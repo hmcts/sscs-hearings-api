@@ -418,6 +418,6 @@ public final class HearingsDetailsMapping {
 
     private static List<String> getAmendReasonCode() {
         // TODO Future Work
-        return null;
+        return new ArrayList<>();
     }
 }
