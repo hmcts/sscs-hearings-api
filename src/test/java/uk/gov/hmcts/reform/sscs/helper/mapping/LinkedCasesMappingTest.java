@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LinkedCasesMappingTest {
 
     public static final long CASE_ID = 99250807409918L;
+    public static final String CASE_NAME = "Test Case Name";
 
     @DisplayName("When a case data is given with a linked case getLinkedCases returns any linked cases stored")
     @Test
@@ -31,8 +32,12 @@ class LinkedCasesMappingTest {
 
         assertThat(result)
                 .isNotEmpty()
-                .extracting("ccdCaseId")
-                .containsOnly(String.valueOf(CASE_ID));
+                .extracting("caseReference")
+                .containsOnly(String.valueOf(CASE_ID))
+                .extracting("caseName")
+                .containsOnly(String.valueOf(CASE_NAME))
+                .extracting("reasonsForLink")
+                .isEmpty();
     }
 
     @DisplayName("When a case data is given with a linkedCase with an null or a null value getLinkedCases returns any valid linked cases stored without error")
@@ -54,8 +59,13 @@ class LinkedCasesMappingTest {
 
         assertThat(result)
                 .isNotEmpty()
-                .extracting("ccdCaseId")
-                .containsOnly(String.valueOf(CASE_ID));
+                .isNotEmpty()
+                .extracting("caseReference")
+                .containsOnly(String.valueOf(CASE_ID))
+                .extracting("caseName")
+                .containsOnly(String.valueOf(CASE_NAME))
+                .extracting("reasonsForLink")
+                .isEmpty();
     }
 
     @DisplayName("When a case data is given with a linkedCase that has a blank or null case reference getLinkedCases returns any valid linked cases stored without error")
@@ -83,8 +93,13 @@ class LinkedCasesMappingTest {
 
         assertThat(result)
                 .isNotEmpty()
-                .extracting("ccdCaseId")
-                .containsOnly(String.valueOf(CASE_ID));
+                .isNotEmpty()
+                .extracting("caseReference")
+                .containsOnly(String.valueOf(CASE_ID))
+                .extracting("caseName")
+                .containsOnly(String.valueOf(CASE_NAME))
+                .extracting("reasonsForLink")
+                .isEmpty();
     }
 
     @DisplayName("When a case data is given with a empty linkedCase object getLinkedCases returns an empty list")

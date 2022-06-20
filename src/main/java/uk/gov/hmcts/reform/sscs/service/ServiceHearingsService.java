@@ -50,18 +50,9 @@ public class ServiceHearingsService {
 
         List<LinkedCase> linkedCases = LinkedCasesMapping.getLinkedCases(caseData);
 
-        ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseDetails, referenceDataServiceHolder);
-        linkedCases.forEach(linkedCase -> {
-            setLinkCaseDetails(linkedCase, serviceHearingValues);
-        });
-
         return ServiceLinkedCases.builder()
                 .linkedCases(linkedCases)
                 .build();
     }
 
-    private void setLinkCaseDetails(LinkedCase linkedCase, ServiceHearingValues serviceHearingValues) {
-        linkedCase.setCaseName(serviceHearingValues.getPublicCaseName());
-        linkedCase.setCaseName();
-    }
 }

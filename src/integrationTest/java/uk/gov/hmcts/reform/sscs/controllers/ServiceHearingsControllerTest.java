@@ -260,7 +260,12 @@ class ServiceHearingsControllerTest {
     @Test
     void testPostRequestServiceLinkedCases() throws Exception {
         List<LinkedCase> linkedCases = new ArrayList<>();
-        linkedCases.add(LinkedCase.builder().ccdCaseId(String.valueOf(CASE_ID_LINKED)).build());
+        List<String> reasonsforLink = new ArrayList<>();
+        linkedCases.add(LinkedCase.builder()
+                            .caseReference(String.valueOf(CASE_ID_LINKED))
+                            .caseName(CASE_NAME)
+                            .reasonsForLink(reasonsforLink)
+                            .build());
         ServiceLinkedCases model = ServiceLinkedCases.builder().linkedCases(linkedCases).build();
         String json = asJsonString(model);
 
