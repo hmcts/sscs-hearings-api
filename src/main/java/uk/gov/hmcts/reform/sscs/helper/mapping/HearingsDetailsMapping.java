@@ -416,7 +416,7 @@ public final class HearingsDetailsMapping {
         return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));
     }
 
-    private static String getAmendReasonCode() {
+    private static List<String> getAmendReasonCode() {
         // TODO Future Work
         return null;
     }
