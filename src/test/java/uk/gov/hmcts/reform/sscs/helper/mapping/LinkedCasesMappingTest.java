@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 class LinkedCasesMappingTest {
 
@@ -32,13 +33,18 @@ class LinkedCasesMappingTest {
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
-                .isNotEmpty()
-                .extracting("caseReference")
-                .containsOnly(String.valueOf(CASE_ID))
-                .extracting("caseName")
-                .containsOnly(String.valueOf(CASE_NAME))
-                .extracting("reasonsForLink")
-                .isEmpty();
+            .isNotEmpty()
+            .extracting("caseReference")
+            .containsOnly(String.valueOf(CASE_ID));
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseName")
+            .containsOnly(String.valueOf(CASE_NAME));
+
+        List <String> reasonsForLinkTest = new ArrayList<>();
+
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
     @DisplayName("When a case data is given with a linkedCase with an null or a null value getLinkedCases returns any valid linked cases stored without error")
@@ -60,14 +66,18 @@ class LinkedCasesMappingTest {
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
-                .isNotEmpty()
-                .isNotEmpty()
-                .extracting("caseReference")
-                .containsOnly(String.valueOf(CASE_ID))
-                .extracting("caseName")
-                .containsOnly(String.valueOf(CASE_NAME))
-                .extracting("reasonsForLink")
-                .isEmpty();
+            .isNotEmpty()
+            .extracting("caseReference")
+            .containsOnly(String.valueOf(CASE_ID));
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseName")
+            .containsOnly(String.valueOf(CASE_NAME));
+
+        List <String> reasonsForLinkTest = new ArrayList<>();
+
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
     @DisplayName("When a case data is given with a linkedCase that has a blank or null case reference getLinkedCases returns any valid linked cases stored without error")
@@ -95,14 +105,18 @@ class LinkedCasesMappingTest {
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
-                .isNotEmpty()
-                .isNotEmpty()
-                .extracting("caseReference")
-                .containsOnly(String.valueOf(CASE_ID))
-                .extracting("caseName")
-                .containsOnly(String.valueOf(CASE_NAME))
-                .extracting("reasonsForLink")
-                .isEmpty();
+            .isNotEmpty()
+            .extracting("caseReference")
+            .containsOnly(String.valueOf(CASE_ID));
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseName")
+            .containsOnly(String.valueOf(CASE_NAME));
+
+        List <String> reasonsForLinkTest = new ArrayList<>();
+
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
     @DisplayName("When a case data is given with a empty linkedCase object getLinkedCases returns an empty list")
