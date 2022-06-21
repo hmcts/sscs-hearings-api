@@ -996,7 +996,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingType(HearingChannel.FACE_TO_FACE.getHmcReference())
                         .build())
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannels(caseData);
+        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
         assertEquals(HearingChannel.FACE_TO_FACE, result);
     }
 
@@ -1032,7 +1032,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannels(caseData);
+        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
         assertEquals(HearingChannel.FACE_TO_FACE, result);
     }
 
@@ -1074,7 +1074,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannels(caseData);
+        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
         assertEquals(HearingChannel.VIDEO, result);
     }
 
