@@ -22,18 +22,21 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
-
     public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
     public static final LocalDateTime HEARING_END_DATE_TIME = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
+    public static final String HEARING_DATE = HEARING_START_DATE_TIME.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    public static final String HEARING_TIME = HEARING_START_DATE_TIME.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
     private static final Long HEARING_ID = 789L;
     private static final String EPIMS_ID = "123";
     private static final String NEW_EPIMS_ID = "456";
@@ -109,14 +112,19 @@ class HearingUpdateServiceTest {
         // then
         List<Hearing> hearings = caseData.getHearings();
         assertThat(hearings)
-                .hasSize(2)
-                .extracting(Hearing::getValue)
-                .filteredOn("hearingId", String.valueOf(HEARING_ID))
-                .hasSize(1)
-                .allSatisfy(hearing -> assertThat(hearing.getEpimsId()).isEqualTo(NEW_EPIMS_ID))
-                .extracting(HearingDetails::getVenue)
-                .extracting("name")
-                .containsOnly(VENUE_NAME);
+            .hasSize(2)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .hasSize(1)
+            .extracting("epimsId","start","end","hearingDate","time")
+            .contains(tuple(NEW_EPIMS_ID,HEARING_START_DATE_TIME,HEARING_END_DATE_TIME,HEARING_DATE,HEARING_TIME));
+
+        assertThat(hearings)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .extracting(HearingDetails::getVenue)
+            .extracting("name")
+            .containsOnly(VENUE_NAME);
     }
 
     @DisplayName("When caseData with no hearing that matches one from hearingGetResponse is given,"
@@ -147,14 +155,19 @@ class HearingUpdateServiceTest {
         // then
         List<Hearing> hearings = caseData.getHearings();
         assertThat(hearings)
-                .hasSize(2)
-                .extracting(Hearing::getValue)
-                .filteredOn("hearingId", String.valueOf(HEARING_ID))
-                .hasSize(1)
-                .allSatisfy(hearing -> assertThat(hearing.getEpimsId()).isEqualTo(NEW_EPIMS_ID))
-                .extracting(HearingDetails::getVenue)
-                .extracting("name")
-                .containsOnly(VENUE_NAME);
+            .hasSize(2)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .hasSize(1)
+            .extracting("epimsId","start","end","hearingDate","time")
+            .contains(tuple(NEW_EPIMS_ID,HEARING_START_DATE_TIME,HEARING_END_DATE_TIME,HEARING_DATE,HEARING_TIME));
+
+        assertThat(hearings)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .extracting(HearingDetails::getVenue)
+            .extracting("name")
+            .containsOnly(VENUE_NAME);
     }
 
     @DisplayName("When hearingGetResponse with multiple Hearing Sessions are given,"
