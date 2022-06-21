@@ -84,9 +84,9 @@ public final class HearingsDetailsMapping {
             .build();
     }
 
-    static HearingChannel getHearingChannel(SscsCaseData caseData) {
+    static List<HearingChannel> getHearingChannel(SscsCaseData caseData) {
         if (caseData.getDwpIsOfficerAttending() != null && caseData.getDwpIsOfficerAttending().equals(YES.getValue())) {
-            return FACE_TO_FACE;
+            return Collections.singletonList(FACE_TO_FACE);
         }
 
         List<HearingChannel> hearingChannels = new ArrayList<>();
@@ -107,13 +107,13 @@ public final class HearingsDetailsMapping {
         }
 
         if (hearingChannels.contains(FACE_TO_FACE)) {
-            return FACE_TO_FACE;
+            return Collections.singletonList(FACE_TO_FACE);
         } else if (hearingChannels.contains(VIDEO)) {
-            return VIDEO;
+            return Collections.singletonList(VIDEO);
         } else if (hearingChannels.contains(TELEPHONE)) {
-            return TELEPHONE;
+            return Collections.singletonList(TELEPHONE);
         } else {
-            return NOT_ATTENDING;
+            return Collections.singletonList(NOT_ATTENDING);
         }
     }
 

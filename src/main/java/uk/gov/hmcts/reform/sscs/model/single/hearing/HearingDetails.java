@@ -54,5 +54,5 @@ public class HearingDetails {
 
     private boolean multiDayHearing;
 
-    private HearingChannel hearingChannels;
+    private List<HearingChannel> hearingChannels;
 }

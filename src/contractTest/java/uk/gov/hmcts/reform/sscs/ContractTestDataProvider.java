@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -171,7 +170,7 @@ public class ContractTestDataProvider {
         hearingDetails.setHearingLocations(hearingLocation);
         hearingDetails.setPanelRequirements(panelRequirements1());
         hearingDetails.setAmendReasonCode("amend Reason Code ");
-        hearingDetails.setHearingChannels(HearingChannel.NOT_ATTENDING);
+        hearingDetails.setHearingChannels(new ArrayList<>());
         return hearingDetails;
     }
 

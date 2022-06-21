@@ -1023,8 +1023,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingType(HearingChannel.FACE_TO_FACE.getHmcReference())
                         .build())
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
-        assertEquals(HearingChannel.FACE_TO_FACE, result);
+        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
     }
 
     @DisplayName("When one of the parties contains Face to Face select Face to Fact as preferred value")
@@ -1058,8 +1058,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
-        assertEquals(HearingChannel.FACE_TO_FACE, result);
+        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
     }
 
     @DisplayName("When no parties contain Face to Face but contain Video select Video")
@@ -1099,8 +1099,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
-        assertEquals(HearingChannel.VIDEO, result);
+        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        assertEquals(HearingChannel.VIDEO, result.get(0));
     }
 
     @DisplayName("When no parties contain Face to Face also don't contain Video but contain Telephone select Telephone")
@@ -1140,8 +1140,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
-        assertEquals(HearingChannel.TELEPHONE, result);
+        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        assertEquals(HearingChannel.TELEPHONE, result.get(0));
     }
 
     @DisplayName("ifNetherPartiesHaveAnyPreferenceSelectedReturnNotAttending")
@@ -1173,8 +1173,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        HearingChannel result = HearingsDetailsMapping.getHearingChannel(caseData);
-        assertEquals(HearingChannel.NOT_ATTENDING, result);
+        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        assertEquals(HearingChannel.NOT_ATTENDING, result.get(0));
     }
 
 }
