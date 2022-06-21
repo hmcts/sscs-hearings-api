@@ -22,11 +22,10 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.time.format.DateTimeFormatter.ISO_DATE;
-import static java.time.format.DateTimeFormatter.ISO_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.tuple;
@@ -34,11 +33,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
-
     public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
     public static final LocalDateTime HEARING_END_DATE_TIME = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
-    public static final String HEARING_DATE = HEARING_START_DATE_TIME.toLocalDate().format(ISO_DATE);
-    public static final String HEARING_TIME = HEARING_START_DATE_TIME.toLocalTime().format(ISO_TIME);
+    public static final String HEARING_DATE = HEARING_START_DATE_TIME.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    public static final String HEARING_TIME = HEARING_START_DATE_TIME.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
     private static final Long HEARING_ID = 789L;
     private static final String EPIMS_ID = "123";
     private static final String NEW_EPIMS_ID = "456";
