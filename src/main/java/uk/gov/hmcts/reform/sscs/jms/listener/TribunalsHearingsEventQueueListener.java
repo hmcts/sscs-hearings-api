@@ -33,11 +33,11 @@ public class TribunalsHearingsEventQueueListener {
     public void handleIncomingMessage(HearingRequest message) throws TribunalsEventProcessingException {
         log.info("Message received now handling");
 
-        if(isNull(message)){
+        if (isNull(message)) {
             throw new TribunalsEventProcessingException("An exception occurred as message did not match format");
         }
-            String caseId = message.getCcdCaseId();
-            HearingState event = message.getHearingState();
+        String caseId = message.getCcdCaseId();
+        HearingState event = message.getHearingState();
 
         log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                  event, caseId);
