@@ -85,13 +85,13 @@ public final class HearingsDetailsMapping {
             .panelRequirements(getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
-            .hearingChannels(getHearingChannels(caseData))
+            .hearingChannels(getHearingChannel(caseData))
             .build();
     }
 
-    private static List<HearingChannel> getHearingChannels(SscsCaseData caseData) {
+    static HearingChannel getHearingChannel(SscsCaseData caseData) {
         if(caseData.getDwpIsOfficerAttending().equals(true)){
-            return Collections.singletonList(HearingChannel.FACE_TO_FACE);
+            return HearingChannel.FACE_TO_FACE;
         }
 
         List<HearingChannel> hearingChannels = new ArrayList<>();
@@ -111,16 +111,14 @@ public final class HearingsDetailsMapping {
         }
 
         if (hearingChannels.contains(HearingChannel.FACE_TO_FACE)){
-            return Collections.singletonList(HearingChannel.FACE_TO_FACE);
+            return HearingChannel.FACE_TO_FACE;
         } else if (hearingChannels.contains(HearingChannel.VIDEO)) {
-            Collections.singletonList(HearingChannel.VIDEO);
+            return HearingChannel.VIDEO;
         } else if (hearingChannels.contains(HearingChannel.TELEPHONE)) {
-            Collections.singletonList(HearingChannel.TELEPHONE);
+            return HearingChannel.TELEPHONE;
         } else {
-            return Collections.singletonList(HearingChannel.NOT_ATTENDING);
+            return HearingChannel.NOT_ATTENDING;
         }
-
-        return hearingChannels;
     }
 
 
