@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Venue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.WorkBasketFields;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
@@ -18,13 +19,16 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
 @Slf4j
 @Service
@@ -100,5 +104,30 @@ public class HearingUpdateService {
         }
 
         hearing.getValue().setHearingStatus(hearingStatus);
+    }
+
+    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus listAssistCaseStatus) {
+
+        WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
+
+        if (isCaseListed(listAssistCaseStatus)) {
+            LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
+            workBasketFields.setHearingDate(hearingDate);
+        } else {
+            workBasketFields.setHearingDate(null);
+        }
+
+    }
+
+    public LocalDate getHearingDate(String hearingId, @Valid SscsCaseData sscsCaseData) {
+        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
+            .map(Hearing::getValue)
+            .map(HearingDetails::getStart)
+            .map(LocalDateTime::toLocalDate)
+            .orElse(null);
+    }
+
+    public boolean isCaseListed(HmcStatus hmcStatus) {
+        return LISTED == hmcStatus;
     }
 }
