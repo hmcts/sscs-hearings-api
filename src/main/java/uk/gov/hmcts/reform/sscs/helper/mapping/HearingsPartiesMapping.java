@@ -173,11 +173,14 @@ public final class HearingsPartiesMapping {
                                                               HearingSubtype hearingSubtype,
                                                               String partyId, String appellantId, ReferenceDataServiceHolder referenceData)
             throws InvalidMappingException {
+
+        HearingChannel hearingChannel = getIndividualPreferredHearingChannel(hearingSubtype,
+                                                                                       hearingOptions);
+
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype,
-                    hearingOptions).getHmcReference())
+                .preferredHearingChannel(hearingChannel == null ?  null : hearingChannel.getHmcReference())
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, referenceData))
                 .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())

@@ -27,16 +27,21 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -80,8 +85,8 @@ public final class HearingsDetailsMapping {
     }
 
     static HearingChannel getHearingChannel(SscsCaseData caseData) {
-        if (caseData.getDwpIsOfficerAttending() != null && caseData.getDwpIsOfficerAttending().equals(YesNo.YES.getValue())) {
-            return HearingChannel.FACE_TO_FACE;
+        if (caseData.getDwpIsOfficerAttending() != null && caseData.getDwpIsOfficerAttending().equals(YES.getValue())) {
+            return FACE_TO_FACE;
         }
 
         List<HearingChannel> hearingChannels = new ArrayList<>();
@@ -101,14 +106,14 @@ public final class HearingsDetailsMapping {
                                        .collect(Collectors.toList()));
         }
 
-        if (hearingChannels.contains(HearingChannel.FACE_TO_FACE)) {
-            return HearingChannel.FACE_TO_FACE;
-        } else if (hearingChannels.contains(HearingChannel.VIDEO)) {
-            return HearingChannel.VIDEO;
-        } else if (hearingChannels.contains(HearingChannel.TELEPHONE)) {
-            return HearingChannel.TELEPHONE;
+        if (hearingChannels.contains(FACE_TO_FACE)) {
+            return FACE_TO_FACE;
+        } else if (hearingChannels.contains(VIDEO)) {
+            return VIDEO;
+        } else if (hearingChannels.contains(TELEPHONE)) {
+            return TELEPHONE;
         } else {
-            return HearingChannel.NOT_ATTENDING;
+            return NOT_ATTENDING;
         }
     }
 
