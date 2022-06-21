@@ -1,16 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -46,7 +36,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STAN
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -90,27 +80,28 @@ public final class HearingsDetailsMapping {
     }
 
     static HearingChannel getHearingChannel(SscsCaseData caseData) {
-        if(caseData.getDwpIsOfficerAttending().equals(true)){
+        if (caseData.getDwpIsOfficerAttending() != null && caseData.getDwpIsOfficerAttending().equals(YesNo.YES.getValue())) {
             return HearingChannel.FACE_TO_FACE;
         }
 
         List<HearingChannel> hearingChannels = new ArrayList<>();
 
         HearingChannel individualPreferredHearingChannel = getIndividualPreferredHearingChannel(
-            caseData.getAppeal().getHearingType(),
             caseData.getAppeal().getHearingSubtype(),
-            caseData.getAppeal().getHearingOptions());
+            caseData.getAppeal().getHearingOptions()
+        );
         hearingChannels.add(individualPreferredHearingChannel);
 
-        if(nonNull(caseData.getOtherParties())){
+        if (nonNull(caseData.getOtherParties())) {
             hearingChannels.addAll(caseData.getOtherParties().stream().map(CcdValue::getValue).map(
-                otherParty -> getIndividualPreferredHearingChannel(null,
-                                                                   otherParty.getHearingSubtype(),
-                                                                   otherParty.getHearingOptions()))
-                               .collect(Collectors.toList()));
+                    otherParty -> getIndividualPreferredHearingChannel(
+                        otherParty.getHearingSubtype(),
+                        otherParty.getHearingOptions()
+                    ))
+                                       .collect(Collectors.toList()));
         }
 
-        if (hearingChannels.contains(HearingChannel.FACE_TO_FACE)){
+        if (hearingChannels.contains(HearingChannel.FACE_TO_FACE)) {
             return HearingChannel.FACE_TO_FACE;
         } else if (hearingChannels.contains(HearingChannel.VIDEO)) {
             return HearingChannel.VIDEO;
@@ -128,10 +119,10 @@ public final class HearingsDetailsMapping {
 
     public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, boolean autoListed) {
         return HearingWindow.builder()
-                .firstDateTimeMustBe(getFirstDateTimeMustBe())
-                .dateRangeStart(getHearingWindowStart(caseData, autoListed))
-                .dateRangeEnd(null)
-                .build();
+            .firstDateTimeMustBe(getFirstDateTimeMustBe())
+            .dateRangeStart(getHearingWindowStart(caseData, autoListed))
+            .dateRangeEnd(null)
+            .build();
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
@@ -175,7 +166,7 @@ public final class HearingsDetailsMapping {
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
-                && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
+            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
 
             if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
                 return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_SESSIONS_MULTIPLIER;
@@ -199,11 +190,12 @@ public final class HearingsDetailsMapping {
 
         if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
             Integer duration = isInterpreterRequired(caseData)
-                    ? hearingDuration.getDurationInterpreter()
-                    : hearingDuration.getDurationFaceToFace();
+                ? hearingDuration.getDurationInterpreter()
+                : hearingDuration.getDurationFaceToFace();
             return referenceDataServiceHolder.getHearingDurations()
-                    .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
-                            getElementsDisputed(caseData));
+                .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
+                                      getElementsDisputed(caseData)
+                );
         } else if (isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
@@ -250,9 +242,9 @@ public final class HearingsDetailsMapping {
             elementDisputed.addAll(caseData.getElementsDisputedLimitedWork());
         }
         return elementDisputed.stream()
-                .map(ElementDisputed::getValue)
-                .map(ElementDisputedDetails::getIssueCode)
-                .collect(Collectors.toList());
+            .map(ElementDisputed::getValue)
+            .map(ElementDisputedDetails::getIssueCode)
+            .collect(Collectors.toList());
     }
 
     public static List<String> getNonStandardHearingDurationReasons() {
@@ -276,9 +268,9 @@ public final class HearingsDetailsMapping {
         int numberOfAttendees = 0;
         // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
         if (nonNull(caseData.getAppeal())
-                && nonNull(caseData.getAppeal().getHearingSubtype())
-                && nonNull(caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
-                && caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
+            && nonNull(caseData.getAppeal().getHearingSubtype())
+            && nonNull(caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
+            && caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
             //appellants + dwp attendee (1) + judge (1) + panel members + representative (1)
             numberOfAttendees = 1;
             if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
@@ -326,9 +318,9 @@ public final class HearingsDetailsMapping {
         //          caseData.getAppeal().getHearingOptions().getArrangements()
         //          for each otherParty otherParty.getHearingOptions().getArrangements()
         return Optional.ofNullable(caseData.getAppeal())
-                .map(Appeal::getHearingOptions)
-                .map(HearingOptions::getArrangements)
-                .orElse(new ArrayList<>());
+            .map(Appeal::getHearingOptions)
+            .map(HearingOptions::getArrangements)
+            .orElse(new ArrayList<>());
     }
 
     public static String getListingComments(SscsCaseData caseData) {
@@ -341,10 +333,10 @@ public final class HearingsDetailsMapping {
         }
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
             listingComments.addAll(otherParties.stream()
-                    .map(CcdValue::getValue)
-                    .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
-                    .map(o -> getComment(o, o.getHearingOptions().getOther()))
-                    .collect(Collectors.toList()));
+                                       .map(CcdValue::getValue)
+                                       .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
+                                       .map(o -> getComment(o, o.getHearingOptions().getOther()))
+                                       .collect(Collectors.toList()));
         }
 
         if (listingComments.isEmpty()) {
@@ -364,12 +356,12 @@ public final class HearingsDetailsMapping {
 
     public static String getPartyRole(Party party) {
         return nonNull(party.getRole()) && isNotBlank(party.getRole().getName())
-                ? party.getRole().getName()
-                : HearingsMapping.getEntityRoleCode(party).getValueEn();
+            ? party.getRole().getName()
+            : HearingsMapping.getEntityRoleCode(party).getValueEn();
     }
 
     public static String getEntityName(Entity entity) {
-        return  entity.getName().getFullName();
+        return entity.getName().getFullName();
     }
 
     public static String getHearingRequester() {
@@ -390,12 +382,12 @@ public final class HearingsDetailsMapping {
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
                                                          ReferenceDataServiceHolder referenceDataServiceHolder) {
         return PanelRequirements.builder()
-                .roleTypes(getRoleTypes())
-                .authorisationTypes(getAuthorisationTypes())
-                .authorisationSubTypes(getAuthorisationSubTypes())
-                .panelPreferences(getPanelPreferences(caseData))
-                .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceDataServiceHolder)))
-                .build();
+            .roleTypes(getRoleTypes())
+            .authorisationTypes(getAuthorisationTypes())
+            .authorisationSubTypes(getAuthorisationSubTypes())
+            .panelPreferences(getPanelPreferences(caseData))
+            .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceDataServiceHolder)))
+            .build();
     }
 
     public static List<String> getRoleTypes() {
@@ -422,14 +414,14 @@ public final class HearingsDetailsMapping {
         String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
         String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
         panelSpecialisms = sessionCategoryMap.getCategory().getPanelMembers().stream()
-                .map(panelMember -> getPanelMemberSpecialism(panelMember, doctorSpecialism, doctorSpecialismSecond))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .map(panelMember -> getPanelMemberSpecialism(panelMember, doctorSpecialism, doctorSpecialismSecond))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
         return panelSpecialisms;
     }
 
     public static String getPanelMemberSpecialism(PanelMember panelMember,
-                                                    String doctorSpecialism, String doctorSpecialismSecond) {
+                                                  String doctorSpecialism, String doctorSpecialismSecond) {
         switch (panelMember) {
             case MQPM1:
                 return panelMember.getReference(doctorSpecialism);
