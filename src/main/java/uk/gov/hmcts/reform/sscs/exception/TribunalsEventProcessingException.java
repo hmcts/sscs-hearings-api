@@ -8,4 +8,8 @@ public class TribunalsEventProcessingException extends Exception {
         super(message, cause);
     }
 
+    public TribunalsEventProcessingException(String message) {
+        super(message);
+    }
+
 }

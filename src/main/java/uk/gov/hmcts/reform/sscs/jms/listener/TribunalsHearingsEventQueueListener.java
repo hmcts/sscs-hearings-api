@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 @Component
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
@@ -29,13 +31,18 @@ public class TribunalsHearingsEventQueueListener {
         containerFactory = "tribunalsHearingsEventQueueContainerFactory"
     )
     public void handleIncomingMessage(HearingRequest message) throws TribunalsEventProcessingException {
-        log.info("Message Received");
-        try {
+        log.info("Message received now handling");
+
+        if(isNull(message)){
+            throw new TribunalsEventProcessingException("An exception occurred as message did not match format");
+        }
             String caseId = message.getCcdCaseId();
             HearingState event = message.getHearingState();
-            log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
-                     event, caseId);
 
+        log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
+                 event, caseId);
+
+        try {
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException
