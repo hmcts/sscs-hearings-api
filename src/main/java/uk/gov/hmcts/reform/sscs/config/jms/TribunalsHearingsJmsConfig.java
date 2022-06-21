@@ -17,6 +17,7 @@ import javax.jms.Session;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 public class TribunalsHearingsJmsConfig {
 
     @Value("${azure.service-bus.tribunals-to-hearings-api.connectionString}")
@@ -33,9 +34,10 @@ public class TribunalsHearingsJmsConfig {
 
     @Value("${azure.service-bus.tribunals-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
+
     public static final String AMQP_CONNECTION_STRING_TEMPLATE = "amqps://%1s?amqp.idleTimeout=%2d";
+
     @Bean
-    @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
     public ConnectionFactory tribunalsHearingsJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
         String connection = String.format(AMQP_CONNECTION_STRING_TEMPLATE, connectionString, idleTimeout);
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
@@ -46,7 +48,6 @@ public class TribunalsHearingsJmsConfig {
     }
 
     @Bean
-    @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
     public JmsListenerContainerFactory<DefaultMessageListenerContainer> tribunalsHearingsEventQueueContainerFactory(
         ConnectionFactory tribunalsHearingsJmsConnectionFactory,
         DefaultJmsListenerContainerFactoryConfigurer defaultJmsListenerContainerFactoryConfigurer) {
