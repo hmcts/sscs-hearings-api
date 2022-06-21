@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.validation.Valid;
 
@@ -71,11 +73,13 @@ public class HearingUpdateService {
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setVenue(venue);
-        hearingDetails.setStart(hearingDaySchedule.getHearingStartDateTime());
+        LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
+        hearingDetails.setStart(hearingStartDateTime);
         hearingDetails.setEnd(hearingDaySchedule.getHearingEndDateTime());
-
-
-        // TODO SSCS-10620 - Set StartDateTime and EndDateTime
+        String hearingDate = hearingStartDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        hearingDetails.setHearingDate(hearingDate);
+        String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+        hearingDetails.setTime(hearingTime);
 
         log.info("Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
             hearingDetails.getEpimsId(),
