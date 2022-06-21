@@ -53,6 +53,6 @@ public class HearingDetails {
     private String amendReasonCode;
 
     private boolean multiDayHearing;
-    
-    private List<HearingChannel> hearingChannels;
+
+    private HearingChannel hearingChannels;
 }
