@@ -38,6 +38,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -984,6 +985,97 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         boolean result = HearingsDetailsMapping.isPoAttending(caseData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
+    @Test
+    void whenDWPIsAttending_thenReturnFaceToFace_asPreferredHearingType(){
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending(YesNo.YES.getValue())
+            .appeal(Appeal.builder()
+                        .hearingType(HearingChannel.FACE_TO_FACE.getHmcReference())
+                        .build())
+            .build();
+        HearingChannel result = HearingsDetailsMapping.getHearingChannels(caseData);
+        assertEquals(HearingChannel.FACE_TO_FACE, result);
+    }
+
+    @DisplayName("When one of the parties contains Face to Face select Face to Fact as preferred value")
+    @Test
+    void whenOneOfTheParties_containsFaceToFace_selectFaceToFace_asPreferredValue(){
+        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        otherParties.add(new CcdValue<>(OtherParty.builder()
+                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
+                                            .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YesNo.YES.getValue()).build())
+                                            .id("2")
+                                            .name(Name.builder()
+                                                      .title("title")
+                                                      .firstName("first")
+                                                      .lastName("last")
+                                                      .build())
+                                            .build()));
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YesNo.YES.getValue()).build())
+                        .appellant(Appellant.builder()
+                                       .id("1")
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .dwpIsOfficerAttending(YesNo.NO.getValue())
+            .otherParties(otherParties)
+            .build();
+        HearingChannel result = HearingsDetailsMapping.getHearingChannels(caseData);
+        assertEquals(HearingChannel.FACE_TO_FACE, result);
+    }
+
+    @DisplayName("When no parties contain Face to Face but contain Video select Video")
+    @Test
+    void whenNoPartiesContainsFaceToFace_butContainVideo_selectVideo(){
+        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        otherParties.add(new CcdValue<>(OtherParty.builder()
+                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
+                                            .hearingSubtype(HearingSubtype.builder()
+                                                                .wantsHearingTypeVideo(YesNo.YES.getValue())
+                                                                .hearingVideoEmail("test@test.com")
+                                                                .build())
+                                            .id("2")
+                                            .name(Name.builder()
+                                                      .title("title")
+                                                      .firstName("first")
+                                                      .lastName("last")
+                                                      .build())
+                                            .build()));
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder()
+                                            .wantsHearingTypeTelephone(YesNo.YES.getValue())
+                                            .hearingTelephoneNumber("02123234823")
+                                            .build())
+                        .appellant(Appellant.builder()
+                                       .id("1")
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .dwpIsOfficerAttending(YesNo.NO.getValue())
+            .otherParties(otherParties)
+            .build();
+        HearingChannel result = HearingsDetailsMapping.getHearingChannels(caseData);
+        assertEquals(HearingChannel.VIDEO, result);
     }
 
 }
