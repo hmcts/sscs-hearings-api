@@ -223,10 +223,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());
         assertTrue(serviceHearingValues.getCaseAdditionalSecurityFlag());
-        assertEquals(Arrays.asList("signLanguageInterpreter",
-            "hearingLoop",
-            "disabledAccess"
-        ), serviceHearingValues.getFacilitiesRequired());
+        assertThat(serviceHearingValues.getFacilitiesRequired()).isEmpty();
         assertThat(serviceHearingValues.getListingComments())
             .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
                 + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);

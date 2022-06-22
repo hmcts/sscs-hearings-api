@@ -47,7 +47,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
                 .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
-                .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired(caseData))
+                .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired())
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())

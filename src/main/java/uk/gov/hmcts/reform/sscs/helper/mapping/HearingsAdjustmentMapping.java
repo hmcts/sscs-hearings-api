@@ -1,0 +1,54 @@
+package uk.gov.hmcts.reform.sscs.helper.mapping;
+
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.SIGN_LANGUAGE_INTERPRETER;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_WHEELCHAIR_ACCESS;
+
+public final class HearingsAdjustmentMapping {
+
+    private HearingsAdjustmentMapping() {
+
+    }
+
+    public static List<Adjustment> getIndividualsAdjustments(HearingOptions hearingOptions) throws InvalidMappingException {
+        if (isNull(hearingOptions)) {
+            return new ArrayList<>();
+        }
+        return getAdjustments(hearingOptions.getArrangements());
+    }
+
+    public static List<Adjustment> getAdjustments(List<String> ccdAdjustments) throws InvalidMappingException {
+        List<Adjustment> adjustments = new ArrayList<>();
+        if (isEmpty(ccdAdjustments)) {
+            return adjustments;
+        }
+
+        for (String ccdAdjustment : ccdAdjustments) {
+            Adjustment adjustment = getAdjustment(ccdAdjustment);
+            adjustments.add(adjustment);
+        }
+        return adjustments;
+    }
+
+    public static Adjustment getAdjustment(String ccdAdjustment) throws InvalidMappingException {
+        switch (ccdAdjustment) {
+            case "signLanguageInterpreter":
+                return SIGN_LANGUAGE_INTERPRETER;
+            case "hearingLoop":
+                return HEARING_LOOP;
+            case "disabledAccess":
+                return STEP_FREE_WHEELCHAIR_ACCESS;
+            default:
+                throw new InvalidMappingException(String.format("The adjustment '%s' given cannot be mapped", ccdAdjustment));
+        }
+    }
+}

@@ -5,7 +5,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
@@ -77,7 +76,7 @@ public final class HearingsDetailsMapping {
             .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
-            .facilitiesRequired(getFacilitiesRequired(caseData))
+            .facilitiesRequired(getFacilitiesRequired())
             .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
@@ -289,14 +288,8 @@ public final class HearingsDetailsMapping {
         return hearingLocations;
     }
 
-    public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        // TODO Dependant on SSCS-10116 - find out how to work this out and implement
-        //          caseData.getAppeal().getHearingOptions().getArrangements()
-        //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return Optional.ofNullable(caseData.getAppeal())
-            .map(Appeal::getHearingOptions)
-            .map(HearingOptions::getArrangements)
-            .orElse(new ArrayList<>());
+    public static List<String> getFacilitiesRequired() {
+        return new ArrayList<>();
     }
 
     public static String getListingComments(SscsCaseData caseData) {
