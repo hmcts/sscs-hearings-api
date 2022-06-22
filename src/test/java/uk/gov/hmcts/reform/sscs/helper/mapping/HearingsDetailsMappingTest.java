@@ -1025,6 +1025,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
             .build();
         List<HearingChannel> result = getHearingChannel(caseData);
+        assertEquals(1, result.size());
         assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
     }
 

@@ -604,6 +604,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result.getHmcReference()).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
     }
 
+    @DisplayName("When hearing Subtype and Hearing Options is null return null")
+    @Test
+    void whenHearingSubtypAndHearingOptionsIsNull_returnNull() {
+        HearingSubtype hearingSubtype = null;
+        HearingOptions hearingOptions = null;
+        HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions);
+        assertThat(result).isEqualTo(null);
+    }
+
     @DisplayName("When hearingType and hearingSubType are null then return null")
     @Test
     void whenHearingTypeAndHearingSubTypeIsNull() {

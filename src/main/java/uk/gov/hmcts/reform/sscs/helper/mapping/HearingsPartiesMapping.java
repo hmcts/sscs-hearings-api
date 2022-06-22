@@ -211,18 +211,20 @@ public final class HearingsPartiesMapping {
             return null;
         }
 
-        HearingChannel preferredHearingChannel =
-            hearingOptions.isWantsToAttendHearing()
-                ? isYes(hearingSubtype.getWantsHearingTypeFaceToFace()) ? FACE_TO_FACE
-                : shouldPreferVideoHearingChannel(hearingSubtype) ? VIDEO
-                : shouldPreferTelephoneHearingChannel(hearingSubtype) ? TELEPHONE
-                : null : NOT_ATTENDING;
-
-        if (isNull(preferredHearingChannel)) {
-            throw new IllegalStateException("Failed to determine a preferred hearing channel");
+        if (hearingOptions.isWantsToAttendHearing()) {
+           if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
+               return FACE_TO_FACE;
+           } else if (shouldPreferVideoHearingChannel(hearingSubtype)) {
+               return VIDEO;
+           } else if (shouldPreferTelephoneHearingChannel(hearingSubtype)) {
+               return TELEPHONE;
+           }
+        } else {
+            return NOT_ATTENDING;
         }
 
-        return preferredHearingChannel;
+        throw new IllegalStateException("Failed to determine a preferred hearing channel");
+
     }
 
     private static boolean shouldPreferTelephoneHearingChannel(HearingSubtype hearingSubtype) {

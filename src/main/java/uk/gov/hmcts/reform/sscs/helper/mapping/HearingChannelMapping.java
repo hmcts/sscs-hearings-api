@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -20,6 +21,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_A
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
+@Slf4j
 public final class HearingChannelMapping {
 
     private HearingChannelMapping() {
@@ -37,6 +39,12 @@ public final class HearingChannelMapping {
             caseData.getAppeal().getHearingSubtype(),
             caseData.getAppeal().getHearingOptions()
         );
+
+        if (isNull(individualPreferredHearingChannel)) {
+            log.error("Individual Preferred Hearing Channel returned Null");
+            return null;
+        }
+
         hearingChannels.add(individualPreferredHearingChannel);
 
         if (nonNull(caseData.getOtherParties())) {
