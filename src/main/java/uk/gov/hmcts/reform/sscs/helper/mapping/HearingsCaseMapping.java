@@ -141,6 +141,10 @@ public final class HearingsCaseMapping {
         return caseData.getCaseCreated();
     }
 
+    public static List<String> getReasonsForLink(SscsCaseData caseData) {
+        return new ArrayList<>();
+    }
+
 }
 
 
