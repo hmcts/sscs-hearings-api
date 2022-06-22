@@ -1,6 +1,16 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -41,7 +51,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STAN
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -102,8 +112,7 @@ public final class HearingsDetailsMapping {
                     otherParty -> getIndividualPreferredHearingChannel(
                         otherParty.getHearingSubtype(),
                         otherParty.getHearingOptions()
-                    ))
-                                       .collect(Collectors.toList()));
+                    )).collect(Collectors.toList()));
         }
 
         if (hearingChannels.contains(FACE_TO_FACE)) {
