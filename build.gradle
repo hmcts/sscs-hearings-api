@@ -406,7 +406,7 @@ dependencyManagement {
   }
   dependencies {
     //CVE-2016-1000027
-    dependencySet(group: 'org.springframework', version: '5.3.20') {
+    dependencySet(group: 'org.springframework', version: '5.3.21') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
