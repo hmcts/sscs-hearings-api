@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -37,16 +36,11 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
@@ -93,39 +87,6 @@ public final class HearingsDetailsMapping {
             .hearingChannels(getHearingChannel(caseData))
             .build();
     }
-
-    static List<HearingChannel> getHearingChannel(SscsCaseData caseData) {
-        if (caseData.getDwpIsOfficerAttending() != null && caseData.getDwpIsOfficerAttending().equals(YES.getValue())) {
-            return Collections.singletonList(FACE_TO_FACE);
-        }
-
-        List<HearingChannel> hearingChannels = new ArrayList<>();
-
-        HearingChannel individualPreferredHearingChannel = getIndividualPreferredHearingChannel(
-            caseData.getAppeal().getHearingSubtype(),
-            caseData.getAppeal().getHearingOptions()
-        );
-        hearingChannels.add(individualPreferredHearingChannel);
-
-        if (nonNull(caseData.getOtherParties())) {
-            hearingChannels.addAll(caseData.getOtherParties().stream().map(CcdValue::getValue).map(
-                    otherParty -> getIndividualPreferredHearingChannel(
-                        otherParty.getHearingSubtype(),
-                        otherParty.getHearingOptions()
-                    )).collect(Collectors.toList()));
-        }
-
-        if (hearingChannels.contains(FACE_TO_FACE)) {
-            return Collections.singletonList(FACE_TO_FACE);
-        } else if (hearingChannels.contains(VIDEO)) {
-            return Collections.singletonList(VIDEO);
-        } else if (hearingChannels.contains(TELEPHONE)) {
-            return Collections.singletonList(TELEPHONE);
-        } else {
-            return Collections.singletonList(NOT_ATTENDING);
-        }
-    }
-
 
     public static String getHearingType() {
         return SUBSTANTIVE.getHmcReference();

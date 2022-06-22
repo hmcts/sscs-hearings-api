@@ -64,6 +64,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -1023,7 +1024,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingType(HearingChannel.FACE_TO_FACE.getHmcReference())
                         .build())
             .build();
-        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        List<HearingChannel> result = getHearingChannel(caseData);
         assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
     }
 
@@ -1058,7 +1059,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        List<HearingChannel> result = getHearingChannel(caseData);
         assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
     }
 
@@ -1099,7 +1100,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        List<HearingChannel> result = getHearingChannel(caseData);
         assertEquals(HearingChannel.VIDEO, result.get(0));
     }
 
@@ -1140,7 +1141,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        List<HearingChannel> result = getHearingChannel(caseData);
         assertEquals(HearingChannel.TELEPHONE, result.get(0));
     }
 
@@ -1173,7 +1174,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        List<HearingChannel> result = HearingsDetailsMapping.getHearingChannel(caseData);
+        List<HearingChannel> result = getHearingChannel(caseData);
         assertEquals(HearingChannel.NOT_ATTENDING, result.get(0));
     }
 
