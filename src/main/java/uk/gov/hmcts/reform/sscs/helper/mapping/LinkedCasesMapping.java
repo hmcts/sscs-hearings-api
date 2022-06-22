@@ -26,7 +26,11 @@ public final class LinkedCasesMapping {
                 .filter(Objects::nonNull)
                 .map(CaseLinkDetails::getCaseReference)
                 .filter(StringUtils::isNotBlank)
-                .map(caseReference -> LinkedCase.builder().ccdCaseId(caseReference).build())
+                .map(caseReference -> LinkedCase.builder()
+                    .caseReference(caseReference)
+                    .caseName(HearingsCaseMapping.getPublicCaseName(caseData))
+                    .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
+                    .build())
                 .collect(Collectors.toList());
     }
 }

@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 class LinkedCasesMappingTest {
 
     public static final long CASE_ID = 99250807409918L;
+    public static final String CASE_NAME = "Test Case Name";
 
     @DisplayName("When a case data is given with a linked case getLinkedCases returns any linked cases stored")
     @Test
@@ -25,14 +27,23 @@ class LinkedCasesMappingTest {
                 .build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
+                .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
-                .isNotEmpty()
-                .extracting("ccdCaseId")
-                .containsOnly(String.valueOf(CASE_ID));
+            .isNotEmpty()
+            .extracting("caseReference")
+            .containsOnly(String.valueOf(CASE_ID));
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseName")
+            .containsOnly(String.valueOf(CASE_NAME));
+
+        List<String> reasonsForLinkTest = new ArrayList<>();
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
     @DisplayName("When a case data is given with a linkedCase with an null or a null value getLinkedCases returns any valid linked cases stored without error")
@@ -48,14 +59,23 @@ class LinkedCasesMappingTest {
         linkedCases.add(CaseLink.builder().build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
+                .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
-                .isNotEmpty()
-                .extracting("ccdCaseId")
-                .containsOnly(String.valueOf(CASE_ID));
+            .isNotEmpty()
+            .extracting("caseReference")
+            .containsOnly(String.valueOf(CASE_ID));
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseName")
+            .containsOnly(String.valueOf(CASE_NAME));
+
+        List<String> reasonsForLinkTest = new ArrayList<>();
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
     @DisplayName("When a case data is given with a linkedCase that has a blank or null case reference getLinkedCases returns any valid linked cases stored without error")
@@ -77,14 +97,23 @@ class LinkedCasesMappingTest {
                 .build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
+                .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
-                .isNotEmpty()
-                .extracting("ccdCaseId")
-                .containsOnly(String.valueOf(CASE_ID));
+            .isNotEmpty()
+            .extracting("caseReference")
+            .containsOnly(String.valueOf(CASE_ID));
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseName")
+            .containsOnly(String.valueOf(CASE_NAME));
+
+        List<String> reasonsForLinkTest = new ArrayList<>();
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
 
     @DisplayName("When a case data is given with a empty linkedCase object getLinkedCases returns an empty list")
@@ -105,7 +134,15 @@ class LinkedCasesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
         List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
-
+        
         assertThat(result).isEmpty();
+    }
+
+    private CaseAccessManagementFields setCaseAccessManagementFields() {
+        CaseAccessManagementFields caseAccessManagementFields = new CaseAccessManagementFields();
+        caseAccessManagementFields.setCaseNames(CASE_NAME);
+
+        return caseAccessManagementFields;
+
     }
 }
