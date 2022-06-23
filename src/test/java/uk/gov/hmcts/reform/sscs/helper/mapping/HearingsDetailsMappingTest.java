@@ -59,6 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -86,7 +87,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
-    void buildHearingDetails() {
+    void buildHearingDetails() throws Exception {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30
@@ -1017,7 +1018,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
     @Test
-    void whenDwpIsAttending_thenReturnFaceToFace_asPreferredHearingType() {
+    void whenDwpIsAttending_thenReturnFaceToFace_asPreferredHearingType() throws Exception {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(YesNo.YES.getValue())
             .appeal(Appeal.builder()
@@ -1031,7 +1032,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When one of the parties contains Face to Face select Face to Fact as preferred value")
     @Test
-    void whenOneOfTheParties_containsFaceToFace_selectFaceToFace_asPreferredValue() {
+    void whenOneOfTheParties_containsFaceToFace_selectFaceToFace_asPreferredValue() throws Exception {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                                             .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
@@ -1066,7 +1067,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When no parties contain Face to Face but contain Video select Video")
     @Test
-    void whenNoPartiesContainsFaceToFace_butContainVideo_selectVideo() {
+    void whenNoPartiesContainsFaceToFace_butContainVideo_selectVideo() throws Exception {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                                             .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
@@ -1107,7 +1108,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When no parties contain Face to Face also don't contain Video but contain Telephone select Telephone")
     @Test
-    void whenNoPartiesContainFaceToFace_alsoDoNotContainVideo_butContainTelephone_selectTelephone() {
+    void whenNoPartiesContainFaceToFace_alsoDoNotContainVideo_butContainTelephone_selectTelephone() throws Exception {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                                             .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
@@ -1148,7 +1149,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("ifNetherPartiesHaveAnyPreferenceSelectedReturnNotAttending")
     @Test
-    void ifNetherParties_haveAnyPreferenceSelected_returnNotAttending() {
+    void ifNetherParties_haveAnyPreferenceSelected_returnException() throws Exception {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                                             .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
@@ -1175,8 +1176,13 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending(YesNo.NO.getValue())
             .otherParties(otherParties)
             .build();
-        List<HearingChannel> result = getHearingChannel(caseData);
-        assertEquals(HearingChannel.NOT_ATTENDING, result.get(0));
+        try {
+            getHearingChannel(caseData);
+            fail("Should have thrown an exception");
+        } catch (Exception e) {
+            String expectedMessage = "Hearing Channel Not Found Exception";
+            assertEquals(expectedMessage, e.getMessage());
+        }
     }
 
 }

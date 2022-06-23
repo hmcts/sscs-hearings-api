@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -61,7 +62,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
-                                                     ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                     ReferenceDataServiceHolder referenceDataServiceHolder) throws HearingChannelNotFoundException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);

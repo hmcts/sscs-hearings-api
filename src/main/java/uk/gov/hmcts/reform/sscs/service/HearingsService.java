@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
@@ -37,7 +38,7 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException, HearingChannelNotFoundException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
@@ -48,7 +49,7 @@ public class HearingsService {
     }
 
     public void processHearingWrapper(HearingWrapper wrapper)
-            throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+            throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException, HearingChannelNotFoundException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -77,7 +78,7 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, HearingChannelNotFoundException {
         updateIds(wrapper);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         HmcUpdateResponse response = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
@@ -90,7 +91,7 @@ public class HearingsService {
         hearingResponseUpdate(wrapper, response);
     }
 
-    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
+    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, HearingChannelNotFoundException {
         updateIds(wrapper);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);

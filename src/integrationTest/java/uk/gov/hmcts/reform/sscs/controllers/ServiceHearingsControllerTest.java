@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -172,7 +173,7 @@ class ServiceHearingsControllerTest {
             referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(
+        hearingsPartiesMapping.when(() -> HearingChannelMapping.getIndividualPreferredHearingChannel(
             hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE);
         when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         when(appeal.getHearingOptions()).thenReturn(hearingOptions);

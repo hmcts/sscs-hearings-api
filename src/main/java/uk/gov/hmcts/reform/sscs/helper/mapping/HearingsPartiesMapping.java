@@ -36,6 +36,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ORGANISATION_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityRoleCode;
@@ -43,10 +44,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabili
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.TooManyMethods"})
 // TODO Unsuppress in future
@@ -203,37 +200,6 @@ public final class HearingsPartiesMapping {
 
     public static String getIndividualFullName(Entity entity) {
         return entity.getName().getFullNameNoTitle();
-    }
-
-    public static HearingChannel getIndividualPreferredHearingChannel(HearingSubtype hearingSubtype,
-                                                                        HearingOptions hearingOptions) {
-        if (isNull(hearingSubtype) || isNull(hearingOptions)) {
-            return null;
-        }
-
-        if (hearingOptions.isWantsToAttendHearing()) {
-           if (isYes(hearingSubtype.getWantsHearingTypeFaceToFace())) {
-               return FACE_TO_FACE;
-           } else if (shouldPreferVideoHearingChannel(hearingSubtype)) {
-               return VIDEO;
-           } else if (shouldPreferTelephoneHearingChannel(hearingSubtype)) {
-               return TELEPHONE;
-           }
-        } else {
-            return NOT_ATTENDING;
-        }
-
-        throw new IllegalStateException("Failed to determine a preferred hearing channel");
-
-    }
-
-    private static boolean shouldPreferTelephoneHearingChannel(HearingSubtype hearingSubtype) {
-        return isYes(hearingSubtype.getWantsHearingTypeTelephone()) && nonNull(hearingSubtype.getHearingTelephoneNumber());
-    }
-
-    private static boolean shouldPreferVideoHearingChannel(HearingSubtype hearingSubtype) {
-        return isYes(hearingSubtype.getWantsHearingTypeVideo())
-            && nonNull(hearingSubtype.getHearingVideoEmail());
     }
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {

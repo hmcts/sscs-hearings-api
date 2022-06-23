@@ -62,7 +62,7 @@ class HearingsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
-    void buildHearingPayload() throws InvalidMappingException {
+    void buildHearingPayload() throws InvalidMappingException, Exception {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                 60,75,30));

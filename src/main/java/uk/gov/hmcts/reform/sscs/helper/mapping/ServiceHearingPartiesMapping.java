@@ -20,7 +20,7 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getPreferredHearingChannelReference;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
@@ -92,7 +92,7 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
-        partyDetails.partyChannel(getPreferredHearingChannelReference(hearingSubtype, hearingOptions));
+        partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference());
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
@@ -126,7 +126,7 @@ public final class ServiceHearingPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
-                .preferredHearingChannel(getPreferredHearingChannelReference(hearingSubtype, hearingOptions))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference())
                 .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, referenceData))
                 .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions))
                 .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
