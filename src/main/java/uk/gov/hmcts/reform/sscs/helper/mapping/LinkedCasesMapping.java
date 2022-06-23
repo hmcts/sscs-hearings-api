@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
+import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +18,7 @@ public final class LinkedCasesMapping {
 
     }
 
-    public static List<LinkedCase> getLinkedCases(SscsCaseData caseData) {
+    public static List<ServiceLinkedCases> getLinkedCases(SscsCaseData caseData) {
         return Optional.ofNullable(caseData.getLinkedCase())
                 .orElseGet(Collections::emptyList).stream()
                 .filter(Objects::nonNull)
@@ -26,7 +26,7 @@ public final class LinkedCasesMapping {
                 .filter(Objects::nonNull)
                 .map(CaseLinkDetails::getCaseReference)
                 .filter(StringUtils::isNotBlank)
-                .map(caseReference -> LinkedCase.builder()
+                .map(caseReference -> ServiceLinkedCases.builder()
                     .caseReference(caseReference)
                     .caseName(HearingsCaseMapping.getPublicCaseName(caseData))
                     .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))

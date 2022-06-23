@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
+import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ class LinkedCasesMappingTest {
                 .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
-        List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
+        List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
             .isNotEmpty()
@@ -40,7 +40,7 @@ class LinkedCasesMappingTest {
         assertThat(result)
             .isNotEmpty()
             .extracting("caseName")
-            .containsOnly(String.valueOf(CASE_NAME));
+            .containsOnly((CASE_NAME));
 
         List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
@@ -62,7 +62,7 @@ class LinkedCasesMappingTest {
                 .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
-        List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
+        List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
             .isNotEmpty()
@@ -72,7 +72,7 @@ class LinkedCasesMappingTest {
         assertThat(result)
             .isNotEmpty()
             .extracting("caseName")
-            .containsOnly(String.valueOf(CASE_NAME));
+            .containsOnly((CASE_NAME));
 
         List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
@@ -100,7 +100,7 @@ class LinkedCasesMappingTest {
                 .caseAccessManagementFields(setCaseAccessManagementFields())
                 .build();
 
-        List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
+        List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result)
             .isNotEmpty()
@@ -110,7 +110,7 @@ class LinkedCasesMappingTest {
         assertThat(result)
             .isNotEmpty()
             .extracting("caseName")
-            .containsOnly(String.valueOf(CASE_NAME));
+            .containsOnly((CASE_NAME));
 
         List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
@@ -123,7 +123,7 @@ class LinkedCasesMappingTest {
                 .linkedCase(new ArrayList<>())
                 .build();
 
-        List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
+        List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCases(caseData);
 
         assertThat(result).isEmpty();
     }
@@ -133,8 +133,8 @@ class LinkedCasesMappingTest {
     void getLinkedCasesNullLinkedCase() {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        List<LinkedCase> result = LinkedCasesMapping.getLinkedCases(caseData);
-        
+        List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCases(caseData);
+
         assertThat(result).isEmpty();
     }
 

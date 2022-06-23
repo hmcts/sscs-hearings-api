@@ -46,7 +46,6 @@ import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
@@ -259,15 +258,19 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceLinkedCases() throws Exception {
-        List<LinkedCase> linkedCases = new ArrayList<>();
         List<String> reasonsforLink = new ArrayList<>();
-        linkedCases.add(LinkedCase.builder()
-                            .caseReference(String.valueOf(CASE_ID_LINKED))
-                            .caseName(CASE_NAME)
-                            .reasonsForLink(reasonsforLink)
-                            .build());
-        ServiceLinkedCases model = ServiceLinkedCases.builder().linkedCases(linkedCases).build();
-        String json = asJsonString(model);
+
+        List<ServiceLinkedCases> serviceLinkedCasesList = new ArrayList<>();
+
+        ServiceLinkedCases model = ServiceLinkedCases.builder()
+                                        .caseReference(String.valueOf(CASE_ID_LINKED))
+                                        .caseName(CASE_NAME)
+                                        .reasonsForLink(reasonsforLink)
+                                        .build();
+
+        serviceLinkedCasesList.add(model);
+
+        String json = asJsonString(serviceLinkedCasesList);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()
                 .caseId(String.valueOf(CASE_ID))
@@ -275,8 +278,8 @@ class ServiceHearingsControllerTest {
                 .build();
 
         mockMvc.perform(post(SERVICE_LINKED_CASES_URL)
-                        .contentType(APPLICATION_JSON)
-                        .content(asJsonString(request)))
+                            .contentType(APPLICATION_JSON)
+                            .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
