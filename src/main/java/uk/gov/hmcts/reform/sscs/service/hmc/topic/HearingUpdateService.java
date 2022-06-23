@@ -22,12 +22,14 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
 @Slf4j
 @Service
@@ -76,11 +78,13 @@ public class HearingUpdateService {
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setVenue(venue);
-        hearingDetails.setStart(hearingDaySchedule.getHearingStartDateTime());
+        LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
+        hearingDetails.setStart(hearingStartDateTime);
         hearingDetails.setEnd(hearingDaySchedule.getHearingEndDateTime());
-
-
-        // TODO SSCS-10620 - Set StartDateTime and EndDateTime
+        String hearingDate = hearingStartDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        hearingDetails.setHearingDate(hearingDate);
+        String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+        hearingDetails.setTime(hearingTime);
 
         log.info("Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
             hearingDetails.getEpimsId(),
@@ -103,19 +107,15 @@ public class HearingUpdateService {
         hearing.getValue().setHearingStatus(hearingStatus);
     }
 
-    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
+    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus listAssistCaseStatus) {
 
         WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
 
-        if (isCaseListed(hmcStatus)) {
+        if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
-
-            String hearingEpimsId = getHearingEpimsId(hearingId, sscsCaseData);
-            workBasketFields.setHearingEpimsId(hearingEpimsId);
         } else {
             workBasketFields.setHearingDate(null);
-            workBasketFields.setHearingEpimsId(null);
         }
 
     }
@@ -128,15 +128,7 @@ public class HearingUpdateService {
             .orElse(null);
     }
 
-    public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
-        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
-            .map(Hearing::getValue)
-            .map(HearingDetails::getEpimsId)
-            .filter(StringUtils::isNotBlank)
-            .orElse(null);
-    }
-
     public boolean isCaseListed(HmcStatus hmcStatus) {
-        return HmcStatus.LISTED == hmcStatus;
+        return LISTED == hmcStatus;
     }
 }

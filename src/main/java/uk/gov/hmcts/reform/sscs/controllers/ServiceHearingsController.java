@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,7 +48,7 @@ public class ServiceHearingsController {
     public ResponseEntity<ServiceHearingValues> serviceHearingValues(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "CCD Case ID and Hearing ID (could be null, empty string or missing) of the case the Hearing Values will be generated for", required = true,
                     content = @Content(schema = @Schema(implementation = ServiceHearingRequest.class, example = "{ \n  \"caseReference\": \"1234123412341234\",\n  \"hearingId\": \"123123123\"\n}")))
-            @RequestBody ServiceHearingRequest request) throws GetCaseException, UpdateCaseException, InvalidMappingException {
+            @RequestBody ServiceHearingRequest request) throws GetCaseException, UpdateCaseException, InvalidMappingException, JsonProcessingException {
         try {
             log.info("Retrieving case details using Case id : {}, for use in generating Service Hearing Values",
                     request.getCaseId());

@@ -134,7 +134,6 @@ class LinkedCasesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
         List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCases(caseData);
-
         assertThat(result).isEmpty();
     }
 
