@@ -24,7 +24,7 @@ java:
           alias: IDAM_OAUTH2_CLIENT_SECRET
         - name: hmc-servicebus-shared-access-key
           alias: HMC_HEARINGS_TOPIC_ACCESS_KEY
-        - name: tribunals-servicebus-shared-access-key
+        - name: sscs-servicebus-shared-access-key
           alias: TRIBUNALS_EVENT_QUEUE_ACCESS_KEY
   environment:
     SERVER_PORT: 8083
