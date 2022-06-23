@@ -289,7 +289,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<String> getFacilitiesRequired() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     public static String getListingComments(SscsCaseData caseData) {

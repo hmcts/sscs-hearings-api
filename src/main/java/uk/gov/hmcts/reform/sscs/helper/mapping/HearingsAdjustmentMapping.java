@@ -5,6 +5,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -15,13 +16,17 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_
 
 public final class HearingsAdjustmentMapping {
 
+    public static final String CCD_SIGN_LANGUAGE_INTERPRETER = "signLanguageInterpreter";
+    public static final String CCD_HEARING_LOOP = "hearingLoop";
+    public static final String CCD_DISABLED_ACCESS = "disabledAccess";
+
     private HearingsAdjustmentMapping() {
 
     }
 
     public static List<Adjustment> getIndividualsAdjustments(HearingOptions hearingOptions) throws InvalidMappingException {
         if (isNull(hearingOptions)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         return getAdjustments(hearingOptions.getArrangements());
     }
@@ -41,11 +46,11 @@ public final class HearingsAdjustmentMapping {
 
     public static Adjustment getAdjustment(String ccdAdjustment) throws InvalidMappingException {
         switch (ccdAdjustment) {
-            case "signLanguageInterpreter":
+            case CCD_SIGN_LANGUAGE_INTERPRETER:
                 return SIGN_LANGUAGE_INTERPRETER;
-            case "hearingLoop":
+            case CCD_HEARING_LOOP:
                 return HEARING_LOOP;
-            case "disabledAccess":
+            case CCD_DISABLED_ACCESS:
                 return STEP_FREE_WHEELCHAIR_ACCESS;
             default:
                 throw new InvalidMappingException(String.format("The adjustment '%s' given cannot be mapped", ccdAdjustment));

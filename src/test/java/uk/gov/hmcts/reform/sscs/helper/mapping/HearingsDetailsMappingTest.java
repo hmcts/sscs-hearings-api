@@ -405,7 +405,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(COURT, result.get(0).getLocationType());
     }
 
-    @DisplayName("getFacilitiesRequired returns an empty array")
+    @DisplayName("getFacilitiesRequired returns an empty list")
     @Test
     void testGetFacilitiesRequired() {
         List<String> individualReasonableAdjustments = HearingsDetailsMapping.getFacilitiesRequired();
