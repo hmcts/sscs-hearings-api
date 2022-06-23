@@ -39,7 +39,6 @@ public final class HearingChannelMapping {
             return List.of(NOT_ATTENDING);
         }
 
-
         HearingChannel individualPreferredHearingChannel = getIndividualPreferredHearingChannel(
             caseData.getAppeal().getHearingSubtype(),
             caseData.getAppeal().getHearingOptions()
