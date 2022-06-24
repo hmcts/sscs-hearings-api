@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -123,9 +124,12 @@ class ServiceHearingsControllerTest {
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
 
+    static MockedStatic<HearingChannelMapping> hearingChannelMapping;
+
     @BeforeAll
     public static void init() {
         hearingsPartiesMapping = Mockito.mockStatic(HearingsPartiesMapping.class);
+        hearingChannelMapping = Mockito.mockStatic(HearingChannelMapping.class);
     }
 
     @AfterAll
@@ -172,8 +176,8 @@ class ServiceHearingsControllerTest {
             referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(),
-            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
+        hearingChannelMapping.when(() -> HearingChannelMapping.getIndividualPreferredHearingChannel(
+            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE); //Cause of issue
         when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
