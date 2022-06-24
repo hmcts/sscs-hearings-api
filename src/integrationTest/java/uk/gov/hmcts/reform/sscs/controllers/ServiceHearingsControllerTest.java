@@ -57,6 +57,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -258,14 +259,14 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceLinkedCases() throws Exception {
-        List<String> reasonsforLink = new ArrayList<>();
-        List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
+        List<String> reasonsforLink = Collections.emptyList();
+        List<ServiceLinkedCases> serviceLinkedCases = Collections.emptyList();
 
         serviceLinkedCases.add(ServiceLinkedCases.builder()
-                                       .caseReference(String.valueOf(CASE_ID_LINKED))
-                                       .caseName(CASE_NAME)
-                                       .reasonsForLink(reasonsforLink)
-                                       .build());
+                .caseReference(String.valueOf(CASE_ID_LINKED))
+                .caseName(CASE_NAME)
+                .reasonsForLink(reasonsforLink)
+                .build());
 
         String json = asJsonString(serviceLinkedCases);
 
