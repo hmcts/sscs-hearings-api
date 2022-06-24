@@ -264,7 +264,7 @@ class ServiceHearingsControllerTest {
     @Test
     void testPostRequestServiceLinkedCases() throws Exception {
         List<String> reasonsforLink = Collections.emptyList();
-        List<ServiceLinkedCases> serviceLinkedCases = Collections.emptyList();
+        List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
 
         serviceLinkedCases.add(ServiceLinkedCases.builder()
                 .caseReference(String.valueOf(CASE_ID_LINKED))
