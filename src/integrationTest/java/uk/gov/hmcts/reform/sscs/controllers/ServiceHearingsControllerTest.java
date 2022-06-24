@@ -47,7 +47,6 @@ import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
@@ -59,6 +58,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -263,15 +263,16 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceLinkedCases() throws Exception {
-        List<LinkedCase> linkedCases = new ArrayList<>();
-        List<String> reasonsforLink = new ArrayList<>();
-        linkedCases.add(LinkedCase.builder()
-                            .caseReference(String.valueOf(CASE_ID_LINKED))
-                            .caseName(CASE_NAME)
-                            .reasonsForLink(reasonsforLink)
-                            .build());
-        ServiceLinkedCases model = ServiceLinkedCases.builder().linkedCases(linkedCases).build();
-        String json = asJsonString(model);
+        List<String> reasonsforLink = Collections.emptyList();
+        List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
+
+        serviceLinkedCases.add(ServiceLinkedCases.builder()
+                .caseReference(String.valueOf(CASE_ID_LINKED))
+                .caseName(CASE_NAME)
+                .reasonsForLink(reasonsforLink)
+                .build());
+
+        String json = asJsonString(serviceLinkedCases);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()
                 .caseId(String.valueOf(CASE_ID))
