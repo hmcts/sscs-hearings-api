@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
@@ -23,7 +25,7 @@ public final class ServiceHearingValuesMapping {
 
 
     public static ServiceHearingValues mapServiceHearingValues(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException {
+        throws InvalidMappingException, HearingChannelNotFoundException {
 
         boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
 
@@ -55,6 +57,7 @@ public final class ServiceHearingValuesMapping {
                 .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceDataServiceHolder))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
                 .hmctsServiceID(referenceDataServiceHolder.getSscsServiceCode())
+                .hearingChannels(getHearingChannelsHmcReference(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
             .build();
