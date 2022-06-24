@@ -38,7 +38,7 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannel;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
@@ -85,7 +85,7 @@ public final class HearingsDetailsMapping {
             .panelRequirements(getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
-            .hearingChannels(getHearingChannel(caseData))
+            .hearingChannels(getHearingChannelsHmcReference(caseData))
             .build();
     }
 

@@ -38,7 +38,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -59,13 +58,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -1015,174 +1012,4 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).isFalse();
     }
-
-    @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
-    @Test
-    void whenDwpIsAttending_thenReturnFaceToFace_asPreferredHearingType() throws Exception {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending(YesNo.YES.getValue())
-            .appeal(Appeal.builder()
-                        .hearingType(HearingChannel.FACE_TO_FACE.getHmcReference())
-                        .build())
-            .build();
-        List<HearingChannel> result = getHearingChannel(caseData);
-        assertEquals(1, result.size());
-        assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
-    }
-
-    @DisplayName("When one of the parties contains Face to Face select Face to Fact as preferred value")
-    @Test
-    void whenOneOfTheParties_containsFaceToFace_selectFaceToFace_asPreferredValue() throws Exception {
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        otherParties.add(new CcdValue<>(OtherParty.builder()
-                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                                            .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YesNo.YES.getValue()).build())
-                                            .id("2")
-                                            .name(Name.builder()
-                                                      .title("title")
-                                                      .firstName("first")
-                                                      .lastName("last")
-                                                      .build())
-                                            .build()));
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YesNo.YES.getValue()).build())
-                        .appellant(Appellant.builder()
-                                       .id("1")
-                                       .name(Name.builder()
-                                                 .title("title")
-                                                 .firstName("first")
-                                                 .lastName("last")
-                                                 .build())
-                                       .build())
-                        .build())
-            .dwpIsOfficerAttending(YesNo.NO.getValue())
-            .otherParties(otherParties)
-            .build();
-        List<HearingChannel> result = getHearingChannel(caseData);
-        assertEquals(HearingChannel.FACE_TO_FACE, result.get(0));
-    }
-
-    @DisplayName("When no parties contain Face to Face but contain Video select Video")
-    @Test
-    void whenNoPartiesContainsFaceToFace_butContainVideo_selectVideo() throws Exception {
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        otherParties.add(new CcdValue<>(OtherParty.builder()
-                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                                            .hearingSubtype(HearingSubtype.builder()
-                                                                .wantsHearingTypeVideo(YesNo.YES.getValue())
-                                                                .hearingVideoEmail("test@test.com")
-                                                                .build())
-                                            .id("2")
-                                            .name(Name.builder()
-                                                      .title("title")
-                                                      .firstName("first")
-                                                      .lastName("last")
-                                                      .build())
-                                            .build()));
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                        .hearingSubtype(HearingSubtype.builder()
-                                            .wantsHearingTypeTelephone(YesNo.YES.getValue())
-                                            .hearingTelephoneNumber("02123234823")
-                                            .build())
-                        .appellant(Appellant.builder()
-                                       .id("1")
-                                       .name(Name.builder()
-                                                 .title("title")
-                                                 .firstName("first")
-                                                 .lastName("last")
-                                                 .build())
-                                       .build())
-                        .build())
-            .dwpIsOfficerAttending(YesNo.NO.getValue())
-            .otherParties(otherParties)
-            .build();
-        List<HearingChannel> result = getHearingChannel(caseData);
-        assertEquals(HearingChannel.VIDEO, result.get(0));
-    }
-
-    @DisplayName("When no parties contain Face to Face also don't contain Video but contain Telephone select Telephone")
-    @Test
-    void whenNoPartiesContainFaceToFace_alsoDoNotContainVideo_butContainTelephone_selectTelephone() throws Exception {
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        otherParties.add(new CcdValue<>(OtherParty.builder()
-                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                                            .hearingSubtype(HearingSubtype.builder()
-                                                                .wantsHearingTypeTelephone(YesNo.YES.getValue())
-                                                                .hearingTelephoneNumber("03625263723")
-                                                                .build())
-                                            .id("2")
-                                            .name(Name.builder()
-                                                      .title("title")
-                                                      .firstName("first")
-                                                      .lastName("last")
-                                                      .build())
-                                            .build()));
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                        .hearingSubtype(HearingSubtype.builder()
-                                            .wantsHearingTypeTelephone(YesNo.YES.getValue())
-                                            .hearingTelephoneNumber("02123234823")
-                                            .build())
-                        .appellant(Appellant.builder()
-                                       .id("1")
-                                       .name(Name.builder()
-                                                 .title("title")
-                                                 .firstName("first")
-                                                 .lastName("last")
-                                                 .build())
-                                       .build())
-                        .build())
-            .dwpIsOfficerAttending(YesNo.NO.getValue())
-            .otherParties(otherParties)
-            .build();
-        List<HearingChannel> result = getHearingChannel(caseData);
-        assertEquals(HearingChannel.TELEPHONE, result.get(0));
-    }
-
-    @DisplayName("ifNetherPartiesHaveAnyPreferenceSelectedReturnNotAttending")
-    @Test
-    void ifNetherParties_haveAnyPreferenceSelected_returnException() throws Exception {
-        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        otherParties.add(new CcdValue<>(OtherParty.builder()
-                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                                            .id("2")
-                                            .name(Name.builder()
-                                                      .title("title")
-                                                      .firstName("first")
-                                                      .lastName("last")
-                                                      .build())
-                                            .build()));
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend(YesNo.YES.getValue()).build())
-                        .appellant(Appellant.builder()
-                                       .id("1")
-                                       .name(Name.builder()
-                                                 .title("title")
-                                                 .firstName("first")
-                                                 .lastName("last")
-                                                 .build())
-                                       .build())
-                        .build())
-            .dwpIsOfficerAttending(YesNo.NO.getValue())
-            .otherParties(otherParties)
-            .build();
-        try {
-            getHearingChannel(caseData);
-            fail("Should have thrown an exception");
-        } catch (Exception e) {
-            String expectedMessage = "Hearing Channel Not Found Exception";
-            assertEquals(expectedMessage, e.getMessage());
-        }
-    }
-
 }
