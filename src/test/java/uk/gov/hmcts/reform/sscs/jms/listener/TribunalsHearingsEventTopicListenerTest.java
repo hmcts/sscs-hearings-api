@@ -11,7 +11,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
-import uk.gov.hmcts.reform.sscs.exception.*;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
+import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
@@ -64,7 +69,8 @@ class TribunalsHearingsEventTopicListenerTest {
             Arguments.of(GetCaseException.class),
             Arguments.of(UnhandleableHearingStateException.class),
             Arguments.of(UpdateCaseException.class),
-            Arguments.of(InvalidMappingException.class)
+            Arguments.of(InvalidMappingException.class),
+            Arguments.of(HearingChannelNotFoundException.class)
         );
     }
 

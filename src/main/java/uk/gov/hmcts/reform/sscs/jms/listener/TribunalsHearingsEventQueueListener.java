@@ -6,6 +6,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -46,7 +47,7 @@ public class TribunalsHearingsEventQueueListener {
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException
-                 | InvalidMappingException ex) {
+                 | InvalidMappingException | HearingChannelNotFoundException ex) {
             throw new TribunalsEventProcessingException("An exception occurred whilst processing hearing event", ex);
         }
     }
