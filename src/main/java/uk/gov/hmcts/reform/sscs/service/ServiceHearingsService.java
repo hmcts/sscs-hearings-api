@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
@@ -19,6 +17,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -56,11 +55,12 @@ public class ServiceHearingsService {
 
     public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)
         throws GetCaseException {
-
+        List<ServiceLinkedCases> linkedCasesList = new ArrayList<>();
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
-
-        return LinkedCasesMapping.getLinkedCases(caseData);
-
-
+        try {
+            return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

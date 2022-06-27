@@ -17,4 +17,5 @@ public class ServiceLinkedCases {
     private String caseReference;
     private String caseName;
     private List<String> reasonsForLink;
+
 }
