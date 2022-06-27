@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -53,14 +52,8 @@ public class ServiceHearingsService {
         return model;
     }
 
-    public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)
-        throws GetCaseException {
-        List<ServiceLinkedCases> linkedCasesList = new ArrayList<>();
+    public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request) throws GetCaseException {
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
-        try {
-            return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
-        } catch (Exception e) {
-            throw e;
-        }
+        return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
     }
 }
