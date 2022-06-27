@@ -86,7 +86,6 @@ class ServiceHearingsControllerTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final long CASE_ID_LINKED = 3456385374124L;
     private static final long MISSING_CASE_ID = 99250807409918L;
-    private static final String BAD_CASE_ID = "ABCASDEF";
     private static final long HEARING_ID = 123L;
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
@@ -177,7 +176,7 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         hearingChannelMapping.when(() -> HearingChannelMapping.getIndividualPreferredHearingChannel(
-            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE); //Cause of issue
+            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE);
         when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
@@ -200,10 +199,13 @@ class ServiceHearingsControllerTest {
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
-        given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class))).willReturn(caseDetails);
+        given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
+            .willReturn(caseDetails);
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        hearingChannelMapping.when(() -> HearingChannelMapping.getHearingChannelsHmcReference(sscsCaseData))
+            .thenReturn(List.of(FACE_TO_FACE.getHmcReference()));
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
@@ -225,7 +227,6 @@ class ServiceHearingsControllerTest {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
     }
 
-    // TODO These are holder tests that will need to be implemented alongside service hearing controller
 
     @DisplayName("When Authorization and Case ID valid "
             + "should return the case name with a with 200 response code")

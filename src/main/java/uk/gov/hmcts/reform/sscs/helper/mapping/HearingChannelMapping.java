@@ -29,7 +29,7 @@ public final class HearingChannelMapping {
 
     }
 
-    static List<HearingChannel> getHearingChannel(SscsCaseData caseData)  throws HearingChannelNotFoundException {
+    static List<HearingChannel> getHearingChannels(SscsCaseData caseData)  throws HearingChannelNotFoundException {
 
         if (caseData.getDwpIsOfficerAttending() != null && caseData.getDwpIsOfficerAttending().equals(YES.getValue())) {
             return List.of(FACE_TO_FACE);
@@ -69,6 +69,10 @@ public final class HearingChannelMapping {
         } else {
             throw new HearingChannelNotFoundException();
         }
+    }
+
+    public static List<String> getHearingChannelsHmcReference(SscsCaseData caseData) throws HearingChannelNotFoundException {
+        return getHearingChannels(caseData).stream().map(HearingChannel::getHmcReference).collect(Collectors.toList());
     }
 
     public static HearingChannel getIndividualPreferredHearingChannel(HearingSubtype hearingSubtype,
