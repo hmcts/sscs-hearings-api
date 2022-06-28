@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
@@ -38,19 +39,23 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @BeforeEach
     void setUp() {
         caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                        .appellant(Appellant.builder()
-                                .name(Name.builder()
-                                        .firstName("Appel")
-                                        .lastName("Lant")
-                                        .build())
-                                .build())
-                        .hearingOptions(HearingOptions.builder()
-                                .build())
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .appellant(Appellant.builder()
+                    .name(Name.builder()
+                        .firstName("Appel")
+                        .lastName("Lant")
                         .build())
-                .build();
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
+                .build())
+            .build();
     }
 
 
@@ -208,7 +213,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @Test
     void testIsPaperCaseAndPoNotAttending() {
         caseData.setDwpIsOfficerAttending("No");
-        caseData.getAppeal().setHearingType("paper");
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
 
         boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 

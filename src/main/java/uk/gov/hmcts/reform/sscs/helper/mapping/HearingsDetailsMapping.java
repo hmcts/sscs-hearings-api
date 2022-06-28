@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -35,7 +34,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
@@ -60,8 +58,7 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
-                                                     ReferenceDataServiceHolder referenceDataServiceHolder) throws HearingChannelNotFoundException {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
@@ -171,15 +168,11 @@ public final class HearingsDetailsMapping {
                 .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
                                       getElementsDisputed(caseData)
                 );
-        } else if (isPaperCase(caseData)) {
+        } else if (HearingChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
             return null;
         }
-    }
-
-    public static boolean isPaperCase(SscsCaseData caseData) {
-        return PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType());
     }
 
     public static boolean isPoAttending(SscsCaseData caseData) {
