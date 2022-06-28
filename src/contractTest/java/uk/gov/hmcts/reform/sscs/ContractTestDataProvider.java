@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -33,6 +34,9 @@ import java.util.Map;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.SIGN_LANGUAGE_INTERPRETER;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_WHEELCHAIR_ACCESS;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.AM;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.PM;
@@ -320,11 +324,11 @@ public class ContractTestDataProvider {
         return partyDetails;
     }
 
-    private static List<String> createReasonableAdjustments() {
-        List<String> reasonableAdjustments = new ArrayList<>();
-        reasonableAdjustments.add("adjust 1");
-        reasonableAdjustments.add("adjust 2");
-        reasonableAdjustments.add("adjust 3");
+    private static List<Adjustment> createReasonableAdjustments() {
+        List<Adjustment> reasonableAdjustments = new ArrayList<>();
+        reasonableAdjustments.add(HEARING_LOOP);
+        reasonableAdjustments.add(SIGN_LANGUAGE_INTERPRETER);
+        reasonableAdjustments.add(STEP_FREE_WHEELCHAIR_ACCESS);
         return reasonableAdjustments;
     }
 
@@ -454,7 +458,7 @@ public class ContractTestDataProvider {
             .string("07345960795")
             .closeArray()
             .array("reasonableAdjustments")
-            .string("reasonableAdjustments1")
+            .string("RA0043")
             .closeArray()
             .minArrayLike("relatedParties", 0, 1)
             .stringType("relatedPartyID", "relatedPartyID123")

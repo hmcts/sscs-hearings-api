@@ -686,18 +686,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                             hearingOptions
                                                         ));
     }
-
-    @DisplayName("getIndividualReasonableAdjustments Test")
-    @Test
-    void getIndividualReasonableAdjustments() {
-        // TODO Finish Test when method done
-        HearingOptions hearingOptions = HearingOptions.builder().build();
-        List<String> individualReasonableAdjustments = HearingsPartiesMapping.getIndividualReasonableAdjustments(
-            hearingOptions);
-
-        assertThat(individualReasonableAdjustments).isEmpty();
-    }
-
+    
     @DisplayName("isIndividualVulnerableFlag Test")
     @Test
     void isIndividualVulnerableFlag() {

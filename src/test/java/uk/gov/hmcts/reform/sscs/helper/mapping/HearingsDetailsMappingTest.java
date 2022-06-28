@@ -405,16 +405,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(COURT, result.get(0).getLocationType());
     }
 
-    @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")
+    @DisplayName("getFacilitiesRequired returns an empty list")
     @Test
-    void getFacilitiesRequired() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        List<String> result = HearingsDetailsMapping.getFacilitiesRequired(caseData);
-        List<String> expected = new ArrayList<>();
-
-        assertEquals(0, result.size());
-        assertEquals(expected, result);
+    void testGetFacilitiesRequired() {
+        List<String> individualReasonableAdjustments = HearingsDetailsMapping.getFacilitiesRequired();
+        assertThat(individualReasonableAdjustments).isEmpty();
     }
 
     @DisplayName("When appellant and other parties Hearing Options other comments are given "

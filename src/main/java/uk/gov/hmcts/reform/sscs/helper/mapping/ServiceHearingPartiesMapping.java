@@ -128,7 +128,7 @@ public final class ServiceHearingPartiesMapping {
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference())
                 .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, referenceData))
-                .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions))
+                .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
                 .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(HearingsPartiesMapping.getIndividualHearingChannelEmail(hearingSubtype))
