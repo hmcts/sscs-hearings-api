@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -53,6 +54,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -120,6 +122,7 @@ class ServiceHearingsControllerTest {
     @Mock
     private VenueService venueService;
 
+    private CcdCaseService ccdCaseService;
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
 
@@ -137,7 +140,7 @@ class ServiceHearingsControllerTest {
     }
 
     @BeforeEach
-    void setUp()  {
+    void setUp()  throws GetCaseException {
         List<CaseLink> linkedCases = new ArrayList<>();
         linkedCases.add(CaseLink.builder()
                 .value(CaseLinkDetails.builder()
@@ -204,6 +207,7 @@ class ServiceHearingsControllerTest {
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        given(ccdService.getByCaseId(eq(CASE_ID_LINKED), any(IdamTokens.class))).willReturn(caseDetails);
         hearingChannelMapping.when(() -> HearingChannelMapping.getHearingChannelsHmcReference(sscsCaseData))
             .thenReturn(List.of(FACE_TO_FACE.getHmcReference()));
 
@@ -311,4 +315,5 @@ class ServiceHearingsControllerTest {
         String dateTomorrow = LocalDate.now().plusDays(1).toString();
         return actualJson.replace("MOCK_DATE_TOMORROW", dateTomorrow);
     }
+
 }
