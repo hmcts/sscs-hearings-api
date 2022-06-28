@@ -60,7 +60,7 @@ public class ServiceHearingsService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
 
-        return LinkedCasesMapping.getLinkedCases(caseData);
+        return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
 
 
     }
