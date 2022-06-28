@@ -3,14 +3,10 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 
@@ -24,14 +20,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LinkedCasesMappingTest {
-    @InjectMocks
+    @Mock
     private CcdCaseService ccdCaseService;
 
-    @Mock
-    private CcdService ccdService;
-
-    @Mock
-    IdamService idamService;
 
     public static final String CASE_ID = "99250807409918";
     public static final String CASE_NAME = "Test Case Name";
@@ -41,7 +32,6 @@ class LinkedCasesMappingTest {
     @Test
     void getSingleLinkedCases() throws GetCaseException {
 
-        ccdCaseService = Mockito.mock(CcdCaseService.class);
         when(ccdCaseService.getCaseDetails(CASE_ID)).thenReturn(buildSscsCaseData());
 
         List<CaseLink> linkedCases = new ArrayList<>();
@@ -62,15 +52,15 @@ class LinkedCasesMappingTest {
             .extracting("caseReference", "caseName")
             .containsOnly(tuple(CASE_ID, CASE_NAME));
 
-        List<String> reasonsForLinkTest = new ArrayList<>();
-        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
+        assertThat(result)
+            .extracting("reasonsForLink")
+            .containsOnly(new ArrayList<>());
     }
 
     @DisplayName("When a case data is given with a linked case getLinkedCases returns any linked cases stored")
     @Test
     void getLinkedCases() throws GetCaseException {
 
-        ccdCaseService = Mockito.mock(CcdCaseService.class);
         when(ccdCaseService.getCaseDetails(CASE_ID)).thenReturn(buildSscsCaseData());
 
         when(ccdCaseService.getCaseDetails(SECOND_CASE_ID)).thenReturn(buildSscsCaseData());
@@ -95,16 +85,12 @@ class LinkedCasesMappingTest {
 
         assertThat(result)
             .isNotEmpty()
-            .extracting("caseReference")
-            .containsOnly(CASE_ID, SECOND_CASE_ID);
+            .extracting("caseReference", "caseName")
+            .containsOnly(tuple(CASE_ID, CASE_NAME), tuple(SECOND_CASE_ID, CASE_NAME));
 
         assertThat(result)
-            .isNotEmpty()
-            .extracting("caseName")
-            .containsOnly(CASE_NAME);
-
-        List<String> reasonsForLinkTest = new ArrayList<>();
-        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
+            .extracting("reasonsForLink")
+            .containsOnly(new ArrayList<>());
     }
 
     @DisplayName("When a case data is given with a linkedCase with an null or a null value getLinkedCases returns any valid linked cases stored without error")
@@ -112,7 +98,6 @@ class LinkedCasesMappingTest {
     void getLinkedCasesNullValue() throws GetCaseException {
         List<CaseLink> linkedCases = new ArrayList<>();
 
-        ccdCaseService = Mockito.mock(CcdCaseService.class);
         when(ccdCaseService.getCaseDetails(CASE_ID)).thenReturn(buildSscsCaseData());
 
         linkedCases.add(CaseLink.builder()
@@ -133,9 +118,10 @@ class LinkedCasesMappingTest {
             .isNotEmpty()
             .extracting("caseReference", "caseName")
             .containsOnly(tuple(CASE_ID, CASE_NAME));
-        
-        List<String> reasonsForLinkTest = new ArrayList<>();
-        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
+
+        assertThat(result)
+            .extracting("reasonsForLink")
+            .containsOnly(new ArrayList<>());
     }
 
     @DisplayName("When a case data is given with a linkedCase that has a blank or null case reference getLinkedCases returns any valid linked cases stored without error")
@@ -143,7 +129,6 @@ class LinkedCasesMappingTest {
     void getLinkedCasesBlankCaseReference() throws GetCaseException {
         List<CaseLink> linkedCases = new ArrayList<>();
 
-        ccdCaseService = Mockito.mock(CcdCaseService.class);
         when(ccdCaseService.getCaseDetails(CASE_ID)).thenReturn(buildSscsCaseData());
 
         linkedCases.add(CaseLink.builder()
@@ -166,22 +151,17 @@ class LinkedCasesMappingTest {
 
         List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
 
-        assertThat(result)
-            .isNotEmpty()
-            .extracting("caseReference")
-            .containsOnly(CASE_ID, "");
-
-        assertThat(result)
-            .isNotEmpty()
-            .extracting("caseName")
-            .containsOnly(CASE_NAME, null);
-
         List<String> reasonsForLinkTest = new ArrayList<>();
-        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseReference", "caseName")
+            .containsOnly(tuple(CASE_ID, CASE_NAME), tuple("", null));
+
+        assertThat(result)
+            .extracting("reasonsForLink")
+            .containsOnly(new ArrayList<>());
+
     }
-
-
-
 
     @DisplayName("When a case data is given with a empty linkedCase object getLinkedCases returns an empty list")
     @Test
