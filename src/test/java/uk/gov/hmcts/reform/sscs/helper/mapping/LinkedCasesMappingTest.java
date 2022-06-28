@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +19,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 @ExtendWith(MockitoExtension.class)
 class LinkedCasesMappingTest {
@@ -31,12 +29,6 @@ class LinkedCasesMappingTest {
 
     @Mock
     IdamService idamService;
-
-    @BeforeEach
-    void setUp() {
-        openMocks(this);
-        ccdCaseService = new CcdCaseService(ccdService, idamService);
-    }
 
     public static final String CASE_ID = "99250807409918";
     public static final String CASE_NAME = "Test Case Name";

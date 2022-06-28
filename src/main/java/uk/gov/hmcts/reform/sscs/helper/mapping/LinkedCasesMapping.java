@@ -36,8 +36,8 @@ public final class LinkedCasesMapping {
                 .build())
             .collect(Collectors.toList());
     }
-    
-    @SuppressWarnings("PMD")
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public static List<ServiceLinkedCases> getLinkedCasesWithNameAndReasons(SscsCaseData caseData, CcdCaseService ccdCaseService) throws GetCaseException {
         List<String> linkedReferences = Optional.ofNullable(caseData.getLinkedCase())
             .orElseGet(Collections::emptyList).stream()
@@ -52,11 +52,9 @@ public final class LinkedCasesMapping {
         }
 
         List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
-        ServiceLinkedCases linkedCase;
         for (String linkRef : linkedReferences) {
             if (linkRef != null) {
-                //suppressed warning
-                linkedCase = new ServiceLinkedCases();
+                ServiceLinkedCases linkedCase = new ServiceLinkedCases();
                 linkedCase.setCaseReference(linkRef);
                 linkedCase.setCaseName(HearingsCaseMapping.getPublicCaseName(getLinkedCaseData(
                     caseData,
@@ -76,7 +74,11 @@ public final class LinkedCasesMapping {
         String linkedReference = null;
 
         for (CaseLink link : caseLink) {
-            if (link != null && link.getValue() != null && link.getValue().getCaseReference() != null && link.getValue().getCaseReference().equals(caseReference)) {
+            String caseLinkReference = Optional.ofNullable(link.getValue())
+                .map(CaseLinkDetails::getCaseReference)
+                .orElse("");
+
+            if (caseLinkReference.equals(caseReference)) {
                 linkedReference = link.getValue().getCaseReference();
                 return ccdCaseService.getCaseDetails(linkedReference).getData();
             } else {
