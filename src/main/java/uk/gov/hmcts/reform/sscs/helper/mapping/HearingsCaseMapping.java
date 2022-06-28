@@ -65,11 +65,7 @@ public final class HearingsCaseMapping {
     }
 
     public static String getPublicCaseName(SscsCaseData caseData) {
-        if (caseData.getCaseAccessManagementFields().getCaseNamePublic() == null || caseData.getCaseAccessManagementFields().getCaseNamePublic().isBlank()) {
-            return EMPTY_STRING;
-        } else {
-            return caseData.getCaseAccessManagementFields().getCaseNamePublic();
-        }
+        return caseData.getCaseAccessManagementFields().getCaseNamePublic();
     }
 
     public static boolean shouldBeAdditionalSecurityFlag(SscsCaseData caseData) {

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -34,19 +35,56 @@ class LinkedCasesMappingTest {
 
     public static final String CASE_ID = "99250807409918";
     public static final String CASE_NAME = "Test Case Name";
+    public static final String SECOND_CASE_ID = "3456385374124";
 
-    @DisplayName("When a case data is given with a linked case getLinkedCases returns any linked cases stored")
+    @DisplayName("When a case data is given with a linked case getLinkedCases returns a single linked case stored")
     @Test
-    void getLinkedCases() throws GetCaseException {
-        List<CaseLink> linkedCases = new ArrayList<>();
+    void getSingleLinkedCases() throws GetCaseException {
 
         ccdCaseService = Mockito.mock(CcdCaseService.class);
         when(ccdCaseService.getCaseDetails(CASE_ID)).thenReturn(buildSscsCaseData());
 
+        List<CaseLink> linkedCases = new ArrayList<>();
+        linkedCases.add(CaseLink.builder()
+                            .value(CaseLinkDetails.builder()
+                                       .caseReference(CASE_ID)
+                                       .build())
+                            .build());
+        SscsCaseData caseData = SscsCaseData.builder()
+            .linkedCase(linkedCases)
+            .caseAccessManagementFields(setCaseAccessManagementFields())
+            .build();
+
+        List<ServiceLinkedCases> result = LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("caseReference", "caseName")
+            .containsOnly(tuple(CASE_ID, CASE_NAME));
+
+        List<String> reasonsForLinkTest = new ArrayList<>();
+        assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
+    }
+
+    @DisplayName("When a case data is given with a linked case getLinkedCases returns any linked cases stored")
+    @Test
+    void getLinkedCases() throws GetCaseException {
+
+        ccdCaseService = Mockito.mock(CcdCaseService.class);
+        when(ccdCaseService.getCaseDetails(CASE_ID)).thenReturn(buildSscsCaseData());
+
+        when(ccdCaseService.getCaseDetails(SECOND_CASE_ID)).thenReturn(buildSscsCaseData());
+
+        List<CaseLink> linkedCases = new ArrayList<>();
         linkedCases.add(CaseLink.builder()
                 .value(CaseLinkDetails.builder()
                         .caseReference(CASE_ID)
                         .build())
+                .build());
+        linkedCases.add(CaseLink.builder()
+                .value(CaseLinkDetails.builder()
+                         .caseReference(SECOND_CASE_ID)
+                         .build())
                 .build());
         SscsCaseData caseData = SscsCaseData.builder()
                 .linkedCase(linkedCases)
@@ -58,7 +96,7 @@ class LinkedCasesMappingTest {
         assertThat(result)
             .isNotEmpty()
             .extracting("caseReference")
-            .containsOnly(CASE_ID);
+            .containsOnly(CASE_ID, SECOND_CASE_ID);
 
         assertThat(result)
             .isNotEmpty()
@@ -93,14 +131,9 @@ class LinkedCasesMappingTest {
 
         assertThat(result)
             .isNotEmpty()
-            .extracting("caseReference")
-            .containsOnly(CASE_ID);
-
-        assertThat(result)
-            .isNotEmpty()
-            .extracting("caseName")
-            .containsOnly(CASE_NAME);
-
+            .extracting("caseReference", "caseName")
+            .containsOnly(tuple(CASE_ID, CASE_NAME));
+        
         List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
@@ -141,11 +174,14 @@ class LinkedCasesMappingTest {
         assertThat(result)
             .isNotEmpty()
             .extracting("caseName")
-            .containsOnly(CASE_NAME, "");
+            .containsOnly(CASE_NAME, null);
 
         List<String> reasonsForLinkTest = new ArrayList<>();
         assertEquals(reasonsForLinkTest, result.get(0).getReasonsForLink());
     }
+
+
+
 
     @DisplayName("When a case data is given with a empty linkedCase object getLinkedCases returns an empty list")
     @Test

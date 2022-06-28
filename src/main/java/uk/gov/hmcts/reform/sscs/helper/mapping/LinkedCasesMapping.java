@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -37,7 +38,6 @@ public final class LinkedCasesMapping {
             .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public static List<ServiceLinkedCases> getLinkedCasesWithNameAndReasons(SscsCaseData caseData, CcdCaseService ccdCaseService) throws GetCaseException {
         List<String> linkedReferences = Optional.ofNullable(caseData.getLinkedCase())
             .orElseGet(Collections::emptyList).stream()
@@ -47,6 +47,11 @@ public final class LinkedCasesMapping {
             .map(CaseLinkDetails::getCaseReference)
             .collect(Collectors.toList());
 
+        return getServiceLinkedCases(caseData, ccdCaseService, linkedReferences);
+    }
+
+    @NotNull
+    private static List<ServiceLinkedCases> getServiceLinkedCases(SscsCaseData caseData, CcdCaseService ccdCaseService, List<String> linkedReferences) throws GetCaseException {
         if (linkedReferences.isEmpty()) {
             return Collections.emptyList();
         }
@@ -54,37 +59,24 @@ public final class LinkedCasesMapping {
         List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
         for (String linkRef : linkedReferences) {
             if (linkRef != null) {
-                ServiceLinkedCases linkedCase = new ServiceLinkedCases();
-                linkedCase.setCaseReference(linkRef);
-                linkedCase.setCaseName(HearingsCaseMapping.getPublicCaseName(getLinkedCaseData(
-                    caseData,
-                    ccdCaseService,
-                    linkRef
-                )));
-                linkedCase.setReasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData));
-                serviceLinkedCases.add(linkedCase);
+                serviceLinkedCases.add(
+                    ServiceLinkedCases.builder()
+                        .caseReference(linkRef)
+                        .caseName(getLinkedCaseName(ccdCaseService, linkRef))
+                        .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
+                        .build());
             }
         }
         return serviceLinkedCases;
     }
 
-    private static SscsCaseData getLinkedCaseData(SscsCaseData caseData, CcdCaseService ccdCaseService, String caseReference) throws GetCaseException {
-        List<CaseLink> caseLink = caseData.getLinkedCase();
-
-        String linkedReference = null;
-
-        for (CaseLink link : caseLink) {
-            String caseLinkReference = Optional.ofNullable(link.getValue())
-                .map(CaseLinkDetails::getCaseReference)
-                .orElse("");
-
-            if (caseLinkReference.equals(caseReference)) {
-                linkedReference = link.getValue().getCaseReference();
-                return ccdCaseService.getCaseDetails(linkedReference).getData();
-            } else {
-                return new SscsCaseData();
-            }
+    private static String getLinkedCaseName(CcdCaseService ccdCaseService, String caseReference) throws GetCaseException {
+        if (!caseReference.isBlank()) {
+            SscsCaseData linkedCase = ccdCaseService.getCaseDetails(caseReference).getData();
+            return linkedCase.getCaseAccessManagementFields().getCaseNamePublic();
         }
-        return ccdCaseService.getCaseDetails(linkedReference).getData();
+        return null;
     }
+
 }
+
