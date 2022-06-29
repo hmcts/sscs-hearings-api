@@ -30,6 +30,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
@@ -62,6 +63,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAY
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
@@ -196,7 +198,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
+    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException, HearingChannelNotFoundException {
         // given
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -221,10 +223,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());
         assertTrue(serviceHearingValues.getCaseAdditionalSecurityFlag());
-        assertEquals(Arrays.asList("signLanguageInterpreter",
-            "hearingLoop",
-            "disabledAccess"
-        ), serviceHearingValues.getFacilitiesRequired());
+        assertThat(serviceHearingValues.getFacilitiesRequired()).isEmpty();
         assertThat(serviceHearingValues.getListingComments())
             .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
                 + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
@@ -235,10 +234,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
+        assertEquals(List.of(FACE_TO_FACE.getHmcReference()), serviceHearingValues.getHearingChannels());
     }
 
     @Test
-    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
+    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException, HearingChannelNotFoundException {
         // given
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);

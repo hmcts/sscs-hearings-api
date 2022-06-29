@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping;
@@ -16,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingValuesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -33,7 +33,7 @@ public class ServiceHearingsService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
-        throws GetCaseException, UpdateCaseException, InvalidMappingException, JsonProcessingException {
+        throws GetCaseException, UpdateCaseException, InvalidMappingException, JsonProcessingException, HearingChannelNotFoundException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
         SscsCaseData caseData = caseDetails.getData();
@@ -55,15 +55,13 @@ public class ServiceHearingsService {
         return model;
     }
 
-    public ServiceLinkedCases getServiceLinkedCases(ServiceHearingRequest request)
-        throws GetCaseException, InvalidMappingException {
+    public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)
+        throws GetCaseException {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
 
-        List<LinkedCase> linkedCases = LinkedCasesMapping.getLinkedCases(caseData);
+        return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
 
-        return ServiceLinkedCases.builder()
-                .linkedCases(linkedCases)
-                .build();
+
     }
 }
