@@ -40,9 +40,10 @@ public final class ServiceHearingPartiesMapping {
 
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        if (isYes(caseData.getDwpIsOfficerAttending())) { // TODO SSCS-10243 - Might need to change
-            partiesDetails.add(createDwpPartyDetails());
-        }
+        // Temporarily removing DWP for SHV because of missing Party Name in ExUI - SSCS-10659
+        //if (isYes(caseData.getDwpIsOfficerAttending())) {
+        //    partiesDetails.add(createDwpPartyDetails());
+        //}
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
             partiesDetails.add(createJointPartyDetails());
@@ -128,7 +129,7 @@ public final class ServiceHearingPartiesMapping {
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference())
                 .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, referenceData))
-                .reasonableAdjustments(HearingsPartiesMapping.getIndividualReasonableAdjustments(hearingOptions))
+                .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
                 .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(HearingsPartiesMapping.getIndividualHearingChannelEmail(hearingSubtype))

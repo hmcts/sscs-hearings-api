@@ -39,6 +39,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPEL
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 
 class HearingsPartiesMappingTest extends HearingsMappingBase {
 
@@ -600,25 +601,19 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualPreferredHearingChannelPaperTest() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().build();
         HearingOptions hearingOptions = HearingOptions.builder().build();
+
         HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions);
-        assertThat(result.getHmcReference()).isEqualTo(HearingChannel.NOT_ATTENDING.getHmcReference());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getHmcReference()).isEqualTo(NOT_ATTENDING.getHmcReference());
     }
 
     @DisplayName("When hearing Subtype and Hearing Options is null return null")
     @Test
-    void whenHearingSubtypAndHearingOptionsIsNull_returnNull() {
-        HearingSubtype hearingSubtype = null;
-        HearingOptions hearingOptions = null;
-        HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions);
-        assertThat(result).isEqualTo(null);
-    }
+    void whenHearingSubtypeAndHearingOptionsIsNull_returnNull() {
+        HearingChannel result = getIndividualPreferredHearingChannel(null, null);
 
-    @DisplayName("When hearingType and hearingSubType are null then return null")
-    @Test
-    void whenHearingTypeAndHearingSubTypeIsNull() {
-        HearingOptions hearingOptions = HearingOptions.builder().build();
-
-        assertThat(getIndividualPreferredHearingChannel(null, hearingOptions)).isNull();
+        assertThat(result).isNull();
     }
 
     @DisplayName("When hearing type oral and video then return LOV VIDEO")
@@ -686,18 +681,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                             hearingOptions
                                                         ));
     }
-
-    @DisplayName("getIndividualReasonableAdjustments Test")
-    @Test
-    void getIndividualReasonableAdjustments() {
-        // TODO Finish Test when method done
-        HearingOptions hearingOptions = HearingOptions.builder().build();
-        List<String> individualReasonableAdjustments = HearingsPartiesMapping.getIndividualReasonableAdjustments(
-            hearingOptions);
-
-        assertThat(individualReasonableAdjustments).isEmpty();
-    }
-
+    
     @DisplayName("isIndividualVulnerableFlag Test")
     @Test
     void isIndividualVulnerableFlag() {

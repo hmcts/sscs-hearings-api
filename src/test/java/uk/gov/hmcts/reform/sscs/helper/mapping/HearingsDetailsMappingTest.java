@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
@@ -20,18 +19,15 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -59,11 +55,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -354,34 +348,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getNumberOfPhysicalAttendees Test")
-    @Test
-    void shouldGetNumberOfPhysicalAttendees() {
-        // given
-        HearingOptions hearingOptions = HearingOptions.builder()
-            .wantsToAttend(YesNo.YES.getValue())
-            .build();
-        HearingSubtype hearingSubtype = HearingSubtype.builder()
-            .wantsHearingTypeFaceToFace(YesNo.YES.getValue())
-            .build();
-        Representative representative = Representative.builder()
-            .hasRepresentative(YesNo.YES.getValue())
-            .build();
-
-        Appeal appeal = Appeal.builder()
-            .rep(representative)
-            .hearingSubtype(hearingSubtype)
-            .hearingOptions(hearingOptions)
-            .build();
-
-        SscsCaseData sscsCaseData = SscsCaseData.builder()
-            .appeal(appeal)
-            .build();
-
-        //then
-        assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
-    }
-
     @DisplayName("getHearingLocations Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
@@ -406,16 +372,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(COURT, result.get(0).getLocationType());
     }
 
-    @DisplayName("When .. is given getFacilitiesRequired return the correct facilities Required")
+    @DisplayName("getFacilitiesRequired returns an empty list")
     @Test
-    void getFacilitiesRequired() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        List<String> result = HearingsDetailsMapping.getFacilitiesRequired(caseData);
-        List<String> expected = new ArrayList<>();
-
-        assertEquals(0, result.size());
-        assertEquals(expected, result);
+    void testGetFacilitiesRequired() {
+        List<String> individualReasonableAdjustments = HearingsDetailsMapping.getFacilitiesRequired();
+        assertThat(individualReasonableAdjustments).isEmpty();
     }
 
     @DisplayName("When appellant and other parties Hearing Options other comments are given "
@@ -980,37 +941,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result)
             .hasSize(9)
             .containsOnly("WC");
-    }
-
-    @DisplayName("When hearingType is Paper, isPaperCase returns True")
-    @Test
-    void testIsPaperCase() {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingType(PAPER.toString())
-                        .build())
-            .build();
-        boolean result = HearingsDetailsMapping.isPaperCase(caseData);
-
-        assertThat(result).isTrue();
-    }
-
-    @DisplayName("When hearingType is not Paper, isPaperCase returns False")
-    @ParameterizedTest
-    @EnumSource(
-        value = HearingType.class,
-        names = {"PAPER"},
-        mode = EXCLUDE)
-    void testIsPaperCase(HearingType value) {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingType(value.getValue())
-                        .build())
-            .build();
-
-        boolean result = HearingsDetailsMapping.isPaperCase(caseData);
-
-        assertThat(result).isFalse();
     }
 
     @DisplayName("When dwpIsOfficerAttending is yes, isPoAttending return True")

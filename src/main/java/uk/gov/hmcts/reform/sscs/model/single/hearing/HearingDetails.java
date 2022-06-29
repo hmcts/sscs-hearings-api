@@ -49,9 +49,10 @@ public class HearingDetails {
 
     private boolean hearingIsLinkedFlag;
 
-    private String amendReasonCode;
+    private List<String> amendReasonCode;
 
     private boolean multiDayHearing;
 
     private List<String> hearingChannels;
+
 }
