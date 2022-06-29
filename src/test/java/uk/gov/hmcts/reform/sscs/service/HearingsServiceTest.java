@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -26,8 +25,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
-import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -44,15 +41,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
@@ -237,53 +230,5 @@ class HearingsServiceTest {
         wrapper.setCancellationReason(CancellationReason.OTHER);
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-    }
-
-    @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "CREATE_HEARING,CREATE_HEARING",
-        "UPDATED_CASE,UPDATED_CASE",
-    }, nullValues = {"null"})
-    void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException {
-        given(ccdCaseService.updateCaseData(
-                any(SscsCaseData.class),
-                any(EventType.class),
-                anyString(), anyString()))
-                .willReturn(expectedCaseDetails);
-
-        wrapper.setState(state);
-
-        HmcUpdateResponse response = HmcUpdateResponse.builder()
-                .versionNumber(VERSION)
-                .hearingRequestId(HEARING_REQUEST_ID)
-                .build();
-        assertThatNoException()
-                .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
-
-        verify(ccdCaseService, times(1))
-                .updateCaseData(
-                        any(SscsCaseData.class),
-                        eq(event.getEventType()),
-                        eq(event.getSummary()),
-                        eq(event.getDescription()));
-    }
-
-    @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
-    @Test
-    void updateHearingResponse() throws UpdateCaseException {
-        given(ccdCaseService.updateCaseData(
-                any(SscsCaseData.class),
-                any(EventType.class),
-                anyString(),
-                anyString()))
-                .willThrow(UpdateCaseException.class);
-
-        HmcUpdateResponse response = HmcUpdateResponse.builder()
-                .versionNumber(VERSION)
-                .hearingRequestId(HEARING_REQUEST_ID)
-                .build();
-        assertThatExceptionOfType(UpdateCaseException.class)
-                .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
     }
 }

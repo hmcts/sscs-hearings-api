@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.jms.annotation.EnableJms;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
@@ -23,6 +24,7 @@ import javax.servlet.ServletContextListener;
 @SpringBootApplication
 @EnableScheduling
 @EnableJms
+@EnableRetry
 @ComponentScan(basePackages = {"uk.gov.hmcts.reform"})
 @EnableFeignClients(basePackages =
     {
