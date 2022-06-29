@@ -70,7 +70,7 @@ public final class HearingsDetailsMapping {
             .duration(getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData))
+            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
             .facilitiesRequired(getFacilitiesRequired())
@@ -230,32 +230,6 @@ public final class HearingsDetailsMapping {
             return URGENT.getHmcReference();
         }
         return STANDARD.getHmcReference();
-    }
-
-    public static int getNumberOfPhysicalAttendees(SscsCaseData caseData) {
-        int numberOfAttendees = 0;
-        // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
-        if (nonNull(caseData.getAppeal())
-            && nonNull(caseData.getAppeal().getHearingSubtype())
-            && nonNull(caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
-            && caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
-            //appellants + dwp attendee (1) + judge (1) + panel members + representative (1)
-            numberOfAttendees = 1;
-            if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-                numberOfAttendees++;
-            }
-
-            if (isYes(caseData.getAppeal().getRep().getHasRepresentative())) {
-                numberOfAttendees++;
-            }
-            // TODO get it from SSCS-10243, when it is finished
-            numberOfAttendees += 0;
-
-            // TODO when panelMembers is created in caseData you will map it with the size of this value
-            //  (SSCS-10116)
-            numberOfAttendees += 0;
-        }
-        return numberOfAttendees;
     }
 
     public static boolean shouldBeHearingsInWelshFlag() {

@@ -23,13 +23,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -347,34 +345,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
         assertEquals(expected, result);
-    }
-
-    @DisplayName("getNumberOfPhysicalAttendees Test")
-    @Test
-    void shouldGetNumberOfPhysicalAttendees() {
-        // given
-        HearingOptions hearingOptions = HearingOptions.builder()
-            .wantsToAttend(YesNo.YES.getValue())
-            .build();
-        HearingSubtype hearingSubtype = HearingSubtype.builder()
-            .wantsHearingTypeFaceToFace(YesNo.YES.getValue())
-            .build();
-        Representative representative = Representative.builder()
-            .hasRepresentative(YesNo.YES.getValue())
-            .build();
-
-        Appeal appeal = Appeal.builder()
-            .rep(representative)
-            .hearingSubtype(hearingSubtype)
-            .hearingOptions(hearingOptions)
-            .build();
-
-        SscsCaseData sscsCaseData = SscsCaseData.builder()
-            .appeal(appeal)
-            .build();
-
-        //then
-        assertEquals(3, HearingsDetailsMapping.getNumberOfPhysicalAttendees(sscsCaseData));
     }
 
     @DisplayName("getHearingLocations Parameterized Tests")

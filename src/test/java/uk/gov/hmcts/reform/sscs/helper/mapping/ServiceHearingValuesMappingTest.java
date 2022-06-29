@@ -218,7 +218,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                 tuple(CASE_SUBTYPE,"BBA3-002-DD"));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
         assertEquals(HearingPriority.URGENT.getHmcReference(), serviceHearingValues.getHearingPriorityType());
-        assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
+        assertEquals(4, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());
         assertTrue(serviceHearingValues.getCaseAdditionalSecurityFlag());
