@@ -49,6 +49,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -617,8 +618,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "cardiologist,eyeSurgeon,58-1|58-3",
-        "null,carer,58|58-2",
+        "cardiologist,eyeSurgeon,1|3",
+        "null,carer,2",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
 
@@ -646,8 +647,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case is given with no second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
-        "generalPractitioner,58-4",
-        "null,58",
+        "generalPractitioner,4",
     }, nullValues = {"null"})
     void getPanelSpecialisms(String doctorSpecialism, String expected) {
 
@@ -666,6 +666,30 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
 
         List<String> expectedList = splitCsvParamArray(expected);
+        assertThat(result)
+            .containsExactlyInAnyOrderElementsOf(expectedList);
+
+    }
+
+    @DisplayName("When an case has a null doctor specialism return an empty list.")
+    @Test
+    void whenAnCaseHasAnNullDoctorSpecialismReturnAnEmptyList() {
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                                                       false, false, SessionCategory.CATEGORY_05, null
+        );
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                                            .panelDoctorSpecialism("doesntexist")
+                                            .build())
+            .build();
+
+        List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
+
+        List<String> expectedList = Collections.emptyList();
         assertThat(result)
             .containsExactlyInAnyOrderElementsOf(expectedList);
 
