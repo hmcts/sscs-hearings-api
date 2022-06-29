@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
-import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -27,11 +25,11 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.PanelMemberSpecialismsMapping.getPanelSpecialisms;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
@@ -372,40 +370,6 @@ public final class HearingsDetailsMapping {
         return Collections.emptyList();
     }
 
-    public static List<String> getPanelSpecialisms(@Valid SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
-        List<String> panelSpecialisms = new ArrayList<>();
-        if (isNull(sessionCategoryMap)) {
-            return panelSpecialisms;
-        }
-
-        String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
-        String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
-        panelSpecialisms = sessionCategoryMap.getCategory().getPanelMembers().stream()
-            .map(panelMember -> getPanelMemberSpecialism(panelMember, doctorSpecialism, doctorSpecialismSecond))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        return panelSpecialisms;
-    }
-
-    public static String getPanelMemberSpecialism(PanelMember panelMember,
-                                                  String doctorSpecialism, String doctorSpecialismSecond) {
-        switch (panelMember) {
-            case MQPM1:
-                return getReference(doctorSpecialism);
-            case MQPM2:
-                return getReference(doctorSpecialismSecond);
-            default:
-                return panelMember.getReference();
-        }
-    }
-
-    public static String getReference(String panelMemberSubtypeCcdRef) {
-        PanelMemberMedicallyQualified subType = getPanelMemberMedicallyQualified(panelMemberSubtypeCcdRef);
-        return nonNull(subType)
-            ? subType.getHmcReference()
-            : null;
-    }
-    //^ Move into another mapping class, PanelMembersMapping move all panel member stuff
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
         List<PanelPreference> panelPreferences = new ArrayList<>();

@@ -636,7 +636,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                             .build())
             .build();
 
-        List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
+        List<String> result = PanelMemberSpecialismsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
 
         List<String> expectedList = splitCsvParamArray(expected);
         assertThat(result)
@@ -663,7 +663,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                             .build())
             .build();
 
-        List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
+        List<String> result = PanelMemberSpecialismsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
 
         List<String> expectedList = splitCsvParamArray(expected);
         assertThat(result)
@@ -687,7 +687,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                             .build())
             .build();
 
-        List<String> result = HearingsDetailsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
+        List<String> result = PanelMemberSpecialismsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
 
         List<String> expectedList = Collections.emptyList();
         assertThat(result)
