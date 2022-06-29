@@ -30,7 +30,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
@@ -198,7 +197,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException, HearingChannelNotFoundException {
+    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
         // given
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -238,7 +237,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException, HearingChannelNotFoundException {
+    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
@@ -20,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
@@ -58,11 +56,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -951,37 +947,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result)
             .hasSize(9)
             .containsOnly("WC");
-    }
-
-    @DisplayName("When hearingType is Paper, isPaperCase returns True")
-    @Test
-    void testIsPaperCase() {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingType(PAPER.toString())
-                        .build())
-            .build();
-        boolean result = HearingsDetailsMapping.isPaperCase(caseData);
-
-        assertThat(result).isTrue();
-    }
-
-    @DisplayName("When hearingType is not Paper, isPaperCase returns False")
-    @ParameterizedTest
-    @EnumSource(
-        value = HearingType.class,
-        names = {"PAPER"},
-        mode = EXCLUDE)
-    void testIsPaperCase(HearingType value) {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingType(value.getValue())
-                        .build())
-            .build();
-
-        boolean result = HearingsDetailsMapping.isPaperCase(caseData);
-
-        assertThat(result).isFalse();
     }
 
     @DisplayName("When dwpIsOfficerAttending is yes, isPoAttending return True")
