@@ -2,6 +2,11 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.ExhaustedRetryException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -28,6 +33,7 @@ import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter"})
 // TODO Unsuppress in future
@@ -35,6 +41,9 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @Service
 @RequiredArgsConstructor
 public class HearingsService {
+
+    @Value("${retry.hearing-response-update.max-retries}")
+    private static int hearingResponseUpdateMaxRetries;
 
     private final HmcHearingApiService hmcHearingApiService;
 
@@ -132,14 +141,19 @@ public class HearingsService {
         // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
+    @Retryable(
+        value = UpdateCaseException.class,
+        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
+        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response)
         throws UpdateCaseException {
 
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
+        String caseId = caseData.getCcdCaseId();
 
-        log.info("Updating Case with Hearing Response for Case ID {}, Hearing ID {} and  Hearing State {}",
-            caseData.getCcdCaseId(),
+        log.info("Updating Case with Hearing Response for Case ID {}, Hearing ID {} and Hearing State {}",
+            caseId,
             hearingRequestId,
             wrapper.getState().getState());
 
@@ -161,10 +175,36 @@ public class HearingsService {
             event.getDescription());
 
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
-            caseData.getCcdCaseId(),
+            caseId,
             hearingRequestId,
             wrapper.getState().getState(),
             event.getEventType().getCcdType());
+    }
+
+    @Recover
+    public void hearingResponseUpdateRecover(UpdateCaseException exception, HearingWrapper wrapper, HmcUpdateResponse response) {
+
+        SscsCaseData caseData = wrapper.getCaseData();
+        Long hearingRequestId = response.getHearingRequestId();
+        String caseId = caseData.getCcdCaseId();
+
+        log.info("Updating Case with Hearing Response has failed {} times, sending cancellation request to HMC, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
+            hearingResponseUpdateMaxRetries,
+            caseId,
+            hearingRequestId,
+            wrapper.getState().getState(),
+            exception);
+
+        wrapper.setCancellationReason(OTHER);
+
+        cancelHearing(wrapper);
+
+        log.info("Cancellation request Response received, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {}",
+            caseData.getCcdCaseId(),
+            hearingRequestId,
+            wrapper.getState().getState());
+
+        throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
     }
 
     private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {
