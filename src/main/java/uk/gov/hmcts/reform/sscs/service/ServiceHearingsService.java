@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingValuesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -55,15 +54,13 @@ public class ServiceHearingsService {
         return model;
     }
 
-    public ServiceLinkedCases getServiceLinkedCases(ServiceHearingRequest request)
-        throws GetCaseException, InvalidMappingException {
+    public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)
+        throws GetCaseException {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
 
-        List<LinkedCase> linkedCases = LinkedCasesMapping.getLinkedCases(caseData);
+        return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
 
-        return ServiceLinkedCases.builder()
-                .linkedCases(linkedCases)
-                .build();
+
     }
 }
