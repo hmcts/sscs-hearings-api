@@ -128,13 +128,13 @@ public class ContractTestDataProvider {
 
     public static HearingCancelRequestPayload generateHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode(WITHDRAWN);
+        request.setCancellationReasonCodes(List.of(WITHDRAWN));
         return request;
     }
 
     public static HearingCancelRequestPayload generateInvalidHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode(null);
+        request.setCancellationReasonCodes(null);
         return request;
     }
 
