@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping;
@@ -33,7 +32,7 @@ public class ServiceHearingsService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
-        throws GetCaseException, UpdateCaseException, InvalidMappingException, JsonProcessingException, HearingChannelNotFoundException {
+        throws GetCaseException, UpdateCaseException, InvalidMappingException, JsonProcessingException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
         SscsCaseData caseData = caseDetails.getData();
@@ -60,7 +59,7 @@ public class ServiceHearingsService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
 
-        return LinkedCasesMapping.getLinkedCases(caseData);
+        return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
 
 
     }

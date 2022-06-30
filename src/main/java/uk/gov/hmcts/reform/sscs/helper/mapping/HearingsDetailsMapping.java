@@ -5,13 +5,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.HearingChannelNotFoundException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -36,7 +34,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
@@ -61,8 +58,7 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
-                                                     ReferenceDataServiceHolder referenceDataServiceHolder) throws HearingChannelNotFoundException {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
@@ -74,10 +70,10 @@ public final class HearingsDetailsMapping {
             .duration(getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData))
+            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
-            .facilitiesRequired(getFacilitiesRequired(caseData))
+            .facilitiesRequired(getFacilitiesRequired())
             .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
@@ -172,15 +168,11 @@ public final class HearingsDetailsMapping {
                 .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
                                       getElementsDisputed(caseData)
                 );
-        } else if (isPaperCase(caseData)) {
+        } else if (HearingChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
             return null;
         }
-    }
-
-    public static boolean isPaperCase(SscsCaseData caseData) {
-        return PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType());
     }
 
     public static boolean isPoAttending(SscsCaseData caseData) {
@@ -240,32 +232,6 @@ public final class HearingsDetailsMapping {
         return STANDARD.getHmcReference();
     }
 
-    public static int getNumberOfPhysicalAttendees(SscsCaseData caseData) {
-        int numberOfAttendees = 0;
-        // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
-        if (nonNull(caseData.getAppeal())
-            && nonNull(caseData.getAppeal().getHearingSubtype())
-            && nonNull(caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
-            && caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
-            //appellants + dwp attendee (1) + judge (1) + panel members + representative (1)
-            numberOfAttendees = 1;
-            if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-                numberOfAttendees++;
-            }
-
-            if (isYes(caseData.getAppeal().getRep().getHasRepresentative())) {
-                numberOfAttendees++;
-            }
-            // TODO get it from SSCS-10243, when it is finished
-            numberOfAttendees += 0;
-
-            // TODO when panelMembers is created in caseData you will map it with the size of this value
-            //  (SSCS-10116)
-            numberOfAttendees += 0;
-        }
-        return numberOfAttendees;
-    }
-
     public static boolean shouldBeHearingsInWelshFlag() {
         // TODO Future Work
         return false;
@@ -289,14 +255,8 @@ public final class HearingsDetailsMapping {
         return hearingLocations;
     }
 
-    public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        // TODO Dependant on SSCS-10116 - find out how to work this out and implement
-        //          caseData.getAppeal().getHearingOptions().getArrangements()
-        //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return Optional.ofNullable(caseData.getAppeal())
-            .map(Appeal::getHearingOptions)
-            .map(HearingOptions::getArrangements)
-            .orElse(new ArrayList<>());
+    public static List<String> getFacilitiesRequired() {
+        return Collections.emptyList();
     }
 
     public static String getListingComments(SscsCaseData caseData) {
@@ -420,8 +380,8 @@ public final class HearingsDetailsMapping {
         return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));
     }
 
-    private static String getAmendReasonCode() {
+    private static List<String> getAmendReasonCode() {
         // TODO Future Work
-        return null;
+        return new ArrayList<>();
     }
 }

@@ -179,7 +179,7 @@ public final class HearingsPartiesMapping {
                 .lastName(getIndividualLastName(entity))
                 .preferredHearingChannel(hearingChannel == null ?  null : hearingChannel.getHmcReference())
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, referenceData))
-                .reasonableAdjustments(getIndividualReasonableAdjustments(hearingOptions))
+                .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(getIndividualHearingChannelEmail(hearingSubtype))
@@ -225,12 +225,6 @@ public final class HearingsPartiesMapping {
             return verbalLanguageReference;
         }
         return null;
-    }
-
-    public static List<String> getIndividualReasonableAdjustments(HearingOptions hearingOptions) {
-        // TODO Andrew Looking into - Needs to implement for Reference data to convert from SSCS Arrangements to Reference Arrangements
-        // List<String> sscsArrangements = hearingOptions.getArrangements();
-        return new ArrayList<>();
     }
 
     public static boolean isIndividualVulnerableFlag() {
