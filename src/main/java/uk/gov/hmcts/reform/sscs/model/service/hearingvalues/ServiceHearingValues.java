@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class ServiceHearingValues {
 
     private String externalCaseReference;
 
-    private List<HearingChannel> hearingChannels;
+    private List<String> hearingChannels;
 
     private String hmctsInternalCaseName;
 
