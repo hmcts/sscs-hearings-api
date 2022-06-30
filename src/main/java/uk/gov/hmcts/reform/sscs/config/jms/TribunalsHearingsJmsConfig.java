@@ -11,6 +11,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import uk.gov.hmcts.reform.sscs.converter.JsonMessageConverter;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -56,7 +57,7 @@ public class TribunalsHearingsJmsConfig {
         factory.setReceiveTimeout(receiveTimeout);
         factory.setSessionTransacted(Boolean.TRUE);
         factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
-        factory.setMessageConverter(new JsonMessageConvertor());
+        factory.setMessageConverter(new JsonMessageConverter());
         defaultJmsListenerContainerFactoryConfigurer.configure(factory, tribunalsHearingsJmsConnectionFactory);
         return factory;
     }
