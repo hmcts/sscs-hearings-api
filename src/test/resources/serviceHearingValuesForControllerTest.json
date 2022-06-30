@@ -26,6 +26,7 @@
   "leadJudgeContractType":null,
   "hearingIsLinkedFlag":true,
   "hmctsServiceID":null,
+  "hearingChannels": [ "INTER" ],
   "hearingWindow":{
     "dateRangeStart": "MOCK_DATE_TOMORROW"
   },

@@ -62,6 +62,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAY
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
@@ -217,14 +218,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                 tuple(CASE_SUBTYPE,"BBA3-002-DD"));
         assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
         assertEquals(HearingPriority.URGENT.getHmcReference(), serviceHearingValues.getHearingPriorityType());
-        assertEquals(3, serviceHearingValues.getNumberOfPhysicalAttendees());
+        assertEquals(4, serviceHearingValues.getNumberOfPhysicalAttendees());
         assertFalse(serviceHearingValues.isHearingInWelshFlag());
         assertEquals(1, serviceHearingValues.getHearingLocations().size());
         assertTrue(serviceHearingValues.getCaseAdditionalSecurityFlag());
-        assertEquals(Arrays.asList("signLanguageInterpreter",
-            "hearingLoop",
-            "disabledAccess"
-        ), serviceHearingValues.getFacilitiesRequired());
+        assertThat(serviceHearingValues.getFacilitiesRequired()).isEmpty();
         assertThat(serviceHearingValues.getListingComments())
             .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
                 + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
@@ -235,6 +233,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
+        assertEquals(List.of(FACE_TO_FACE.getHmcReference()), serviceHearingValues.getHearingChannels());
     }
 
     @Test
