@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -44,6 +45,9 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
 @EnableRetry
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {HearingsService.class})
+@TestPropertySource(properties = {
+    "retry.hearing-response-update.backoff=100",
+})
 class HearingsServiceRetryTest {
     private static final long HEARING_REQUEST_ID = 12345;
     private static final long VERSION = 1;

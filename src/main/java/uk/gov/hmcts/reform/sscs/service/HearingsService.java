@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
@@ -36,8 +37,8 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.O
 @RequiredArgsConstructor
 public class HearingsService {
 
-    private static final int HEARING_RESPONSE_UPDATE_MAX_RETRIES = 3;
-    private static final int HEARING_RESPONSE_UPDATE_BACKOFF = 3_000; //3 seconds
+    @Value("${retry.hearing-response-update.max-retries}")
+    private static int hearingResponseUpdateMaxRetries;
 
     private final HmcHearingApiService hmcHearingApiService;
 
@@ -133,7 +134,10 @@ public class HearingsService {
         // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
-    @Retryable(value = UpdateCaseException.class, maxAttempts = HEARING_RESPONSE_UPDATE_MAX_RETRIES, backoff = @Backoff(delay = HEARING_RESPONSE_UPDATE_BACKOFF))
+    @Retryable(
+        value = UpdateCaseException.class,
+        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
+        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response)
         throws UpdateCaseException {
 
@@ -178,7 +182,7 @@ public class HearingsService {
         String caseId = caseData.getCcdCaseId();
 
         log.info("Updating Case with Hearing Response has failed {} times, sending cancellation request to HMC, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
-            HEARING_RESPONSE_UPDATE_MAX_RETRIES,
+            hearingResponseUpdateMaxRetries,
             caseId,
             hearingRequestId,
             wrapper.getState().getState(),
