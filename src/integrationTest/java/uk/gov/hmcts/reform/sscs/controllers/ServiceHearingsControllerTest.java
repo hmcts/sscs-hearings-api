@@ -42,22 +42,25 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
-import uk.gov.hmcts.reform.sscs.model.service.linkedcases.LinkedCase;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +88,6 @@ class ServiceHearingsControllerTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final long CASE_ID_LINKED = 3456385374124L;
     private static final long MISSING_CASE_ID = 99250807409918L;
-    private static final String BAD_CASE_ID = "ABCASDEF";
     private static final long HEARING_ID = 123L;
     private static final String SERVICE_HEARING_VALUES_URL = "/serviceHearingValues";
     private static final String SERVICE_LINKED_CASES_URL = "/serviceLinkedCases";
@@ -120,12 +122,16 @@ class ServiceHearingsControllerTest {
     @Mock
     private VenueService venueService;
 
+    private CcdCaseService ccdCaseService;
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
+
+    static MockedStatic<HearingChannelMapping> hearingChannelMapping;
 
     @BeforeAll
     public static void init() {
         hearingsPartiesMapping = Mockito.mockStatic(HearingsPartiesMapping.class);
+        hearingChannelMapping = Mockito.mockStatic(HearingChannelMapping.class);
     }
 
     @AfterAll
@@ -134,7 +140,7 @@ class ServiceHearingsControllerTest {
     }
 
     @BeforeEach
-    void setUp()  {
+    void setUp()  throws GetCaseException {
         List<CaseLink> linkedCases = new ArrayList<>();
         linkedCases.add(CaseLink.builder()
                 .value(CaseLinkDetails.builder()
@@ -172,8 +178,8 @@ class ServiceHearingsControllerTest {
             referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualPreferredHearingChannel(appeal.getHearingType(),
-            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE.getHmcReference());
+        hearingChannelMapping.when(() -> HearingChannelMapping.getIndividualPreferredHearingChannel(
+            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE);
         when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
@@ -196,10 +202,14 @@ class ServiceHearingsControllerTest {
         SscsCaseDetails caseDetails = SscsCaseDetails.builder()
                 .data(sscsCaseData)
                 .build();
-        given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class))).willReturn(caseDetails);
+        given(ccdService.updateCase(eq(sscsCaseData), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
+            .willReturn(caseDetails);
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(caseDetails);
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        given(ccdService.getByCaseId(eq(CASE_ID_LINKED), any(IdamTokens.class))).willReturn(caseDetails);
+        hearingChannelMapping.when(() -> HearingChannelMapping.getHearingChannelsHmcReference(sscsCaseData))
+            .thenReturn(List.of(FACE_TO_FACE.getHmcReference()));
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_06, null);
@@ -221,7 +231,6 @@ class ServiceHearingsControllerTest {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
     }
 
-    // TODO These are holder tests that will need to be implemented alongside service hearing controller
 
     @DisplayName("When Authorization and Case ID valid "
             + "should return the case name with a with 200 response code")
@@ -259,10 +268,16 @@ class ServiceHearingsControllerTest {
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
     @Test
     void testPostRequestServiceLinkedCases() throws Exception {
-        List<LinkedCase> linkedCases = new ArrayList<>();
-        linkedCases.add(LinkedCase.builder().ccdCaseId(String.valueOf(CASE_ID_LINKED)).build());
-        ServiceLinkedCases model = ServiceLinkedCases.builder().linkedCases(linkedCases).build();
-        String json = asJsonString(model);
+        List<String> reasonsforLink = Collections.emptyList();
+        List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
+
+        serviceLinkedCases.add(ServiceLinkedCases.builder()
+                .caseReference(String.valueOf(CASE_ID_LINKED))
+                .caseName(CASE_NAME)
+                .reasonsForLink(reasonsforLink)
+                .build());
+
+        String json = asJsonString(serviceLinkedCases);
 
         ServiceHearingRequest request = ServiceHearingRequest.builder()
                 .caseId(String.valueOf(CASE_ID))
@@ -300,4 +315,5 @@ class ServiceHearingsControllerTest {
         String dateTomorrow = LocalDate.now().plusDays(1).toString();
         return actualJson.replace("MOCK_DATE_TOMORROW", dateTomorrow);
     }
+
 }

@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
@@ -65,8 +64,7 @@ public class ProcessHmcMessageService {
 
         hearingUpdateService.setHearingStatus(hearingId, caseData, hmcStatus);
 
-        ListAssistCaseStatus listAssistCaseStatus = hearingResponse.getHearingResponse().getListAssistCaseStatus();
-        hearingUpdateService.setWorkBasketFields(hearingId, caseData, listAssistCaseStatus);
+        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcStatus);
 
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
 

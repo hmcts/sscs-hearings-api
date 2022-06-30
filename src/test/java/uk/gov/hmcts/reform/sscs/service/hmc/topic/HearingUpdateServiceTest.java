@@ -13,12 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -28,21 +28,23 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus.EXCEPTION;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.CASE_CLOSED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus.LISTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
-
     public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
     public static final LocalDateTime HEARING_END_DATE_TIME = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
+    public static final String HEARING_DATE = HEARING_START_DATE_TIME.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    public static final String HEARING_TIME = HEARING_START_DATE_TIME.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
     private static final Long HEARING_ID = 789L;
     private static final String EPIMS_ID = "123";
     private static final String NEW_EPIMS_ID = "456";
@@ -118,14 +120,19 @@ class HearingUpdateServiceTest {
         // then
         List<Hearing> hearings = caseData.getHearings();
         assertThat(hearings)
-                .hasSize(2)
-                .extracting(Hearing::getValue)
-                .filteredOn("hearingId", String.valueOf(HEARING_ID))
-                .hasSize(1)
-                .allSatisfy(hearing -> assertThat(hearing.getEpimsId()).isEqualTo(NEW_EPIMS_ID))
-                .extracting(HearingDetails::getVenue)
-                .extracting("name")
-                .containsOnly(VENUE_NAME);
+            .hasSize(2)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .hasSize(1)
+            .extracting("epimsId","start","end","hearingDate","time")
+            .contains(tuple(NEW_EPIMS_ID,HEARING_START_DATE_TIME,HEARING_END_DATE_TIME,HEARING_DATE,HEARING_TIME));
+
+        assertThat(hearings)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .extracting(HearingDetails::getVenue)
+            .extracting("name")
+            .containsOnly(VENUE_NAME);
     }
 
     @DisplayName("When caseData with no hearing that matches one from hearingGetResponse is given,"
@@ -156,14 +163,19 @@ class HearingUpdateServiceTest {
         // then
         List<Hearing> hearings = caseData.getHearings();
         assertThat(hearings)
-                .hasSize(2)
-                .extracting(Hearing::getValue)
-                .filteredOn("hearingId", String.valueOf(HEARING_ID))
-                .hasSize(1)
-                .allSatisfy(hearing -> assertThat(hearing.getEpimsId()).isEqualTo(NEW_EPIMS_ID))
-                .extracting(HearingDetails::getVenue)
-                .extracting("name")
-                .containsOnly(VENUE_NAME);
+            .hasSize(2)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .hasSize(1)
+            .extracting("epimsId","start","end","hearingDate","time")
+            .contains(tuple(NEW_EPIMS_ID,HEARING_START_DATE_TIME,HEARING_END_DATE_TIME,HEARING_DATE,HEARING_TIME));
+
+        assertThat(hearings)
+            .extracting(Hearing::getValue)
+            .filteredOn("hearingId", String.valueOf(HEARING_ID))
+            .extracting(HearingDetails::getVenue)
+            .extracting("name")
+            .containsOnly(VENUE_NAME);
     }
 
     @DisplayName("When hearingGetResponse with multiple Hearing Sessions are given,"
@@ -217,7 +229,7 @@ class HearingUpdateServiceTest {
         caseData.setHearings(Lists.newArrayList(
             Hearing.builder()
                 .value(HearingDetails.builder()
-                    .hearingStatus(EXCEPTION)
+                    .hearingStatus(HearingStatus.EXCEPTION)
                     .hearingId(String.valueOf(HEARING_ID))
                     .build())
                 .build()));
@@ -238,14 +250,14 @@ class HearingUpdateServiceTest {
         caseData.setHearings(Lists.newArrayList(
             Hearing.builder()
                 .value(HearingDetails.builder()
-                    .hearingStatus(EXCEPTION)
+                    .hearingStatus(HearingStatus.EXCEPTION)
                     .hearingId(String.valueOf(HEARING_ID))
                     .build())
                 .build()));
 
         hearingUpdateService.setHearingStatus(String.valueOf(HEARING_ID), caseData, value);
 
-        assertThat(caseData.getHearings().get(0).getValue().getHearingStatus()).isEqualTo(EXCEPTION);
+        assertThat(caseData.getHearings().get(0).getValue().getHearingStatus()).isEqualTo(HearingStatus.EXCEPTION);
     }
 
     @DisplayName("When caseData with a empty Hearings is given, setHearingStatus returns a empty Hearings")
@@ -254,7 +266,7 @@ class HearingUpdateServiceTest {
 
         caseData.setHearings(List.of());
 
-        hearingUpdateService.setHearingStatus(String.valueOf(HEARING_ID), caseData, HmcStatus.LISTED);
+        hearingUpdateService.setHearingStatus(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getHearings()).isEmpty();
     }
@@ -272,7 +284,6 @@ class HearingUpdateServiceTest {
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
-        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
     }
 
@@ -291,7 +302,6 @@ class HearingUpdateServiceTest {
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
-        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
     }
 
 
@@ -306,51 +316,9 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, CASE_CLOSED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, ADJOURNED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
-        assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
-    }
-
-    @DisplayName("When a hearing with a valid epims Id is given, getHearingEpimsId returns the epims Id")
-    @Test
-    void testGetHearingEpims() {
-        caseData.setHearings(Lists.newArrayList(
-            Hearing.builder()
-                .value(HearingDetails.builder()
-                    .hearingId(String.valueOf(HEARING_ID))
-                    .epimsId(EPIMS_ID)
-                    .build())
-                .build()));
-
-        String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
-
-        assertThat(result).isEqualTo(EPIMS_ID);
-    }
-
-    @DisplayName("When caseData with no hearing is given, getHearingEpimsId returns null")
-    @Test
-    void testGetHearingEpimsIdNoHearing() {
-        caseData.setHearings(List.of());
-
-        String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
-
-        assertThat(result).isNull();
-    }
-
-    @DisplayName("When caseData with a hearing but the epimds Id is null, getHearingEpimsId returns null")
-    @Test
-    void testGetHearingEpimsNullStart() {
-        caseData.setHearings(Lists.newArrayList(
-            Hearing.builder()
-                .value(HearingDetails.builder()
-                    .hearingId(String.valueOf(HEARING_ID))
-                    .build())
-                .build()));
-
-        String result = hearingUpdateService.getHearingEpimsId(String.valueOf(HEARING_ID), caseData);
-
-        assertThat(result).isNull();
     }
 
     @DisplayName("When a hearing with a valid start is given, getHearingDate returns the correct date")
@@ -397,10 +365,10 @@ class HearingUpdateServiceTest {
     @DisplayName("When a HmcStatus with LISTED or UPDATE_SUBMITTED given, isCaseListed returns true")
     @ParameterizedTest
     @EnumSource(
-        value = ListAssistCaseStatus.class,
+        value = HmcStatus.class,
         mode = EnumSource.Mode.INCLUDE,
         names = {"LISTED"})
-    void testIsCaseListed(ListAssistCaseStatus value) {
+    void testIsCaseListed(HmcStatus value) {
         boolean result = hearingUpdateService.isCaseListed(value);
 
         assertThat(result).isTrue();
@@ -409,14 +377,13 @@ class HearingUpdateServiceTest {
     @DisplayName("When a HmcStatus not LISTED or UPDATE_SUBMITTED given, isCaseListed returns false")
     @ParameterizedTest
     @EnumSource(
-        value = ListAssistCaseStatus.class,
+        value = HmcStatus.class,
         mode = EnumSource.Mode.EXCLUDE,
         names = {"LISTED"})
     @NullSource
-    void testIsCaseListedInvalid(ListAssistCaseStatus value) {
+    void testIsCaseListedInvalid(HmcStatus value) {
         boolean result = hearingUpdateService.isCaseListed(value);
 
         assertThat(result).isFalse();
     }
-
 }

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -23,6 +25,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
@@ -41,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 class HearingsMappingTest extends HearingsMappingBase {
 
@@ -58,7 +62,7 @@ class HearingsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
-    void buildHearingPayload() throws InvalidMappingException {
+    void buildHearingPayload() throws InvalidMappingException, Exception {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                 60,75,30));
@@ -111,30 +115,27 @@ class HearingsMappingTest extends HearingsMappingBase {
         assertThat(result.getRequestDetails()).isNotNull();
     }
 
-    @DisplayName("updateIds Test")
+    @DisplayName("When entities are missing ids, update Ids adds missing ids")
     @Test
-    void updateIds() {
+    void testUpdateIds() {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
-        JointParty jointParty = JointParty.builder().id("3").appointee(Appointee.builder().build()).build();
         otherParties.add(new CcdValue<>(OtherParty.builder()
-                .id("2")
-                .appointee(Appointee.builder().build())
-                .rep(Representative.builder().build())
-                .build()));
+            .id("2")
+            .appointee(Appointee.builder().build())
+            .rep(Representative.builder().build())
+            .build()));
         otherParties.add(new CcdValue<>(OtherParty.builder().build()));
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .appellant(Appellant.builder().appointee(Appointee.builder().build()).build())
-                        .rep(Representative.builder().build())
-                        .build())
-                .otherParties(otherParties)
-                .jointParty(jointParty)
-                .build();
+            .appeal(Appeal.builder()
+                .appellant(Appellant.builder().appointee(Appointee.builder().build()).build())
+                .rep(Representative.builder().build())
+                .build())
+            .otherParties(otherParties)
+            .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .caseData(caseData)
-                .build();
+            .caseData(caseData)
+            .build();
 
         HearingsMapping.updateIds(wrapper);
 
@@ -148,7 +149,51 @@ class HearingsMappingTest extends HearingsMappingBase {
 
         assertNotNull(wrapper.getCaseData().getOtherParties().get(1).getValue().getId());
 
-        assertThat(wrapper.getCaseData().getJointParty().getAppointee().getId()).isNotNull();
+        assertThat(wrapper.getCaseData().getJointParty().getId()).isNull();
+    }
+
+    @DisplayName("When hasJointParty is No, blank or null, the joint party Id is not updated")
+    @ParameterizedTest
+    @EnumSource(value = YesNo.class, names = "NO")
+    @NullSource
+    void testUpdateIdsNoJointParty(YesNo value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                    .appellant(Appellant.builder().build())
+                    .build())
+            .jointParty(JointParty.builder()
+                .hasJointParty(value)
+                .build())
+            .build();
+
+        HearingWrapper wrapper = HearingWrapper.builder()
+                .caseData(caseData)
+                .build();
+
+        HearingsMapping.updateIds(wrapper);
+
+        assertThat(wrapper.getCaseData().getJointParty().getId()).isNull();
+    }
+
+    @DisplayName("When hasJointParty is No, blank or null, the joint party Id is not updated")
+    @Test
+    void testUpdateIdsHasJointParty() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .appellant(Appellant.builder().build())
+                .build())
+            .jointParty(JointParty.builder()
+                .hasJointParty(YES)
+                .build())
+            .build();
+
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
+
+        HearingsMapping.updateIds(wrapper);
+
         assertThat(wrapper.getCaseData().getJointParty().getId()).isNotNull();
     }
 

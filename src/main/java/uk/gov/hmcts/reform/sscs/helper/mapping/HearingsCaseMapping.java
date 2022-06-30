@@ -25,6 +25,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE
 public final class HearingsCaseMapping {
 
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
+    public static final String EMPTY_STRING = "";
 
     private HearingsCaseMapping() {
 
@@ -139,6 +140,10 @@ public final class HearingsCaseMapping {
 
     public static String getCaseCreated(SscsCaseData caseData) {
         return caseData.getCaseCreated();
+    }
+
+    public static List<String> getReasonsForLink(SscsCaseData caseData) {
+        return new ArrayList<>();
     }
 
 }
