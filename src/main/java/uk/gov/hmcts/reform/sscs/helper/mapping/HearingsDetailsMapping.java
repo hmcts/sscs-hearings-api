@@ -52,6 +52,7 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_DEFAULT = 30;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
+    public static final int MIN_HEARING_DURATION = 1;
 
     private HearingsDetailsMapping() {
 
@@ -148,7 +149,7 @@ public final class HearingsDetailsMapping {
 
     public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-        if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() > 0) {
+        if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() >= MIN_HEARING_DURATION) {
             return overrideFields.getDuration().intValue();
         }
 
@@ -162,7 +163,7 @@ public final class HearingsDetailsMapping {
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
-            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
+            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) >= MIN_HEARING_DURATION) {
 
             if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
                 return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_SESSIONS_MULTIPLIER;
