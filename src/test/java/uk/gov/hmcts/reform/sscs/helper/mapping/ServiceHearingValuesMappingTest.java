@@ -38,6 +38,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority;
+import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -189,11 +190,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguageReference("Bulgarian"))
-                .willReturn("bul");
+        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
+                .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
 
-        given(referenceDataServiceHolder.getSignLanguages().getSignLanguageReference("Makaton"))
-                .willReturn("sign-mkn");
+        given(referenceDataServiceHolder.getSignLanguages().getSignLanguage("Makaton"))
+                .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
     }
 
     @Test

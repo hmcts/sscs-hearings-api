@@ -292,7 +292,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When dwpIsOfficerAttending is yes, isPoAttending return True")
+    @DisplayName("When dwpIsOfficerAttending is yes, isPoOfficerAttending return True")
     @ParameterizedTest
     @EnumSource(
             value = PanelMember.class,
@@ -304,7 +304,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoAttending return False")
+    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoOfficerAttending return False")
     @ParameterizedTest
     @EnumSource(
             value = PanelMember.class,

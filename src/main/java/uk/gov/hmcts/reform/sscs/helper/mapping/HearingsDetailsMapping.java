@@ -1,13 +1,15 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.apache.commons.lang3.ObjectUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -23,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -37,6 +38,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.PanelMemberSpecialismsMapping.getPanelSpecialisms;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
@@ -69,7 +71,7 @@ public final class HearingsDetailsMapping {
             .hearingPriorityType(getHearingPriority(caseData))
             .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
-            .hearingLocations(getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
+            .hearingLocations(getHearingLocations(caseData, referenceDataServiceHolder))
             .facilitiesRequired(getFacilitiesRequired())
             .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
@@ -87,6 +89,20 @@ public final class HearingsDetailsMapping {
     }
 
     public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData) {
+
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
+        if (nonNull(overrideFields.getHearingWindow())
+            && (nonNull(overrideFields.getHearingWindow().getFirstDateTimeMustBe())
+            || nonNull(overrideFields.getHearingWindow().getDateRangeStart())
+            || nonNull(overrideFields.getHearingWindow().getDateRangeEnd()))) {
+            return HearingWindow.builder()
+                .firstDateTimeMustBe(overrideFields.getHearingWindow().getFirstDateTimeMustBe())
+                .dateRangeStart(overrideFields.getHearingWindow().getDateRangeStart())
+                .dateRangeEnd(overrideFields.getHearingWindow().getDateRangeEnd())
+                .build();
+        }
+
         return HearingWindow.builder()
             .firstDateTimeMustBe(getFirstDateTimeMustBe())
             .dateRangeStart(getHearingWindowStart(caseData))
@@ -131,15 +147,14 @@ public final class HearingsDetailsMapping {
     }
 
     public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+        if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() > 0) {
+            return overrideFields.getDuration().intValue();
+        }
+
         Integer duration = getHearingDurationAdjournment(caseData);
         if (isNull(duration)) {
-            Integer overrideDuration = Optional.ofNullable(caseData.getSchedulingAndListingFields())
-                .map(SchedulingAndListingFields::getOverrideDuration)
-                .orElse(null);
-
-            duration = overrideDuration == null || overrideDuration <= 0
-                ? getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder)
-                : overrideDuration;
+            duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
         }
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
@@ -182,10 +197,6 @@ public final class HearingsDetailsMapping {
         } else {
             return null;
         }
-    }
-
-    public static boolean isPoAttending(SscsCaseData caseData) {
-        return isYes(caseData.getDwpIsOfficerAttending());
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
@@ -246,12 +257,24 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocation> getHearingLocations(String processingVenue,
+    public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
+
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
+        if (ObjectUtils.isNotEmpty(overrideFields.getHearingVenueEpimsId())) {
+            return overrideFields.getHearingVenueEpimsId().stream()
+                .map(CcdValue::getValue)
+                .map(x -> HearingLocation.builder()
+                    .locationId(x)
+                    .locationType(COURT)
+                    .build())
+                .collect(Collectors.toList());
+        }
 
         String epimsId = referenceDataServiceHolder
             .getVenueService()
-            .getEpimsIdForVenue(processingVenue)
+            .getEpimsIdForVenue(caseData.getProcessingVenue())
             .orElse(null);
 
         HearingLocation hearingLocation = new HearingLocation();
@@ -352,10 +375,23 @@ public final class HearingsDetailsMapping {
 
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
+
         List<PanelPreference> panelPreferences = new ArrayList<>();
         // TODO Adjournments - loop to go through Judicial members that are need to be included or excluded
         // TODO Potentially used with Manual overrides
         //      Will need Judicial Staff Reference Data
+
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
+        if (nonNull(overrideFields.getReservedToJudge()) && isYes(overrideFields.getReservedToJudge().getIsReservedToMember())) {
+            DynamicListItem reservedMemberListItem = overrideFields.getReservedToJudge().getReservedMember().getValue();
+            panelPreferences.add(PanelPreference.builder()
+                .memberID(reservedMemberListItem.getCode())
+                .memberType("?") // TODO What should this be?
+                .requirementType(MUST_INCLUDE)
+                .build());
+        }
+
         return panelPreferences;
     }
 
@@ -366,5 +402,14 @@ public final class HearingsDetailsMapping {
     private static List<String> getAmendReasonCode() {
         // TODO Future Work
         return new ArrayList<>();
+    }
+
+    public static boolean isPoOfficerAttending(@Valid SscsCaseData caseData) {
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+        if (nonNull(overrideFields.getPoToAttend())) {
+            return isYes(overrideFields.getPoToAttend());
+        }
+
+        return isYes(caseData.getDwpIsOfficerAttending());
     }
 }

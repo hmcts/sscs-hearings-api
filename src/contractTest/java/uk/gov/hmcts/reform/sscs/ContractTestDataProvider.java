@@ -46,6 +46,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.EXCLU
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 
 public class ContractTestDataProvider {
 
@@ -286,7 +287,7 @@ public class ContractTestDataProvider {
         hearingChannelPhone.add("+447398087562");
         individualDetails.setHearingChannelPhone(hearingChannelPhone);
         individualDetails.setInterpreterLanguage("German");
-        individualDetails.setPreferredHearingChannel("CBeebies");
+        individualDetails.setPreferredHearingChannel(FACE_TO_FACE);
         individualDetails.setReasonableAdjustments(createReasonableAdjustments());
         individualDetails.setRelatedParties(createRelatedParties());
         individualDetails.setVulnerableFlag(false);
@@ -445,7 +446,7 @@ public class ContractTestDataProvider {
             .object("individualDetails")
             .stringType("firstName", "firstName123")
             .stringType("lastName", "lastName123")
-            .stringType("preferredHearingChannel", "preferredHearingChannel123")
+            .stringType("preferredHearingChannel", "ONPPRS")
             .stringType("interpreterLanguage", "interpreterLanguage123")
             .stringType("vulnerabilityDetails", "vulnerabilityDetails123")
             .stringType("custodyStatus", "custodyStatus123")

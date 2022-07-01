@@ -41,7 +41,7 @@ public final class ServiceHearingPartiesMapping {
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
         // Temporarily removing DWP for SHV because of missing Party Name in ExUI - SSCS-10659
-        //if (isYes(caseData.getDwpIsOfficerAttending())) {
+        //if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
         //    partiesDetails.add(createDwpPartyDetails());
         //}
 
@@ -93,7 +93,7 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
-        partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference());
+        partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null).getHmcReference());
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
@@ -127,8 +127,8 @@ public final class ServiceHearingPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference())
-                .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, referenceData))
+                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null))
+                .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
                 .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())
                 .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())

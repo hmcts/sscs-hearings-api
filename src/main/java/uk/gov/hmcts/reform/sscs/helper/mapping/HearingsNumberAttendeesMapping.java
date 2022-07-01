@@ -35,7 +35,7 @@ public final class HearingsNumberAttendeesMapping {
         numberOfAttendees += getNumberOfAppellantAttendees(caseData.getAppeal(), caseData.getJointParty());
         numberOfAttendees += getNumberOfOtherPartyAttendees(caseData.getOtherParties());
 
-        if (isYes(caseData.getDwpIsOfficerAttending())) {
+        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
             numberOfAttendees++;
         }
 
