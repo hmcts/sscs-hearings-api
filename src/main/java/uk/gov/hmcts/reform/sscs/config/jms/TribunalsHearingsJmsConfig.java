@@ -21,8 +21,11 @@ import javax.jms.Session;
 @ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
 public class TribunalsHearingsJmsConfig {
 
-    @Value("${azure.service-bus.tribunals-to-hearings-api.connectionString}")
-    private String connectionString;
+    @Value("${azure.service-bus.tribunals-to-hearings-api.namespace}")
+    private String namespace;
+
+    @Value("${azure.service-bus.connection-postfix}")
+    private String connectionPostfix;
 
     @Value("${azure.service-bus.tribunals-to-hearings-api.username}")
     private String username;
@@ -40,7 +43,7 @@ public class TribunalsHearingsJmsConfig {
 
     @Bean
     public ConnectionFactory tribunalsHearingsJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
-        String connection = String.format(AMQP_CONNECTION_STRING_TEMPLATE, connectionString, idleTimeout);
+        String connection = String.format(AMQP_CONNECTION_STRING_TEMPLATE, namespace + connectionPostfix, idleTimeout);
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
         jmsConnectionFactory.setUsername(username);
         jmsConnectionFactory.setPassword(password);
