@@ -175,11 +175,11 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class)))
             .thenReturn(EntityRoleCode.OTHER_PARTY.getHmcReference());
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,
-            referenceDataServiceHolder)).thenReturn("bul");
+            null, referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
         hearingChannelMapping.when(() -> HearingChannelMapping.getIndividualPreferredHearingChannel(
-            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE);
+            hearingSubtype, hearingOptions, null)).thenReturn(FACE_TO_FACE);
         when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);

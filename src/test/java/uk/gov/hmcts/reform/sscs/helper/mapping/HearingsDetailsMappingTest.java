@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
@@ -336,7 +337,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData.getProcessingVenue(),
+            caseData,
             referenceDataServiceHolder
         );
 
@@ -383,7 +384,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData.getProcessingVenue(),
+            caseData,
             referenceDataServiceHolder
         );
 
@@ -766,13 +767,17 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .adjournCaseNextHearingListingDuration(null)
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes").build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                            .overrideDuration(overrideDuration)
-                                            .build())
+                .overrideFields(OverrideFields.builder()
+                    .duration(overrideDuration)
+                    .build())
+                .build())
             .build();
+
         int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expectedResult);
@@ -788,12 +793,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .adjournCaseNextHearingListingDuration(null)
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes").build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                            .overrideDuration(60)
-                                            .build())
+                .overrideFields(OverrideFields.builder()
+                    .duration(60)
+                    .build())
+                .build())
             .build();
 
         int result = HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -963,26 +971,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .containsOnly("WC");
     }
 
-    @DisplayName("When dwpIsOfficerAttending is yes, isPoAttending return True")
+    @DisplayName("When dwpIsOfficerAttending is yes, isPoOfficerAttending return True")
     @Test
-    void testIsPoAttending() {
+    void testIsPoOfficerAttending() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("Yes")
             .build();
-        boolean result = HearingsDetailsMapping.isPoAttending(caseData);
+        boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoAttending return False")
+    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoOfficerAttending return False")
     @ParameterizedTest
     @ValueSource(strings = {"No"})
     @NullAndEmptySource
-    void testIsPoAttending(String value) {
+    void testIsPoOfficerAttending(String value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(value)
             .build();
-        boolean result = HearingsDetailsMapping.isPoAttending(caseData);
+        boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
     }

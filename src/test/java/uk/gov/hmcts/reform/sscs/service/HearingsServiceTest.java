@@ -44,6 +44,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -74,6 +75,7 @@ class HearingsServiceTest {
     private static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
+    public static final String PROCESSING_VENUE = "Processing Venue";
 
     private HearingsService hearingsService;
     private HearingWrapper wrapper;
@@ -103,20 +105,21 @@ class HearingsServiceTest {
         openMocks(this);
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId(String.valueOf(CASE_ID))
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .caseManagementLocation(CaseManagementLocation.builder().build())
-                .appeal(Appeal.builder()
-                        .rep(Representative.builder().hasRepresentative("No").build())
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
-                        .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
-                        .appellant(Appellant.builder()
-                                .name(Name.builder().build())
-                                .build())
-                        .build())
-                .build();
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .caseManagementLocation(CaseManagementLocation.builder().build())
+            .appeal(Appeal.builder()
+                .rep(Representative.builder().hasRepresentative("No").build())
+                .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                .hearingType("test")
+                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .appellant(Appellant.builder()
+                    .name(Name.builder().build())
+                    .build())
+                .build())
+            .processingVenue(PROCESSING_VENUE)
+            .build();
 
         wrapper = HearingWrapper.builder()
             .state(CREATE_HEARING)
@@ -191,6 +194,8 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn(Optional.of("219164"));
+
         given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
                 .willReturn(HmcUpdateResponse.builder().build());
 
@@ -215,6 +220,9 @@ class HearingsServiceTest {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn(Optional.of("219164"));
+
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))

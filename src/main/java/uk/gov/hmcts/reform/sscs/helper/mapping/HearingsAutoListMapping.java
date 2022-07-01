@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -28,6 +29,12 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
+        if (nonNull(overrideFields.getAutoList())) {
+            return isYes(overrideFields.getAutoList());
+        }
+
         return !(HearingsDetailsMapping.isCaseUrgent(caseData)
                 || hasOrgRepresentative(caseData)
                 || shouldBeAdditionalSecurityFlag(caseData)
@@ -61,7 +68,7 @@ public final class HearingsAutoListMapping {
 
     public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
         return HearingChannelMapping.isPaperCase(caseData)
-                && !HearingsDetailsMapping.isPoAttending(caseData);
+                && !HearingsDetailsMapping.isPoOfficerAttending(caseData);
     }
 
     public static boolean isThereOtherComments(@Valid SscsCaseData caseData) {
