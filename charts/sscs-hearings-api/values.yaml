@@ -45,7 +45,7 @@ java:
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARINGS_LISTENING_ENABLED: false
     HMC_HEARINGS_TOPIC_POLICY_NAME: SendAndListenSharedAccessKey
-    TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING: "servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
+    TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING: "sscs-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
     TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
     TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
     TRIBUNALS_EVENT_QUEUE_POLICY_NAME: SendAndListenSharedAccessKey
