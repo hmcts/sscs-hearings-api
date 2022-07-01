@@ -24,6 +24,8 @@ java:
           alias: IDAM_OAUTH2_CLIENT_SECRET
         - name: hmc-servicebus-shared-access-key
           alias: HMC_HEARINGS_TOPIC_ACCESS_KEY
+        - name: sscs-servicebus-shared-access-key
+          alias: TRIBUNALS_EVENT_QUEUE_ACCESS_KEY
   environment:
     SERVER_PORT: 8083
     REFORM_TEAM: sscs
@@ -43,8 +45,10 @@ java:
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARINGS_LISTENING_ENABLED: false
     HMC_HEARINGS_TOPIC_POLICY_NAME: SendAndListenSharedAccessKey
+    TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING: "tribunals-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
     TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
     TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
+    TRIBUNALS_EVENT_QUEUE_POLICY_NAME: SendAndListenSharedAccessKey
     EXUI_API_URL: "https://manage-case.{{ .Values.global.environment }}.platform.hmcts.net"
     HMC_API_URL: "http://hmc-cft-hearing-service-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     CORE_CASE_DATA_JURISDICTION_ID: SSCS
