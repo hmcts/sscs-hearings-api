@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
@@ -28,6 +29,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -55,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
@@ -874,6 +877,50 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void testIsPoOfficerAttending(String value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(value)
+            .build();
+        boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When override poToAttend is Yes, isPoOfficerAttending returns true")
+    @Test
+    void testIsPoOfficerAttendingOverride() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .poToAttend(YES)
+                    .build())
+                .build())
+            .build();
+        boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When override poToAttend is not Yes, isPoOfficerAttending returns the default value")
+    @ParameterizedTest
+    @ValueSource(strings = {"NO"})
+    @NullSource
+    void testIsPoOfficerAttendingOverride(YesNo value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .poToAttend(value)
+                    .build())
+                .build())
+            .dwpIsOfficerAttending("No")
+            .build();
+        boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When override fields is null, isPoOfficerAttending returns the default value")
+    @Test
+    void testIsPoOfficerAttendingOverrideNull() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending("No")
             .build();
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
