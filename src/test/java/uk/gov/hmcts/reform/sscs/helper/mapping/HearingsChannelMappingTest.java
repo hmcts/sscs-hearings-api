@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
@@ -22,12 +24,42 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannels;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 
 class HearingsChannelMappingTest {
+
+    @DisplayName("When a override hearing channel is given getIndividualPreferredHearingChannel returns that hearing channel")
+    @ParameterizedTest
+    @EnumSource(value = HearingChannel.class)
+    void testGetIndividualPreferredHearingChannel(HearingChannel value) throws Exception {
+        HearingSubtype hearingSubtype = HearingSubtype.builder().build();
+        HearingOptions hearingOptions = HearingOptions.builder().build();
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantHearingChannel(value)
+            .build();
+        HearingChannel result = HearingsChannelMapping.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, overrideFields);
+
+        assertThat(result).isEqualTo(value);
+    }
+
+    @DisplayName("When a null appellant Hearing Channel is given getIndividualPreferredHearingChannel returns the valid hearing channel")
+    @Test
+    void testGetIndividualPreferredHearingChannel() {
+        HearingSubtype hearingSubtype = HearingSubtype.builder()
+            .wantsHearingTypeFaceToFace(YES.getValue())
+            .build();
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .wantsToAttend(YES.getValue())
+            .build();
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantHearingChannel(null)
+            .build();
+        HearingChannel result = HearingsChannelMapping.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, overrideFields);
+
+        assertThat(result).isEqualTo(FACE_TO_FACE);
+    }
 
     @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
     @Test
@@ -36,7 +68,7 @@ class HearingsChannelMappingTest {
             .dwpIsOfficerAttending(YES.getValue())
             .appeal(Appeal.builder().build())
             .build();
-        List<HearingChannel> result = getHearingChannels(caseData);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
 
         assertThat(result)
             .hasSize(1)
@@ -91,7 +123,7 @@ class HearingsChannelMappingTest {
             .dwpIsOfficerAttending(NO.getValue())
             .otherParties(otherParties)
             .build();
-        List<HearingChannel> result = getHearingChannels(caseData);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
 
         assertThat(result)
             .hasSize(1)
@@ -127,7 +159,7 @@ class HearingsChannelMappingTest {
             .dwpIsOfficerAttending(NO.getValue())
             .build();
 
-        List<HearingChannel> hearingChannels = getHearingChannels(caseData);
+        List<HearingChannel> hearingChannels = HearingsChannelMapping.getHearingChannels(caseData);
 
         assertThat(hearingChannels)
             .hasSize(1)
@@ -154,7 +186,7 @@ class HearingsChannelMappingTest {
             .dwpIsOfficerAttending(NO.getValue())
             .build();
 
-        List<HearingChannel> result = getHearingChannels(caseData);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
 
         assertThat(result)
             .hasSize(1)
