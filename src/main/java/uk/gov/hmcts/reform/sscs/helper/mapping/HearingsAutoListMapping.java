@@ -67,7 +67,7 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
-        return HearingChannelMapping.isPaperCase(caseData)
+        return HearingsChannelMapping.isPaperCase(caseData)
                 && !HearingsDetailsMapping.isPoOfficerAttending(caseData);
     }
 

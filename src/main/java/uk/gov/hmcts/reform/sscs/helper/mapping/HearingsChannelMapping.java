@@ -25,9 +25,9 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO
 
 @Slf4j
 @SuppressWarnings("PMD.CyclomaticComplexity")
-public final class HearingChannelMapping {
+public final class HearingsChannelMapping {
 
-    private HearingChannelMapping() {
+    private HearingsChannelMapping() {
 
     }
 
