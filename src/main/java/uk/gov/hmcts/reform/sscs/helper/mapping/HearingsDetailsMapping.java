@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.apache.commons.lang3.ObjectUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
@@ -27,7 +26,7 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
@@ -257,8 +256,8 @@ public final class HearingsDetailsMapping {
 
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
-        if (ObjectUtils.isNotEmpty(overrideFields.getHearingVenueEpimsId())) {
-            return overrideFields.getHearingVenueEpimsId().stream()
+        if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
+            return overrideFields.getHearingVenueEpimsIds().stream()
                 .map(CcdValue::getValue)
                 .map(x -> HearingLocation.builder()
                     .locationId(x)
