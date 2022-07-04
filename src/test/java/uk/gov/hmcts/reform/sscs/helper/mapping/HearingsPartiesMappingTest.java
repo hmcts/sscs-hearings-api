@@ -10,7 +10,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingInterpreter;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
@@ -34,8 +53,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPELLANT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER_PARTY;
@@ -543,7 +563,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .languages(lang)
             .build();
 
-        String result = getIndividualInterpreterLanguage(hearingOptions, null, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData);
         assertThat(result).isEqualTo(expected);
     }
 
@@ -563,7 +583,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .build();
 
         assertThatExceptionOfType(InvalidMappingException.class)
-            .isThrownBy(() -> getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
+            .isThrownBy(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
             .withMessageContaining("The language %s cannot be mapped", value);
     }
 
@@ -585,7 +605,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .signLanguageType(signLang)
             .build();
 
-        String result = getIndividualInterpreterLanguage(hearingOptions, null, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData);
         assertThat(result).isEqualTo(expected);
     }
 
@@ -605,10 +625,128 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .build();
 
         assertThatExceptionOfType(InvalidMappingException.class)
-            .isThrownBy(() -> getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
+            .isThrownBy(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
             .withMessageContaining("The language %s cannot be mapped", value);
     }
 
+    @DisplayName("When override is Interpreter Wanted is Yes and a override language passed in getIndividualInterpreterLanguage should return the override reference")
+    @Test
+    void testGetIndividualInterpreterLanguageOverride() throws InvalidMappingException {
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages("Acholi")
+            .build();
+
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(HearingInterpreter.builder()
+                .isInterpreterWanted(YES)
+                .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
+                .build())
+            .build();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        assertThat(result).isEqualTo("test");
+    }
+
+    @DisplayName("When override is Interpreter Wanted is No getIndividualInterpreterLanguage should return null")
+    @Test
+    void testGetIndividualInterpreterLanguageOverrideNo() throws InvalidMappingException {
+
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages("Acholi")
+            .build();
+
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(HearingInterpreter.builder()
+                .isInterpreterWanted(NO)
+                .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
+                .build())
+            .build();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When override is Interpreter Wanted is null getIndividualInterpreterLanguage should return the default value")
+    @Test
+    void testGetIndividualInterpreterLanguageOverrideNullIsInterpreterWanted() throws InvalidMappingException {
+        given(verbalLanguages.getVerbalLanguage("Acholi"))
+            .willReturn(new Language("ach","Test",null,null,List.of()));
+
+        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages("Acholi")
+            .build();
+
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(HearingInterpreter.builder()
+                .isInterpreterWanted(null)
+                .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
+                .build())
+            .build();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        assertThat(result).isEqualTo("ach");
+    }
+
+    @DisplayName("When override Appellant Interpreter is null getIndividualInterpreterLanguage should return the default value")
+    @Test
+    void testGetIndividualInterpreterLanguageOverrideNullAppellantInterpreter() throws InvalidMappingException {
+        given(verbalLanguages.getVerbalLanguage("Acholi"))
+            .willReturn(new Language("ach","Test",null,null,List.of()));
+
+        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        HearingOptions hearingOptions = HearingOptions.builder()
+            .languageInterpreter("Yes")
+            .languages("Acholi")
+            .build();
+
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(null)
+            .build();
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        assertThat(result).isEqualTo("ach");
+    }
+
+    @DisplayName("When is Interpreter Wanted is Yes getIndividualInterpreterLanguage should return the correct reference")
+    @Test
+    void testGetOverrideInterpreterLanguage() {
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(HearingInterpreter.builder()
+                .isInterpreterWanted(YES)
+                .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
+                .build())
+            .build();
+        String result = HearingsPartiesMapping.getOverrideInterpreterLanguage(overrideFields);
+        assertThat(result).isEqualTo("test");
+    }
+
+    @DisplayName("When is Interpreter Wanted is No getIndividualInterpreterLanguage should return null")
+    @Test
+    void testGetOverrideInterpreterLanguageNo() {
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(HearingInterpreter.builder()
+                .isInterpreterWanted(NO)
+                .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
+                .build())
+            .build();
+        String result = HearingsPartiesMapping.getOverrideInterpreterLanguage(overrideFields);
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When is Interpreter Wanted is Yes and interpreter Language value is null, getIndividualInterpreterLanguage should return null")
+    @Test
+    void testGetOverrideInterpreterLanguageNullInterpreterLanguage() {
+        OverrideFields overrideFields = OverrideFields.builder()
+            .appellantInterpreter(HearingInterpreter.builder()
+                .isInterpreterWanted(YES)
+                .interpreterLanguage(new DynamicList(null,List.of()))
+                .build())
+            .build();
+        String result = HearingsPartiesMapping.getOverrideInterpreterLanguage(overrideFields);
+        assertThat(result).isNull();
+    }
 
     @DisplayName("When hearing type paper then return LOV not attending")
     @Test

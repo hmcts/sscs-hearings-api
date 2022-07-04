@@ -214,7 +214,9 @@ public final class HearingsPartiesMapping {
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, OverrideFields overrideFields, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
 
-        if (nonNull(overrideFields) && nonNull(overrideFields.getAppellantInterpreter())) {
+        if (nonNull(overrideFields)
+            && nonNull(overrideFields.getAppellantInterpreter())
+            && nonNull(overrideFields.getAppellantInterpreter().getIsInterpreterWanted())) {
             return getOverrideInterpreterLanguage(overrideFields);
         }
 
