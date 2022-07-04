@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 
+import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
@@ -60,7 +61,7 @@ public final class OverridesMapping {
             .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(), appeal.getHearingOptions(), null))
             .hearingWindow(getHearingDetailsHearingWindow(caseData, autoList))
             .autoList(autoList)
-            .hearingVenueEpimsId(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
+            .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
             .poToAttend(getPoToAttend(caseData))
             .build();
 
@@ -79,7 +80,9 @@ public final class OverridesMapping {
         Language language = getInterpreterLanguage(hearingOptions, referenceDataServiceHolder);
 
         if (isNull(language)) {
-            return null;
+            return HearingInterpreter.builder()
+                .isInterpreterWanted(NO)
+                .build();
         }
 
         String languageName = nonNull(language.getDialectEn()) ? language.getDialectEn() : language.getNameEn();
@@ -87,12 +90,17 @@ public final class OverridesMapping {
 
         DynamicList interpreterLanguage = new DynamicList(new DynamicListItem(languageReference, languageName), List.of());
 
-        YesNo interpreterWanted = isYes(hearingOptions.getLanguageInterpreter()) || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YES : NO;
+        YesNo interpreterWanted = getInterpreterWanted(hearingOptions);
 
         return HearingInterpreter.builder()
             .isInterpreterWanted(interpreterWanted)
             .interpreterLanguage(interpreterLanguage)
             .build();
+    }
+
+    @NotNull
+    public static YesNo getInterpreterWanted(HearingOptions hearingOptions) {
+        return isYes(hearingOptions.getLanguageInterpreter()) || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YES : NO;
     }
 
     public static Language getInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
