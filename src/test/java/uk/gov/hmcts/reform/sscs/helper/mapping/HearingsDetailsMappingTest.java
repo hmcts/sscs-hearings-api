@@ -28,13 +28,10 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -46,7 +43,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -576,117 +572,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         String result = HearingsDetailsMapping.getLeadJudgeContractType();
 
         assertNull(result);
-    }
-
-    @DisplayName("When no data is given getPanelRequirements returns the valid but empty PanelRequirements")
-    @Test
-    void getPanelRequirements() {
-        // TODO Finish Test when method done
-
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-
-        SscsCaseData caseData = SscsCaseData.builder().build();
-
-        PanelRequirements result = HearingsDetailsMapping.getPanelRequirements(caseData, referenceDataServiceHolder);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getRoleTypes()).isEmpty();
-        assertThat(result.getAuthorisationTypes()).isEmpty();
-        assertThat(result.getAuthorisationSubTypes()).isEmpty();
-        assertThat(result.getPanelPreferences()).isEmpty();
-        assertThat(result.getPanelSpecialisms()).isEmpty();
-    }
-
-    @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "cardiologist,eyeSurgeon,1|3",
-        "null,carer,2",
-    }, nullValues = {"null"})
-    void getPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
-
-        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                                                       true, false, SessionCategory.CATEGORY_06, null
-        );
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
-                                            .panelDoctorSpecialism(doctorSpecialism)
-                                            .secondPanelDoctorSpecialism(doctorSpecialismSecond)
-                                            .build())
-            .build();
-
-        List<String> result = PanelMemberSpecialismsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
-
-        List<String> expectedList = splitCsvParamArray(expected);
-        assertThat(result)
-            .containsExactlyInAnyOrderElementsOf(expectedList);
-
-    }
-
-    @DisplayName("When a case is given with no second doctor getPanelRequirements returns the valid PanelRequirements")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "generalPractitioner,4",
-    }, nullValues = {"null"})
-    void getPanelSpecialisms(String doctorSpecialism, String expected) {
-
-        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                                                       false, false, SessionCategory.CATEGORY_05, null
-        );
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
-                                            .panelDoctorSpecialism(doctorSpecialism)
-                                            .build())
-            .build();
-
-        List<String> result = PanelMemberSpecialismsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
-
-        List<String> expectedList = splitCsvParamArray(expected);
-        assertThat(result)
-            .containsExactlyInAnyOrderElementsOf(expectedList);
-
-    }
-
-    @DisplayName("When an case has a null doctor specialism return an empty list.")
-    @Test
-    void whenAnCaseHasAnNullDoctorSpecialismReturnAnEmptyList() {
-
-        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                                                       false, false, SessionCategory.CATEGORY_05, null
-        );
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
-                                            .panelDoctorSpecialism("doesntexist")
-                                            .build())
-            .build();
-
-        List<String> result = PanelMemberSpecialismsMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
-
-        List<String> expectedList = Collections.emptyList();
-        assertThat(result)
-            .containsExactlyInAnyOrderElementsOf(expectedList);
-
-    }
-
-    @DisplayName("When .. is given getPanelPreferences returns the correct List of PanelPreferences")
-    @Test
-    void getPanelPreferences() {
-        // TODO Finish Test when method done
-        SscsCaseData caseData = SscsCaseData.builder().build();
-        List<PanelPreference> result = HearingsDetailsMapping.getPanelPreferences(caseData);
-        List<PanelPreference> expected = new ArrayList<>();
-
-        assertEquals(0, result.size());
-        assertEquals(expected, result);
     }
 
     @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")

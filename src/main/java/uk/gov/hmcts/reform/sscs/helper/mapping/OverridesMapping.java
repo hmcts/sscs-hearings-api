@@ -32,7 +32,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getIndividualPreferredHearingChannel;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 
 public final class OverridesMapping {
 

@@ -22,12 +22,12 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannels;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannels;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 
-class HearingChannelMappingTest {
+class HearingsChannelMappingTest {
 
     @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
     @Test
@@ -199,7 +199,7 @@ class HearingChannelMappingTest {
                 .build())
             .build();
 
-        boolean result = HearingChannelMapping.isPaperCase(caseData);
+        boolean result = HearingsChannelMapping.isPaperCase(caseData);
 
         assertThat(result).isTrue();
     }
@@ -216,7 +216,7 @@ class HearingChannelMappingTest {
             .dwpIsOfficerAttending("Yes")
             .build();
 
-        boolean result = HearingChannelMapping.isPaperCase(caseData);
+        boolean result = HearingsChannelMapping.isPaperCase(caseData);
 
         assertThat(result).isFalse();
     }

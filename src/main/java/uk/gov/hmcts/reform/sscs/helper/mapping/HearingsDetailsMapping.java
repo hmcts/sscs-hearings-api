@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.apache.commons.lang3.ObjectUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
@@ -15,8 +14,6 @@ import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -33,17 +30,14 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.PanelMemberSpecialismsMapping.getPanelSpecialisms;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -78,7 +72,7 @@ public final class HearingsDetailsMapping {
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
             .leadJudgeContractType(getLeadJudgeContractType())
-            .panelRequirements(getPanelRequirements(caseData, referenceDataServiceHolder))
+            .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
             .hearingChannels(getHearingChannelsHmcReference(caseData))
@@ -193,7 +187,7 @@ public final class HearingsDetailsMapping {
                 .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
                                       getElementsDisputed(caseData)
                 );
-        } else if (HearingChannelMapping.isPaperCase(caseData)) {
+        } else if (HearingsChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
             return null;
@@ -238,7 +232,7 @@ public final class HearingsDetailsMapping {
 
     public static List<String> getNonStandardHearingDurationReasons() {
         // TODO Future Work
-        return null;
+        return Collections.emptyList();
     }
 
     public static String getHearingPriority(SscsCaseData caseData) {
@@ -348,53 +342,6 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
-                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return PanelRequirements.builder()
-            .roleTypes(getRoleTypes())
-            .authorisationTypes(getAuthorisationTypes())
-            .authorisationSubTypes(getAuthorisationSubTypes())
-            .panelPreferences(getPanelPreferences(caseData))
-            .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceDataServiceHolder)))
-            .build();
-    }
-
-    public static List<String> getRoleTypes() {
-        //TODO Need to retrieve RoleTypes from caseData and/or ReferenceData
-        return Collections.emptyList();
-    }
-
-    public static List<String> getAuthorisationTypes() {
-        //TODO Need to retrieve AuthorisationTypes from caseData and/or ReferenceData
-        return Collections.emptyList();
-    }
-
-    public static List<String> getAuthorisationSubTypes() {
-        //TODO Need to retrieve AuthorisationSubTypes from caseData and/or ReferenceData
-        return Collections.emptyList();
-    }
-
-
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
-
-        List<PanelPreference> panelPreferences = new ArrayList<>();
-        // TODO Adjournments - loop to go through Judicial members that are need to be included or excluded
-        // TODO Potentially used with Manual overrides
-        //      Will need Judicial Staff Reference Data
-
-        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-
-        if (nonNull(overrideFields.getReservedToJudge()) && isYes(overrideFields.getReservedToJudge().getIsReservedToMember())) {
-            DynamicListItem reservedMemberListItem = overrideFields.getReservedToJudge().getReservedMember().getValue();
-            panelPreferences.add(PanelPreference.builder()
-                .memberID(reservedMemberListItem.getCode())
-                .memberType("?") // TODO What should this be?
-                .requirementType(MUST_INCLUDE)
-                .build());
-        }
-
-        return panelPreferences;
-    }
 
     public static boolean isCaseLinked(@Valid SscsCaseData caseData) {
         return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));

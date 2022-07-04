@@ -28,7 +28,7 @@ public final class HearingsNumberAttendeesMapping {
     public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData) {
         int numberOfAttendees = 0;
 
-        if (FACE_TO_FACE != HearingChannelMapping.getHearingChannel(caseData)) {
+        if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData)) {
             return numberOfAttendees;
         }
 
