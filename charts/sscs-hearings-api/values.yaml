@@ -40,12 +40,12 @@ java:
     CORE_CASE_DATA_API_URL: "http://ccd-data-store-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     COMMON_REF_API_URL: "http://rd-commondata-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JUDICIAL_REF_API_URL: "http://judicial-ref-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
-    HMC_HEARINGS_TOPIC_CONNECTION_STRING: "hmc-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
+    HMC_HEARINGS_TOPIC_NAMESPACE: "hmc-servicebus-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_NAME: "hmc-to-cft-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "hmc-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARINGS_LISTENING_ENABLED: false
     HMC_HEARINGS_TOPIC_POLICY_NAME: SendAndListenSharedAccessKey
-    TRIBUNALS_EVENT_QUEUE_CONNECTION_STRING: "sscs-servicebus-{{ .Values.global.environment }}.servicebus.windows.net"
+    TRIBUNALS_EVENT_QUEUE_NAMESPACE: "sscs-servicebus-{{ .Values.global.environment }}"
     TRIBUNALS_EVENT_QUEUE_NAME: "tribunals-to-hearing-api-{{ .Values.global.environment }}"
     TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
     TRIBUNALS_EVENT_QUEUE_POLICY_NAME: SendAndListenSharedAccessKey
