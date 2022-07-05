@@ -102,6 +102,8 @@ public final class HearingsDetailsMapping {
                 return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
             } else if (autoListed) {
                 return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
+            } else if (HearingChannelMapping.isPaperCase(caseData)) {
+                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
             }
         }
         return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);

@@ -270,6 +270,22 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
+    @DisplayName("When case' s hearing channel is paper it should return 28 days after dwp response date.")
+    @Test
+    void testBuildHearingWindowHearingChannelPaper() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpResponseDate("2021-12-01")
+            .appeal( new Appeal(null, null, null, null, null, null, null, null, null, null))
+            .build();
+
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+        assertThat(result).isNotNull();
+        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
+
     @DisplayName("When .. is given getFirstDateTimeMustBe returns the valid LocalDateTime")
     @Test
     void testBetFirstDateTimeMustBe() {
