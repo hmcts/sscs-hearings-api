@@ -114,23 +114,19 @@ public class HearingsService {
 
         if (nonNull(getResponse) && HEARING_REQUESTED == getResponse.getRequestDetails().getStatus()) {
             updateResponse = buildFromHearingGetResponse(getResponse);
-
-            log.debug("Received Get Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
-                      wrapper.getCaseData().getCcdCaseId(),
-                      wrapper.getState().getState(),
-                      getResponse.toString()
-            );
+        } else {
+            updateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
         }
 
-        updateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+        String hearingRequestType = isNull(getResponse) ? "Create" : "Get";
 
-        log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
+        log.debug(String.format("Received %s Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}", hearingRequestType),
                   wrapper.getCaseData().getCcdCaseId(),
                   wrapper.getState().getState(),
-                  updateResponse.toString()
-        );
+                  updateResponse.toString());
         return updateResponse;
     }
+
     private HmcUpdateResponse buildFromHearingGetResponse(HearingGetResponse response) {
         return HmcUpdateResponse.builder()
             .hearingRequestId(Long.parseLong(response.getRequestDetails().getHearingRequestId()))
