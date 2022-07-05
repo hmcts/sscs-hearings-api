@@ -236,7 +236,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case when not autolist and not an urgent case and not PAPER case, buildHearingWindow returns start date of tomorrow")
+    @DisplayName("When case not autolisted and not an urgent case and not PAPER case, buildHearingWindow returns start date of tomorrow")
     @Test
     void testBuildHearingWindowNotAutoListUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -254,7 +254,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case when not autolist and an urgent case, buildHearingWindow returns start date of tomorrow")
+    @DisplayName("When case not autolisted and an urgent case, buildHearingWindow returns start date of 14 days after dwpResponseDate")
     @Test
     void testBuildHearingWindowNotAutoListIsUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
