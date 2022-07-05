@@ -8,12 +8,13 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
-import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
 
 class HearingsRequestMappingTest extends HearingsMappingBase {
 
@@ -40,11 +41,13 @@ class HearingsRequestMappingTest extends HearingsMappingBase {
     @Test
     void buildCancelHearingPayloadTest() {
         HearingWrapper wrapper = HearingWrapper.builder()
-                .cancellationReason(CancellationReason.OTHER)
+                .cancellationReasons(List.of(OTHER))
                 .build();
         HearingCancelRequestPayload result = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
 
         assertThat(result).isNotNull();
-        assertThat(result.getCancellationReasonCode()).isEqualTo(CancellationReason.OTHER);
+        assertThat(result.getCancellationReasonCodes())
+            .hasSize(1)
+            .containsOnly(OTHER);
     }
 }
