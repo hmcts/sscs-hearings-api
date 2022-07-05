@@ -393,7 +393,7 @@ dependencies {
   testImplementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
   testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: versions.wiremock
-  testImplementation 'org.mockito:mockito-inline:2.13.0'
+  testImplementation 'org.mockito:mockito-inline:4.6.1'
 
   //pact contract testing
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: versions.pact
