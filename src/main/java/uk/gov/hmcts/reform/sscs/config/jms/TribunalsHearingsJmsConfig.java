@@ -11,58 +11,57 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import uk.gov.hmcts.reform.sscs.converter.JsonMessageConverter;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 
 @Slf4j
 @Configuration
-public class HearingsJmsConfig {
+@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+public class TribunalsHearingsJmsConfig {
 
-    public static final String AMQP_CONNECTION_STRING_TEMPLATE = "amqps://%1s?amqp.idleTimeout=%2d";
-    @Value("${azure.service-bus.hmc-to-hearings-api.namespace}")
+    @Value("${azure.service-bus.tribunals-to-hearings-api.namespace}")
     private String namespace;
 
     @Value("${azure.service-bus.connection-postfix}")
     private String connectionPostfix;
 
-    @Value("${azure.service-bus.hmc-to-hearings-api.username}")
+    @Value("${azure.service-bus.tribunals-to-hearings-api.username}")
     private String username;
 
-    @Value("${azure.service-bus.hmc-to-hearings-api.password}")
+    @Value("${azure.service-bus.tribunals-to-hearings-api.password}")
     private String password;
 
-    @Value("${azure.service-bus.hmc-to-hearings-api.receiveTimeout}")
+    @Value("${azure.service-bus.tribunals-to-hearings-api.receiveTimeout}")
     private Long receiveTimeout;
 
-    @Value("${azure.service-bus.hmc-to-hearings-api.idleTimeout}")
+    @Value("${azure.service-bus.tribunals-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
 
+    public static final String AMQP_CONNECTION_STRING_TEMPLATE = "amqps://%1s?amqp.idleTimeout=%2d";
+
     @Bean
-    @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
-    public ConnectionFactory hmcHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
+    public ConnectionFactory tribunalsHearingsJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
         String connection = String.format(AMQP_CONNECTION_STRING_TEMPLATE, namespace + connectionPostfix, idleTimeout);
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
         jmsConnectionFactory.setUsername(username);
         jmsConnectionFactory.setPassword(password);
         jmsConnectionFactory.setClientID(clientId);
-
         return new CachingConnectionFactory(jmsConnectionFactory);
     }
 
     @Bean
-    @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
-    public JmsListenerContainerFactory<DefaultMessageListenerContainer> hmcHearingsEventTopicContainerFactory(
-        ConnectionFactory hmcHearingJmsConnectionFactory,
-        DefaultJmsListenerContainerFactoryConfigurer configurer) {
+    public JmsListenerContainerFactory<DefaultMessageListenerContainer> tribunalsHearingsEventQueueContainerFactory(
+        ConnectionFactory tribunalsHearingsJmsConnectionFactory,
+        DefaultJmsListenerContainerFactoryConfigurer defaultJmsListenerContainerFactoryConfigurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        factory.setConnectionFactory(hmcHearingJmsConnectionFactory);
+        factory.setConnectionFactory(tribunalsHearingsJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
-        factory.setSubscriptionDurable(Boolean.TRUE);
         factory.setSessionTransacted(Boolean.TRUE);
         factory.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
-
-        configurer.configure(factory, hmcHearingJmsConnectionFactory);
+        factory.setMessageConverter(new JsonMessageConverter());
+        defaultJmsListenerContainerFactoryConfigurer.configure(factory, tribunalsHearingsJmsConnectionFactory);
         return factory;
     }
 }
