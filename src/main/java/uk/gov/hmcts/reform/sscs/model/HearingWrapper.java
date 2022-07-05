@@ -8,6 +8,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +17,5 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 public class HearingWrapper {
     private SscsCaseData caseData;
     private HearingState state;
-    private CancellationReason cancellationReason;
+    private List<CancellationReason> cancellationReasons;
 }

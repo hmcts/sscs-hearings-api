@@ -6,6 +6,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
+import java.util.List;
+
 @SuppressWarnings({"PMD.UnusedFormalParameter"})
 // TODO Unsuppress in future
 public final class HearingsRequestMapping {
@@ -21,11 +23,11 @@ public final class HearingsRequestMapping {
 
     public static HearingCancelRequestPayload buildCancelHearingPayload(HearingWrapper wrapper) {
         return HearingCancelRequestPayload.builder()
-            .cancellationReasonCode(getCancellationReason(wrapper))
+            .cancellationReasonCodes(getCancellationReasons(wrapper))
             .build();
     }
 
-    public static CancellationReason getCancellationReason(HearingWrapper wrapper) {
-        return wrapper.getCancellationReason();
+    public static List<CancellationReason> getCancellationReasons(HearingWrapper wrapper) {
+        return wrapper.getCancellationReasons();
     }
 }
