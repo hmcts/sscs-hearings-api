@@ -53,14 +53,13 @@ public final class OverridesMapping {
 
         Appeal appeal = caseData.getAppeal();
 
-        YesNo autoList = getHearingDetailsAutoList(caseData, referenceDataServiceHolder);
         OverrideFields defaultOverrideFields = OverrideFields.builder()
             .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .reservedToJudge(getReservedToJudge(caseData))
             .appellantInterpreter(getAppellantInterpreter(appeal, referenceDataServiceHolder))
             .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(), appeal.getHearingOptions(), null))
-            .hearingWindow(getHearingDetailsHearingWindow(caseData, autoList))
-            .autoList(autoList)
+            .hearingWindow(getHearingDetailsHearingWindow(caseData))
+            .autoList(getHearingDetailsAutoList(caseData, referenceDataServiceHolder))
             .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
             .poToAttend(getPoToAttend(caseData))
             .build();
@@ -133,8 +132,8 @@ public final class OverridesMapping {
 
     }
 
-    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData, YesNo autoListed) {
-        LocalDate hearingWindowStart = HearingsDetailsMapping.getHearingWindowStart(caseData, isYes(autoListed));
+    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData) {
+        LocalDate hearingWindowStart = HearingsDetailsMapping.getHearingWindowStart(caseData);
 
         return HearingWindow.builder()
             .firstDateTimeMustBe(null)

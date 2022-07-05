@@ -429,7 +429,7 @@ class OverridesMappingTest {
     void testGetHearingDetailsHearingWindow() {
         caseData.setDwpResponseDate("2021-12-01");
 
-        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData, YES);
+        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData);
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstDateTimeMustBe()).isNull();
@@ -442,6 +442,7 @@ class OverridesMappingTest {
     @ValueSource(strings = {"Comment"})
     @NullAndEmptySource
     void testGetHearingDetailsAutoList(String value) {
+        caseData.setDwpResponseDate("2021-12-01");
         caseData.getAppeal().getHearingOptions().setOther(value);
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,false,false))

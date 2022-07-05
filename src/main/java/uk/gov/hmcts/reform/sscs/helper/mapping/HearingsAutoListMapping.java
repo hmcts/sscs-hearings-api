@@ -16,6 +16,7 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
@@ -76,7 +77,7 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean doesNotHaveDwpResponseDate(@Valid SscsCaseData caseData) {
-        return !isNotBlank(caseData.getDwpResponseDate());
+        return isBlank(caseData.getDwpResponseDate());
     }
 
     public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
