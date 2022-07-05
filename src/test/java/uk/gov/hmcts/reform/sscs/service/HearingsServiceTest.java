@@ -203,7 +203,7 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
     @Test
-    void processHearingWrapperCancel() {
+    void processHearingWrapperCreateRepeat() {
 
         given(hmcHearingApiService.sendCancelHearingRequest(any(HearingCancelRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());
@@ -220,7 +220,7 @@ class HearingsServiceTest {
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
-    @DisplayName("test1")
+    @DisplayName("When hearing already created and CCD update is failed another attempt to Hearing service should only be with getHearingRequest")
     @Test
     void processHearingWrapperCreate1() throws GetHearingException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
