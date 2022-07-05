@@ -299,7 +299,7 @@ def versions= [
   springCloud: '2021.0.1',
   springDoc: '1.6.6',
   springRetry: '1.3.3',
-  sscsCommon: '4.12.5',
+  sscsCommon: '4.12.6',
   springSecurity: '5.7.1',
   tomcat: '9.0.63',
   wiremock: '2.27.2'
@@ -326,7 +326,10 @@ dependencies {
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
+
   implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: versions.qpidJmsClient
+
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
 
   implementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
 
@@ -349,8 +352,6 @@ dependencies {
 
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
 
-  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: versions.log4J
-
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
@@ -360,6 +361,7 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-core', version: versions.azureCore
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: versions.azureMessagingServicebus
+
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jacksonDatabind
   implementation group: 'com.fasterxml.jackson', name: 'jackson-bom', version: versions.jacksonBom
