@@ -50,6 +50,7 @@ import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -199,26 +200,94 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(result, HearingTypeLov.SUBSTANTIVE.getHmcReference());
     }
 
-    @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
+    @DisplayName("When a valid dwp Response Date is given, buildHearingWindow returns the date plus 28 days")
+    @Test
+    void testBuildHearingWindow() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpResponseDate("2021-12-01")
+            .build();
+
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
+
+        assertThat(result)
+            .isNotNull()
+            .extracting("firstDateTimeMustBe", "dateRangeEnd")
+            .containsOnlyNulls();
+
+        assertThat(result.getDateRangeStart())
+            .isEqualTo("2021-12-29");
+    }
+
+    @DisplayName("When a valid override Hearing Window given, buildHearingWindow returns the override Hearing Window")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "2022-01-01T12:00,2022-02-01,2022-03-01",
+        "2022-01-01T12:00,2022-02-01,null",
+        "2022-01-01T12:00,null,2022-03-01",
+        "2022-01-01T12:00,null,null",
+        "null,2022-02-01,2022-03-01",
+        "null,2022-02-01,null",
+        "null,null,2022-03-01",
+    }, nullValues = "null")
+    void testBuildHearingWindowOverride(LocalDateTime firstDateTimeMustBe, LocalDate dateRangeStart, LocalDate dateRangeEnd) {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpResponseDate("2021-12-01")
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .hearingWindow(uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow.builder()
+                        .firstDateTimeMustBe(firstDateTimeMustBe)
+                        .dateRangeStart(dateRangeStart)
+                        .dateRangeEnd(dateRangeEnd)
+                        .build())
+                    .build())
+                .build())
+            .build();
+
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
+
+        assertThat(result.getFirstDateTimeMustBe()).isEqualTo(firstDateTimeMustBe);
+        assertThat(result.getDateRangeStart()).isEqualTo(dateRangeStart);
+        assertThat(result.getDateRangeEnd()).isEqualTo(dateRangeEnd);
+    }
+
+    @DisplayName("When a null override Hearing Window is given, buildHearingWindow returns the default value")
+    @Test
+    void testBuildHearingWindowOverride() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpResponseDate("2021-12-01")
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .hearingWindow(uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow.builder()
+                        .firstDateTimeMustBe(null)
+                        .dateRangeStart(null)
+                        .dateRangeEnd(null)
+                        .build())
+                    .build())
+                .build())
+            .build();
+
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
+    @DisplayName("When case with valid DWP_RESPOND event getHearingWindowStart returns a window starting within 28 days of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
         "2021-12-01,Yes,2021-12-02",
         "2021-12-01,No,2021-12-29",
     }, nullValues = {"null"})
-    void testBuildHearingWindow(String dwpResponded, String isUrgent, LocalDate expected) {
+    void testGetHearingWindowStart(String dwpResponded, String isUrgent, LocalDate expected) {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate(dwpResponded)
             .urgentCase(isUrgent)
             .build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
+        LocalDate result = HearingsDetailsMapping.getHearingWindowStart(caseData);
 
-        assertThat(result).isNotNull();
-
-        assertThat(result.getDateRangeStart()).isEqualTo(expected);
-
-        assertThat(result.getFirstDateTimeMustBe()).isNull();
-        assertThat(result.getDateRangeEnd()).isNull();
+        assertThat(result).isEqualTo(expected);
     }
 
     @DisplayName("When dwpResponseDate is blank, hearing date should be a day after current date")
@@ -323,28 +392,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @Test
-    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
-            .processingVenue(PROCESSING_VENUE_1)
-            .build();
-
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData,
-            referenceDataServiceHolder
-        );
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getLocationId()).isEqualTo("9876");
-        assertThat(result.get(0).getLocationType()).isEqualTo(COURT);
-    }
-
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
@@ -368,9 +415,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("getHearingLocations Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
+    @Test
     void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
@@ -382,14 +428,43 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData,
-            referenceDataServiceHolder
-        );
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
 
-        assertEquals(1, result.size());
-        assertEquals("219164", result.get(0).getLocationId());
-        assertEquals(COURT, result.get(0).getLocationType());
+        assertThat(result)
+            .hasSize(1)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(tuple("219164", COURT));
+    }
+
+    @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
+    @Test
+    void getHearingLocationsOverride() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .hearingVenueEpimsIds(List.of(
+                        CcdValue.<String>builder()
+                            .value("219164")
+                            .build(),
+                        CcdValue.<String>builder()
+                            .value("436578")
+                            .build()))
+                    .build())
+                .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
+
+        assertThat(result)
+            .hasSize(2)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(
+                tuple("219164", COURT),
+                tuple("436578", COURT));
     }
 
     @DisplayName("getFacilitiesRequired returns an empty list")
@@ -743,10 +818,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingType("paper")
-                        .hearingSubtype(HearingSubtype.builder().build())
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("No")
+                    .build())
+                .build())
             .build();
 
         Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(
@@ -821,6 +897,39 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).isEqualTo(75);
     }
+
+    @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is not paper "
+        + "getHearingDurationBenefitIssueCodes return the correct paper durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                60, 75, 30
+            ));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("No")
+                    .build())
+                .build())
+            .dwpIsOfficerAttending("Yes")
+            .build();
+
+        Integer result = HearingsDetailsMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).isNull();
+    }
+
 
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
     @Test
