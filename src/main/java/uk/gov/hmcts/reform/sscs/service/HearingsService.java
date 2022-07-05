@@ -90,6 +90,7 @@ public class HearingsService {
         HmcUpdateResponse response = createHmcUpdateResponse(wrapper);
         hearingResponseUpdate(wrapper, response);
     }
+
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
@@ -112,7 +113,7 @@ public class HearingsService {
 
         HmcUpdateResponse updateResponse;
 
-        if (nonNull(getResponse) && HEARING_REQUESTED == getResponse.getRequestDetails().getStatus()) {
+        if (HEARING_REQUESTED == getResponse.getRequestDetails().getStatus()) {
             updateResponse = buildFromHearingGetResponse(getResponse);
         } else {
             updateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
