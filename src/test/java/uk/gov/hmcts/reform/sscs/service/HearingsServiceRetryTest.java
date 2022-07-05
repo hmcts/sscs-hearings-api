@@ -207,10 +207,5 @@ class HearingsServiceRetryTest {
                 any(EventType.class),
                 anyString(),
                 anyString());
-
-        verify(hmcHearingApiService, times(1))
-            .sendCancelHearingRequest(
-                any(HearingCancelRequestPayload.class),
-                anyString());
     }
 }
