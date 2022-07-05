@@ -8,28 +8,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.*;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -46,11 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.*;
+import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
@@ -110,7 +97,6 @@ class HearingsServiceTest {
         wrapper = HearingWrapper.builder()
             .state(CREATE_HEARING)
             .caseData(caseData)
-            .caseData(caseData)
             .build();
 
         request = HearingRequest
@@ -159,7 +145,7 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
-    void processHearingWrapperCreate() {
+    void processHearingWrapperCreate() throws GetHearingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 60,75,30));
@@ -176,6 +162,8 @@ class HearingsServiceTest {
                 .willReturn(HmcUpdateResponse.builder().build());
 
         wrapper.setState(CREATE_HEARING);
+
+        given(hmcHearingApiService.getHearingRequest(getHearingId(wrapper))).willThrow(new GetHearingException("Exc"));
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -230,5 +218,41 @@ class HearingsServiceTest {
         wrapper.setCancellationReason(CancellationReason.OTHER);
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @DisplayName("test1")
+    @Test
+    void processHearingWrapperCreate1() throws GetHearingException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                            60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        wrapper.setState(CREATE_HEARING);
+
+        HearingGetResponse hearingResponse = HearingGetResponse.builder()
+            .requestDetails(RequestDetails.builder()
+                                .status(HEARING_REQUESTED)
+                                .hearingRequestId("123456")
+                                .build())
+            .hearingDetails(uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build())
+            .caseDetails(CaseDetails.builder().build())
+            .partyDetails(new ArrayList<>())
+            .hearingResponse(HearingResponse.builder().build())
+            .build();
+
+        given(hmcHearingApiService.getHearingRequest(getHearingId(wrapper))).willReturn(hearingResponse);
+
+        hearingsService.processHearingWrapper(wrapper);
+
+        verify(hmcHearingApiService, times(0))
+            .sendCreateHearingRequest(any());
     }
 }

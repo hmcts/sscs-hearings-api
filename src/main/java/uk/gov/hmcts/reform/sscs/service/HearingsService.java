@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
@@ -85,7 +84,7 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, GetHearingException {
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
         HmcUpdateResponse response = createHmcUpdateResponse(wrapper);
         hearingResponseUpdate(wrapper, response);
@@ -105,27 +104,39 @@ public class HearingsService {
         hearingResponseUpdate(wrapper, response);
     }
 
-    private HmcUpdateResponse createHmcUpdateResponse(HearingWrapper wrapper) throws GetHearingException, InvalidMappingException {
+    private HmcUpdateResponse createHmcUpdateResponse(HearingWrapper wrapper) throws InvalidMappingException {
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
-
-        HearingGetResponse getResponse = hmcHearingApiService.getHearingRequest(hearingId);
-
         HmcUpdateResponse updateResponse;
+        String hearingRequestType;
 
-        if (HEARING_REQUESTED == getResponse.getRequestDetails().getStatus()) {
-            updateResponse = buildFromHearingGetResponse(getResponse);
-        } else {
-            updateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
-        }
+        try {
+            HearingGetResponse getResponse = hmcHearingApiService.getHearingRequest(hearingId);
 
-        String hearingRequestType = isNull(getResponse) ? "Create" : "Get";
+            if (HEARING_REQUESTED == getResponse.getRequestDetails().getStatus()) {
+                updateResponse = buildFromHearingGetResponse(getResponse);
+                hearingRequestType = "Get";
+            } else {
+                updateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+                hearingRequestType = "Create";
+            }
 
-        log.debug(String.format("Received %s Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}", hearingRequestType),
+            log.debug(String.format("Received %s Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}", hearingRequestType),
                   wrapper.getCaseData().getCcdCaseId(),
                   wrapper.getState().getState(),
                   updateResponse.toString());
-        return updateResponse;
+
+            return updateResponse;
+        } catch (GetHearingException exc) {
+            hearingRequestType = "Create";
+            updateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+            log.debug(String.format("Received %s Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}", hearingRequestType),
+                      wrapper.getCaseData().getCcdCaseId(),
+                      wrapper.getState().getState(),
+                      updateResponse.toString());
+
+            return updateResponse;
+        }
     }
 
     private HmcUpdateResponse buildFromHearingGetResponse(HearingGetResponse response) {
@@ -210,11 +221,6 @@ public class HearingsService {
             hearingRequestId,
             wrapper.getState().getState(),
             exception);
-
-        log.info("Cancellation request Response received, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {}",
-            caseData.getCcdCaseId(),
-            hearingRequestId,
-            wrapper.getState().getState());
 
         throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
     }
