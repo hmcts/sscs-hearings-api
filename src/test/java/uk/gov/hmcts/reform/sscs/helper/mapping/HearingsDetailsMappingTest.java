@@ -236,11 +236,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case when not autolist and not an urgent case, buildHearingWindow returns start date of tomorrow")
+    @DisplayName("When case when not autolist and not an urgent case and not PAPER case, buildHearingWindow returns start date of tomorrow")
     @Test
     void testBuildHearingWindowNotAutoListUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate(LocalDate.now().toString())
+            .appeal(new Appeal(null, null, null, new HearingOptions("yes", null, null, null, null, null, null, null, null, null), null, null, null, null, new HearingSubtype("yes", "07444123456", null, null, null), null))
             .build();
         HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
 
@@ -275,7 +276,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void testBuildHearingWindowHearingChannelPaper() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate("2021-12-01")
-            .appeal( new Appeal(null, null, null, null, null, null, null, null, null, null))
+            .appeal(new Appeal(null, null, null, null, null, null, null, null, null, null))
             .build();
 
         HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
