@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
@@ -15,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -24,6 +25,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -37,7 +39,9 @@ import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.*;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATED_CASE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
@@ -116,10 +120,9 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
     @ParameterizedTest
-    @CsvSource(value = {
-        "UPDATED_CASE",
-        "PARTY_NOTIFIED",
-    }, nullValues = {"null"})
+    @EnumSource(
+        value = HearingState.class,
+        names = {"UPDATED_CASE","PARTY_NOTIFIED"})
     void processHearingRequest(HearingState state) throws GetCaseException {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
@@ -128,11 +131,20 @@ class HearingsServiceTest {
                 .isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
 
+    @DisplayName("When wrapper with a valid Hearing State and Cancellation reason is given addHearingResponse should run without error")
+    @Test
+    void processHearingRequest() throws GetCaseException {
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+
+        request.setHearingState(UPDATED_CASE);
+        request.setCancellationReason(OTHER);
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingRequest(request));
+    }
+
     @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an UnhandleableHearingState error")
     @ParameterizedTest
-    @CsvSource(value = {
-        "null",
-    }, nullValues = {"null"})
+    @NullSource
     void processHearingRequestInvalidState(HearingState state) {
         request.setHearingState(state);
 
@@ -214,7 +226,7 @@ class HearingsServiceTest {
                     .hearingId(String.valueOf(HEARING_REQUEST_ID))
                     .build())
                 .build()));
-        wrapper.setCancellationReason(CancellationReason.OTHER);
+        wrapper.setCancellationReasons(List.of(OTHER));
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }

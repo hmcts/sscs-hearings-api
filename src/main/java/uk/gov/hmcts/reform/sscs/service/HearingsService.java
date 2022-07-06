@@ -20,9 +20,13 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.List;
+
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
@@ -232,10 +236,13 @@ public class HearingsService {
             throw err;
         }
 
+        List<CancellationReason> cancellationReasons = nonNull(hearingRequest.getCancellationReason())
+            ? List.of(hearingRequest.getCancellationReason())
+            : null;
         return HearingWrapper.builder()
                 .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
                 .state(hearingRequest.getHearingState())
-                .cancellationReason(hearingRequest.getCancellationReason())
+                .cancellationReasons(cancellationReasons)
                 .build();
     }
 }

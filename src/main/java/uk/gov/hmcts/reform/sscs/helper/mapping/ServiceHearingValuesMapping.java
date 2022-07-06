@@ -67,7 +67,7 @@ public final class ServiceHearingValuesMapping {
                 .roleType(HearingsDetailsMapping.getRoleTypes())
                 .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes())
                 .authorisationSubType(HearingsDetailsMapping.getAuthorisationSubTypes())
-                .judiciarySpecialisms(HearingsDetailsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
+                .judiciarySpecialisms(PanelMemberSpecialismsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
                 .judiciaryPreferences(getPanelPreferences())
                 .build();
     }
