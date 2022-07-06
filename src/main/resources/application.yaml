@@ -47,6 +47,12 @@ spring:
       - "/swagger-ui/swagger-ui.css"
       - "/v3/api-docs/**"
       - "/favicon.ico"
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    mapper:
+      accept-case-insensitive-enums: true
+      accept-case-insensitive-properties: true
 
 feign:
   httpclient:
@@ -62,25 +68,24 @@ feign:
       maxPeriod: 2000
       maxAttempts: 3
 
-jackson:
-  serialization:
-    WRITE_DATES_AS_TIMESTAMPS: false
-
 azure:
   service-bus:
+    connection-postfix: ".servicebus.windows.net"
     hmc-to-hearings-api:
-      connectionString: ${HEARINGS_TOPIC_CONNECTION_STRING:}
-      topicName: ${HEARINGS_TOPIC_NAME:}
-      subscriptionName: ${HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
-      retryTimeout: ${HEARINGS_TOPIC_RETRY_TIMEOUT:1}
-      maxRetries: ${HEARINGS_TOPIC_RETRIES:5}
-      retryDelay: ${HEARINGS_TOPIC_RETRY_DELAY:1}
+      namespace: ${HMC_HEARINGS_TOPIC_NAMESPACE:}
+      topicName: ${HMC_HEARINGS_TOPIC_NAME:}
+      subscriptionName: ${HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME:}
+      receiveTimeout: ${HMC_HEARINGS_TOPIC_RECEIVE_TIMEOUT:1}
+      idleTimeout: ${HMC_HEARINGS_TOPIC_IDLE_TIMEOUT:3600000}
+      username: ${HMC_HEARINGS_TOPIC_POLICY_NAME:}
+      password: ${HMC_HEARINGS_TOPIC_ACCESS_KEY:}
     tribunals-to-hearings-api:
-      connectionString: ${SSCS_SERVICEBUS_CONNECTION_STRING:}
+      namespace: ${TRIBUNALS_EVENT_QUEUE_NAMESPACE:}
       queueName: ${TRIBUNALS_EVENT_QUEUE_NAME:}
-      retryTimeout: ${TRIBUNALS_EVENT_QUEUE_RETRY_TIMEOUT:1}
-      maxRetries: ${TRIBUNALS_EVENT_QUEUE_RETRIES:5}
-      retryDelay: ${TRIBUNALS_EVENT_QUEUE_RETRY_DELAY:1}
+      receiveTimeout: ${TRIBUNALS_EVENT_QUEUE_RECEIVE_TIMEOUT:1}
+      idleTimeout: ${TRIBUNALS_EVENT_QUEUE_IDLE_TIMEOUT:3600000}
+      username: ${TRIBUNALS_EVENT_QUEUE_POLICY_NAME:}
+      password: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY:}
 idam:
   api:
     url: ${IDAM_API_URL:http://localhost:5000}

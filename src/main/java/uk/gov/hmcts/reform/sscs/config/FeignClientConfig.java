@@ -26,8 +26,8 @@ public class FeignClientConfig {
     }
 
     @Bean
-    public ErrorDecoder errorDecoder() {
-        return new FeignClientErrorDecoder(appInsightsService);
+    public ErrorDecoder errorDecoder(ObjectMapper objectMapper) {
+        return new FeignClientErrorDecoder(appInsightsService, objectMapper);
     }
 
     @Bean

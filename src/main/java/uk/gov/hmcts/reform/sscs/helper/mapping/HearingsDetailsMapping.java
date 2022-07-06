@@ -1,32 +1,28 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -35,16 +31,17 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingType.PAPER;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember.MQPM1;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember.MQPM2;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.HIGH;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingPriority.NORMAL;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.HearingTypeLov.SUBSTANTIVE;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.PanelMemberSpecialismsMapping.getPanelSpecialisms;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
-@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn","PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -59,39 +56,31 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceData referenceData) {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
-        boolean autoListed = shouldBeAutoListed(caseData);
+        boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
 
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
             .hearingWindow(buildHearingWindow(caseData, autoListed))
-            .duration(getHearingDuration(caseData, referenceData))
+            .duration(getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(getNumberOfPhysicalAttendees(caseData))
+            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
-            .hearingLocations(getHearingLocations(caseData.getCaseManagementLocation()))
-            .facilitiesRequired(getFacilitiesRequired(caseData))
-            .listingComments(getListingComments(caseData.getAppeal(), caseData.getOtherParties()))
+            .hearingLocations(getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
+            .facilitiesRequired(getFacilitiesRequired())
+            .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
             .leadJudgeContractType(getLeadJudgeContractType())
-            .panelRequirements(getPanelRequirements(caseData, referenceData))
+            .panelRequirements(getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCode(getAmendReasonCode())
+            .hearingChannels(getHearingChannelsHmcReference(caseData))
             .build();
-    }
-
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData) {
-        // TODO Future Work
-        return !isCaseLinked(caseData) && !isCaseUrgent(caseData);
-    }
-
-    public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
-        return isYes(caseData.getUrgentCase());
     }
 
     public static String getHearingType() {
@@ -100,14 +89,13 @@ public final class HearingsDetailsMapping {
 
     public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, boolean autoListed) {
         return HearingWindow.builder()
-                .firstDateTimeMustBe(getFirstDateTimeMustBe())
-                .dateRangeStart(getHearingWindowStart(caseData, autoListed))
-                .dateRangeEnd(null)
-                .build();
+            .firstDateTimeMustBe(getFirstDateTimeMustBe())
+            .dateRangeStart(getHearingWindowStart(caseData, autoListed))
+            .dateRangeEnd(null)
+            .build();
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
-
         if (isNotBlank(caseData.getDwpResponseDate())) {
             LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
             if (isCaseUrgent(caseData)) {
@@ -119,6 +107,10 @@ public final class HearingsDetailsMapping {
         return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
     }
 
+    public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
+        return isYes(caseData.getUrgentCase());
+    }
+
     public static LocalDateTime getFirstDateTimeMustBe() {
         // TODO Adjournments - Find out how to use adjournCase data to work this out, possibly related variables:
         //      adjournCaseNextHearingDateType, adjournCaseNextHearingDateOrPeriod, adjournCaseNextHearingDateOrTime,
@@ -127,13 +119,16 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    public static int getHearingDuration(SscsCaseData caseData, ReferenceData referenceData) {
-        // TODO Adjournments - Check this is the correct logic for Adjournments
-        // TODO Future Work - Manual Override
-
+    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         Integer duration = getHearingDurationAdjournment(caseData);
         if (isNull(duration)) {
-            duration = getHearingDurationBenefitIssueCodes(caseData, referenceData);
+            Integer overrideDuration = Optional.ofNullable(caseData.getSchedulingAndListingFields())
+                .map(SchedulingAndListingFields::getOverrideDuration)
+                .orElse(null);
+
+            duration = overrideDuration == null || overrideDuration <= 0
+                ? getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder)
+                : overrideDuration;
         }
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
@@ -141,7 +136,7 @@ public final class HearingsDetailsMapping {
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
         if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
-                && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
+            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) > 0) {
 
             if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
                 return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_SESSIONS_MULTIPLIER;
@@ -155,9 +150,8 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceData referenceData) {
-
-        HearingDuration hearingDuration = referenceData.getHearingDurations().getHearingDuration(
+    public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
         if (isNull(hearingDuration)) {
@@ -165,17 +159,22 @@ public final class HearingsDetailsMapping {
         }
 
         if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-            Integer duration = HearingsCaseMapping.isInterpreterRequired(caseData)
-                    ? hearingDuration.getDurationInterpreter()
-                    : hearingDuration.getDurationFaceToFace();
-            return referenceData.getHearingDurations()
-                    .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
-                            getElementsDisputed(caseData));
-        } else if (PAPER.getValue().equalsIgnoreCase(caseData.getAppeal().getHearingType())) {
+            Integer duration = isInterpreterRequired(caseData)
+                ? hearingDuration.getDurationInterpreter()
+                : hearingDuration.getDurationFaceToFace();
+            return referenceDataServiceHolder.getHearingDurations()
+                .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
+                                      getElementsDisputed(caseData)
+                );
+        } else if (HearingChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
             return null;
         }
+    }
+
+    public static boolean isPoAttending(SscsCaseData caseData) {
+        return isYes(caseData.getDwpIsOfficerAttending());
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
@@ -209,9 +208,9 @@ public final class HearingsDetailsMapping {
             elementDisputed.addAll(caseData.getElementsDisputedLimitedWork());
         }
         return elementDisputed.stream()
-                .map(ElementDisputed::getValue)
-                .map(ElementDisputedDetails::getIssueCode)
-                .collect(Collectors.toList());
+            .map(ElementDisputed::getValue)
+            .map(ElementDisputedDetails::getIssueCode)
+            .collect(Collectors.toList());
     }
 
     public static List<String> getNonStandardHearingDurationReasons() {
@@ -225,36 +224,10 @@ public final class HearingsDetailsMapping {
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        if (isYes(caseData.getUrgentCase()) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
-            return HIGH.getHmcReference();
+        if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
+            return URGENT.getHmcReference();
         }
-        return NORMAL.getHmcReference();
-    }
-
-    public static int getNumberOfPhysicalAttendees(SscsCaseData caseData) {
-        int numberOfAttendees = 0;
-        // get a value if it is facetoface from hearingSubType -> wantsHearingTypeFaceToFace
-        if (nonNull(caseData.getAppeal())
-                && nonNull(caseData.getAppeal().getHearingSubtype())
-                && nonNull(caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace())
-                && caseData.getAppeal().getHearingSubtype().isWantsHearingTypeFaceToFace()) {
-            //appellants + dwp attendee (1) + judge (1) + panel members + representative (1)
-            numberOfAttendees = 1;
-            if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())) {
-                numberOfAttendees++;
-            }
-
-            if (isYes(caseData.getAppeal().getRep().getHasRepresentative())) {
-                numberOfAttendees++;
-            }
-            // TODO get it from SSCS-10243, when it is finished
-            numberOfAttendees += 0;
-
-            // TODO when panelMembers is created in caseData you will map it with the size of this value
-            //  (SSCS-10116)
-            numberOfAttendees += 0;
-        }
-        return numberOfAttendees;
+        return STANDARD.getHmcReference();
     }
 
     public static boolean shouldBeHearingsInWelshFlag() {
@@ -262,41 +235,49 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocations> getHearingLocations(CaseManagementLocation caseManagementLocation) {
-        HearingLocations hearingLocations = new HearingLocations();
-        hearingLocations.setLocationId(caseManagementLocation.getBaseLocation());
-        hearingLocations.setLocationType("court");
+    public static List<HearingLocation> getHearingLocations(String processingVenue,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
 
-        List<HearingLocations> hearingLocationsList = new ArrayList<>();
-        hearingLocationsList.add(hearingLocations);
+        String epimsId = referenceDataServiceHolder
+            .getVenueService()
+            .getEpimsIdForVenue(processingVenue)
+            .orElse(null);
 
-        return hearingLocationsList;
+        HearingLocation hearingLocation = new HearingLocation();
+        hearingLocation.setLocationId(epimsId);
+        hearingLocation.setLocationType(COURT);
+
+        List<HearingLocation> hearingLocations = new ArrayList<>();
+        hearingLocations.add(hearingLocation);
+
+        return hearingLocations;
     }
 
-    public static List<String> getFacilitiesRequired(SscsCaseData caseData) {
-        // TODO Dependant on SSCS-10116 - find out how to work this out and implement
-        //          caseData.getAppeal().getHearingOptions().getArrangements()
-        //          for each otherParty otherParty.getHearingOptions().getArrangements()
-        return Optional.ofNullable(caseData.getAppeal())
-                .map(Appeal::getHearingOptions)
-                .map(HearingOptions::getArrangements)
-                .orElse(new ArrayList<>());
+    public static List<String> getFacilitiesRequired() {
+        return Collections.emptyList();
     }
 
-    public static String getListingComments(Appeal appeal, List<CcdValue<OtherParty>> otherParties) {
+    public static String getListingComments(SscsCaseData caseData) {
+        Appeal appeal = caseData.getAppeal();
+        List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
+
         List<String> listingComments = new ArrayList<>();
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
             listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
         }
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
             listingComments.addAll(otherParties.stream()
-                    .map(CcdValue::getValue)
-                    .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
-                    .map(o -> getComment(o, o.getHearingOptions().getOther()))
-                    .collect(Collectors.toList()));
+                                       .map(CcdValue::getValue)
+                                       .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
+                                       .map(o -> getComment(o, o.getHearingOptions().getOther()))
+                                       .collect(Collectors.toList()));
         }
 
-        return listingComments.isEmpty() ? null : String.join(String.format("%n%n"), listingComments);
+        if (listingComments.isEmpty()) {
+            return null;
+        }
+
+        return String.join(String.format("%n%n"), listingComments);
     }
 
     public static String getComment(Party party, String comment) {
@@ -309,12 +290,12 @@ public final class HearingsDetailsMapping {
 
     public static String getPartyRole(Party party) {
         return nonNull(party.getRole()) && isNotBlank(party.getRole().getName())
-                ? party.getRole().getName()
-                : HearingsMapping.getEntityRoleCode(party).getValueEn();
+            ? party.getRole().getName()
+            : HearingsMapping.getEntityRoleCode(party).getValueEn();
     }
 
     public static String getEntityName(Entity entity) {
-        return  entity.getName().getFullName();
+        return entity.getName().getFullName();
     }
 
     public static String getHearingRequester() {
@@ -332,14 +313,15 @@ public final class HearingsDetailsMapping {
         return null;
     }
 
-    public static PanelRequirements getPanelRequirements(SscsCaseData caseData, ReferenceData referenceData) {
+    public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
+                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
         return PanelRequirements.builder()
-                .roleTypes(getRoleTypes())
-                .authorisationTypes(getAuthorisationTypes())
-                .authorisationSubTypes(getAuthorisationSubTypes())
-                .panelPreferences(getPanelPreferences(caseData))
-                .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceData)))
-                .build();
+            .roleTypes(getRoleTypes())
+            .authorisationTypes(getAuthorisationTypes())
+            .authorisationSubTypes(getAuthorisationSubTypes())
+            .panelPreferences(getPanelPreferences(caseData))
+            .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCode(caseData, referenceDataServiceHolder)))
+            .build();
     }
 
     public static List<String> getRoleTypes() {
@@ -357,31 +339,6 @@ public final class HearingsDetailsMapping {
         return Collections.emptyList();
     }
 
-    public static List<String> getPanelSpecialisms(SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
-        List<String> panelSpecialisms = new ArrayList<>();
-        if (isNull(sessionCategoryMap)) {
-            return panelSpecialisms;
-        }
-
-        String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
-        String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
-        panelSpecialisms = sessionCategoryMap.getCategory().getPanelMembers().stream()
-                .map(panelMember -> getPanelMemberSpecialism(panelMember, doctorSpecialism, doctorSpecialismSecond))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        return panelSpecialisms;
-    }
-
-    public static String getPanelMemberSpecialism(PanelMember panelMember,
-                                                    String doctorSpecialism, String doctorSpecialismSecond) {
-        if (MQPM1 == panelMember) {
-            return panelMember.getReference(doctorSpecialism);
-        }
-        if (MQPM2 == panelMember) {
-            return panelMember.getReference(doctorSpecialismSecond);
-        }
-        return null;
-    }
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
         List<PanelPreference> panelPreferences = new ArrayList<>();
@@ -395,8 +352,8 @@ public final class HearingsDetailsMapping {
         return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));
     }
 
-    private static String getAmendReasonCode() {
+    private static List<String> getAmendReasonCode() {
         // TODO Future Work
-        return null;
+        return new ArrayList<>();
     }
 }

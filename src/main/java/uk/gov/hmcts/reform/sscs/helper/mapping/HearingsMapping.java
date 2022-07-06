@@ -1,12 +1,22 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
-import uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode;
-import uk.gov.hmcts.reform.sscs.service.ReferenceData;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,11 +30,11 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.buildH
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.buildHearingDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.buildHearingPartiesDetails;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping.buildHearingRequestDetails;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPELLANT;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.APPOINTEE;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.JOINT_PARTY;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.OTHER_PARTY;
-import static uk.gov.hmcts.reform.sscs.reference.data.mappings.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPELLANT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.JOINT_PARTY;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER_PARTY;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
 
 @Slf4j
 public final class HearingsMapping {
@@ -35,12 +45,13 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceData referenceData) {
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
-            .hearingDetails(buildHearingDetails(wrapper, referenceData))
-            .caseDetails(buildHearingCaseDetails(wrapper, referenceData))
-            .partiesDetails(buildHearingPartiesDetails(wrapper))
+            .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
+            .caseDetails(buildHearingCaseDetails(wrapper, referenceDataServiceHolder))
+            .partiesDetails(buildHearingPartiesDetails(wrapper, referenceDataServiceHolder))
             .build();
     }
 
@@ -58,6 +69,10 @@ public final class HearingsMapping {
         int maxId = getMaxId(caseData.getOtherParties(), appellant, appeal.getRep());
 
         maxId = updatePartyIds(appellant, appeal.getRep(), maxId);
+        if (isYes(caseData.getJointParty().getHasJointParty())) {
+            maxId = updatePartyIds(caseData.getJointParty(), null, maxId);
+        }
+
         updateOtherPartiesIds(caseData.getOtherParties(), maxId);
     }
 
@@ -125,10 +140,11 @@ public final class HearingsMapping {
         return currentIds;
     }
 
-    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData, ReferenceData referenceData) {
+    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData,
+                                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return referenceData.getSessionCategoryMaps()
+        return referenceDataServiceHolder.getSessionCategoryMaps()
                 .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
                         doctorSpecialistSecond, fqpmRequired);
     }

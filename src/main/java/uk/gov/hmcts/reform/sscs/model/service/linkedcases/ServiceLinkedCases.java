@@ -14,5 +14,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceLinkedCases {
-    private List<LinkedCase> linkedCases;
+    private String caseReference;
+    private String caseName;
+    private List<String> reasonsForLink;
 }

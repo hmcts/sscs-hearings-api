@@ -54,13 +54,13 @@ class FeignClientErrorDecoderTest {
     private FeignClientErrorDecoder feignClientErrorDecoder;
     private HearingRequestPayload hearingRequestPayload;
     private ArgumentCaptor<HmcFailureMessage> hmcFailureMessageArgumentCaptor;
-
     @Mock
     private AppInsightsService appInsightsService;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        feignClientErrorDecoder = new FeignClientErrorDecoder(appInsightsService);
+        feignClientErrorDecoder = new FeignClientErrorDecoder(appInsightsService, OBJECT_MAPPER);
         hearingRequestPayload = new HearingRequestPayload();
         hearingRequestPayload.setCaseDetails(new CaseDetails());
         hearingRequestPayload.getCaseDetails().setCaseId(String.valueOf(CASE_ID));
@@ -99,7 +99,7 @@ class FeignClientErrorDecoderTest {
         requestTemplate.queries(queries);
 
         Request request =
-            Request.create(Request.HttpMethod.GET, "url",
+            Request.create(Request.HttpMethod.DELETE, "url",
                            headers, Request.Body.empty(), requestTemplate);
         Response response = buildResponse(request, statusCode);
 
@@ -117,6 +117,27 @@ class FeignClientErrorDecoderTest {
     }
 
     @Test
+    void testShouldFallbackToStringIfJsonProcessingExceptionOccurs() throws JsonProcessingException {
+        Request request =
+            Request.create(Request.HttpMethod.POST, "url",
+                headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
+
+        Response response = buildResponse(request, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        doThrow(JsonProcessingException.class).when(appInsightsService)
+            .sendAppInsightsEvent(any(HmcFailureMessage.class));
+
+        feignClientErrorDecoder.decode("someMethod", response);
+
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(appInsightsService)
+            .sendAppInsightsEvent(stringArgumentCaptor.capture());
+
+        assertThat(stringArgumentCaptor.getValue()).contains("HmcFailureMessage{requestType='POST', caseID=1000000000");
+    }
+
+    @Test
     void should_handle_500_error() {
         Request request =
             Request.create(Request.HttpMethod.PUT, "url",
@@ -131,8 +152,7 @@ class FeignClientErrorDecoderTest {
         Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
 
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
-        String test = throwable.getMessage();
-        assertThat(throwable.getMessage()).contains("Internal server error");
+        assertThat(throwable.getMessage()).contains("500 INTERNAL_SERVER_ERROR \"Error in calling the client method:someMethod\"");
     }
 
     @Test

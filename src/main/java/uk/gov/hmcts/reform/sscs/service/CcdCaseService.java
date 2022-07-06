@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidIdException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -27,13 +26,8 @@ public class CcdCaseService {
         this.idamService = idamService;
     }
 
-    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException, InvalidIdException {
-        try {
-            long caseIdLong = Long.parseLong(caseId);
-            return getCaseDetails(caseIdLong);
-        } catch (NumberFormatException e) {
-            throw new InvalidIdException(String.format("Invalid case id format for %s", caseId), e);
-        }
+    public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException {
+        return getCaseDetails(parseCaseId(caseId));
     }
 
     public SscsCaseDetails getCaseDetails(long caseId) throws GetCaseException {
@@ -54,9 +48,10 @@ public class CcdCaseService {
         return caseDetails;
     }
 
-    public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description) throws UpdateCaseException {
+    public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description)
+        throws UpdateCaseException {
 
-        long caseId = Long.parseLong(caseData.getCcdCaseId());
+        long caseId = parseCaseId(caseData.getCcdCaseId());
 
         log.info("Updating case data using Case id : {}", caseId);
 
@@ -70,6 +65,15 @@ public class CcdCaseService {
                             caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
+        }
+    }
+
+    private long parseCaseId(String caseId) {
+        try {
+            return Long.parseLong(caseId);
+        } catch (NumberFormatException e) {
+            log.error("Invalid case id {} should be in long format", caseId);
+            throw e;
         }
     }
 }

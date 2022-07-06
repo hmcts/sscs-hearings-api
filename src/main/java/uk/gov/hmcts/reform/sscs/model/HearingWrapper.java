@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +20,5 @@ public class HearingWrapper {
     private SscsCaseData updatedCaseData;
     private EventType event;
     private HearingState state;
+    private List<CancellationReason> cancellationReasons;
 }

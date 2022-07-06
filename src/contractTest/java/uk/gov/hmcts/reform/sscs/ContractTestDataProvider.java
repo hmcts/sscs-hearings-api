@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
 import org.springframework.http.HttpHeaders;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequest;
 import uk.gov.hmcts.reform.sscs.model.partiesnotified.ServiceData;
@@ -13,7 +15,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingLocations;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
@@ -32,6 +33,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static java.time.DayOfWeek.MONDAY;
+import static java.time.DayOfWeek.TUESDAY;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.HEARING_LOOP;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.SIGN_LANGUAGE_INTERPRETER;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_WHEELCHAIR_ACCESS;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.AM;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.PM;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.EXCLUDE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
 
 public class ContractTestDataProvider {
 
@@ -65,8 +82,6 @@ public class ContractTestDataProvider {
     public static final String VALID_CASE_ID = "123";
     public static final String FORBIDDEN_CASE_ID = "456";
     public static final String NOT_FOUND_CASE_ID = "789";
-
-    public static final String HEARING_RESPONSE_STATUS = "HEARING_REQUESTED";
     public static final String HEARING_DATE = "2030-08-20T12:40";
     public static final String ACTIVE = "ACTIVE";
     public static final String PARTIES_NOTIFIED_PATH = "/partiesNotified";
@@ -76,15 +91,25 @@ public class ContractTestDataProvider {
     }
 
     public static final Map<String, String> authorisedHeaders = Map.of(
-        HttpHeaders.AUTHORIZATION, IDAM_OAUTH2_TOKEN,
+        AUTHORIZATION, IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
     );
 
+    public static final Map<String, String> authorisedHeadersGet = Map.of(
+            AUTHORIZATION, IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION, SERVICE_AUTHORIZATION_TOKEN
+    );
+
     public static final Map<String, String> unauthorisedHeaders = Map.of(
-        HttpHeaders.AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+        AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
         SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
         CONTENT_TYPE, APPLICATION_JSON
+    );
+
+    public static final Map<String, String> unauthorisedHeadersGet = Map.of(
+            AUTHORIZATION, UNAUTHORISED_IDAM_OAUTH2_TOKEN,
+            SERVICE_AUTHORIZATION, UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN
     );
 
     public static HearingRequestPayload generateHearingRequest() {
@@ -106,13 +131,13 @@ public class ContractTestDataProvider {
 
     public static HearingCancelRequestPayload generateHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode("Cancel reason");
+        request.setCancellationReasonCodes(List.of(WITHDRAWN));
         return request;
     }
 
     public static HearingCancelRequestPayload generateInvalidHearingDeleteRequest() {
         HearingCancelRequestPayload request = new HearingCancelRequestPayload();
-        request.setCancellationReasonCode("");
+        request.setCancellationReasonCodes(null);
         return request;
     }
 
@@ -144,14 +169,15 @@ public class ContractTestDataProvider {
         hearingDetails.setDuration(1);
         hearingDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
         hearingDetails.setHearingPriorityType("Priority type");
-        HearingLocations location1 = new HearingLocations();
+        HearingLocation location1 = new HearingLocation();
         location1.setLocationId("court");
-        location1.setLocationType("Location type");
-        List<HearingLocations> hearingLocations = new ArrayList<>();
-        hearingLocations.add(location1);
-        hearingDetails.setHearingLocations(hearingLocations);
+        location1.setLocationType(COURT);
+        List<HearingLocation> hearingLocation = new ArrayList<>();
+        hearingLocation.add(location1);
+        hearingDetails.setHearingLocations(hearingLocation);
         hearingDetails.setPanelRequirements(panelRequirements1());
-        hearingDetails.setAmendReasonCode("amend Reason Code ");
+        hearingDetails.setAmendReasonCode(List.of("amend Reason Code"));
+        hearingDetails.setHearingChannels(new ArrayList<>());
         return hearingDetails;
     }
 
@@ -174,8 +200,9 @@ public class ContractTestDataProvider {
         caseDetails.setCaseRestrictedFlag(false);
         caseDetails.setCaseSlaStartDate("2030-08-20");
         CaseCategory category = new CaseCategory();
-        category.setCategoryType("caseType");
+        category.setCategoryType(CASE_TYPE);
         category.setCategoryValue("PROBATE");
+        category.setCategoryParent("categoryParent");
         List<CaseCategory> caseCategories = new ArrayList<>();
         caseCategories.add(category);
         caseDetails.setCaseCategories(caseCategories);
@@ -199,15 +226,15 @@ public class ContractTestDataProvider {
         final PanelPreference panelPreference1 = new PanelPreference();
         panelPreference1.setMemberID("Member 1");
         panelPreference1.setMemberType("Member Type 1");
-        panelPreference1.setRequirementType("MUSTINC");
+        panelPreference1.setRequirementType(MUST_INCLUDE);
         final PanelPreference panelPreference2 = new PanelPreference();
         panelPreference2.setMemberID("Member 2");
         panelPreference2.setMemberType("Member Type 2");
-        panelPreference2.setRequirementType("OPTINC");
+        panelPreference2.setRequirementType(OPTIONAL_INCLUDE);
         final PanelPreference panelPreference3 = new PanelPreference();
         panelPreference3.setMemberID("Member 3");
         panelPreference3.setMemberType("Member Type 3");
-        panelPreference3.setRequirementType("EXCLUDE");
+        panelPreference3.setRequirementType(EXCLUDE);
         List<PanelPreference> panelPreferences = new ArrayList<>();
         panelPreferences.add(panelPreference1);
         panelPreferences.add(panelPreference2);
@@ -231,9 +258,9 @@ public class ContractTestDataProvider {
 
     protected static List<PartyDetails> partyDetails1() {
         ArrayList<PartyDetails> partyDetailsArrayList = new ArrayList<>();
-        partyDetailsArrayList.add(createPartyDetails("P1", "IND", "DEF", null, createOrganisationDetails()));
-        partyDetailsArrayList.add(createPartyDetails("P2", "IND", "DEF2", createIndividualDetails(), null));
-        partyDetailsArrayList.add(createPartyDetails("P3", "IND", "DEF3", createIndividualDetails(),
+        partyDetailsArrayList.add(createPartyDetails("P1", "DEF", null, createOrganisationDetails()));
+        partyDetailsArrayList.add(createPartyDetails("P2", "DEF2", createIndividualDetails(), null));
+        partyDetailsArrayList.add(createPartyDetails("P3", "DEF3", createIndividualDetails(),
                                                      createOrganisationDetails()
         ));
         return partyDetailsArrayList;
@@ -286,12 +313,12 @@ public class ContractTestDataProvider {
         return relatedParties;
     }
 
-    private static PartyDetails createPartyDetails(String partyID, String partyType, String partyRole,
-                                            IndividualDetails individualDetails,
-                                            OrganisationDetails organisationDetails) {
+    private static PartyDetails createPartyDetails(String partyID, String partyRole,
+                                                   IndividualDetails individualDetails,
+                                                   OrganisationDetails organisationDetails) {
         PartyDetails partyDetails = new PartyDetails();
         partyDetails.setPartyID(partyID);
-        partyDetails.setPartyType(partyType);
+        partyDetails.setPartyType(INDIVIDUAL);
         partyDetails.setPartyRole(partyRole);
         partyDetails.setIndividualDetails(individualDetails);
         partyDetails.setOrganisationDetails(organisationDetails);
@@ -300,23 +327,23 @@ public class ContractTestDataProvider {
         return partyDetails;
     }
 
-    private static List<String> createReasonableAdjustments() {
-        List<String> reasonableAdjustments = new ArrayList<>();
-        reasonableAdjustments.add("adjust 1");
-        reasonableAdjustments.add("adjust 2");
-        reasonableAdjustments.add("adjust 3");
+    private static List<Adjustment> createReasonableAdjustments() {
+        List<Adjustment> reasonableAdjustments = new ArrayList<>();
+        reasonableAdjustments.add(HEARING_LOOP);
+        reasonableAdjustments.add(SIGN_LANGUAGE_INTERPRETER);
+        reasonableAdjustments.add(STEP_FREE_WHEELCHAIR_ACCESS);
         return reasonableAdjustments;
     }
 
     private static List<UnavailabilityDayOfWeek> createUnavailabilityDows() {
         List<UnavailabilityDayOfWeek> unavailabilityDows = new ArrayList<>();
         UnavailabilityDayOfWeek unavailabilityDow1 = new UnavailabilityDayOfWeek();
-        unavailabilityDow1.setDayOfWeek("DOW1");
-        unavailabilityDow1.setDayOfWeekUnavailabilityType("TYPE1");
+        unavailabilityDow1.setDayOfWeek(MONDAY);
+        unavailabilityDow1.setDayOfWeekUnavailabilityType(AM);
         unavailabilityDows.add(unavailabilityDow1);
         UnavailabilityDayOfWeek unavailabilityDow2 = new UnavailabilityDayOfWeek();
-        unavailabilityDow2.setDayOfWeek("DOW1");
-        unavailabilityDow2.setDayOfWeekUnavailabilityType("TYPE1");
+        unavailabilityDow2.setDayOfWeek(TUESDAY);
+        unavailabilityDow2.setDayOfWeekUnavailabilityType(PM);
         unavailabilityDows.add(unavailabilityDow2);
         return unavailabilityDows;
     }
@@ -342,8 +369,8 @@ public class ContractTestDataProvider {
         result
             .object("requestDetails")
             .integerType("versionNumber", 123)
-            .stringType("hearingRequestID", "hearingRequestID123")
-            .stringType("status", "status123")
+            .stringType("hearingRequestID", "hearingRequestId123")
+            .stringType("status", "HEARING_REQUESTED")
             .stringType("timestamp", date.toString())
             .stringType("hearingGroupRequestId", "hearingGroupRequestId123")
             .stringType("partiesNotified", date.toString())
@@ -385,11 +412,11 @@ public class ContractTestDataProvider {
             .minArrayLike("panelPreferences", 0, 1)
             .stringType("memberID", "memberID123")
             .stringType("memberType", "memberType123")
-            .stringType("requirementType", "requirementType123")
+            .stringType("requirementType", "EXCLUDE")
             .closeObject().closeArray()
             .closeObject()
             .minArrayLike("hearingLocations", 0, 1)
-            .stringType("locationType", "locationType123")
+            .stringType("locationType", "court")
             .stringType("locationId", "locationId123")
             .closeObject().closeArray()
             .array("facilitiesRequired")
@@ -409,13 +436,14 @@ public class ContractTestDataProvider {
             .stringType("caseManagementLocationCode", "caseManagementLocationCode123")
             .stringType("caseSLAStartDate", date.toString())
             .minArrayLike("caseCategories", 0, 1)
-            .stringType("categoryType", "categoryType123")
+            .stringType("categoryType", "caseType")
             .stringType("categoryValue", "categoryValue123")
+            .stringType("categoryParent", "categoryParent123")
             .closeObject().closeArray()
             .closeObject()
             .minArrayLike("partyDetails", 0, 1)
             .stringType("partyID", "partyID123")
-            .stringType("partyType", "partyType123")
+            .stringType("partyType", "IND")
             .stringType("partyRole", "partyRole")
             .object("individualDetails")
             .stringType("firstName", "firstName123")
@@ -433,7 +461,7 @@ public class ContractTestDataProvider {
             .string("07345960795")
             .closeArray()
             .array("reasonableAdjustments")
-            .string("reasonableAdjustments1")
+            .string("RA0043")
             .closeArray()
             .minArrayLike("relatedParties", 0, 1)
             .stringType("relatedPartyID", "relatedPartyID123")
@@ -447,7 +475,7 @@ public class ContractTestDataProvider {
             .closeObject()
             .minArrayLike("unavailabilityDOW", 0, 1)
             .stringType("DOW", "MONDAY")
-            .stringType("DOWUnavailabilityType", "dowUnavailabilityType123")
+            .stringType("DOWUnavailabilityType", "AM")
             .closeObject().closeArray()
             .minArrayLike("unavailabilityRanges", 0, 1)
             .stringType("unavailableFromDate", date.toString())
@@ -455,17 +483,12 @@ public class ContractTestDataProvider {
             .closeObject().closeArray()
             .closeObject().closeArray()
             .object("hearingResponse")
-            .integerType("hearingRequestID", 123L)
-            .integerType("versionNumber", 123)
-            .stringType("status", ACTIVE)
-            .stringType("timeStamp", date.toString())
             .stringType("listAssistTransactionID", "ListAssistTransactionID123123")
             .stringType("receivedDateTime", date.toString())
-            .stringType("laCaseStatus", ACTIVE)
-            .stringType("listingStatus", ACTIVE)
-            .stringType("hearingCancellationReason", "hearingCancellationReason_NO_RESULT")
-            .stringType("partiesNotified", date.toString())
-            .integerType("requestVersion", 321)
+            .integerType("responseVersion", 321)
+            .stringType("laCaseStatus", "LISTED")
+            .stringType("listingStatus", "FIXED")
+            .stringType("hearingCancellationReason", "notatt")
             .minArrayLike("hearingDaySchedule", 0, 1)
             .stringType("listAssistSessionID", "listAssistSessionID123")
             .stringType("hearingVenueId", "hearingVenueId123")
@@ -477,8 +500,6 @@ public class ContractTestDataProvider {
             .stringType("hearingSubChannel", "hearingSubChannel123")
             .closeObject().closeArray()
             .closeObject().closeArray()
-            .object("serviceData")
-            .closeObject()
             .closeObject();
 
 

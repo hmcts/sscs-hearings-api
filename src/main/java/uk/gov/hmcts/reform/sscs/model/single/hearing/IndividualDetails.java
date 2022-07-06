@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IndividualDetails {
 
+    private String title;
+
     private String firstName;
 
     private String lastName;
@@ -23,7 +26,7 @@ public class IndividualDetails {
 
     private String interpreterLanguage;
 
-    private List<String> reasonableAdjustments;
+    private List<Adjustment> reasonableAdjustments;
 
     private boolean vulnerableFlag;
 

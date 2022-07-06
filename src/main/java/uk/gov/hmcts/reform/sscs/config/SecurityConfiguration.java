@@ -1,13 +1,15 @@
 package uk.gov.hmcts.reform.sscs.config;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import uk.gov.hmcts.reform.authorisation.filters.ServiceAuthFilter;
 
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 @EnableWebSecurity
 @ConfigurationProperties(prefix = "spring.security")
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     private final ServiceAuthFilter serviceAuthFilter;
 
@@ -30,26 +32,28 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.serviceAuthFilter = serviceAuthFilter;
     }
 
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(anonymousPaths.toArray(String[]::new));
+    @SneakyThrows
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) {
+        http
+                .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
+                .sessionManagement()
+                .sessionCreationPolicy(STATELESS)
+                .and()
+                .httpBasic()
+                .disable()
+                .formLogin()
+                .disable()
+                .logout()
+                .disable()
+                .csrf()
+                .disable();
+        return http.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-            .addFilterBefore(serviceAuthFilter, BearerTokenAuthenticationFilter.class)
-            .sessionManagement()
-            .sessionCreationPolicy(STATELESS)
-            .and()
-            .httpBasic()
-            .disable()
-            .formLogin()
-            .disable()
-            .logout()
-            .disable()
-            .csrf()
-            .disable();
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().antMatchers(anonymousPaths.toArray(String[]::new));
     }
 
     public List<String> getAnonymousPaths() {
