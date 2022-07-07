@@ -124,8 +124,7 @@ public final class HearingsDetailsMapping {
                 return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
             }
         } else {
-            caseData.setDecisionNotes(caseData.getDecisionNotes()
-                                           + ", "
+            caseData.setDecisionNotes((caseData.getDecisionNotes() == null ? "" : caseData.getDecisionNotes() + ", ")
                                            + "This is an urgent hearing because there is no DWP response and "
                                            + "in the urgent journey or where the FTA have taken too long a judge can "
                                            + "direct that a hearing is arranged without a response");
