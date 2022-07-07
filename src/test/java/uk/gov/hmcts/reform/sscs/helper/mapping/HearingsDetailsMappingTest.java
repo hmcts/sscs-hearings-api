@@ -255,7 +255,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
         assertEquals(caseData.getDecisionNotes(),
-                     "test decision note, This is an urgent hearing because there is no DWP response and "
+                     "test decision note, This is an urgent hearing and hearing date established manually "
+                            + "because there is no DWP response and "
                             + "in the urgent journey or where the FTA have taken too long a judge can "
                             + "direct that a hearing is arranged without a response");
     }
@@ -275,7 +276,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
         assertEquals(caseData.getDecisionNotes(),
-                     "This is an urgent hearing because there is no DWP response and "
+                     "This is an urgent hearing and hearing date established manually "
+                         + "because there is no DWP response and "
                          + "in the urgent journey or where the FTA have taken too long a judge can "
                          + "direct that a hearing is arranged without a response");
     }

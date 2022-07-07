@@ -123,7 +123,8 @@ public final class HearingsDetailsMapping {
             }
         } else {
             caseData.setDecisionNotes((caseData.getDecisionNotes() == null ? "" : caseData.getDecisionNotes() + ", ")
-                                           + "This is an urgent hearing because there is no DWP response and "
+                                           + "This is an urgent hearing and hearing date established manually "
+                                           + "because there is no DWP response and "
                                            + "in the urgent journey or where the FTA have taken too long a judge can "
                                            + "direct that a hearing is arranged without a response");
             return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
