@@ -102,14 +102,6 @@ public final class HearingsDetailsMapping {
      * 3. if it is not urgent and paper or case it returns to  +28 days.(this is the same as number 1)
      * Those three items means that when the case is urgent hearing window start date is 1 day after the dwpResponded
      * day. If not urgent it is always 28 days after the dwpResponded date.
-     * If there is no dwpResponded date :
-     * In theory the case must have a response date - there should not be examples where there is no date -
-     * can you check if this is a testing data issue.  However in the urgent journey or where the FTA have taken too
-     * long a judge can direct that a hearing is arranged without a response
-     * According to the definition when there is no dwp responded date it means case is an urgent case and added
-     * 1 day to the current date and added a decision note as This is an urgent appeal because there is no DWP response
-     * and in the urgent journey or where the FTA have taken too long a judge can  direct that a hearing is arranged
-     * without a response
      * @param caseData SscsCaseData
      * @return LocalDate value that is calculated as hearing window start date.
      */
@@ -122,11 +114,6 @@ public final class HearingsDetailsMapping {
                 return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
             }
         } else {
-            caseData.setDecisionNotes((caseData.getDecisionNotes() == null ? "" : caseData.getDecisionNotes() + ", ")
-                                           + "This is an urgent hearing and hearing date established manually "
-                                           + "because there is no DWP response and "
-                                           + "in the urgent journey or where the FTA have taken too long a judge can "
-                                           + "direct that a hearing is arranged without a response");
             return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
         }
     }
