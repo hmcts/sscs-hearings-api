@@ -77,6 +77,7 @@ class ServiceHearingsServiceTest {
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
             .adjournCaseCanCaseBeListedRightAway("Yes")
+            .dwpResponseDate("2022-07-07")
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")

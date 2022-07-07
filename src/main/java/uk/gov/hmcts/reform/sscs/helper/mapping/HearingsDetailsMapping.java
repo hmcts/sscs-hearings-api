@@ -95,18 +95,42 @@ public final class HearingsDetailsMapping {
             .build();
     }
 
+    /**
+     * This method sets hearing window start date according to the jira task
+     * <a href="https://tools.hmcts.net/jira/browse/SSCS-10666">SSCS-10666</a>
+     * 1. When case not autolisted and not an urgent case, buildHearingWindow should still be +28 days
+     * 2. If the case is urgent and the hearing channel is either paper or oral case we should list +1 day
+     * 3. if it is not urgent and paper or case it returns to  +28 days.(this is the same as number 1)
+     * Those three items means that when the case is urgent hearing window start date is 1 day after the dwpResponded
+     * day. If not urgent it is always 28 days after the dwpResponded date.
+     * If there is no dwpResponded date :
+     * In theory the case must have a response date - there should not be examples where there is no date -
+     * can you check if this is a testing data issue.  However in the urgent journey or where the FTA have taken too
+     * long a judge can direct that a hearing is arranged without a response
+     * According to the definition when there is no dwp responded date it means case is an urgent case and added
+     * 1 day to the current date and added a decision note as This is an urgent appeal because there is no DWP response
+     * and in the urgent journey or where the FTA have taken too long a judge can  direct that a hearing is arranged
+     * without a response
+     * @param caseData SscsCaseData
+     * @param autoListed boolean
+     * @return LocalDate value that is calculated as hearing window start date.
+     */
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
         if (isNotBlank(caseData.getDwpResponseDate())) {
             LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
             if (isCaseUrgent(caseData)) {
-                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
-            } else if (autoListed) {
-                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
-            } else if (HearingChannelMapping.isPaperCase(caseData)) {
+                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+            } else {
                 return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
             }
+        } else {
+            caseData.setDecisionNotes(caseData.getDecisionNotes()
+                                           + ", "
+                                           + "This is an urgent hearing because there is no DWP response and "
+                                           + "in the urgent journey or where the FTA have taken too long a judge can "
+                                           + "direct that a hearing is arranged without a response");
+            return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
         }
-        return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
     }
 
     public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
