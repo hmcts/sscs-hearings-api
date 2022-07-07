@@ -48,7 +48,6 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30;
-    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE = 14;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
 
@@ -64,7 +63,7 @@ public final class HearingsDetailsMapping {
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
-            .hearingWindow(buildHearingWindow(caseData, autoListed))
+            .hearingWindow(buildHearingWindow(caseData))
             .duration(getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
@@ -87,10 +86,10 @@ public final class HearingsDetailsMapping {
         return SUBSTANTIVE.getHmcReference();
     }
 
-    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, boolean autoListed) {
+    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData) {
         return HearingWindow.builder()
             .firstDateTimeMustBe(getFirstDateTimeMustBe())
-            .dateRangeStart(getHearingWindowStart(caseData, autoListed))
+            .dateRangeStart(getHearingWindowStart(caseData))
             .dateRangeEnd(null)
             .build();
     }
@@ -112,10 +111,9 @@ public final class HearingsDetailsMapping {
      * and in the urgent journey or where the FTA have taken too long a judge can  direct that a hearing is arranged
      * without a response
      * @param caseData SscsCaseData
-     * @param autoListed boolean
      * @return LocalDate value that is calculated as hearing window start date.
      */
-    public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
+    public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData) {
         if (isNotBlank(caseData.getDwpResponseDate())) {
             LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
             if (isCaseUrgent(caseData)) {

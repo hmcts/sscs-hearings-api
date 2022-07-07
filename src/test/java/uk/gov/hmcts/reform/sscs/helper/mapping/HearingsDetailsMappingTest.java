@@ -211,7 +211,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .urgentCase(isUrgent)
             .build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -228,7 +228,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void testBuildHearingWindowResponseBlank() {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -245,7 +245,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void testDecisionNotesNoDwpResponseDateHasDecisionNotes() {
         SscsCaseData caseData = SscsCaseData.builder().build();
         caseData.setDecisionNotes("test decision note");
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -265,7 +265,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void testDecisionNotesNoDwpResponseDateBlankNoDecisionNotes() {
         SscsCaseData caseData = SscsCaseData.builder().build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -287,7 +287,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpResponseDate(LocalDate.now().toString())
             .appeal(new Appeal(null, null, null, new HearingOptions("yes", null, null, null, null, null, null, null, null, null), null, null, null, null, new HearingSubtype("yes", "07444123456", null, null, null), null))
             .build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -305,7 +305,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpResponseDate("2021-12-01")
             .urgentCase("Yes")
             .build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -324,7 +324,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .appeal(new Appeal(null, null, null, null, null, null, null, null, null, null))
             .build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
         assertThat(result).isNotNull();
         assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
         assertThat(result.getFirstDateTimeMustBe()).isNull();
