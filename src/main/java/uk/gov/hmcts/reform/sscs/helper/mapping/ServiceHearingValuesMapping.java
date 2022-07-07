@@ -12,6 +12,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
@@ -59,6 +60,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingChannels(getHearingChannelsHmcReference(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
+                .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
             .build();
     }
 
