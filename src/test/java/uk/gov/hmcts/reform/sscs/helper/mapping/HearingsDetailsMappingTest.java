@@ -222,7 +222,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
     @DisplayName("When dwpResponseDate is blank, buildHearingWindow returns start date of tomorrow"
-        + "This case occurs only when ")
+        + "This case occurs only when the urgent journey or where the FTA have taken too long a judge can"
+        + "direct that a hearing is arranged without a response")
     @Test
     void testBuildHearingWindowResponseBlank() {
         SscsCaseData caseData = SscsCaseData.builder().build();
@@ -236,6 +237,47 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
+    }
+
+    @DisplayName("When dwpResponseDate is blank, and has an existing decision notes should have"
+        + "decision notes added the text for urgent case details")
+    @Test
+    void testDecisionNotesNoDwpResponseDateHasDecisionNotes() {
+        SscsCaseData caseData = SscsCaseData.builder().build();
+        caseData.setDecisionNotes("test decision note");
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+
+        assertThat(result).isNotNull();
+
+        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        assertThat(result.getDateRangeStart()).isEqualTo(expected);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+        assertEquals(caseData.getDecisionNotes(),
+                     "test decision note, This is an urgent hearing because there is no DWP response and "
+                            + "in the urgent journey or where the FTA have taken too long a judge can "
+                            + "direct that a hearing is arranged without a response");
+    }
+
+    @DisplayName("When dwpResponseDate is blank, and has an existing decision notes should have"
+        + "decision notes added the text for urgent case details")
+    @Test
+    void testDecisionNotesNoDwpResponseDateBlankNoDecisionNotes() {
+        SscsCaseData caseData = SscsCaseData.builder().build();
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+
+        assertThat(result).isNotNull();
+
+        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        assertThat(result.getDateRangeStart()).isEqualTo(expected);
+
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+        assertEquals(caseData.getDecisionNotes(),
+                     "This is an urgent hearing because there is no DWP response and "
+                         + "in the urgent journey or where the FTA have taken too long a judge can "
+                         + "direct that a hearing is arranged without a response");
     }
 
     @DisplayName("When case has dwpResponseDate and not urgent returns start date of 28 days after dwpResponseDate")
