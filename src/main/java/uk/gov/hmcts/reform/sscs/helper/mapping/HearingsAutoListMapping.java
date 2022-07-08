@@ -36,6 +36,7 @@ public final class HearingsAutoListMapping {
                 || isPaperCaseAndPoNotAttending(caseData)
                 || hasMqpmOrFqpm(caseData, referenceData)
                 || isThereOtherComments(caseData)
+                || doesNotHaveDwpResponseDate(caseData)
             );
     }
 
@@ -65,6 +66,10 @@ public final class HearingsAutoListMapping {
 
     public static boolean isThereOtherComments(@Valid SscsCaseData caseData) {
         return isNotBlank(HearingsDetailsMapping.getListingComments(caseData));
+    }
+
+    public static boolean doesNotHaveDwpResponseDate(@Valid SscsCaseData caseData) {
+        return !isNotBlank(caseData.getDwpResponseDate());
     }
 
     public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
