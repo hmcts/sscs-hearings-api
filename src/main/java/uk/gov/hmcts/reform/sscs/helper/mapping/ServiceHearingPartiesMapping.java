@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -76,7 +77,8 @@ public final class ServiceHearingPartiesMapping {
             partyDetails.add(createHearingPartyDetails(party.getAppointee(), hearingOptions, hearingSubtype, party.getId(), appellantId, referenceData));
         }
         if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
-            partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingSubtype, party.getId(), appellantId, referenceData));
+            partyDetails.add(createHearingPartyDetailsForRepresentatives(rep, hearingOptions, hearingSubtype, party.getId(),
+                appellantId, referenceData));
         }
         return partyDetails;
     }
@@ -95,6 +97,25 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
         partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference());
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
+        partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
+        partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
+
+        return partyDetails.build();
+    }
+
+    public static PartyDetails createHearingPartyDetailsForRepresentatives(Entity entity, HearingOptions hearingOptions,
+                                                         HearingSubtype hearingSubtype,
+                                                         String partyId, String appellantId,
+                                                         ReferenceDataServiceHolder referenceData)
+        throws InvalidMappingException {
+        PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
+
+        partyDetails.partyID(HearingsPartiesMapping.getPartyId(entity));
+        partyDetails.partyType(PartyType.INDIVIDUAL);
+        partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
+        partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
+        partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
+        partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
 
