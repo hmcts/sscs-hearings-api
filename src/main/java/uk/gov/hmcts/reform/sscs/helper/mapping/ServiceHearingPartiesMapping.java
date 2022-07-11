@@ -95,8 +95,6 @@ public final class ServiceHearingPartiesMapping {
             partyDetails.partyType(INDIVIDUAL);
         } else {
             partyDetails.partyType(HearingsPartiesMapping.getPartyType(entity));
-            partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
-
         }
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
