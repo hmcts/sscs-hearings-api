@@ -58,6 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -79,7 +80,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
-    void buildHearingDetails() throws Exception {
+    void buildHearingDetails() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30
@@ -201,7 +202,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case with valid DWP_RESPOND event and is auto-listable is given buildHearingWindow returns a window starting within 1 month of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
-        "2021-12-01,Yes,2021-12-15",
+        "2021-12-01,Yes,2021-12-02",
         "2021-12-01,No,2021-12-29",
     }, nullValues = {"null"})
     void testBuildHearingWindow(String dwpResponded, String isUrgent, LocalDate expected) {
@@ -210,7 +211,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .urgentCase(isUrgent)
             .build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -220,12 +221,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case is autolist but dwpResponseDate is blank, buildHearingWindow returns start date of tomorrow")
+    @DisplayName("When dwpResponseDate is blank, hearing date should be a day after current date")
     @Test
     void testBuildHearingWindowResponseBlank() {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, true);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
@@ -234,41 +235,60 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
+
     }
 
-    @DisplayName("When case when not autolist and not an urgent case, buildHearingWindow returns start date of tomorrow")
+    @DisplayName("When case has dwpResponseDate and not urgent returns start date of 28 days after dwpResponseDate")
     @Test
     void testBuildHearingWindowNotAutoListUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate(LocalDate.now().toString())
+            .appeal(new Appeal(null, null, null, new HearingOptions("yes", null, null, null, null, null, null, null, null, null), null, null, null, null, new HearingSubtype("yes", "07444123456", null, null, null), null))
             .build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
-        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+        LocalDate expected = LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
         assertThat(result.getDateRangeStart()).isEqualTo(expected);
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-    @DisplayName("When case when not autolist and an urgent case, buildHearingWindow returns start date of tomorrow")
+    @DisplayName("When case is an urgent case, buildHearingWindow returns start date of 1 days after dwpResponseDate")
     @Test
     void testBuildHearingWindowNotAutoListIsUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate("2021-12-01")
             .urgentCase("Yes")
             .build();
-        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData, false);
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
 
         assertThat(result).isNotNull();
 
-        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-15");
+        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-02");
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
     }
+
+    @DisplayName("When case' s hearing channel is paper and not urgent "
+        + "it should return 28 days after dwp response date.")
+    @Test
+    void testBuildHearingWindowHearingChannelPaper() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .dwpResponseDate("2021-12-01")
+            .appeal(new Appeal(null, null, null, null, null, null, null, null, null, null))
+            .build();
+
+        HearingWindow result = HearingsDetailsMapping.buildHearingWindow(caseData);
+        assertThat(result).isNotNull();
+        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getFirstDateTimeMustBe()).isNull();
+        assertThat(result.getDateRangeEnd()).isNull();
+    }
+
 
     @DisplayName("When .. is given getFirstDateTimeMustBe returns the valid LocalDateTime")
     @Test

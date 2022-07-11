@@ -48,7 +48,6 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30;
-    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE = 14;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
 
@@ -64,7 +63,7 @@ public final class HearingsDetailsMapping {
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
-            .hearingWindow(buildHearingWindow(caseData, autoListed))
+            .hearingWindow(buildHearingWindow(caseData))
             .duration(getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
@@ -87,24 +86,36 @@ public final class HearingsDetailsMapping {
         return SUBSTANTIVE.getHmcReference();
     }
 
-    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, boolean autoListed) {
+    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData) {
         return HearingWindow.builder()
             .firstDateTimeMustBe(getFirstDateTimeMustBe())
-            .dateRangeStart(getHearingWindowStart(caseData, autoListed))
+            .dateRangeStart(getHearingWindowStart(caseData))
             .dateRangeEnd(null)
             .build();
     }
 
-    public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData, boolean autoListed) {
+    /**
+     * This method sets hearing window start date according to the jira task
+     * <a href="https://tools.hmcts.net/jira/browse/SSCS-10666">SSCS-10666</a>
+     * 1. When case not autolisted and not an urgent case, buildHearingWindow should still be +28 days
+     * 2. If the case is urgent and the hearing channel is either paper or oral case we should list +1 day
+     * 3. if it is not urgent and paper or case it returns to  +28 days.(this is the same as number 1)
+     * Those three items means that when the case is urgent hearing window start date is 1 day after the dwpResponded
+     * day. If not urgent it is always 28 days after the dwpResponded date.
+     * @param caseData SscsCaseData
+     * @return LocalDate value that is calculated as hearing window start date.
+     */
+    public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData) {
         if (isNotBlank(caseData.getDwpResponseDate())) {
             LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
             if (isCaseUrgent(caseData)) {
-                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED_URGENT_CASE);
-            } else if (autoListed) {
+                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
+            } else {
                 return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
             }
+        } else {
+            return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
         }
-        return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
     }
 
     public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {

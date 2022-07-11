@@ -41,6 +41,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
+            .dwpResponseDate("2022-07-07")
             .appeal(Appeal.builder()
                 .appellant(Appellant.builder()
                     .name(Name.builder()
@@ -71,6 +72,19 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isTrue();
+    }
+
+    @DisplayName("When there are no conditions that affect autolisting, shouldBeAutoListed returns true")
+    @Test
+    void testShouldBeAutoListedFalseWhenNullDwpResponseDate() {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_01,null));
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        caseData.setDwpResponseDate(null);
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
+        assertThat(result).isFalse();
     }
 
     @DisplayName("When there is a condition that affects autolisting, shouldBeAutoListed returns false")
