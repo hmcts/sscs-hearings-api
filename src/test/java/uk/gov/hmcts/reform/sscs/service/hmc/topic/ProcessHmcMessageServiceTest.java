@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -65,15 +66,20 @@ class ProcessHmcMessageServiceTest {
     private SscsCaseData caseData;
     private HearingGetResponse hearingGetResponse;
     private HmcMessage hmcMessage;
+    private HearingResponse hearingResponse;
 
     @BeforeEach
     void setUp() {
+        hearingResponse = HearingResponse.builder()
+            .listingStatus(ListingStatus.CANCEL)
+            .build();
+
         hearingGetResponse = HearingGetResponse.builder()
                 .requestDetails(RequestDetails.builder().build())
                 .hearingDetails(HearingDetails.builder().build())
                 .caseDetails(CaseDetails.builder().build())
                 .partyDetails(new ArrayList<>())
-                .hearingResponse(HearingResponse.builder().build())
+                .hearingResponse(hearingResponse)
                 .build();
 
         caseData = SscsCaseData.builder()
@@ -93,6 +99,8 @@ class ProcessHmcMessageServiceTest {
                         .hmcStatus(ADJOURNED)
                         .build())
                 .build();
+
+
     }
 
     @DisplayName("When listing Status is Fixed and and HmcStatus is valid, "
@@ -119,6 +127,50 @@ class ProcessHmcMessageServiceTest {
         // then
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
         verify(hearingUpdateService).updateHearing(hearingGetResponse, caseData);
+    }
+
+    @DisplayName("When listing Status is Cancelled and and HmcStatus is valid, "
+        + "updateHearing and updateCaseData are called once")
+    @ParameterizedTest
+    @EnumSource(value = HmcStatus.class, names = {"LISTED", "AWAITING_LISTING", "UPDATE_SUBMITTED"})
+    void testUpdateHearingListingStatusCancelled(HmcStatus hmcStatus) throws Exception {
+        // given
+
+        hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
+        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.CANCEL);
+
+        hmcMessage.getHearingUpdate().setHmcStatus(hmcStatus);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
+        verify(hearingUpdateService).updateHearing(hearingGetResponse, caseData);
+    }
+    @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")
+    @Test
+    void testUpdateHearingListingStatusNull() throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(LISTED);
+        hearingGetResponse.getHearingResponse().setListingStatus(null);
+        hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
+        verify(hearingUpdateService, never()).updateHearing(any(), any());
     }
 
     @DisplayName("When listing Status is not Fixed, updateHearing and updateCaseData are not called")
