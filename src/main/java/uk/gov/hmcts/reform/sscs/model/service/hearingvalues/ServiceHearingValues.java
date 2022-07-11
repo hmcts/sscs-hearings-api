@@ -93,4 +93,6 @@ public class ServiceHearingValues {
     private List<Vocabulary> vocabulary;
 
     private String hmctsServiceID;
+
+    private boolean caseInterpreterRequiredFlag;
 }
