@@ -125,12 +125,6 @@ public final class HearingsPartiesMapping {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(getPartyId(entity));
-        if (entity instanceof Representative) {
-            partyDetails.partyType(INDIVIDUAL);
-        } else {
-            partyDetails.partyType(getPartyType(entity));
-        }
-
         partyDetails.partyType(getPartyType(entity));
         partyDetails.partyRole(getPartyRole(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
