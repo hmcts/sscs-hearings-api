@@ -73,6 +73,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     public static final String BENEFIT = "Benefit";
 
+    public static final String REPRESENTATIVE_PARTY_ID = "12321";
+
     @Mock
     public HearingDurationsService hearingDurations;
 
@@ -137,7 +139,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .other(NOTE_FROM_APPELLANT)
                     .build())
                 .rep(Representative.builder()
-                    .id("12321")
+                    .id(REPRESENTATIVE_PARTY_ID)
                     .hasRepresentative("Yes")
                     .name(Name.builder()
                         .title("Mr")
@@ -247,7 +249,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "12321".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
         assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
@@ -260,7 +262,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         //then
         assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(),
-            serviceHearingValues.getParties().stream().filter(partyDetails -> partyDetails.getPartyType() != ORGANISATION && "12321".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+            serviceHearingValues.getParties().stream().filter(partyDetails -> partyDetails.getPartyType() != ORGANISATION && REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {
