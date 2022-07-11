@@ -234,6 +234,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
         assertEquals(List.of(FACE_TO_FACE.getHmcReference()), serviceHearingValues.getHearingChannels());
+        assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
     }
 
     @Test
