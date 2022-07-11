@@ -158,7 +158,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                         .mobile("07411999999")
                         .phone(null)
                         .build())
-                    .organisation("HP Ltd")
                     .build())
                 .build())
             .events(getEventsOfCaseData())

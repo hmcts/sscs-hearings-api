@@ -90,12 +90,6 @@ public final class ServiceHearingPartiesMapping {
             throws InvalidMappingException {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
         partyDetails.partyID(HearingsPartiesMapping.getPartyId(entity));
-
-        if (entity instanceof Representative) {
-            partyDetails.partyType(INDIVIDUAL);
-        } else {
-            partyDetails.partyType(HearingsPartiesMapping.getPartyType(entity));
-        }
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
