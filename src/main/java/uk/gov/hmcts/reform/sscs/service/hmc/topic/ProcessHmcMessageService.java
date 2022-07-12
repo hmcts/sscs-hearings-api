@@ -23,7 +23,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CANCEL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CNCL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
 @Slf4j
@@ -51,7 +51,9 @@ public class ProcessHmcMessageService {
 
         checkStatuses(caseId, hearingId, hmcMessageStatus, hmcStatus);
 
-        if (stateNotHandled(hmcStatus, hearingResponse)) {
+        boolean isHearingUpdated = isHearingUpdated(hmcStatus, hearingResponse);
+
+        if (stateNotHandled(isHearingUpdated, hmcStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
@@ -60,7 +62,7 @@ public class ProcessHmcMessageService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
-        if (isHearingUpdated(hmcStatus, hearingResponse)) {
+        if (isHearingUpdated) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
@@ -112,8 +114,8 @@ public class ProcessHmcMessageService {
     }
 
 
-    private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
+    private boolean stateNotHandled(boolean isHearingUpdated, HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
+        return !(isHearingUpdated || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
     }
 
@@ -128,7 +130,7 @@ public class ProcessHmcMessageService {
 
     private boolean isStatusFixedOrCancelled(HearingGetResponse hearingResponse) {
         return FIXED == hearingResponse.getHearingResponse().getListingStatus()
-            || CANCEL == hearingResponse.getHearingResponse().getListingStatus();
+            || CNCL == hearingResponse.getHearingResponse().getListingStatus();
     }
 
     private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {

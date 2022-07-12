@@ -9,7 +9,7 @@ public enum ListingStatus {
     DRAFT("Draft"),
     PROVISIONAL("Provisional"),
     FIXED("Fixed"),
-    CANCEL("Cancel");
+    CNCL("Cancel");
 
     private final String label;
 }

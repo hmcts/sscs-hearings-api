@@ -484,7 +484,7 @@ public class ContractTestDataProvider {
             .stringType("receivedDateTime", date.toString())
             .integerType("responseVersion", 321)
             .stringType("laCaseStatus", "LISTED")
-            .stringType("listingStatus", "RANDOM")
+            .stringType("listingStatus", "CNCL")
             .stringType("hearingCancellationReason", "notatt")
             .minArrayLike("hearingDaySchedule", 0, 1)
             .stringType("listAssistSessionID", "listAssistSessionID123")

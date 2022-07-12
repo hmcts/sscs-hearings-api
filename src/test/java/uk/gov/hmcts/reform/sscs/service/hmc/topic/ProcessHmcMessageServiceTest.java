@@ -69,7 +69,6 @@ class ProcessHmcMessageServiceTest {
 
     @BeforeEach
     void setUp() {
-
         hearingGetResponse = HearingGetResponse.builder()
                 .requestDetails(RequestDetails.builder().build())
                 .hearingDetails(HearingDetails.builder().build())
@@ -95,8 +94,6 @@ class ProcessHmcMessageServiceTest {
                         .hmcStatus(ADJOURNED)
                         .build())
                 .build();
-
-
     }
 
     @DisplayName("When listing Status is Fixed and and HmcStatus is valid, "
@@ -133,7 +130,7 @@ class ProcessHmcMessageServiceTest {
         // given
 
         hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
-        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.CANCEL);
+        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.CNCL);
 
         hmcMessage.getHearingUpdate().setHmcStatus(hmcStatus);
 
