@@ -73,7 +73,7 @@ public final class HearingsDetailsMapping {
             .leadJudgeContractType(getLeadJudgeContractType())
             .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
-            .amendReasonCode(getAmendReasonCode())
+            .amendReasonCode(OverridesMapping.getAmendReasonCodes(caseData))
             .hearingChannels(getHearingChannelsHmcReference(caseData))
             .build();
     }
@@ -344,11 +344,6 @@ public final class HearingsDetailsMapping {
 
     public static boolean isCaseLinked(@Valid SscsCaseData caseData) {
         return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));
-    }
-
-    private static List<String> getAmendReasonCode() {
-        // TODO Future Work
-        return new ArrayList<>();
     }
 
     public static boolean isPoOfficerAttending(@Valid SscsCaseData caseData) {

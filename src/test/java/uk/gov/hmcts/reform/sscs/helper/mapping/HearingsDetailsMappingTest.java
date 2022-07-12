@@ -974,6 +974,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("Yes")
             .build();
+
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isTrue();
@@ -987,6 +988,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(value)
             .build();
+
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
@@ -1002,6 +1004,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .build())
                 .build())
             .build();
+
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isTrue();
@@ -1020,6 +1023,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build())
             .dwpIsOfficerAttending("No")
             .build();
+
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
@@ -1031,6 +1035,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
             .build();
+
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
