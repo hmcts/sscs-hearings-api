@@ -73,6 +73,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     public static final String BENEFIT = "Benefit";
 
+    public static final String REPRESENTATIVE_PARTY_ID = "12321";
+
     @Mock
     public HearingDurationsService hearingDurations;
 
@@ -137,7 +139,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .other(NOTE_FROM_APPELLANT)
                     .build())
                 .rep(Representative.builder()
-                    .id("12321")
+                    .id(REPRESENTATIVE_PARTY_ID)
                     .hasRepresentative("Yes")
                     .name(Name.builder()
                         .title("Mr")
@@ -156,7 +158,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                         .mobile("07411999999")
                         .phone(null)
                         .build())
-                    .organisation("HP Ltd")
                     .build())
                 .build())
             .events(getEventsOfCaseData())
@@ -247,8 +248,20 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
         assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+    }
+
+    @Test
+    void shouldRepresentativeNotHaveOrganisation() throws InvalidMappingException {
+        // given
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        // when
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        //then
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(),
+            serviceHearingValues.getParties().stream().filter(partyDetails -> partyDetails.getPartyType() != ORGANISATION && REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {

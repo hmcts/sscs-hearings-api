@@ -34,6 +34,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getIndividualPreferredHearingChannel;
@@ -129,7 +130,6 @@ public final class HearingsPartiesMapping {
         partyDetails.partyRole(getPartyRole(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
         partyDetails.partyChannelSubType(getPartyChannelSubType());
-        partyDetails.organisationDetails(getPartyOrganisationDetails());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
 
@@ -159,7 +159,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static PartyType getPartyType(Entity entity) {
-        return isNotBlank(entity.getOrganisation()) ? ORGANISATION : INDIVIDUAL;
+        return isBlank(entity.getOrganisation()) || (entity instanceof Representative) ? INDIVIDUAL : ORGANISATION;
     }
 
     public static String getPartyRole(Entity entity) {

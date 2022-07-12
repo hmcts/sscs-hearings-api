@@ -481,6 +481,19 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
+    @DisplayName("getPartyType Parameterised Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "test,INDIVIDUAL",
+        "null,INDIVIDUAL",
+    }, nullValues = {"null"})
+    void shouldReturnPartyTypeIndividualWhenRepresentative(String value, PartyType expected) {
+        Entity entity = Representative.builder().organisation(value).build();
+        PartyType result = HearingsPartiesMapping.getPartyType(entity);
+
+        assertEquals(expected, result);
+    }
+
     @ParameterizedTest
     @MethodSource("getPartyReferenceArgements")
     void testGetPartyRole(Entity entity, String reference) {
@@ -681,7 +694,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                             hearingOptions
                                                         ));
     }
-    
+
     @DisplayName("isIndividualVulnerableFlag Test")
     @Test
     void isIndividualVulnerableFlag() {

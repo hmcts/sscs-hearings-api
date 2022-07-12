@@ -76,7 +76,8 @@ public final class ServiceHearingPartiesMapping {
             partyDetails.add(createHearingPartyDetails(party.getAppointee(), hearingOptions, hearingSubtype, party.getId(), appellantId, referenceData));
         }
         if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
-            partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingSubtype, party.getId(), appellantId, referenceData));
+            partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingSubtype, party.getId(),
+                appellantId, referenceData));
         }
         return partyDetails;
     }
@@ -87,14 +88,12 @@ public final class ServiceHearingPartiesMapping {
                                                          ReferenceDataServiceHolder referenceData)
             throws InvalidMappingException {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
-
         partyDetails.partyID(HearingsPartiesMapping.getPartyId(entity));
         partyDetails.partyType(HearingsPartiesMapping.getPartyType(entity));
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
         partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions).getHmcReference());
-        partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
 
