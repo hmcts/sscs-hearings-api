@@ -125,12 +125,7 @@ public final class HearingsPartiesMapping {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(getPartyId(entity));
-        if (entity instanceof Representative) {
-            partyDetails.partyType(INDIVIDUAL);
-        } else {
-            partyDetails.partyType(getPartyType(entity));
-        }
-
+        partyDetails.partyType(getPartyType(entity));
         partyDetails.partyRole(getPartyRole(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, referenceData));
         partyDetails.partyChannelSubType(getPartyChannelSubType());
@@ -163,7 +158,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static PartyType getPartyType(Entity entity) {
-        return isNotBlank(entity.getOrganisation()) ? ORGANISATION : INDIVIDUAL;
+        return isNotBlank(entity.getOrganisation()) && !(entity instanceof Representative) ? ORGANISATION : INDIVIDUAL;
     }
 
     public static String getPartyRole(Entity entity) {
