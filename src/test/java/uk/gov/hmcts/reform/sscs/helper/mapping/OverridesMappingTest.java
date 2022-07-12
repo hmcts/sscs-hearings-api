@@ -5,10 +5,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -46,6 +48,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason.ADMIN_ERROR;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason.JUDGE_REQUEST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
@@ -129,6 +133,67 @@ class OverridesMappingTest {
                 "hearingVenueEpimsIds",
                 "poToAttend")
             .containsOnlyNulls();
+    }
+
+    @DisplayName("When case data has a amend reason getAmendReasonCodes return a list with the reason")
+    @ParameterizedTest
+    @EnumSource(value = AmendReason.class)
+    void testGetAmendReasonCodes(AmendReason value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .amendReasons(List.of(value))
+                .build())
+            .build();
+
+        List<AmendReason> result = OverridesMapping.getAmendReasonCodes(caseData);
+
+        assertThat(result)
+            .hasSize(1)
+            .containsExactlyInAnyOrder(value);
+    }
+
+    @DisplayName("When case data has multiple amend reasons getAmendReasonCodes return a list with those reasons")
+    @Test
+    void testGetAmendReasonCodes() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .amendReasons(List.of(ADMIN_ERROR, JUDGE_REQUEST))
+                .build())
+            .build();
+
+        List<AmendReason> result = OverridesMapping.getAmendReasonCodes(caseData);
+
+        assertThat(result)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(ADMIN_ERROR, JUDGE_REQUEST);
+    }
+
+    @DisplayName("When case data no amend reasons getAmendReasonCodes return an empty list")
+    @Test
+    void testGetAmendReasonCodesEmpty() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .amendReasons(List.of())
+                .build())
+            .build();
+
+        List<AmendReason> result = OverridesMapping.getAmendReasonCodes(caseData);
+
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When amendReasons is null getAmendReasonCodes return an empty list")
+    @Test
+    void testGetAmendReasonCodesNull() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .amendReasons(null)
+                .build())
+            .build();
+
+        List<AmendReason> result = OverridesMapping.getAmendReasonCodes(caseData);
+
+        assertThat(result).isEmpty();
     }
 
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")

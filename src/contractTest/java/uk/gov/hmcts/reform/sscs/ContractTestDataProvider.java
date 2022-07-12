@@ -34,6 +34,7 @@ import java.util.Map;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason.ADMIN_REQUEST;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.HEARING_LOOP;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.SIGN_LANGUAGE_INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_WHEELCHAIR_ACCESS;
@@ -174,7 +175,7 @@ public class ContractTestDataProvider {
         hearingLocation.add(location1);
         hearingDetails.setHearingLocations(hearingLocation);
         hearingDetails.setPanelRequirements(panelRequirements1());
-        hearingDetails.setAmendReasonCode(List.of("amend Reason Code"));
+        hearingDetails.setAmendReasonCode(List.of(ADMIN_REQUEST));
         hearingDetails.setHearingChannels(new ArrayList<>());
         return hearingDetails;
     }

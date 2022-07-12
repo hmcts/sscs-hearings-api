@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 
 import org.jetbrains.annotations.NotNull;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
@@ -21,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,6 +48,11 @@ public final class OverridesMapping {
             .map(SscsCaseData::getSchedulingAndListingFields)
             .map(SchedulingAndListingFields::getOverrideFields)
             .orElse(OverrideFields.builder().build());
+    }
+
+    public static List<AmendReason> getAmendReasonCodes(@Valid SscsCaseData caseData) {
+        return Optional.ofNullable(caseData.getSchedulingAndListingFields().getAmendReasons())
+            .orElse(Collections.emptyList());
     }
 
     public static void setDefaultOverrideFields(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
