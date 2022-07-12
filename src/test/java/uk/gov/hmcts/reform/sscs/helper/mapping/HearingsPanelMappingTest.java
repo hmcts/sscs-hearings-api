@@ -38,6 +38,8 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_
 class HearingsPanelMappingTest extends HearingsMappingBase {
 
     public static final String JUDGE_ID = "2000";
+    public static final String JUDGE_ROLE_TYPE = "64";
+    public static final String JUDGE_ID_JUDGE_ROLE_TYPE = JUDGE_ID + "|" + JUDGE_ROLE_TYPE;
     @Mock
     private SessionCategoryMapService sessionCategoryMaps;
 
@@ -89,7 +91,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @Test
     void testGetPanelPreferences() {
 
-        DynamicList reservedMember = new DynamicList(new DynamicListItem(JUDGE_ID, "Judge Dredd"), List.of());
+        DynamicList reservedMember = new DynamicList(new DynamicListItem(JUDGE_ID_JUDGE_ROLE_TYPE, "Judge Dredd"), List.of());
 
         SscsCaseData caseData = SscsCaseData.builder()
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
@@ -106,7 +108,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         assertThat(result)
             .hasSize(1)
             .extracting("memberID", "memberType", "requirementType")
-            .containsExactlyInAnyOrder(tuple(JUDGE_ID, "?", MUST_INCLUDE));
+            .containsExactlyInAnyOrder(tuple(JUDGE_ID, JUDGE_ROLE_TYPE, MUST_INCLUDE));
     }
 
     @DisplayName("When isReservedToMember override is not Yes getPanelPreferences returns an empty list")
@@ -130,6 +132,29 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                     .build())
                 .build())
             .build();
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When when the reserved member item has the wrong formatted code, getPanelPreferences returns an empty list")
+    @Test
+    void testGetPanelPreferencesWrongCodeFormat() {
+
+        DynamicList reservedMember = new DynamicList(new DynamicListItem("wrong format", "Judge Dredd"), List.of());
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .reservedToJudge(ReservedToMember.builder()
+                        .isReservedToMember(YES)
+                        .reservedMember(reservedMember)
+                        .build())
+                    .build())
+                .build())
+            .build();
+
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
 
         assertThat(result).isEmpty();
@@ -151,6 +176,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                     .build())
                 .build())
             .build();
+
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
 
         assertThat(result).isEmpty();
@@ -160,6 +186,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @Test
     void testGetPanelPreferencesOverrideFieldsNull() {
         SscsCaseData caseData = SscsCaseData.builder().build();
+
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
 
         assertThat(result).isEmpty();

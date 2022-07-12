@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -28,6 +30,8 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSession
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 
 public final class HearingsPanelMapping {
+
+    public static final Pattern MEMBER_ID_ROLE_REFERENCE_REGEX = Pattern.compile("(\\w*)\\|(\\w*)");
 
     private HearingsPanelMapping() {
 
@@ -69,19 +73,22 @@ public final class HearingsPanelMapping {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (nonNull(overrideFields.getReservedToJudge()) && isYes(overrideFields.getReservedToJudge().getIsReservedToMember())) {
-            String memberId = Optional.ofNullable(overrideFields.getReservedToJudge())
+            Matcher matcher = Optional.ofNullable(overrideFields.getReservedToJudge())
                 .map(ReservedToMember::getReservedMember)
                 .map(DynamicList::getValue)
                 .map(DynamicListItem::getCode)
+                .map(MEMBER_ID_ROLE_REFERENCE_REGEX::matcher)
                 .orElse(null);
-            if (nonNull(memberId)) {
+
+            if (nonNull(matcher) && matcher.find()) {
+                String memberId = matcher.group(1);
+                String memberType = matcher.group(2);
                 panelPreferences.add(PanelPreference.builder()
                     .memberID(memberId)
-                    .memberType("?") // TODO What should this be?
+                    .memberType(memberType)
                     .requirementType(MUST_INCLUDE)
                     .build());
             }
-
         }
 
         return panelPreferences;
