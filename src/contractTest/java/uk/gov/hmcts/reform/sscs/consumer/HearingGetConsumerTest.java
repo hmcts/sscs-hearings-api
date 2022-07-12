@@ -25,6 +25,7 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,7 +53,6 @@ import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.unauthorisedHead
 class HearingGetConsumerTest extends BasePactTest {
 
     private static final String PATH_HEARING = "/hearing";
-    private static final String FIELD_ID = "id";
     private static final String VALID_CASE_ID = "123";
     private static final String OPTION_FIELD_IS_VALID = "isValid";
     private static final boolean OPTION_FIELD_IS_VALID_VALUE = false;
@@ -101,18 +101,9 @@ class HearingGetConsumerTest extends BasePactTest {
             VALID_CASE_ID,
             null
         );
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-        HearingGetResponse expected = objectMapper.readValue(
-            ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
-            HearingGetResponse.class
-        );
-
+        HearingGetResponse expected = getExpectedHearingGetResponse();
         assertEquals(expected, result);
     }
-
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
     public RequestResponsePact getHearingWithRefCheck(PactDslWithProvider builder) {
@@ -142,13 +133,7 @@ class HearingGetConsumerTest extends BasePactTest {
             OPTION_FIELD_IS_VALID_VALUE
         );
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-        HearingGetResponse expected = objectMapper.readValue(
-            ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
-            HearingGetResponse.class
-        );
+        HearingGetResponse expected = getExpectedHearingGetResponse();
 
         assertEquals(expected, result);
     }
@@ -210,7 +195,7 @@ class HearingGetConsumerTest extends BasePactTest {
                 SERVICE_AUTHORIZATION_TOKEN,
                 BAD_REQUEST_CASE_ID,
                 null
-            )).extracting("status").isEqualTo(BAD_REQUEST);
+            )).extracting(STATUS).isEqualTo(BAD_REQUEST);
     }
 
 
@@ -240,7 +225,7 @@ class HearingGetConsumerTest extends BasePactTest {
                 UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
                 UNAUTHORISED_CASE_ID,
                 null
-            )).extracting("status").isEqualTo(UNAUTHORIZED);
+            )).extracting(STATUS).isEqualTo(UNAUTHORIZED);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
@@ -269,7 +254,7 @@ class HearingGetConsumerTest extends BasePactTest {
                 SERVICE_AUTHORIZATION_TOKEN,
                 FORBIDDEN_CASE_ID,
                 null
-            )).extracting("status").isEqualTo(FORBIDDEN);
+            )).extracting(STATUS).isEqualTo(FORBIDDEN);
     }
 
 
@@ -299,7 +284,19 @@ class HearingGetConsumerTest extends BasePactTest {
                 SERVICE_AUTHORIZATION_TOKEN,
                 NOT_FOUND_CASE_ID,
                 null
-            )).extracting("status").isEqualTo(NOT_FOUND);
+            )).extracting(STATUS).isEqualTo(NOT_FOUND);
 
+    }
+
+    private HearingGetResponse getExpectedHearingGetResponse() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+        HearingGetResponse expected = objectMapper.readValue(
+            ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
+            HearingGetResponse.class
+        );
+        return expected;
     }
 }

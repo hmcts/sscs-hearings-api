@@ -66,20 +66,16 @@ class ProcessHmcMessageServiceTest {
     private SscsCaseData caseData;
     private HearingGetResponse hearingGetResponse;
     private HmcMessage hmcMessage;
-    private HearingResponse hearingResponse;
 
     @BeforeEach
     void setUp() {
-        hearingResponse = HearingResponse.builder()
-            .listingStatus(ListingStatus.CANCEL)
-            .build();
 
         hearingGetResponse = HearingGetResponse.builder()
                 .requestDetails(RequestDetails.builder().build())
                 .hearingDetails(HearingDetails.builder().build())
                 .caseDetails(CaseDetails.builder().build())
                 .partyDetails(new ArrayList<>())
-                .hearingResponse(hearingResponse)
+                .hearingResponse(HearingResponse.builder().build())
                 .build();
 
         caseData = SscsCaseData.builder()
@@ -154,6 +150,7 @@ class ProcessHmcMessageServiceTest {
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
         verify(hearingUpdateService).updateHearing(hearingGetResponse, caseData);
     }
+
     @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")
     @Test
     void testUpdateHearingListingStatusNull() throws Exception {

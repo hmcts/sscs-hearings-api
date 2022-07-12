@@ -48,6 +48,8 @@ spring:
       - "/v3/api-docs/**"
       - "/favicon.ico"
   jackson:
+    deserialization:
+      read-unknown-enum-values-as-null: true
     serialization:
       write-dates-as-timestamps: false
     mapper:

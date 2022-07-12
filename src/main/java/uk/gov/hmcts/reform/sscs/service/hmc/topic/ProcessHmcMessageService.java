@@ -11,19 +11,20 @@ import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
-import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
 import java.util.function.Function;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CANCEL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
 @Slf4j
 @Service
@@ -50,11 +51,7 @@ public class ProcessHmcMessageService {
 
         checkStatuses(caseId, hearingId, hmcMessageStatus, hmcStatus);
 
-        ListingStatus listingStatus = hearingResponse.getHearingResponse().getListingStatus();
-
-        boolean hearingUpdated = isHearingUpdated(hmcStatus, listingStatus);
-
-        if (isNull(listingStatus) || stateNotHandled(hearingUpdated, hmcStatus, hearingResponse)) {
+        if (stateNotHandled(hmcStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
@@ -63,7 +60,7 @@ public class ProcessHmcMessageService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
-        if (hearingUpdated) {
+        if (isHearingUpdated(hmcStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
@@ -82,8 +79,7 @@ public class ProcessHmcMessageService {
         );
     }
 
-    private void resolveEventAndUpdateCase(HearingGetResponse hearingResponse, HmcStatus hmcStatus,
-                                           SscsCaseData caseData,
+    private void resolveEventAndUpdateCase(HearingGetResponse hearingResponse, HmcStatus hmcStatus, SscsCaseData caseData,
                                            String ccdUpdateDescription) throws UpdateCaseException {
 
         Function<HearingGetResponse, EventType> eventMapper = hmcStatus.getEventMapper();
@@ -107,31 +103,36 @@ public class ProcessHmcMessageService {
             throw new InvalidHmcMessageException(String.format(
                 "HMC Message Status '%s' does not match the GET request status '%s' "
                     + "for Case ID %s and Hearing ID %s",
-                hmcMessageStatus, hmcStatus, caseId, hearingId
+                hmcMessageStatus,
+                hmcStatus,
+                caseId,
+                hearingId
             ));
         }
     }
 
-    private boolean stateNotHandled(boolean hearingUpdated, HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        return !(hearingUpdated || isHearingCancelled(hmcStatus, hearingResponse)
+
+    private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
+        return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
     }
 
-    private boolean isHearingUpdated(HmcStatus hmcStatus, ListingStatus listingStatus) {
+    private boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return isHearingListedOrUpdateSubmitted(hmcStatus)
-            && isListingStatusFixedOrCancelled(listingStatus);
+            && isStatusFixedOrCancelled(hearingResponse);
     }
 
     private boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {
         return hmcStatus == LISTED || hmcStatus == AWAITING_LISTING || hmcStatus == UPDATE_SUBMITTED;
     }
 
-    private boolean isListingStatusFixedOrCancelled(ListingStatus listingStatus) {
-        return ListingStatus.FIXED == listingStatus || ListingStatus.CANCEL == listingStatus;
+    private boolean isStatusFixedOrCancelled(HearingGetResponse hearingResponse) {
+        return FIXED == hearingResponse.getHearingResponse().getListingStatus()
+            || CANCEL == hearingResponse.getHearingResponse().getListingStatus();
     }
 
     private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        return hmcStatus == HmcStatus.CANCELLED
+        return hmcStatus == CANCELLED
             || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
     }
 
