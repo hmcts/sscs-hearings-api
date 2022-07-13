@@ -6,7 +6,7 @@ import uk.gov.hmcts.contino.AppPipelineDsl
 def type = "java"
 def product = "sscs"
 def component = "hearings-api"
-def branchesToSync = ['demo', 'ithc', 'perftest']
+def branchesToSync = ['demo']
 
 def vaultOverrides = [
     'preview' : 'aat'
