@@ -293,10 +293,9 @@ class HearingGetConsumerTest extends BasePactTest {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
-        HearingGetResponse expected = objectMapper.readValue(
+        return objectMapper.readValue(
             ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
             HearingGetResponse.class
         );
-        return expected;
     }
 }

@@ -51,7 +51,7 @@ public class ProcessHmcMessageService {
 
         checkStatuses(caseId, hearingId, hmcMessageStatus, hmcStatus);
 
-        boolean isHearingUpdated = isHearingUpdated(hmcStatus, hearingResponse);
+        final boolean isHearingUpdated = isHearingUpdated(hmcStatus, hearingResponse);
 
         if (stateNotHandled(isHearingUpdated, hmcStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
