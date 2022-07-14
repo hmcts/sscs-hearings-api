@@ -25,8 +25,6 @@ import uk.gov.hmcts.reform.sscs.utility.BasePactTest;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -291,8 +289,6 @@ class HearingGetConsumerTest extends BasePactTest {
     private HearingGetResponse getExpectedHearingGetResponse() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.configure(READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
         return objectMapper.readValue(
             ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date).toString(),
             HearingGetResponse.class
