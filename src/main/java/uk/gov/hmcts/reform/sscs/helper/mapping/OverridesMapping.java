@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
@@ -37,6 +38,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 
+@Slf4j
 public final class OverridesMapping {
 
     private OverridesMapping() {
@@ -72,6 +74,10 @@ public final class OverridesMapping {
             .build();
 
         caseData.getSchedulingAndListingFields().setDefaultOverrideFields(defaultOverrideFields);
+
+        log.debug("Default Override Fields set to {} for Case ID {}",
+            defaultOverrideFields,
+            wrapper.getCaseData().getCcdCaseId());
     }
 
     public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
