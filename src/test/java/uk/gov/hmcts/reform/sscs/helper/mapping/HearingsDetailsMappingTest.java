@@ -195,7 +195,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getLocationId()).isEqualTo("9876");
-        assertThat(result.get(0).getLocationType()).isEqualTo("court");
+        assertThat(result.get(0).getLocationType()).isEqualTo("COURT");
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
