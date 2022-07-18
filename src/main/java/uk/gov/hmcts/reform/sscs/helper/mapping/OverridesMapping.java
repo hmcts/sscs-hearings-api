@@ -100,7 +100,8 @@ public final class OverridesMapping {
         String languageName = nonNull(language.getDialectEn()) ? language.getDialectEn() : language.getNameEn();
         String languageReference = HearingsPartiesMapping.getLanguageReference(language);
 
-        DynamicList interpreterLanguage = new DynamicList(new DynamicListItem(languageReference, languageName), List.of());
+        DynamicListItem listItem = new DynamicListItem(languageReference, languageName);
+        DynamicList interpreterLanguage = new DynamicList(listItem, List.of(listItem));
 
         YesNo interpreterWanted = getInterpreterWanted(hearingOptions);
 
