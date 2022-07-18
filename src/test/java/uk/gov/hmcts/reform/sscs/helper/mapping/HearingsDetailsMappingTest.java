@@ -439,6 +439,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
     void getHearingLocationsOverride() {
+
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().build())
@@ -446,11 +447,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
                 .overrideFields(OverrideFields.builder()
                     .hearingVenueEpimsIds(List.of(
-                        CcdValue.<String>builder()
-                            .value("219164")
+                        CcdValue.<CcdValue<String>>builder()
+                            .value(CcdValue.<String>builder()
+                                .value("219164")
+                                .build())
                             .build(),
-                        CcdValue.<String>builder()
-                            .value("436578")
+                        CcdValue.<CcdValue<String>>builder()
+                            .value(CcdValue.<String>builder()
+                                .value("436578")
+                                .build())
                             .build()))
                     .build())
                 .build())

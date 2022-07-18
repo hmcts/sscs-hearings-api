@@ -159,10 +159,11 @@ public final class OverridesMapping {
         return HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder) ? YES : NO;
     }
 
-    public static List<CcdValue<String>> getHearingDetailsLocations(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         return HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder).stream()
             .map(HearingLocation::getLocationId)
             .filter(Objects::nonNull)
+            .map(CcdValue::new)
             .map(CcdValue::new)
             .collect(Collectors.toList());
     }

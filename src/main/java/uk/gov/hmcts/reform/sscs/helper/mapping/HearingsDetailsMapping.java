@@ -259,8 +259,9 @@ public final class HearingsDetailsMapping {
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
             return overrideFields.getHearingVenueEpimsIds().stream()
                 .map(CcdValue::getValue)
-                .map(x -> HearingLocation.builder()
-                    .locationId(x)
+                .map(CcdValue::getValue)
+                .map(epimsId -> HearingLocation.builder()
+                    .locationId(epimsId)
                     .locationType(COURT)
                     .build())
                 .collect(Collectors.toList());

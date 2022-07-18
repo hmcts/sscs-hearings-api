@@ -532,10 +532,11 @@ class OverridesMappingTest {
 
         given(referenceData.getVenueService()).willReturn(venueService);
 
-        List<CcdValue<String>> result = OverridesMapping.getHearingDetailsLocations(caseData, referenceData);
+        List<CcdValue<CcdValue<String>>> result = OverridesMapping.getHearingDetailsLocations(caseData, referenceData);
 
         assertThat(result)
             .hasSize(1)
+            .extracting(CcdValue::getValue)
             .extracting(CcdValue::getValue)
             .containsExactlyInAnyOrder("219164");
     }
