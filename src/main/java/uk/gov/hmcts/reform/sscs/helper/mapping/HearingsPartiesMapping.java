@@ -51,16 +51,16 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPO
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
-    private HearingsPartiesMapping() {
-
-    }
-
     /**
      * According to task <a href ="https://tools.hmcts.net/jira/secure/RapidBoard.jspa?rapidView=2115&projectKey=SSCS&view=detail&selectedIssue=SSCS-10747">SSCS-10747</a>
      * for representatives it is asked to return solicitor code as the relationship type
      * which is 11 that is why this constant is defined.
      */
     public static final String REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE = "11";
+
+    private HearingsPartiesMapping() {
+
+    }
 
     public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper,
                                                                 ReferenceDataServiceHolder referenceDataServiceHolder)
@@ -292,7 +292,7 @@ public final class HearingsPartiesMapping {
     public static RelatedParty getRelatedParty(String id, String relationshipType) {
         return RelatedParty.builder()
                 .relatedPartyId(id)
-                .relationshipType(relationshipType == REPRESENTATIVE.getHmcReference() ? REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE : relationshipType)
+                .relationshipType(REPRESENTATIVE.getHmcReference().equals(relationshipType) ? REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE : relationshipType)
                 .build();
     }
 
