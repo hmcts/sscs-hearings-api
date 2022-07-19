@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getIndividualPreferredHearingChannel;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.getIndividualInterpreterLanguage;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPELLANT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.APPOINTEE;
@@ -809,7 +810,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result)
             .isNotEmpty()
             .extracting("relatedPartyId", "relationshipType")
-            .contains(tuple("1", REPRESENTATIVE.getHmcReference()));
+            .contains(tuple("1", REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE));
     }
 
     @DisplayName("getPartyOrganisationDetails Test")

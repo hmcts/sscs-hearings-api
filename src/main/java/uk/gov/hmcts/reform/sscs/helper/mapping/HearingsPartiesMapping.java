@@ -44,6 +44,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityR
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
 
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.TooManyMethods"})
@@ -53,6 +54,13 @@ public final class HearingsPartiesMapping {
     private HearingsPartiesMapping() {
 
     }
+
+    /**
+     * According to task <a href ="https://tools.hmcts.net/jira/secure/RapidBoard.jspa?rapidView=2115&projectKey=SSCS&view=detail&selectedIssue=SSCS-10747">SSCS-10747</a>
+     * for representatives it is asked to return solicitor code as the relationship type
+     * which is 11 that is why this constant is defined.
+     */
+    public static final String REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE = "11";
 
     public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper,
                                                                 ReferenceDataServiceHolder referenceDataServiceHolder)
@@ -271,10 +279,20 @@ public final class HearingsPartiesMapping {
         return relatedParties;
     }
 
+    /**
+     * Returns related party according to given id and relationship type.
+     * According to task <a href ="https://tools.hmcts.net/jira/secure/RapidBoard.jspa?rapidView=2115&projectKey=SSCS&view=detail&selectedIssue=SSCS-10747">SSCS-10747</a>
+     * for representatives it is asked to return solicitor code as the relationship type
+     * which is 11, REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE
+     *
+     * @param id id of the related party
+     * @param relationshipType relationship type of the related party
+     * @return RelatedParty details
+     */
     public static RelatedParty getRelatedParty(String id, String relationshipType) {
         return RelatedParty.builder()
                 .relatedPartyId(id)
-                .relationshipType(relationshipType)
+                .relationshipType(relationshipType == REPRESENTATIVE.getHmcReference() ? REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE : relationshipType)
                 .build();
     }
 
