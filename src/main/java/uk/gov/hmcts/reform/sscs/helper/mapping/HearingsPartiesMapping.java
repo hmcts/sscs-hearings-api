@@ -55,6 +55,7 @@ public final class HearingsPartiesMapping {
      * According to task <a href ="https://tools.hmcts.net/jira/secure/RapidBoard.jspa?rapidView=2115&projectKey=SSCS&view=detail&selectedIssue=SSCS-10747">SSCS-10747</a>
      * for representatives it is asked to return solicitor code as the relationship type
      * which is 11 that is why this constant is defined.
+     * It is value is defined as 11.
      */
     public static final String REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE = "11";
 
