@@ -7,9 +7,14 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -77,5 +82,20 @@ public final class HearingsServiceHelper {
     private static boolean doHearingIdsMatch(Hearing hearing, Long hearingId) {
         return hearing.getValue().getHearingId()
             .equals(String.valueOf(hearingId));
+    }
+
+    @Nullable
+    public static CaseHearing getCurrentCaseHearing(HearingsGetResponse hearingsGetResponse) {
+        return Optional.ofNullable(hearingsGetResponse)
+            .map(HearingsGetResponse::getCaseHearings)
+            .orElse(Collections.emptyList()).stream()
+            .filter(caseHearing -> isCaseHearingRequestedOrAwaitingListing(caseHearing.getHmcStatus()))
+            .min(Comparator.comparing(CaseHearing::getHearingRequestDateTime))
+            .orElse(null);
+    }
+
+    public static boolean isCaseHearingRequestedOrAwaitingListing(HmcStatus hmcStatus) {
+        return HmcStatus.HEARING_REQUESTED == hmcStatus
+            || HmcStatus.AWAITING_LISTING == hmcStatus;
     }
 }

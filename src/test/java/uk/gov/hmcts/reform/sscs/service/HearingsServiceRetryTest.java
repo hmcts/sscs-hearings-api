@@ -59,6 +59,9 @@ class HearingsServiceRetryTest {
     private HmcHearingApiService hmcHearingApiService;
 
     @MockBean
+    private HmcHearingsApiService hmcHearingsApiService;
+
+    @MockBean
     private CcdCaseService ccdCaseService;
 
     @MockBean
@@ -206,11 +209,6 @@ class HearingsServiceRetryTest {
                 any(SscsCaseData.class),
                 any(EventType.class),
                 anyString(),
-                anyString());
-
-        verify(hmcHearingApiService, times(1))
-            .sendCancelHearingRequest(
-                any(HearingCancelRequestPayload.class),
                 anyString());
     }
 }
