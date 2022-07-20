@@ -174,7 +174,7 @@ public class ContractTestDataProvider {
         hearingLocation.add(location1);
         hearingDetails.setHearingLocations(hearingLocation);
         hearingDetails.setPanelRequirements(panelRequirements1());
-        hearingDetails.setAmendReasonCode(List.of(ADMIN_REQUEST));
+        hearingDetails.setAmendReasonCodes(List.of(ADMIN_REQUEST));
         hearingDetails.setHearingChannels(new ArrayList<>());
         return hearingDetails;
     }

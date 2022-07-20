@@ -73,7 +73,7 @@ public final class HearingsDetailsMapping {
             .leadJudgeContractType(getLeadJudgeContractType())
             .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
-            .amendReasonCode(OverridesMapping.getAmendReasonCodes(caseData))
+            .amendReasonCodes(OverridesMapping.getAmendReasonCodes(caseData))
             .hearingChannels(getHearingChannelsHmcReference(caseData))
             .build();
     }

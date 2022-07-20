@@ -50,7 +50,7 @@ public class HearingDetails {
 
     private boolean hearingIsLinkedFlag;
 
-    private List<AmendReason> amendReasonCode;
+    private List<AmendReason> amendReasonCodes;
 
     private boolean multiDayHearing;
 
