@@ -40,7 +40,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.DRAFT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
 
@@ -123,7 +122,7 @@ class ProcessHmcMessageServiceTest {
     }
 
     @DisplayName("When listing Status is Cancelled and and HmcStatus is valid, "
-        + "updateHearing and updateCaseData are called once")
+        + "updateHearing and updateCaseData are called")
     @ParameterizedTest
     @EnumSource(value = HmcStatus.class, names = {"LISTED", "AWAITING_LISTING", "UPDATE_SUBMITTED"})
     void testUpdateHearingListingStatusCancelled(HmcStatus hmcStatus) throws Exception {
@@ -145,7 +144,9 @@ class ProcessHmcMessageServiceTest {
 
         // then
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
-        verify(hearingUpdateService).updateHearing(hearingGetResponse, caseData);
+        verify(hearingUpdateService, never()).updateHearing(any(),any());
+        verify(hearingUpdateService).setHearingStatus(HEARING_ID, caseData, hmcStatus);
+        verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, caseData, hmcStatus);
     }
 
     @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")
@@ -167,12 +168,14 @@ class ProcessHmcMessageServiceTest {
         verify(hearingUpdateService, never()).updateHearing(any(), any());
     }
 
-    @DisplayName("When listing Status is not Fixed, updateHearing and updateCaseData are not called")
-    @Test
-    void testUpdateHearingNotFixed() throws Exception {
+    @DisplayName("When listing Status is Draft or Provisional and and HmcStatus is valid, "
+        + "updateHearing and updateCaseData are not called ")
+    @ParameterizedTest
+    @EnumSource(value = ListingStatus.class, names = {"DRAFT", "PROVISIONAL"})
+    void testUpdateHearingDraftOrProvisional(ListingStatus listingStatus) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(LISTED);
-        hearingGetResponse.getHearingResponse().setListingStatus(DRAFT);
+        hearingGetResponse.getHearingResponse().setListingStatus(listingStatus);
         hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))

@@ -51,9 +51,7 @@ public class ProcessHmcMessageService {
 
         checkStatuses(caseId, hearingId, hmcMessageStatus, hmcStatus);
 
-        final boolean isHearingUpdated = isHearingUpdated(hmcStatus, hearingResponse);
-
-        if (stateNotHandled(isHearingUpdated, hmcStatus, hearingResponse)) {
+        if (stateNotHandled(hmcStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
@@ -62,7 +60,7 @@ public class ProcessHmcMessageService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
-        if (isHearingUpdated) {
+        if (isHearingUpdated(hmcStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
@@ -114,28 +112,28 @@ public class ProcessHmcMessageService {
     }
 
 
-    private boolean stateNotHandled(boolean isHearingUpdated, HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        return !(isHearingUpdated || isHearingCancelled(hmcStatus, hearingResponse)
+    private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
+        return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
     }
 
     private boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return isHearingListedOrUpdateSubmitted(hmcStatus)
-            && isStatusFixedOrCancelled(hearingResponse);
+            && isStatusFixed(hearingResponse);
     }
 
     private boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {
         return hmcStatus == LISTED || hmcStatus == AWAITING_LISTING || hmcStatus == UPDATE_SUBMITTED;
     }
 
-    private boolean isStatusFixedOrCancelled(HearingGetResponse hearingResponse) {
-        return FIXED == hearingResponse.getHearingResponse().getListingStatus()
-            || CNCL == hearingResponse.getHearingResponse().getListingStatus();
+    private boolean isStatusFixed(HearingGetResponse hearingResponse) {
+        return FIXED == hearingResponse.getHearingResponse().getListingStatus();
     }
 
     private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return hmcStatus == CANCELLED
-            || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
+            || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason())
+            || CNCL == hearingResponse.getHearingResponse().getListingStatus();
     }
 
     private boolean isStatusException(HmcStatus hmcStatus) {
