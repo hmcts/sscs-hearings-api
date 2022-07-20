@@ -78,7 +78,6 @@ public class ContractTestDataProvider {
     public static final String FIELD_ERRORS = "errors";
     public static final int ZERO_LENGTH = 0;
     public static final Number ZERO_NUMBER_LENGTH = 0;
-    public static final String FIELD_ID = "id";
     public static final String VALID_CASE_ID = "123";
     public static final String FORBIDDEN_CASE_ID = "456";
     public static final String NOT_FOUND_CASE_ID = "789";
