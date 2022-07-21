@@ -85,8 +85,9 @@ public class HearingUpdateService {
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setVenue(venue);
         LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
+        LocalDateTime hearingEndDateTime = hearingDaySchedule.getHearingEndDateTime();
         hearingDetails.setStart(convertUtcToUk(hearingStartDateTime));
-        hearingDetails.setEnd(convertUtcToUk(hearingDaySchedule.getHearingEndDateTime()));
+        hearingDetails.setEnd(convertUtcToUk(hearingEndDateTime));
         String hearingDate = hearingStartDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         hearingDetails.setHearingDate(hearingDate);
         String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
