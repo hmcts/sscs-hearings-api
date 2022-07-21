@@ -160,9 +160,9 @@ class HearingsServiceHelperTest {
         assertNull(result);
     }
 
-    @DisplayName("When a response with valid and invalid hearings is given getCurrentCaseHearing returns the latest valid hearing")
+    @DisplayName("When a response with valid and invalid hearings is given findExistingRequestedHearings returns the latest valid hearing")
     @Test
-    void testGetCurrentCaseHearing() {
+    void testFindExistingRequestedHearings() {
         HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
             .caseHearings(List.of(
                 CaseHearing.builder()
@@ -185,7 +185,7 @@ class HearingsServiceHelperTest {
                     .build()))
             .build();
 
-        CaseHearing result = HearingsServiceHelper.getCurrentCaseHearing(hearingsGetResponse);
+        CaseHearing result = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
         assertThat(result)
             .isNotNull()
@@ -193,9 +193,9 @@ class HearingsServiceHelperTest {
             .contains(HEARING_REQUEST_ID,HEARING_REQUESTED,1L);
     }
 
-    @DisplayName("When a response with only invalid hearings is given getCurrentCaseHearing returns null")
+    @DisplayName("When a response with only invalid hearings is given findExistingRequestedHearings returns null")
     @Test
-    void testGetCurrentCaseHearingInvalid() {
+    void testFindExistingRequestedHearingsInvalid() {
         HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
             .caseHearings(List.of(
                 CaseHearing.builder()
@@ -206,17 +206,17 @@ class HearingsServiceHelperTest {
                     .build()))
             .build();
 
-        CaseHearing result = HearingsServiceHelper.getCurrentCaseHearing(hearingsGetResponse);
+        CaseHearing result = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
         assertThat(result).isNull();
     }
 
-    @DisplayName("When a null response given getCurrentCaseHearing returns null")
+    @DisplayName("When a null response given findExistingRequestedHearings returns null")
     @Test
-    void testGetCurrentCaseHearingNull() {
+    void testFindExistingRequestedHearingsNull() {
         HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder().build();
 
-        CaseHearing result = HearingsServiceHelper.getCurrentCaseHearing(hearingsGetResponse);
+        CaseHearing result = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
         assertThat(result).isNull();
     }

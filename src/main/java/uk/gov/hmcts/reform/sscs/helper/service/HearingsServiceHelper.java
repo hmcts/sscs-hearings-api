@@ -85,7 +85,7 @@ public final class HearingsServiceHelper {
     }
 
     @Nullable
-    public static CaseHearing getCurrentCaseHearing(HearingsGetResponse hearingsGetResponse) {
+    public static CaseHearing findExistingRequestedHearings(HearingsGetResponse hearingsGetResponse) {
         return Optional.ofNullable(hearingsGetResponse)
             .map(HearingsGetResponse::getCaseHearings)
             .orElse(Collections.emptyList()).stream()

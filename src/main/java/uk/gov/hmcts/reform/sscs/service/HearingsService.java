@@ -100,7 +100,7 @@ public class HearingsService {
 
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
 
-        CaseHearing hearing = HearingsServiceHelper.getCurrentCaseHearing(hearingsGetResponse);
+        CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
         if (isNull(hearing)) {
             updateIds(wrapper);
