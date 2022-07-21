@@ -32,15 +32,15 @@ public interface HmcHearingApi {
         @RequestBody HearingRequestPayload hearingPayload
     );
 
-    @PutMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = HEARING_ENDPOINT + "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     HmcUpdateResponse updateHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
-        @RequestParam(ID) String id,
+        @PathVariable String id,
         @RequestBody HearingRequestPayload hearingPayload
     );
 
-    @DeleteMapping(HEARING_ENDPOINT + "/{id}")
+    @DeleteMapping(value = HEARING_ENDPOINT + "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     HmcUpdateResponse cancelHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
