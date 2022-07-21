@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -446,5 +447,13 @@ class HearingUpdateServiceTest {
         boolean result = hearingUpdateService.isCaseListed(value);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("LA LocalDateTime properly converted from UTC to UK value")
+    @Test
+    void testUtcToUkDateTimeConvert() {
+        var utcDateTime = LocalDateTime.now().atZone(ZoneId.of("UTC")).toLocalDateTime();
+
+        assertThat(utcDateTime.plusHours(1)).isEqualTo(hearingUpdateService.convertUtcToUk(utcDateTime));
     }
 }

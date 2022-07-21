@@ -22,6 +22,8 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +42,7 @@ public class HearingUpdateService {
     private final VenueService venueService;
 
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
-            throws MessageProcessingException, InvalidMappingException {
+        throws MessageProcessingException, InvalidMappingException {
 
         Long hearingId = Long.valueOf(hearingGetResponse.getRequestDetails().getHearingRequestId());
 
@@ -48,10 +50,12 @@ public class HearingUpdateService {
 
         if (hearingSessions.size() != EXPECTED_SESSIONS) {
             throw new InvalidHearingDataException(
-                    String.format("Invalid HearingDaySchedule, should have 1 session but instead has %d sessions, for Case Id %s and Hearing Id %s",
-                            hearingSessions.size(),
-                            sscsCaseData.getCcdCaseId(),
-                            hearingId));
+                String.format(
+                    "Invalid HearingDaySchedule, should have 1 session but instead has %d sessions, for Case Id %s and Hearing Id %s",
+                    hearingSessions.size(),
+                    sscsCaseData.getCcdCaseId(),
+                    hearingId
+                ));
         }
 
         HearingDaySchedule hearingDaySchedule = hearingSessions.get(0);
@@ -61,9 +65,11 @@ public class HearingUpdateService {
         VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(hearingEpimsId);
 
         if (isNull(venueDetails)) {
-            throw new InvalidMappingException(String.format("Invalid epims Id %s, unable to find active venue with that id, regarding Case Id %s",
-                    hearingEpimsId,
-                    sscsCaseData.getCcdCaseId()));
+            throw new InvalidMappingException(String.format(
+                "Invalid epims Id %s, unable to find active venue with that id, regarding Case Id %s",
+                hearingEpimsId,
+                sscsCaseData.getCcdCaseId()
+            ));
         }
 
         Venue venue = mapVenueDetailsToVenue(venueDetails);
@@ -79,18 +85,20 @@ public class HearingUpdateService {
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setVenue(venue);
         LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
-        hearingDetails.setStart(hearingStartDateTime);
-        hearingDetails.setEnd(hearingDaySchedule.getHearingEndDateTime());
+        hearingDetails.setStart(convertUtcToUk(hearingStartDateTime));
+        hearingDetails.setEnd(convertUtcToUk(hearingDaySchedule.getHearingEndDateTime()));
         String hearingDate = hearingStartDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         hearingDetails.setHearingDate(hearingDate);
         String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
         hearingDetails.setTime(hearingTime);
 
-        log.info("Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
+        log.info(
+            "Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
             hearingDetails.getEpimsId(),
             hearingEpimsId,
             sscsCaseData.getCcdCaseId(),
-            hearingId);
+            hearingId
+        );
     }
 
     public void setHearingStatus(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
@@ -140,5 +148,10 @@ public class HearingUpdateService {
 
     public boolean isCaseListed(HmcStatus hmcStatus) {
         return LISTED == hmcStatus;
+    }
+
+    public LocalDateTime convertUtcToUk(LocalDateTime utcLocalDateTime) {
+        ZonedDateTime utcZone = utcLocalDateTime.atZone(ZoneId.of("UTC"));
+        return utcZone.withZoneSameInstant(ZoneId.of("Europe/London")).toLocalDateTime();
     }
 }
