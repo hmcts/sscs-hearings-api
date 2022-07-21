@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
@@ -24,9 +25,9 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO
 
 @Slf4j
 @SuppressWarnings("PMD.CyclomaticComplexity")
-public final class HearingChannelMapping {
+public final class HearingsChannelMapping {
 
-    private HearingChannelMapping() {
+    private HearingsChannelMapping() {
 
     }
 
@@ -35,7 +36,7 @@ public final class HearingChannelMapping {
     }
 
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
-        if (isYes(caseData.getDwpIsOfficerAttending())) {
+        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
             return FACE_TO_FACE;
         }
 
@@ -52,13 +53,12 @@ public final class HearingChannelMapping {
         }
     }
 
-
     public static List<HearingChannel> getAllHearingChannelPreferences(@Valid SscsCaseData caseData) {
 
         HearingChannel individualPreferredHearingChannel = getIndividualPreferredHearingChannel(
             caseData.getAppeal().getHearingSubtype(),
-            caseData.getAppeal().getHearingOptions()
-        );
+            caseData.getAppeal().getHearingOptions(),
+            null);
 
         List<HearingChannel> hearingChannels = new ArrayList<>();
 
@@ -69,7 +69,7 @@ public final class HearingChannelMapping {
                 .map(CcdValue::getValue)
                 .map(otherParty -> getIndividualPreferredHearingChannel(
                     otherParty.getHearingSubtype(),
-                    otherParty.getHearingOptions()))
+                    otherParty.getHearingOptions(), null))
                 .collect(Collectors.toList()));
         }
 
@@ -82,7 +82,12 @@ public final class HearingChannelMapping {
             .collect(Collectors.toList());
     }
 
-    public static HearingChannel getIndividualPreferredHearingChannel(HearingSubtype hearingSubtype, HearingOptions hearingOptions) {
+    public static HearingChannel getIndividualPreferredHearingChannel(HearingSubtype hearingSubtype, HearingOptions hearingOptions, OverrideFields overrideFields) {
+
+        if (nonNull(overrideFields) && nonNull(overrideFields.getAppellantHearingChannel())) {
+            return overrideFields.getAppellantHearingChannel();
+        }
+
         if (isNull(hearingOptions)) {
             return null;
         }
