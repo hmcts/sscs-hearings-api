@@ -42,6 +42,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -80,7 +82,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
-    void buildHearingDetails() {
+    void buildHearingDetails() throws URISyntaxException, IOException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30
@@ -324,7 +326,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws URISyntaxException, IOException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -343,6 +345,30 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getLocationId()).isEqualTo("9876");
         assertThat(result.get(0).getLocationType()).isEqualTo(COURT);
+    }
+
+    @DisplayName("Multiple hearing location Test")
+    @Test
+    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws URISyntaxException, IOException {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+            caseData.getProcessingVenue(),
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getLocationId()).isEqualTo("226511");
+        assertThat(result.get(1).getLocationId()).isEqualTo("443014");
+
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
@@ -371,7 +397,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingLocations Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() {
+    void getHearingLocations() throws URISyntaxException, IOException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())

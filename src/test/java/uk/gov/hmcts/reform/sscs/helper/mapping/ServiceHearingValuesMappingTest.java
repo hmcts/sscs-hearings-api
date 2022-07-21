@@ -46,6 +46,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,7 +200,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
+    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException, URISyntaxException, IOException {
         // given
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -239,7 +241,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
+    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException, URISyntaxException, IOException {
         // given
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
@@ -253,7 +255,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldRepresentativeNotHaveOrganisation() throws InvalidMappingException {
+    void shouldRepresentativeNotHaveOrganisation() throws InvalidMappingException, URISyntaxException, IOException {
         // given
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);

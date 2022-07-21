@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -37,6 +39,8 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.OTHER
 import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.REPRESENTATIVE;
 
 @Slf4j
+@SuppressWarnings({"PMD.ExcessiveImports"})
+// TODO Unsuppress in future
 public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
@@ -46,7 +50,7 @@ public final class HearingsMapping {
     }
 
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException {
+        throws InvalidMappingException, URISyntaxException, IOException {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
             .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
