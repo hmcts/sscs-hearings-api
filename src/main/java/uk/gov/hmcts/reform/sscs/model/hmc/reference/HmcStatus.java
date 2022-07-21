@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
-import uk.gov.hmcts.reform.sscs.helper.mapping.HearingEventMappers;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsEventMappers;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 
 import java.util.function.Function;
@@ -28,7 +28,7 @@ public enum HmcStatus {
         "An error has occurred when trying to process the hearing with id %s"),
     CANCELLATION_REQUESTED("Cancellation requested", null, null, "", ""),
     CANCELLATION_SUBMITTED("Cancellation submitted", null, null, "", ""),
-    CANCELLED("Cancelled", HearingEventMappers.dormantHandler(), HearingStatus.CANCELLED, "Hearing Cancelled.",
+    CANCELLED("Cancelled", HearingsEventMappers.dormantHandler(), HearingStatus.CANCELLED, "Hearing Cancelled.",
         "The hearing with id %s has been successfully cancelled"),
     AWAITING_ACTUALS("Awaiting Actuals", null, HearingStatus.AWAITING_ACTUALS, "", ""),
     COMPLETED("Completed", null, HearingStatus.COMPLETED, "", ""),

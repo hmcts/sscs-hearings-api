@@ -34,6 +34,7 @@ import java.util.Map;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason.ADMIN_REQUEST;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.HEARING_LOOP;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.SIGN_LANGUAGE_INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_WHEELCHAIR_ACCESS;
@@ -46,6 +47,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.EXCLU
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 
 public class ContractTestDataProvider {
 
@@ -76,7 +78,6 @@ public class ContractTestDataProvider {
     public static final String FIELD_ERRORS = "errors";
     public static final int ZERO_LENGTH = 0;
     public static final Number ZERO_NUMBER_LENGTH = 0;
-    public static final String FIELD_ID = "id";
     public static final String VALID_CASE_ID = "123";
     public static final String FORBIDDEN_CASE_ID = "456";
     public static final String NOT_FOUND_CASE_ID = "789";
@@ -173,7 +174,7 @@ public class ContractTestDataProvider {
         hearingLocation.add(location1);
         hearingDetails.setHearingLocations(hearingLocation);
         hearingDetails.setPanelRequirements(panelRequirements1());
-        hearingDetails.setAmendReasonCode(List.of("amend Reason Code"));
+        hearingDetails.setAmendReasonCodes(List.of(ADMIN_REQUEST));
         hearingDetails.setHearingChannels(new ArrayList<>());
         return hearingDetails;
     }
@@ -286,7 +287,7 @@ public class ContractTestDataProvider {
         hearingChannelPhone.add("+447398087562");
         individualDetails.setHearingChannelPhone(hearingChannelPhone);
         individualDetails.setInterpreterLanguage("German");
-        individualDetails.setPreferredHearingChannel("CBeebies");
+        individualDetails.setPreferredHearingChannel(FACE_TO_FACE);
         individualDetails.setReasonableAdjustments(createReasonableAdjustments());
         individualDetails.setRelatedParties(createRelatedParties());
         individualDetails.setVulnerableFlag(false);
@@ -445,7 +446,7 @@ public class ContractTestDataProvider {
             .object("individualDetails")
             .stringType("firstName", "firstName123")
             .stringType("lastName", "lastName123")
-            .stringType("preferredHearingChannel", "preferredHearingChannel123")
+            .stringType("preferredHearingChannel", "ONPPRS")
             .stringType("interpreterLanguage", "interpreterLanguage123")
             .stringType("vulnerabilityDetails", "vulnerabilityDetails123")
             .stringType("custodyStatus", "custodyStatus123")
