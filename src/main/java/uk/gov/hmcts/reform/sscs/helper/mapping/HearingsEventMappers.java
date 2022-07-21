@@ -7,9 +7,9 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public final class HearingEventMappers {
+public final class HearingsEventMappers {
 
-    private HearingEventMappers() {
+    private HearingsEventMappers() {
     }
 
     public static Function<HearingGetResponse, EventType> dormantHandler() {
