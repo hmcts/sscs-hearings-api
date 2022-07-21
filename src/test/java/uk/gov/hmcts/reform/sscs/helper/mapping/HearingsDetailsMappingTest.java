@@ -408,7 +408,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData.getProcessingVenue(),
+            caseData,
             referenceDataServiceHolder
         );
 
@@ -431,7 +431,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData.getProcessingVenue(),
+            caseData,
             referenceDataServiceHolder
         );
 
@@ -489,7 +489,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() {
+    void getHearingLocationsOverride() throws URISyntaxException, IOException {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()

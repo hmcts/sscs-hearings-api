@@ -2,15 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.helper.ResourceLoader;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -27,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -201,6 +192,10 @@ public final class HearingsDetailsMapping {
         }
     }
 
+    public static boolean isPoAttending(SscsCaseData caseData) {
+        return isYes(caseData.getDwpIsOfficerAttending());
+    }
+
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     public static List<String> getElementsDisputed(SscsCaseData caseData) {
         List<ElementDisputed> elementDisputed = new ArrayList<>();
@@ -239,7 +234,7 @@ public final class HearingsDetailsMapping {
 
     public static List<String> getNonStandardHearingDurationReasons() {
         // TODO Future Work
-        return Collections.emptyList();
+        return null;
     }
 
     public static String getHearingPriority(SscsCaseData caseData) {
@@ -259,8 +254,8 @@ public final class HearingsDetailsMapping {
         return false;
     }
 
-    public static List<HearingLocation> getHearingLocations(String processingVenue,
-
+    public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) throws URISyntaxException, IOException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
