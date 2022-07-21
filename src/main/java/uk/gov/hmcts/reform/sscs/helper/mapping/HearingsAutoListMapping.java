@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -15,6 +16,7 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
@@ -28,6 +30,12 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
+        if (nonNull(overrideFields.getAutoList())) {
+            return isYes(overrideFields.getAutoList());
+        }
+
         return !(HearingsDetailsMapping.isCaseUrgent(caseData)
                 || hasOrgRepresentative(caseData)
                 || shouldBeAdditionalSecurityFlag(caseData)
@@ -60,8 +68,8 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
-        return HearingChannelMapping.isPaperCase(caseData)
-                && !HearingsDetailsMapping.isPoAttending(caseData);
+        return HearingsChannelMapping.isPaperCase(caseData)
+                && !HearingsDetailsMapping.isPoOfficerAttending(caseData);
     }
 
     public static boolean isThereOtherComments(@Valid SscsCaseData caseData) {
@@ -69,7 +77,7 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean doesNotHaveDwpResponseDate(@Valid SscsCaseData caseData) {
-        return !isNotBlank(caseData.getDwpResponseDate());
+        return isBlank(caseData.getDwpResponseDate());
     }
 
     public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {

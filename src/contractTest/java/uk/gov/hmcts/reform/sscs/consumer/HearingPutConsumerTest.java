@@ -30,7 +30,29 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.*;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.BAD_REQUEST;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.CONSUMER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.FIELD_ERRORS;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.FIELD_MESSAGE;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.FIELD_STATUS;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.FORBIDDEN_CASE_ID;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.HEARING_PATH;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.IDAM_OAUTH2_TOKEN;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.MSG_200_HEARING;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.MSG_400_HEARING;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.MSG_401_HEARING;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.MSG_403_HEARING;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.MSG_404_HEARING;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.NOT_FOUND_CASE_ID;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.PROVIDER_NAME;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.VALID_CASE_ID;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.ZERO_NUMBER_LENGTH;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.authorisedHeaders;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.generateHearingRequest;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.generateInvalidHearingRequest;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.toJsonString;
+import static uk.gov.hmcts.reform.sscs.ContractTestDataProvider.unauthorisedHeaders;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 
 @ExtendWith(PactConsumerTestExt.class)
@@ -53,9 +75,8 @@ class HearingPutConsumerTest extends BasePactTest {
     public RequestResponsePact updateHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully updating hearing request ")
             .uponReceiving("Request to update hearing request to save details")
-            .path(HEARING_PATH)
+            .path(HEARING_PATH + "/" + VALID_CASE_ID)
             .method(HttpMethod.PUT.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID)
             .body(toJsonString(generateHearingRequest()))
             .headers(authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value())
@@ -68,9 +89,8 @@ class HearingPutConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws validation error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for invalid hearing request")
-            .path(HEARING_PATH)
+            .path(HEARING_PATH + "/" + VALID_CASE_ID)
             .method(HttpMethod.PUT.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID)
             .body(toJsonString(generateInvalidHearingRequest()))
             .headers(authorisedHeaders)
             .willRespondWith()
@@ -88,8 +108,7 @@ class HearingPutConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for unauthorised hearing request")
-            .path(HEARING_PATH).method(HttpMethod.PUT.toString())
-            .query(FIELD_ID + "=" + VALID_CASE_ID)
+            .path(HEARING_PATH + "/" + VALID_CASE_ID).method(HttpMethod.PUT.toString())
             .body(toJsonString(generateHearingRequest()))
             .headers(unauthorisedHeaders)
             .willRespondWith().status(HttpStatus.UNAUTHORIZED.value())
@@ -107,8 +126,7 @@ class HearingPutConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws forbidden error while trying to updating hearing")
             .uponReceiving("Request to UPDATE hearing for forbidden hearing request")
-            .path(HEARING_PATH).method(HttpMethod.PUT.toString())
-            .query(FIELD_ID + "=" + FORBIDDEN_CASE_ID)
+            .path(HEARING_PATH + "/" + FORBIDDEN_CASE_ID).method(HttpMethod.PUT.toString())
             .body(toJsonString(generateHearingRequest()))
             .headers(authorisedHeaders)
             .willRespondWith().status(HttpStatus.FORBIDDEN.value())
@@ -126,8 +144,7 @@ class HearingPutConsumerTest extends BasePactTest {
         return builder.given(CONSUMER_NAME
                                  + " throws not found request error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for not found hearing request")
-            .path(HEARING_PATH).method(HttpMethod.PUT.toString())
-            .query(FIELD_ID + "=" + NOT_FOUND_CASE_ID)
+            .path(HEARING_PATH + "/" + NOT_FOUND_CASE_ID).method(HttpMethod.PUT.toString())
             .body(toJsonString(generateHearingRequest()))
             .headers(authorisedHeaders)
             .willRespondWith().status(HttpStatus.NOT_FOUND.value())
@@ -206,10 +223,9 @@ class HearingPutConsumerTest extends BasePactTest {
                              int httpStatus) {
         RestAssured.given().headers(headers)
             .contentType(io.restassured.http.ContentType.JSON)
-            .queryParam(FIELD_ID, idValue)
             .body(hearingRequest)
             .when()
-            .put(mockServer.getUrl() + HEARING_PATH)
+            .put(mockServer.getUrl() + HEARING_PATH + "/" + idValue)
             .then().statusCode(httpStatus)
             .and().extract()
             .body();

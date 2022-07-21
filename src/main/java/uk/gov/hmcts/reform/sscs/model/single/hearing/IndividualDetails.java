@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class IndividualDetails {
 
     private String lastName;
 
-    private String preferredHearingChannel;
+    private HearingChannel preferredHearingChannel;
 
     private String interpreterLanguage;
 

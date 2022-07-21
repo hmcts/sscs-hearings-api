@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -39,7 +40,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.DRAFT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
 
@@ -121,12 +121,61 @@ class ProcessHmcMessageServiceTest {
         verify(hearingUpdateService).updateHearing(hearingGetResponse, caseData);
     }
 
-    @DisplayName("When listing Status is not Fixed, updateHearing and updateCaseData are not called")
+    @DisplayName("When listing Status is Cancelled and and HmcStatus is valid, "
+        + "updateHearing and updateCaseData are called")
+    @ParameterizedTest
+    @EnumSource(value = HmcStatus.class, names = {"LISTED", "AWAITING_LISTING", "UPDATE_SUBMITTED"})
+    void testUpdateHearingListingStatusCancelled(HmcStatus hmcStatus) throws Exception {
+        // given
+
+        hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
+        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.CNCL);
+
+        hmcMessage.getHearingUpdate().setHmcStatus(hmcStatus);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
+        verify(hearingUpdateService, never()).updateHearing(any(),any());
+        verify(hearingUpdateService).setHearingStatus(HEARING_ID, caseData, hmcStatus);
+        verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, caseData, hmcStatus);
+    }
+
+    @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")
     @Test
-    void testUpdateHearingNotFixed() throws Exception {
+    void testUpdateHearingListingStatusNull() throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(LISTED);
-        hearingGetResponse.getHearingResponse().setListingStatus(DRAFT);
+        hearingGetResponse.getHearingResponse().setListingStatus(null);
+        hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
+        verify(hearingUpdateService, never()).updateHearing(any(), any());
+    }
+
+    @DisplayName("When listing Status is Draft or Provisional and and HmcStatus is valid, "
+        + "updateHearing and updateCaseData are not called ")
+    @ParameterizedTest
+    @EnumSource(value = ListingStatus.class, names = {"DRAFT", "PROVISIONAL"})
+    void testUpdateHearingDraftOrProvisional(ListingStatus listingStatus) throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(LISTED);
+        hearingGetResponse.getHearingResponse().setListingStatus(listingStatus);
         hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
