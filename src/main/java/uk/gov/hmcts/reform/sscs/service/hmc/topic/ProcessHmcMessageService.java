@@ -23,6 +23,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CNCL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
 @Slf4j
@@ -37,7 +38,7 @@ public class ProcessHmcMessageService {
     private final HearingUpdateService hearingUpdateService;
 
     public void processEventMessage(HmcMessage hmcMessage)
-            throws CaseException, MessageProcessingException {
+        throws CaseException, MessageProcessingException {
 
         Long caseId = hmcMessage.getCaseId();
         String hearingId = hmcMessage.getHearingId();
@@ -52,7 +53,8 @@ public class ProcessHmcMessageService {
 
         if (stateNotHandled(hmcStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
-                hearingId, caseId);
+                     hearingId, caseId
+            );
             return;
         }
 
@@ -70,23 +72,27 @@ public class ProcessHmcMessageService {
 
         resolveEventAndUpdateCase(hearingResponse, hmcStatus, caseData, ccdUpdateDescription);
 
-        log.info("Hearing message {} processed for case reference {}",
-                hmcMessage.getHearingId(),
-                hmcMessage.getCaseId());
+        log.info(
+            "Hearing message {} processed for case reference {}",
+            hmcMessage.getHearingId(),
+            hmcMessage.getCaseId()
+        );
     }
 
     private void resolveEventAndUpdateCase(HearingGetResponse hearingResponse, HmcStatus hmcStatus, SscsCaseData caseData,
-                           String ccdUpdateDescription) throws UpdateCaseException {
+                                           String ccdUpdateDescription) throws UpdateCaseException {
 
         Function<HearingGetResponse, EventType> eventMapper = hmcStatus.getEventMapper();
 
         if (eventMapper != null) {
             EventType eventType = eventMapper.apply(hearingResponse);
             if (eventType != null) {
-                ccdCaseService.updateCaseData(caseData,
+                ccdCaseService.updateCaseData(
+                    caseData,
                     eventType,
                     hmcStatus.getCcdUpdateSummary(),
-                    ccdUpdateDescription);
+                    ccdUpdateDescription
+                );
             }
         }
     }
@@ -94,9 +100,14 @@ public class ProcessHmcMessageService {
     private void checkStatuses(Long caseId, String hearingId, HmcStatus hmcMessageStatus, HmcStatus hmcStatus)
         throws InvalidHmcMessageException {
         if (hmcMessageStatus != hmcStatus) {
-            throw new InvalidHmcMessageException(String.format("HMC Message Status '%s' does not match the GET request status '%s' "
+            throw new InvalidHmcMessageException(String.format(
+                "HMC Message Status '%s' does not match the GET request status '%s' "
                     + "for Case ID %s and Hearing ID %s",
-                hmcMessageStatus, hmcStatus, caseId, hearingId));
+                hmcMessageStatus,
+                hmcStatus,
+                caseId,
+                hearingId
+            ));
         }
     }
 
@@ -108,7 +119,7 @@ public class ProcessHmcMessageService {
 
     private boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return isHearingListedOrUpdateSubmitted(hmcStatus)
-                && isStatusFixed(hearingResponse);
+            && isStatusFixed(hearingResponse);
     }
 
     private boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {
@@ -121,7 +132,8 @@ public class ProcessHmcMessageService {
 
     private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return hmcStatus == CANCELLED
-                || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason());
+            || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason())
+            || CNCL == hearingResponse.getHearingResponse().getListingStatus();
     }
 
     private boolean isStatusException(HmcStatus hmcStatus) {
