@@ -29,6 +29,7 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +43,8 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
-    public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.of(2022, 10, 1, 11, 0, 0);
-    public static final LocalDateTime HEARING_END_DATE_TIME = LocalDateTime.of(2022, 10, 1, 13, 0, 0);
+    public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.now();
+    public static final LocalDateTime HEARING_END_DATE_TIME = HEARING_START_DATE_TIME.plusHours(2);
     public static final String HEARING_DATE = HEARING_START_DATE_TIME.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     public static final String HEARING_TIME = HEARING_START_DATE_TIME.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
     private static final Long HEARING_ID = 789L;
@@ -55,6 +56,10 @@ class HearingUpdateServiceTest {
     private VenueDetails venueDetails;
     private SscsCaseData caseData;
     private HearingGetResponse hearingGetResponse;
+    public LocalDateTime zoneUtcStartDateTime;
+    public LocalDateTime zoneUkStartDateTime;
+    public LocalDateTime zoneUtcEndDateTime;
+    public LocalDateTime zoneUkEndDateTime;
 
     @Mock
     private VenueService venueService;
@@ -85,6 +90,11 @@ class HearingUpdateServiceTest {
                 .venName(VENUE_NAME)
                 .regionalProcessingCentre("regionalProcessingCentre")
                 .build();
+
+        zoneUtcStartDateTime = HEARING_START_DATE_TIME.atZone(ZoneId.of("UTC")).toLocalDateTime();
+        zoneUkStartDateTime = hearingUpdateService.convertUtcToUk(zoneUtcStartDateTime);
+        zoneUtcEndDateTime = HEARING_END_DATE_TIME.atZone(ZoneId.of("UTC")).toLocalDateTime();
+        zoneUkEndDateTime = hearingUpdateService.convertUtcToUk(zoneUtcEndDateTime);
     }
 
     @DisplayName("When caseData with a hearing that matches one from hearingGetResponse is given,"
@@ -93,8 +103,8 @@ class HearingUpdateServiceTest {
     void testUpdateHearing() throws Exception {
         hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
                         HearingDaySchedule.builder()
-                                .hearingStartDateTime(HEARING_START_DATE_TIME)
-                                .hearingEndDateTime(HEARING_END_DATE_TIME)
+                                .hearingStartDateTime(zoneUtcStartDateTime)
+                                .hearingEndDateTime(zoneUtcEndDateTime)
                                 .hearingVenueEpimsId(NEW_EPIMS_ID)
                                 .build()));
 
@@ -126,7 +136,7 @@ class HearingUpdateServiceTest {
             .filteredOn("hearingId", String.valueOf(HEARING_ID))
             .hasSize(1)
             .extracting("epimsId","start","end","hearingDate","time")
-            .contains(tuple(NEW_EPIMS_ID,HEARING_START_DATE_TIME,HEARING_END_DATE_TIME,HEARING_DATE,HEARING_TIME));
+            .contains(tuple(NEW_EPIMS_ID, zoneUkStartDateTime, zoneUkEndDateTime, HEARING_DATE, HEARING_TIME));
 
         assertThat(hearings)
             .extracting(Hearing::getValue)
@@ -142,8 +152,8 @@ class HearingUpdateServiceTest {
     void testUpdateHearingNewHearing() throws Exception {
         hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
                 HearingDaySchedule.builder()
-                        .hearingStartDateTime(HEARING_START_DATE_TIME)
-                        .hearingEndDateTime(HEARING_END_DATE_TIME)
+                        .hearingStartDateTime(zoneUtcStartDateTime)
+                        .hearingEndDateTime(zoneUtcEndDateTime)
                         .hearingVenueEpimsId(NEW_EPIMS_ID)
                         .build()));
 
@@ -169,7 +179,7 @@ class HearingUpdateServiceTest {
             .filteredOn("hearingId", String.valueOf(HEARING_ID))
             .hasSize(1)
             .extracting("epimsId","start","end","hearingDate","time")
-            .contains(tuple(NEW_EPIMS_ID,HEARING_START_DATE_TIME,HEARING_END_DATE_TIME,HEARING_DATE,HEARING_TIME));
+            .contains(tuple(NEW_EPIMS_ID, zoneUkStartDateTime, zoneUkEndDateTime, HEARING_DATE, HEARING_TIME));
 
         assertThat(hearings)
             .extracting(Hearing::getValue)
@@ -198,8 +208,8 @@ class HearingUpdateServiceTest {
     void testUpdateHearingVenueNull() {
         hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
                 HearingDaySchedule.builder()
-                        .hearingStartDateTime(HEARING_START_DATE_TIME)
-                        .hearingEndDateTime(HEARING_END_DATE_TIME)
+                        .hearingStartDateTime(zoneUtcStartDateTime)
+                        .hearingEndDateTime(zoneUtcEndDateTime)
                         .hearingVenueEpimsId(NEW_EPIMS_ID)
                         .build()));
 
@@ -279,14 +289,14 @@ class HearingUpdateServiceTest {
             Hearing.builder()
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
-                    .start(HEARING_START_DATE_TIME)
+                    .start(zoneUtcStartDateTime)
                     .epimsId(EPIMS_ID)
                     .build())
                 .build()));
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
-        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(zoneUtcStartDateTime.toLocalDate());
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
     }
 
@@ -315,13 +325,13 @@ class HearingUpdateServiceTest {
             Hearing.builder()
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
-                    .start(HEARING_START_DATE_TIME)
+                    .start(zoneUtcStartDateTime)
                     .build())
                 .build()));
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
-        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
+        assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(zoneUtcStartDateTime.toLocalDate());
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
     }
 
@@ -349,13 +359,13 @@ class HearingUpdateServiceTest {
             Hearing.builder()
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
-                    .start(HEARING_START_DATE_TIME)
+                    .start(zoneUtcStartDateTime)
                     .build())
                 .build()));
 
         LocalDate result = hearingUpdateService.getHearingDate(String.valueOf(HEARING_ID), caseData);
 
-        assertThat(result).isEqualTo(HEARING_START_DATE_TIME.toLocalDate());
+        assertThat(result).isEqualTo(zoneUtcStartDateTime.toLocalDate());
     }
 
     @DisplayName("When caseData with no hearing is given, getHearingDate returns null")
@@ -452,8 +462,9 @@ class HearingUpdateServiceTest {
     @DisplayName("LA LocalDateTime properly converted from UTC to UK value")
     @Test
     void testUtcToUkDateTimeConvert() {
-        var utcDateTime = LocalDateTime.now().atZone(ZoneId.of("UTC")).toLocalDateTime();
+        var utcDateTime = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
+        var ukDateTime = ZonedDateTime.now(ZoneId.of("Europe/London")).toLocalDateTime();
 
-        assertThat(utcDateTime.plusHours(1)).isEqualTo(hearingUpdateService.convertUtcToUk(utcDateTime));
+        assertThat(ukDateTime.getHour()).isEqualTo(hearingUpdateService.convertUtcToUk(utcDateTime).getHour());
     }
 }
