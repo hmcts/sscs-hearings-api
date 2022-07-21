@@ -262,13 +262,23 @@ public final class HearingsPartiesMapping {
         return phoneNumbers;
     }
 
+    /**
+     * Returns related party according to given id and relationship type.
+     * According to task <a href ="https://tools.hmcts.net/jira/secure/RapidBoard.jspa?rapidView=2115&projectKey=SSCS&view=detail&selectedIssue=SSCS-10747">SSCS-10747</a>
+     * for representatives it is asked to return solicitor code as the relationship type
+     * which is 11, REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE
+     * @param entity related party value
+     * @param partyId related party id
+     * @param appellantId appellant id
+     * @return list of related parties
+     */
     public static List<RelatedParty> getIndividualRelatedParties(Entity entity, String partyId, String appellantId) {
         List<RelatedParty> relatedParties = new ArrayList<>();
         EntityRoleCode roleCode = getEntityRoleCode(entity);
         switch (roleCode) {
             case APPOINTEE:
             case REPRESENTATIVE:
-                relatedParties.add(getRelatedParty(partyId, roleCode.getHmcReference()));
+                relatedParties.add(getRelatedParty(partyId, REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE));
                 break;
             case OTHER_PARTY:
             case JOINT_PARTY:
@@ -280,20 +290,11 @@ public final class HearingsPartiesMapping {
         return relatedParties;
     }
 
-    /**
-     * Returns related party according to given id and relationship type.
-     * According to task <a href ="https://tools.hmcts.net/jira/secure/RapidBoard.jspa?rapidView=2115&projectKey=SSCS&view=detail&selectedIssue=SSCS-10747">SSCS-10747</a>
-     * for representatives it is asked to return solicitor code as the relationship type
-     * which is 11, REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE
-     *
-     * @param id id of the related party
-     * @param relationshipType relationship type of the related party
-     * @return RelatedParty details
-     */
+
     public static RelatedParty getRelatedParty(String id, String relationshipType) {
         return RelatedParty.builder()
                 .relatedPartyId(id)
-                .relationshipType(REPRESENTATIVE.getHmcReference().equals(relationshipType) ? REPRESENTATIVE_RELATION_TYPE_SOLICITOR_CODE : relationshipType)
+                .relationshipType(relationshipType)
                 .build();
     }
 
