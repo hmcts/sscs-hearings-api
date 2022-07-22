@@ -60,6 +60,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPELL
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.SOLICITOR;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 
@@ -948,7 +949,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result)
             .isNotEmpty()
             .extracting("relatedPartyId", "relationshipType")
-            .contains(tuple("1", REPRESENTATIVE.getPartyRelationshipType().getRelationshipTypeCode()));
+            .contains(tuple("1", SOLICITOR.getRelationshipTypeCode()));
     }
 
     @DisplayName("getPartyOrganisationDetails Test")

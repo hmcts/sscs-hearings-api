@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.model.hmc.reference;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +20,7 @@ public enum EntityRoleCode {
     SUPPORT("SUPP", "Support", "Support", "", null),
     APPLICANT("APPL", Constants.APPLICANT, Constants.APPLICANT, "", null);
 
+    @JsonValue
     private final String hmcReference;
     private final String parentRole;
     private final String valueEn;

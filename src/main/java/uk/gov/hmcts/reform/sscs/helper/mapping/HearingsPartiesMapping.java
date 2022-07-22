@@ -48,7 +48,6 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ORGANISATION_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityRoleCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
@@ -309,8 +308,10 @@ public final class HearingsPartiesMapping {
         EntityRoleCode roleCode = getEntityRoleCode(entity);
         switch (roleCode) {
             case APPOINTEE:
+                relatedParties.add(getRelatedParty(partyId, roleCode.getHmcReference()));
+                break;
             case REPRESENTATIVE:
-                relatedParties.add(getRelatedParty(partyId, REPRESENTATIVE.getPartyRelationshipType().getRelationshipTypeCode()));
+                relatedParties.add(getRelatedParty(partyId, roleCode.getPartyRelationshipType().getRelationshipTypeCode()));
                 break;
             case OTHER_PARTY:
             case JOINT_PARTY:
