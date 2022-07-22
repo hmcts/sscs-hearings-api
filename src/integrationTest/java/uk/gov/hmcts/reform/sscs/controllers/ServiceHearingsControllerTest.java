@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PostponementRequest;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -187,6 +188,7 @@ class ServiceHearingsControllerTest {
                 .caseNamePublic(CASE_NAME)
                 .build());
         when(sscsCaseData.getProcessingVenue()).thenReturn(PROCESSING_VENUE);
+        when(sscsCaseData.getPostponementRequest()).thenReturn(PostponementRequest.builder().build());
         when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
         when(sscsCaseData.getAppeal()).thenReturn(appeal);
         when(sscsCaseData.getCcdCaseId()).thenReturn(String.valueOf(CASE_ID));
