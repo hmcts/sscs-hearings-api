@@ -5,20 +5,19 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum EntityRoleCode {
-    APPELLANT("APEL", "Applicant", "Appellant", "", null),
+    APPELLANT("APEL", Constants.APPLICANT, "Appellant", "", null),
     APPOINTEE("APIN", "Appointee", "Appointee", "", null),
-    JOINT_PARTY("JOPA", "Applicant", "Joint Party", "", null),
+    JOINT_PARTY("JOPA", Constants.APPLICANT, "Joint Party", "", null),
     OTHER_PARTY("OTPA", "Respondent", "Other Party", "", null),
     RESPONDENT("RESP", "Respondent", "Respondent", "", null),
-    WELFARE_REPRESENTATIVE("WERP", "Representative", "Welfare Representative", "", PartyRelationshipType.SOLICITOR),
-    LEGAL_REPRESENTATIVE("LGRP", "Representative", "Legal Representative", "", PartyRelationshipType.SOLICITOR),
-    BARRISTER("BARR", "Representative", "Barrister", "", PartyRelationshipType.SOLICITOR),
+    WELFARE_REPRESENTATIVE("WERP", Constants.REPRESENTATIVE, "Welfare Representative", "", PartyRelationshipType.SOLICITOR),
+    LEGAL_REPRESENTATIVE("LGRP", Constants.REPRESENTATIVE, "Legal Representative", "", PartyRelationshipType.SOLICITOR),
+    BARRISTER("BARR", Constants.REPRESENTATIVE, "Barrister", "", PartyRelationshipType.SOLICITOR),
     INTERPRETER("INTP", "Interpreter", "Interpreter", "", PartyRelationshipType.INTERPRETER),
-    REPRESENTATIVE("RPTT", "Representative", "Barrister", "", PartyRelationshipType.SOLICITOR),
+    REPRESENTATIVE("RPTT", Constants.REPRESENTATIVE, "Barrister", "", PartyRelationshipType.SOLICITOR),
     SUPPORT("SUPP", "Support", "Support", "", null),
-    APPLICANT("APPL", "Applicant", "Applicant", "", null);
+    APPLICANT("APPL", Constants.APPLICANT, Constants.APPLICANT, "", null);
 
     private final String hmcReference;
     private final String parentRole;
@@ -26,4 +25,8 @@ public enum EntityRoleCode {
     private final String valueCy;
     private final PartyRelationshipType partyRelationshipType;
 
+    private static class Constants {
+        public static final String APPLICANT = "Applicant";
+        public static final String REPRESENTATIVE = "Representative";
+    }
 }
