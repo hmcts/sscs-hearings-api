@@ -138,3 +138,9 @@ flags:
     enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
   tribunals-to-hearings-api:
     enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
+
+retry:
+  hearing-response-update:
+    max-retries: 3
+    backoff: 3_000 #3 seconds
+
