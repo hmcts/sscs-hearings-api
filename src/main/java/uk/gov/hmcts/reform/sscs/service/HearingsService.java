@@ -38,7 +38,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHeari
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter"})
+@SuppressWarnings({"PMD.UnusedFormalParameter","PMD.ExcessiveImports"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
