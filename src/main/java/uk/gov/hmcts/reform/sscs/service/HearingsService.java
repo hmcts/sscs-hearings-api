@@ -97,11 +97,7 @@ public class HearingsService {
     }
 
 
-    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, URISyntaxException, IOException {
-        updateIds(wrapper);
-        OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
-        HmcUpdateResponse response = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, URISyntaxException, IOException {        
         SscsCaseData caseData = wrapper.getCaseData();
         String caseId = caseData.getCcdCaseId();
 
