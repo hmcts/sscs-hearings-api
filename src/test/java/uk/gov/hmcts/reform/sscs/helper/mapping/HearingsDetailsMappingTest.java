@@ -43,7 +43,6 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -83,7 +82,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
-    void buildHearingDetails() throws URISyntaxException, IOException {
+    void buildHearingDetails() throws IOException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30
@@ -396,7 +395,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
 
     @Test
-    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws URISyntaxException, IOException {
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws IOException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -419,7 +418,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("Multiple hearing location Test")
     @Test
-    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws URISyntaxException, IOException {
+    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws IOException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -429,7 +428,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
             caseData,
             referenceDataServiceHolder
@@ -468,7 +466,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() throws URISyntaxException, IOException {
+    void getHearingLocations() throws IOException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -489,7 +487,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() throws URISyntaxException, IOException {
+    void getHearingLocationsOverride() throws IOException {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
