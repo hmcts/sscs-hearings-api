@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -50,7 +49,7 @@ public final class HearingsMapping {
     }
 
     public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException, URISyntaxException, IOException {
+        throws InvalidMappingException, IOException {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
             .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))

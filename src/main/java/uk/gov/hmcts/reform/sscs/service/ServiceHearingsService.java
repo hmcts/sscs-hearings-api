@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 @Slf4j
@@ -33,7 +32,7 @@ public class ServiceHearingsService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
-        throws GetCaseException, UpdateCaseException, InvalidMappingException, IOException, URISyntaxException {
+        throws GetCaseException, UpdateCaseException, InvalidMappingException, IOException {
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(request.getCaseId());
 
         SscsCaseData caseData = caseDetails.getData();

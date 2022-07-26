@@ -2,8 +2,9 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.helper.ResourceLoader;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -12,13 +13,14 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -35,7 +37,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGE
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 
-@SuppressWarnings({"PMD.GodClass","PMD.UnnecessaryLocalBeforeReturn", "PMD.ReturnEmptyCollectionRatherThanNull", "PMD.GodClass", "PMD.ExcessiveImports",  "PMD.UseConcurrentHashMap"})
+@SuppressWarnings({"PMD.GodClass"})
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -50,7 +52,7 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws URISyntaxException, IOException {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws IOException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
@@ -192,10 +194,6 @@ public final class HearingsDetailsMapping {
         }
     }
 
-    public static boolean isPoAttending(SscsCaseData caseData) {
-        return isYes(caseData.getDwpIsOfficerAttending());
-    }
-
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     public static List<String> getElementsDisputed(SscsCaseData caseData) {
         List<ElementDisputed> elementDisputed = new ArrayList<>();
@@ -255,7 +253,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) throws URISyntaxException, IOException {
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) throws IOException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
@@ -275,7 +273,9 @@ public final class HearingsDetailsMapping {
             .orElse(null);
         ObjectMapper mapper = new ObjectMapper();
         List<String> epimsIdList = new ArrayList<>();
-        Map<String,List<String>> multipleHearingLocations = mapper.readValue(ResourceLoader.loadJson("multipleHearingLocations.json"), new TypeReference<Map<String, List<String>>>(){});
+
+        Resource resource = new ClassPathResource("multipleHearingLocations.json");
+        ConcurrentHashMap<String,List<String>> multipleHearingLocations = mapper.readValue(Files.newInputStream(Paths.get(resource.getURI())), new TypeReference<ConcurrentHashMap<String, List<String>>>(){});
 
         List<List<String>> returnList = multipleHearingLocations.values().stream()
             .filter(listValues ->  listValues.contains(epimsId)).collect(Collectors.toList());

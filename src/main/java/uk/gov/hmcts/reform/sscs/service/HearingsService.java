@@ -29,7 +29,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -56,7 +55,7 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException, URISyntaxException, IOException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException, IOException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
@@ -67,7 +66,7 @@ public class HearingsService {
     }
 
     public void processHearingWrapper(HearingWrapper wrapper)
-        throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException, URISyntaxException, IOException {
+        throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException, IOException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -97,7 +96,7 @@ public class HearingsService {
     }
 
 
-    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, URISyntaxException, IOException {        
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, IOException {
         SscsCaseData caseData = wrapper.getCaseData();
         String caseId = caseData.getCcdCaseId();
 
@@ -127,7 +126,7 @@ public class HearingsService {
         }
     }
 
-    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, URISyntaxException, IOException {
+    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException, IOException {
         updateIds(wrapper);
         OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
