@@ -234,7 +234,7 @@ public final class HearingsDetailsMapping {
 
     public static List<String> getNonStandardHearingDurationReasons() {
         // TODO Future Work
-        return null;
+        return Collections.emptyList();
     }
 
     public static String getHearingPriority(SscsCaseData caseData) {
