@@ -271,28 +271,16 @@ public final class HearingsDetailsMapping {
             .getVenueService()
             .getEpimsIdForVenue(caseData.getProcessingVenue())
             .orElse(null);
-        ObjectMapper mapper = new ObjectMapper();
-        List<String> epimsIdList = new ArrayList<>();
 
         Resource resource = new ClassPathResource("multipleHearingLocations.json");
-        ConcurrentHashMap<String,List<String>> multipleHearingLocations = mapper.readValue(Files.newInputStream(Paths.get(resource.getURI())), new TypeReference<ConcurrentHashMap<String, List<String>>>(){});
+        ConcurrentHashMap<String,List<String>> multipleHearingLocations = new ObjectMapper().readValue(Files.newInputStream(Paths.get(resource.getURI())), new TypeReference<ConcurrentHashMap<String, List<String>>>(){});
 
-        List<List<String>> returnList = multipleHearingLocations.values().stream()
-            .filter(listValues ->  listValues.contains(epimsId)).collect(Collectors.toList());
-
-        if (returnList.isEmpty()) {
-            epimsIdList.add(epimsId);
-        } else {
-            epimsIdList = returnList.get(0);
-        }
-        List<HearingLocation> hearingLocations = new ArrayList<>();
-        epimsIdList.forEach(epims -> {
-            HearingLocation hearingLocation = new HearingLocation();
-            hearingLocation.setLocationId(epims);
-            hearingLocation.setLocationType(COURT);
-            hearingLocations.add(hearingLocation);
-        });
-        return hearingLocations;
+        return multipleHearingLocations.values().stream()
+            .filter(listValues ->  listValues.contains(epimsId))
+            .findFirst()
+            .orElseGet(() -> Collections.singletonList(epimsId))
+            .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static List<String> getFacilitiesRequired() {
