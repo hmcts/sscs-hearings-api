@@ -112,6 +112,10 @@ public final class HearingsPanelMapping {
         if (isNull(sessionCategoryMap)) {
             return panelSpecialisms;
         }
+        // if benefit is child support specialism should be empty
+        if(isNotBlank(caseData.getBenefitCode()) && caseData.getBenefitCode().equals(CHILD_SUPPORT.getBenefitCode())) {
+            return panelSpecialisms;
+        }
 
         String doctorSpecialism = caseData.getSscsIndustrialInjuriesData().getPanelDoctorSpecialism();
         String doctorSpecialismSecond = caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism();
