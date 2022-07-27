@@ -24,7 +24,12 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.CHILD_SUPPORT;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.IIDB;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType.TRIBUNALS_MEMBER_FINANCIALLY_QUALIFIED;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType.TRIBUNALS_MEMBER_MEDICAL;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
@@ -40,7 +45,7 @@ public final class HearingsPanelMapping {
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
                                                          ReferenceDataServiceHolder referenceDataServiceHolder) {
         return PanelRequirements.builder()
-            .roleTypes(getRoleTypes())
+            .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
             .panelPreferences(getPanelPreferences(caseData))
@@ -48,9 +53,16 @@ public final class HearingsPanelMapping {
             .build();
     }
 
-    public static List<String> getRoleTypes() {
-        //TODO Need to retrieve RoleTypes from caseData and/or ReferenceData
-        return Collections.emptyList();
+    public static List<String> getRoleTypes(String benefitCode) {
+        List<String> roleTypes = new ArrayList<>();
+        if (isNotBlank(benefitCode)) {
+            if (benefitCode.equals(IIDB.getBenefitCode())) {
+                roleTypes.add(TRIBUNALS_MEMBER_MEDICAL.getReference());
+            } else if (benefitCode.equals(CHILD_SUPPORT.getBenefitCode())) {
+                roleTypes.add(TRIBUNALS_MEMBER_FINANCIALLY_QUALIFIED.getReference());
+            }
+        }
+        return roleTypes;
     }
 
     public static List<String> getAuthorisationTypes() {
