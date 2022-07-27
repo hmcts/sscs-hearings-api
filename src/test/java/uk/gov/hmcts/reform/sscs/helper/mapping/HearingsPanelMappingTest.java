@@ -287,6 +287,31 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
 
     }
 
+    @DisplayName("When a case benefit is CHILD_SUPPORT then return empty list.")
+    @Test
+    void testWhenAnCaseBenefitChildSupportReturnAnEmptyList() {
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.CHILD_SUPPORT_ASSESSMENTS, Issue.DD,
+                                                                       false, false, SessionCategory.CATEGORY_05, null
+        );
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(CHILD_SUPPORT_BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                                            .panelDoctorSpecialism("doesntexist")
+                                            .build())
+            .build();
+
+        List<String> result = HearingsPanelMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
+
+        List<String> expectedList = Collections.emptyList();
+        assertThat(result)
+            .containsExactlyInAnyOrderElementsOf(expectedList);
+
+    }
+
+
     @DisplayName("When a non doctor panel member is given getPanelMemberSpecialism returns the valid reference")
     @ParameterizedTest
     @EnumSource(
