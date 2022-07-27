@@ -113,7 +113,7 @@ public final class HearingsPanelMapping {
             return panelSpecialisms;
         }
         // if benefit is child support specialism should be empty
-        if(isNotBlank(caseData.getBenefitCode()) && caseData.getBenefitCode().equals(CHILD_SUPPORT.getBenefitCode())) {
+        if (isNotBlank(caseData.getBenefitCode()) && caseData.getBenefitCode().equals(CHILD_SUPPORT.getBenefitCode())) {
             return panelSpecialisms;
         }
 
