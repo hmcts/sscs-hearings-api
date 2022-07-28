@@ -40,7 +40,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(BENEFIT)
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder))
-                .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData))
+                .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
