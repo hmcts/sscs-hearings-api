@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -44,8 +43,6 @@ public final class HearingsDetailsMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30;
-    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
-    public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
     public static final int MIN_HEARING_DURATION = 1;
 
     private HearingsDetailsMapping() {
@@ -60,7 +57,7 @@ public final class HearingsDetailsMapping {
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
-            .hearingWindow(buildHearingWindow(caseData))
+            .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData))
             .duration(getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
@@ -83,62 +80,8 @@ public final class HearingsDetailsMapping {
         return SUBSTANTIVE.getHmcReference();
     }
 
-    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData) {
-
-        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-
-        if (nonNull(overrideFields.getHearingWindow())
-            && (nonNull(overrideFields.getHearingWindow().getFirstDateTimeMustBe())
-            || nonNull(overrideFields.getHearingWindow().getDateRangeStart())
-            || nonNull(overrideFields.getHearingWindow().getDateRangeEnd()))) {
-            return HearingWindow.builder()
-                .firstDateTimeMustBe(overrideFields.getHearingWindow().getFirstDateTimeMustBe())
-                .dateRangeStart(overrideFields.getHearingWindow().getDateRangeStart())
-                .dateRangeEnd(overrideFields.getHearingWindow().getDateRangeEnd())
-                .build();
-        }
-
-        return HearingWindow.builder()
-            .firstDateTimeMustBe(getFirstDateTimeMustBe())
-            .dateRangeStart(getHearingWindowStart(caseData))
-            .dateRangeEnd(null)
-            .build();
-    }
-
-    /**
-     * This method sets hearing window start date according to the jira task
-     * <a href="https://tools.hmcts.net/jira/browse/SSCS-10666">SSCS-10666</a>
-     * 1. When case not autolisted and not an urgent case, buildHearingWindow should still be +28 days
-     * 2. If the case is urgent and the hearing channel is either paper or oral case we should list +1 day
-     * 3. if it is not urgent and paper or case it returns to  +28 days.(this is the same as number 1)
-     * Those three items means that when the case is urgent hearing window start date is 1 day after the dwpResponded
-     * day. If not urgent it is always 28 days after the dwpResponded date.
-     * @param caseData SscsCaseData
-     * @return LocalDate value that is calculated as hearing window start date.
-     */
-    public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData) {
-        if (isNotBlank(caseData.getDwpResponseDate())) {
-            LocalDate dwpResponded = LocalDate.parse(caseData.getDwpResponseDate());
-            if (isCaseUrgent(caseData)) {
-                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
-            } else {
-                return dwpResponded.plusDays(DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED);
-            }
-        } else {
-            return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY);
-        }
-    }
-
     public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
         return isYes(caseData.getUrgentCase());
-    }
-
-    public static LocalDateTime getFirstDateTimeMustBe() {
-        // TODO Adjournments - Find out how to use adjournCase data to work this out, possibly related variables:
-        //      adjournCaseNextHearingDateType, adjournCaseNextHearingDateOrPeriod, adjournCaseNextHearingDateOrTime,
-        //      adjournCaseNextHearingFirstAvailableDateAfterDate, adjournCaseNextHearingFirstAvailableDateAfterPeriod
-        // TODO Future Work - Manual Override
-        return null;
     }
 
     public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {

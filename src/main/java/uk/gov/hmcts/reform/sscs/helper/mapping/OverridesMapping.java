@@ -148,7 +148,7 @@ public final class OverridesMapping {
     }
 
     public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData) {
-        LocalDate hearingWindowStart = HearingsDetailsMapping.getHearingWindowStart(caseData);
+        LocalDate hearingWindowStart = HearingsWindowMapping.getHearingWindowStart(caseData);
 
         return HearingWindow.builder()
             .firstDateTimeMustBe(null)
