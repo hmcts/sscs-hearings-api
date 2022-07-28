@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -24,6 +25,8 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.CHILD_SUPPORT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
@@ -40,7 +43,7 @@ public final class HearingsPanelMapping {
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
                                                          ReferenceDataServiceHolder referenceDataServiceHolder) {
         return PanelRequirements.builder()
-            .roleTypes(getRoleTypes())
+            .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
             .panelPreferences(getPanelPreferences(caseData))
@@ -48,9 +51,8 @@ public final class HearingsPanelMapping {
             .build();
     }
 
-    public static List<String> getRoleTypes() {
-        //TODO Need to retrieve RoleTypes from caseData and/or ReferenceData
-        return Collections.emptyList();
+    public static List<String> getRoleTypes(String benefitCode) {
+        return BenefitRoleRelationType.findRoleTypesByBenefitCode(benefitCode);
     }
 
     public static List<String> getAuthorisationTypes() {
@@ -98,6 +100,10 @@ public final class HearingsPanelMapping {
         List<String> panelSpecialisms = new ArrayList<>();
 
         if (isNull(sessionCategoryMap)) {
+            return panelSpecialisms;
+        }
+        // if benefit is child support specialism should be empty
+        if (isNotBlank(caseData.getBenefitCode()) && caseData.getBenefitCode().equals(CHILD_SUPPORT.getBenefitCode())) {
             return panelSpecialisms;
         }
 

@@ -48,6 +48,8 @@ public class HearingsMappingBase {
 
     public static final String BENEFIT_CODE = "002";
 
+    public static final String CHILD_SUPPORT_BENEFIT_CODE = "022";
+
     public static final String ISSUE_CODE = "DD";
 
     public static final String REGION = "Test Region";
