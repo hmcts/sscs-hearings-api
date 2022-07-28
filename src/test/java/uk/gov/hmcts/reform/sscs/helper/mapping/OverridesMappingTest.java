@@ -41,8 +41,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
@@ -200,7 +198,7 @@ class OverridesMappingTest {
 
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
     @Test
-    void testSetDefaultOverrideFields() throws InvalidMappingException, URISyntaxException, IOException {
+    void testSetDefaultOverrideFields() throws InvalidMappingException {
         caseData.getSchedulingAndListingFields().setDefaultOverrideFields(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
@@ -529,7 +527,7 @@ class OverridesMappingTest {
 
     @DisplayName("When valid case data is given, getHearingDetailsHearingWindow returns the default venue epims ids")
     @Test
-    void testGetHearingDetailsLocations() throws URISyntaxException, IOException {
+    void testGetHearingDetailsLocations() {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
 
         given(referenceData.getVenueService()).willReturn(venueService);

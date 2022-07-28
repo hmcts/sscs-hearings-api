@@ -13,8 +13,6 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
-import java.io.IOException;
-
 import static java.util.Objects.isNull;
 
 @Slf4j
@@ -32,7 +30,7 @@ public class TribunalsHearingsEventQueueListener {
         destination = "${azure.service-bus.tribunals-to-hearings-api.queueName}",
         containerFactory = "tribunalsHearingsEventQueueContainerFactory"
     )
-    public void handleIncomingMessage(HearingRequest message) throws TribunalsEventProcessingException, IOException {
+    public void handleIncomingMessage(HearingRequest message) throws TribunalsEventProcessingException {
         log.info("Message received now handling");
 
         if (isNull(message)) {

@@ -1,9 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -11,13 +7,10 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -47,7 +40,7 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws IOException {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
@@ -194,7 +187,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) throws IOException {
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
@@ -213,8 +206,7 @@ public final class HearingsDetailsMapping {
             .getEpimsIdForVenue(caseData.getProcessingVenue())
             .orElse(null);
 
-        Resource resource = new ClassPathResource("multipleHearingLocations.json");
-        ConcurrentHashMap<String,List<String>> multipleHearingLocations = new ObjectMapper().readValue(Files.newInputStream(Paths.get(resource.getURI())), new TypeReference<ConcurrentHashMap<String, List<String>>>(){});
+        Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
 
         return multipleHearingLocations.values().stream()
             .filter(listValues ->  listValues.contains(epimsId))

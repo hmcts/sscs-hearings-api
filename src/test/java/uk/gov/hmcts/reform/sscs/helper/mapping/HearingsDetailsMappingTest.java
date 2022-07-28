@@ -41,9 +41,11 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.nonNull;
@@ -77,7 +79,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
-    void buildHearingDetails() throws IOException {
+    void buildHearingDetails() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30
@@ -222,7 +224,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
 
     @Test
-    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws IOException {
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -245,16 +247,20 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("Multiple hearing location Test")
     @Test
-    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws IOException {
-        SscsCaseData caseData = SscsCaseData.builder()
+    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() {
+        final SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
-
+        Map<String, List<String>> multipleHearingLocations = new HashMap<>();
+        multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
+        multipleHearingLocations.put("Manchester",new ArrayList<>(Arrays.asList("512401","701411")));
+        multipleHearingLocations.put("Plymouth",new ArrayList<>(Arrays.asList("764728","235590")));
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(referenceDataServiceHolder.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
             caseData,
             referenceDataServiceHolder
@@ -293,7 +299,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() throws IOException {
+    void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().build())
@@ -314,7 +320,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() throws IOException {
+    void getHearingLocationsOverride() {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()

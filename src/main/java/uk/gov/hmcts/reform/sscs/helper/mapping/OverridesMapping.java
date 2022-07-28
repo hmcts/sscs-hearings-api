@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +57,7 @@ public final class OverridesMapping {
             .orElse(Collections.emptyList());
     }
 
-    public static void setDefaultOverrideFields(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException, IOException {
+    public static void setDefaultOverrideFields(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         Appeal appeal = caseData.getAppeal();
@@ -161,7 +160,7 @@ public final class OverridesMapping {
         return HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder) ? YES : NO;
     }
 
-    public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) throws IOException {
+    public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         return HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder).stream()
             .map(HearingLocation::getLocationId)
             .filter(Objects::nonNull)
