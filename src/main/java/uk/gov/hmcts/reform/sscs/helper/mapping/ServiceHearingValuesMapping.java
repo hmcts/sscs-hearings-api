@@ -67,7 +67,7 @@ public final class ServiceHearingValuesMapping {
 
     public static Judiciary getJudiciary(@Valid SscsCaseData sscsCaseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         return Judiciary.builder()
-                .roleType(HearingsPanelMapping.getRoleTypes())
+                .roleType(HearingsPanelMapping.getRoleTypes(sscsCaseData.getBenefitCode()))
                 .authorisationTypes(HearingsPanelMapping.getAuthorisationTypes())
                 .authorisationSubType(HearingsPanelMapping.getAuthorisationSubTypes())
                 .judiciarySpecialisms(HearingsPanelMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
