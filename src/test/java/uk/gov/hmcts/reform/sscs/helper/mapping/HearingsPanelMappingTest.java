@@ -7,12 +7,14 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Benefit;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
@@ -63,12 +65,25 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         assertThat(result.getPanelSpecialisms()).isEmpty();
     }
 
-    @DisplayName("getRoleTypes returns an empty list")
+    @DisplayName("getRoleTypes returns an empty list when benefit is not Industrial Injuries Disablement Benefit or CHILD_SUPPORT ")
     @Test
-    void testGetRoleTypes() {
-        List<String> result = HearingsPanelMapping.getRoleTypes();
-
+    void shouldReturn_EmptyRoleTypeList_When_Benefit_Not_industrialInjuriesDisablementBenefit_or_ChildSupport() {
+        List<String> result = HearingsPanelMapping.getRoleTypes(Benefit.ATTENDANCE_ALLOWANCE.getBenefitCode());
         assertThat(result).isEmpty();
+    }
+
+    @DisplayName("getRoleTypes returns PanelMemberType.TRIBUNALS_MEMBER_MEDICAL reference when benefit is Industrial Injuries Disablement Benefit ")
+    @Test
+    void shouldReturn_TribunalsMember_MedicalReference_When_Benefit_is_IndustrialInjuriesDisablementBenefit() {
+        List<String> result = HearingsPanelMapping.getRoleTypes(Benefit.IIDB.getBenefitCode());
+        assertThat(result).contains(PanelMemberType.TRIBUNALS_MEMBER_MEDICAL.getReference());
+    }
+
+    @DisplayName("getRoleTypes returns PanelMemberType.TRIBUNALS_MEMBER_FINANCIALLY_QUALIFIED reference when benefit is CHILD_SUPPORT ")
+    @Test
+    void shouldReturn_TribunalsMember_Financially_Qualified_When_Benefit_is_ChildSupport() {
+        List<String> result = HearingsPanelMapping.getRoleTypes(Benefit.CHILD_SUPPORT.getBenefitCode());
+        assertThat(result).contains(PanelMemberType.TRIBUNALS_MEMBER_FINANCIALLY_QUALIFIED.getReference());
     }
 
     @DisplayName("getAuthorisationTypes returns an empty list")
@@ -271,6 +286,31 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
             .containsExactlyInAnyOrderElementsOf(expectedList);
 
     }
+
+    @DisplayName("When a case benefit is CHILD_SUPPORT then return empty list.")
+    @Test
+    void testWhenAnCaseBenefitChildSupportReturnAnEmptyList() {
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.CHILD_SUPPORT_ASSESSMENTS, Issue.DD,
+                                                                       false, false, SessionCategory.CATEGORY_05, null
+        );
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(CHILD_SUPPORT_BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
+                                            .panelDoctorSpecialism("doesntexist")
+                                            .build())
+            .build();
+
+        List<String> result = HearingsPanelMapping.getPanelSpecialisms(caseData, sessionCategoryMap);
+
+        List<String> expectedList = Collections.emptyList();
+        assertThat(result)
+            .containsExactlyInAnyOrderElementsOf(expectedList);
+
+    }
+
 
     @DisplayName("When a non doctor panel member is given getPanelMemberSpecialism returns the valid reference")
     @ParameterizedTest
