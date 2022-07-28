@@ -36,7 +36,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHeari
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter","PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.UnusedFormalParameter"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
@@ -93,7 +93,6 @@ public class HearingsService {
                 throw err;
         }
     }
-
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         SscsCaseData caseData = wrapper.getCaseData();

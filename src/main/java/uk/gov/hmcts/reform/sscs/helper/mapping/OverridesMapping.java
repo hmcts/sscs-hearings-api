@@ -38,7 +38,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 
 @Slf4j
-@SuppressWarnings({"PMD.ExcessiveImports"})
 public final class OverridesMapping {
 
     private OverridesMapping() {

@@ -37,8 +37,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 
 @Slf4j
-@SuppressWarnings({"PMD.ExcessiveImports"})
-// TODO Unsuppress in future
 public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
