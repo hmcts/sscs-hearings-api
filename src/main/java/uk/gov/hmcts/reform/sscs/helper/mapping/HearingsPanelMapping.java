@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -26,10 +27,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.CHILD_SUPPORT;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.IIDB;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType.TRIBUNALS_MEMBER_FINANCIALLY_QUALIFIED;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType.TRIBUNALS_MEMBER_MEDICAL;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
@@ -54,15 +52,7 @@ public final class HearingsPanelMapping {
     }
 
     public static List<String> getRoleTypes(String benefitCode) {
-        List<String> roleTypes = new ArrayList<>();
-        if (isNotBlank(benefitCode)) {
-            if (benefitCode.equals(IIDB.getBenefitCode())) {
-                roleTypes.add(TRIBUNALS_MEMBER_MEDICAL.getReference());
-            } else if (benefitCode.equals(CHILD_SUPPORT.getBenefitCode())) {
-                roleTypes.add(TRIBUNALS_MEMBER_FINANCIALLY_QUALIFIED.getReference());
-            }
-        }
-        return roleTypes;
+        return BenefitRoleRelationType.findRoleTypesByBenefitCode(benefitCode);
     }
 
     public static List<String> getAuthorisationTypes() {
