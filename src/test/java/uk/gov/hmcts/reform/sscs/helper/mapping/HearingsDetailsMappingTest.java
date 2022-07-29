@@ -42,7 +42,10 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.nonNull;
@@ -219,6 +222,57 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
+
+    @Test
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getLocationId()).isEqualTo("9876");
+        assertThat(result.get(0).getLocationType()).isEqualTo(COURT);
+    }
+
+    @DisplayName("Multiple hearing location Test")
+    @Test
+    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() {
+        final SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+        Map<String, List<String>> multipleHearingLocations = new HashMap<>();
+        multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
+        multipleHearingLocations.put("Manchester",new ArrayList<>(Arrays.asList("512401","701411")));
+        multipleHearingLocations.put("Plymouth",new ArrayList<>(Arrays.asList("764728","235590")));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(referenceDataServiceHolder.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getLocationId()).isEqualTo("226511");
+        assertThat(result.get(1).getLocationId()).isEqualTo("443014");
+
+    }
+
+
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
@@ -243,7 +297,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
-    @Test
+    @ParameterizedTest
+    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
     void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()

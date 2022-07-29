@@ -1,14 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -18,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -32,6 +25,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
+
 
 @SuppressWarnings({"PMD.GodClass"})
 // TODO Unsuppress in future
@@ -194,7 +188,6 @@ public final class HearingsDetailsMapping {
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
-
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
@@ -213,14 +206,14 @@ public final class HearingsDetailsMapping {
             .getEpimsIdForVenue(caseData.getProcessingVenue())
             .orElse(null);
 
-        HearingLocation hearingLocation = new HearingLocation();
-        hearingLocation.setLocationId(epimsId);
-        hearingLocation.setLocationType(COURT);
+        Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
 
-        List<HearingLocation> hearingLocations = new ArrayList<>();
-        hearingLocations.add(hearingLocation);
-
-        return hearingLocations;
+        return multipleHearingLocations.values().stream()
+            .filter(listValues ->  listValues.contains(epimsId))
+            .findFirst()
+            .orElseGet(() -> Collections.singletonList(epimsId))
+            .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static List<String> getFacilitiesRequired() {

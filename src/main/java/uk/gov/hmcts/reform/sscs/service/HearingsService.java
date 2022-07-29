@@ -65,7 +65,7 @@ public class HearingsService {
     }
 
     public void processHearingWrapper(HearingWrapper wrapper)
-            throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+        throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
