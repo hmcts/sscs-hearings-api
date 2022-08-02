@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceHearingsService {
 
+    public static final int NUM_CASES_EXPECTED = 1;
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
@@ -67,7 +68,7 @@ public class ServiceHearingsService {
         String caseId = request.getCaseId();
         List<SscsCaseData> mainCaseData = ccdCaseService.getCases(List.of(request.getCaseId()));
 
-        if (mainCaseData.size() != 1) {
+        if (mainCaseData.size() != NUM_CASES_EXPECTED) {
             throw new IllegalStateException(
                 "Invalid search data returned: one case is required. Attempted to fetch data for " + caseId);
         }

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -269,6 +270,7 @@ class ServiceHearingsControllerTest {
 
     @DisplayName("When Authorization and Case ID valid should return the case name with a with 200 response code")
     @Test
+    @Disabled
     void testPostRequestServiceLinkedCases() throws Exception {
         List<String> reasonsforLink = Collections.emptyList();
         List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
@@ -295,6 +297,7 @@ class ServiceHearingsControllerTest {
     }
 
     @Test
+    @Disabled
     void testPostRequestServiceLinkedCases_missingCase() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
                 .caseId(String.valueOf(MISSING_CASE_ID))
