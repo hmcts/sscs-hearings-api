@@ -3,15 +3,17 @@ package uk.gov.hmcts.reform.sscs.service;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -25,7 +27,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 @ExtendWith(MockitoExtension.class)
 class CcdCaseServiceTest {
@@ -36,6 +37,7 @@ class CcdCaseServiceTest {
     private static final String SUMMARY = "Update Summary";
     private static final String DESCRIPTION = "Update Description";
 
+    @InjectMocks
     private CcdCaseService ccdCaseService;
 
     @Mock
@@ -44,11 +46,11 @@ class CcdCaseServiceTest {
     @Mock
     private IdamService idamService;
 
-    @BeforeEach
-    void setUp() {
-        openMocks(this);
-        ccdCaseService = new CcdCaseService(ccdService, idamService);
-    }
+    @Mock
+    private SscsCcdConvertService sscsCcdConvertService;
+
+    @Mock
+    private CoreCaseDataApi coreCaseDataApi;
 
     @Test
     void getByCaseId_shouldReturnCaseDetails() throws GetCaseException {
