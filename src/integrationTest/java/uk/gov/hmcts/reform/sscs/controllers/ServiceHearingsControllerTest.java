@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PostponementRequest;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -43,7 +44,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -126,12 +127,12 @@ class ServiceHearingsControllerTest {
 
     static MockedStatic<HearingsPartiesMapping> hearingsPartiesMapping;
 
-    static MockedStatic<HearingChannelMapping> hearingChannelMapping;
+    static MockedStatic<HearingsChannelMapping> hearingChannelMapping;
 
     @BeforeAll
     public static void init() {
         hearingsPartiesMapping = Mockito.mockStatic(HearingsPartiesMapping.class);
-        hearingChannelMapping = Mockito.mockStatic(HearingChannelMapping.class);
+        hearingChannelMapping = Mockito.mockStatic(HearingsChannelMapping.class);
     }
 
     @AfterAll
@@ -175,11 +176,11 @@ class ServiceHearingsControllerTest {
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getPartyRole(any(OtherParty.class)))
             .thenReturn(EntityRoleCode.OTHER_PARTY.getHmcReference());
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions,
-            referenceDataServiceHolder)).thenReturn("bul");
+            null, referenceDataServiceHolder)).thenReturn("bul");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualFirstName(otherParty)).thenReturn("Barny");
         hearingsPartiesMapping.when(() -> HearingsPartiesMapping.getIndividualLastName(otherParty)).thenReturn("Boulderstone");
-        hearingChannelMapping.when(() -> HearingChannelMapping.getIndividualPreferredHearingChannel(
-            hearingSubtype, hearingOptions)).thenReturn(FACE_TO_FACE);
+        hearingChannelMapping.when(() -> HearingsChannelMapping.getIndividualPreferredHearingChannel(
+            hearingSubtype, hearingOptions, null)).thenReturn(FACE_TO_FACE);
         when(otherParty.getHearingOptions()).thenReturn(hearingOptions);
         when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
@@ -187,6 +188,7 @@ class ServiceHearingsControllerTest {
                 .caseNamePublic(CASE_NAME)
                 .build());
         when(sscsCaseData.getProcessingVenue()).thenReturn(PROCESSING_VENUE);
+        when(sscsCaseData.getPostponementRequest()).thenReturn(PostponementRequest.builder().build());
         when(sscsCaseData.getLinkedCase()).thenReturn(linkedCases);
         when(sscsCaseData.getAppeal()).thenReturn(appeal);
         when(sscsCaseData.getCcdCaseId()).thenReturn(String.valueOf(CASE_ID));
@@ -208,7 +210,7 @@ class ServiceHearingsControllerTest {
         given(authTokenGenerator.generate()).willReturn("s2s token");
         given(idamApiService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         given(ccdService.getByCaseId(eq(CASE_ID_LINKED), any(IdamTokens.class))).willReturn(caseDetails);
-        hearingChannelMapping.when(() -> HearingChannelMapping.getHearingChannelsHmcReference(sscsCaseData))
+        hearingChannelMapping.when(() -> HearingsChannelMapping.getHearingChannelsHmcReference(sscsCaseData))
             .thenReturn(List.of(FACE_TO_FACE.getHmcReference()));
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,

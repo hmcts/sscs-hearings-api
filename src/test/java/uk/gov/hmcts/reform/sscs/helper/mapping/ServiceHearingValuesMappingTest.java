@@ -38,6 +38,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority;
+import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -58,7 +59,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
@@ -72,6 +73,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     private static final String NOTE_FROM_APPELLANT = "appellant note";
 
     public static final String BENEFIT = "Benefit";
+
+    public static final String REPRESENTATIVE_PARTY_ID = "12321";
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -137,7 +140,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .other(NOTE_FROM_APPELLANT)
                     .build())
                 .rep(Representative.builder()
-                    .id("12321")
+                    .id(REPRESENTATIVE_PARTY_ID)
                     .hasRepresentative("Yes")
                     .name(Name.builder()
                         .title("Mr")
@@ -156,7 +159,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                         .mobile("07411999999")
                         .phone(null)
                         .build())
-                    .organisation("HP Ltd")
                     .build())
                 .build())
             .events(getEventsOfCaseData())
@@ -189,11 +191,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguageReference("Bulgarian"))
-                .willReturn("bul");
+        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
+                .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
 
-        given(referenceDataServiceHolder.getSignLanguages().getSignLanguageReference("Makaton"))
-                .willReturn("sign-mkn");
+        given(referenceDataServiceHolder.getSignLanguages().getSignLanguage("Makaton"))
+                .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
     }
 
     @Test
@@ -234,6 +236,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
         assertEquals(List.of(FACE_TO_FACE.getHmcReference()), serviceHearingValues.getHearingChannels());
+        assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
     }
 
     @Test
@@ -246,8 +249,20 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         //then
         assertEquals(3, serviceHearingValues.getParties().size());
         assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> ORGANISATION == partyDetails.getPartyType()).findFirst().orElseThrow().getPartyRole());
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
         assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+    }
+
+    @Test
+    void shouldRepresentativeNotHaveOrganisation() throws InvalidMappingException {
+        // given
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        // when
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        //then
+        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(),
+            serviceHearingValues.getParties().stream().filter(partyDetails -> partyDetails.getPartyType() != ORGANISATION && REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
     }
 
     private List<Event> getEventsOfCaseData() {

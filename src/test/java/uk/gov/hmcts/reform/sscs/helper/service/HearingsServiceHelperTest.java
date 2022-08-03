@@ -5,13 +5,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
@@ -19,8 +26,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
 
 class HearingsServiceHelperTest {
+
+    private static final long HEARING_REQUEST_ID = 12345;
 
     private HearingWrapper wrapper;
 
@@ -147,5 +158,92 @@ class HearingsServiceHelperTest {
         Long result = HearingsServiceHelper.getVersion(wrapper);
 
         assertNull(result);
+    }
+
+    @DisplayName("When a response with valid and invalid hearings is given findExistingRequestedHearings returns the latest valid hearing")
+    @Test
+    void testFindExistingRequestedHearings() {
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
+            .caseHearings(List.of(
+                CaseHearing.builder()
+                    .hearingId(4545L)
+                    .hmcStatus(CANCELLED)
+                    .requestVersion(3L)
+                    .hearingRequestDateTime(LocalDateTime.of(2020,1,1,10,0))
+                    .build(),
+                CaseHearing.builder()
+                    .hearingId(6545L)
+                    .hmcStatus(HEARING_REQUESTED)
+                    .requestVersion(2L)
+                    .hearingRequestDateTime(LocalDateTime.of(2022,12,1,10,0))
+                    .build(),
+                CaseHearing.builder()
+                    .hearingId(HEARING_REQUEST_ID)
+                    .hmcStatus(HEARING_REQUESTED)
+                    .requestVersion(1L)
+                    .hearingRequestDateTime(LocalDateTime.of(2022,1,1,10,0))
+                    .build()))
+            .build();
+
+        CaseHearing result = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
+
+        assertThat(result)
+            .isNotNull()
+            .extracting("hearingId","hmcStatus","requestVersion")
+            .contains(HEARING_REQUEST_ID,HEARING_REQUESTED,1L);
+    }
+
+    @DisplayName("When a response with only invalid hearings is given findExistingRequestedHearings returns null")
+    @Test
+    void testFindExistingRequestedHearingsInvalid() {
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
+            .caseHearings(List.of(
+                CaseHearing.builder()
+                    .hearingId(4545L)
+                    .hmcStatus(CANCELLED)
+                    .requestVersion(3L)
+                    .hearingRequestDateTime(LocalDateTime.of(2020,1,1,10,0))
+                    .build()))
+            .build();
+
+        CaseHearing result = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
+
+        assertThat(result).isNull();
+    }
+
+    @DisplayName("When a null response given findExistingRequestedHearings returns null")
+    @Test
+    void testFindExistingRequestedHearingsNull() {
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder().build();
+
+        CaseHearing result = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
+
+        assertThat(result).isNull();
+    }
+
+
+    @DisplayName("When the status matches isCaseHearingRequestedOrAwaitingListing returns true")
+    @ParameterizedTest
+    @EnumSource(
+        value = HmcStatus.class,
+        mode = EnumSource.Mode.INCLUDE,
+        names = {"HEARING_REQUESTED", "AWAITING_LISTING"})
+    void testIsCaseHearingRequestedOrAwaitingListing(HmcStatus value) {
+        boolean result = HearingsServiceHelper.isCaseHearingRequestedOrAwaitingListing(value);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When the status doesnt match isCaseHearingRequestedOrAwaitingListing returns false")
+    @ParameterizedTest
+    @EnumSource(
+        value = HmcStatus.class,
+        mode = EnumSource.Mode.EXCLUDE,
+        names = {"HEARING_REQUESTED", "AWAITING_LISTING"})
+    @NullSource
+    void testIsCaseHearingRequestedOrAwaitingListingNonMatching(HmcStatus value) {
+        boolean result = HearingsServiceHelper.isCaseHearingRequestedOrAwaitingListing(value);
+
+        assertThat(result).isFalse();
     }
 }

@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
@@ -31,6 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 class HearingsAutoListMappingTest extends HearingsMappingBase {
 
@@ -41,6 +44,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
+            .dwpResponseDate("2022-07-07")
             .appeal(Appeal.builder()
                 .appellant(Appellant.builder()
                     .name(Name.builder()
@@ -73,6 +77,19 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isTrue();
     }
 
+    @DisplayName("When there are no conditions that affect autolisting, shouldBeAutoListed returns true")
+    @Test
+    void testShouldBeAutoListedFalseWhenNullDwpResponseDate() {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_01,null));
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        caseData.setDwpResponseDate(null);
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
+        assertThat(result).isFalse();
+    }
+
     @DisplayName("When there is a condition that affects autolisting, shouldBeAutoListed returns false")
     @Test
     void testShouldBeAutoListedFalse() {
@@ -81,6 +98,30 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                         .caseReference("123456")
                         .build())
                 .build()));
+
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When override auto list is Yes, shouldBeAutoListed returns true")
+    @Test
+    void testShouldBeAutoListedOverride() {
+        caseData.getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder()
+            .autoList(YES)
+            .build());
+
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
+
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("When override auto list is No, shouldBeAutoListed returns false")
+    @Test
+    void testShouldBeAutoListedOverrideNo() {
+        caseData.getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder()
+            .autoList(NO)
+            .build());
 
         boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
@@ -209,7 +250,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When hearingType is Paper, isPaperCaseAndPoNotAttending return True")
+    @DisplayName("When wants to attend and PO is attending is no, isPaperCaseAndPoNotAttending return True")
     @Test
     void testIsPaperCaseAndPoNotAttending() {
         caseData.setDwpIsOfficerAttending("No");
@@ -220,9 +261,34 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When hearingType is not Paper, isPaperCaseAndPoNotAttending return False")
+    @DisplayName("When wants to attend is No and PO is attending is Yes, isPaperCaseAndPoNotAttending return False")
+    @Test
+    void testIsPaperCaseAndPoNotAttendingPoAttending() {
+        caseData.setDwpIsOfficerAttending("Yes");
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
+
+        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When wants to attend is Yes and PO is attending is No, isPaperCaseAndPoNotAttending return False")
     @Test
     void testIsPaperCaseAndPoNotAttendingNotPaper() {
+        caseData.setDwpIsOfficerAttending("No");
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+
+        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When appellant wants to attend and PO is attending is Yes, isPaperCaseAndPoNotAttending return False")
+    @Test
+    void testIsPaperCaseAndPoNotAttendingPoAppellantAttending() {
+        caseData.setDwpIsOfficerAttending("Yes");
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+
         boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
         assertThat(result).isFalse();
@@ -278,7 +344,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("When dwpIsOfficerAttending is yes, isPoAttending return True")
+    @DisplayName("When dwpIsOfficerAttending is yes, isPoOfficerAttending return True")
     @ParameterizedTest
     @EnumSource(
             value = PanelMember.class,
@@ -290,7 +356,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoAttending return False")
+    @DisplayName("When dwpIsOfficerAttending is No or blank, isPoOfficerAttending return False")
     @ParameterizedTest
     @EnumSource(
             value = PanelMember.class,

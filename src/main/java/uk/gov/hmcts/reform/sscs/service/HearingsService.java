@@ -2,6 +2,11 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.ExhaustedRetryException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -10,10 +15,13 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping;
+import uk.gov.hmcts.reform.sscs.helper.mapping.OverridesMapping;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
@@ -26,8 +34,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping.getVersionNumber;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter"})
@@ -37,18 +43,16 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @RequiredArgsConstructor
 public class HearingsService {
 
+    @Value("${retry.hearing-response-update.max-retries}")
+    private static int hearingResponseUpdateMaxRetries;
+
     private final HmcHearingApiService hmcHearingApiService;
+
+    private final HmcHearingsApiService hmcHearingsApiService;
 
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
-    private final IdamService idamService;
-
-    private final HmcHearingPartiesNotifiedApi hmcHearingPartiesNotifiedApi;
-
-    private final ReferenceData referenceData;
-
-
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
@@ -61,7 +65,7 @@ public class HearingsService {
     }
 
     public void processHearingWrapper(HearingWrapper wrapper)
-            throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+        throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -91,20 +95,38 @@ public class HearingsService {
     }
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
-        updateIds(wrapper);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
-        HmcUpdateResponse response = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+        SscsCaseData caseData = wrapper.getCaseData();
+        String caseId = caseData.getCcdCaseId();
 
-        log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
-                wrapper.getCaseData().getCcdCaseId(),
+        HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
+
+        CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
+
+        if (isNull(hearing)) {
+            updateIds(wrapper);
+            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
+            HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+            HmcUpdateResponse hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+
+            log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
+                caseId,
                 wrapper.getState().getState(),
-                response.toString());
+                hmcUpdateResponse.toString());
 
-        hearingResponseUpdate(wrapper, response);
+            hearingResponseUpdate(wrapper, hmcUpdateResponse);
+        } else {
+            HmcUpdateResponse hmcUpdateResponse = HmcUpdateResponse.builder()
+                .hearingRequestId(hearing.getHearingId())
+                .versionNumber(hearing.getRequestVersion())
+                .status(hearing.getHmcStatus())
+                .build();
+            hearingResponseUpdate(wrapper, hmcUpdateResponse);
+        }
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
         updateIds(wrapper);
+        OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
@@ -115,7 +137,6 @@ public class HearingsService {
                 response.toString());
 
         hearingResponseUpdate(wrapper, response);
-
     }
 
     private void updatedCase(HearingWrapper wrapper) {
@@ -135,23 +156,22 @@ public class HearingsService {
     }
 
     private void partyNotified(HearingWrapper wrapper) {
-        hmcHearingPartiesNotifiedApi.updatePartiesNotifiedHearingRequest(
-                idamService.getIdamTokens().getIdamOauth2Token(),
-                idamService.getIdamTokens().getServiceAuthorization(),
-                getHearingId(wrapper),
-                getVersionNumber(wrapper),
-                buildUpdatePartiesNotifiedPayload(wrapper)
-        );
+        // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
     }
 
+    @Retryable(
+        value = UpdateCaseException.class,
+        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
+        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response)
         throws UpdateCaseException {
 
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
+        String caseId = caseData.getCcdCaseId();
 
-        log.info("Updating Case with Hearing Response for Case ID {}, Hearing ID {} and  Hearing State {}",
-            caseData.getCcdCaseId(),
+        log.info("Updating Case with Hearing Response for Case ID {}, Hearing ID {} and Hearing State {}",
+            caseId,
             hearingRequestId,
             wrapper.getState().getState());
 
@@ -173,10 +193,23 @@ public class HearingsService {
             event.getDescription());
 
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
-            caseData.getCcdCaseId(),
+            caseId,
             hearingRequestId,
             wrapper.getState().getState(),
             event.getEventType().getCcdType());
+    }
+
+    @Recover
+    public void hearingResponseUpdateRecover(UpdateCaseException exception, HearingWrapper wrapper, HmcUpdateResponse response) {
+
+        log.info("Updating Case with Hearing Response has failed {} times, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
+            hearingResponseUpdateMaxRetries,
+            wrapper.getCaseData().getCcdCaseId(),
+            response.getHearingRequestId(),
+            wrapper.getState().getState(),
+            exception);
+
+        throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
     }
 
     private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException {

@@ -11,7 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingChannelMapping.getHearingChannelsHmcReference;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
 
@@ -39,12 +40,12 @@ public final class ServiceHearingValuesMapping {
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(BENEFIT)
                 .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder))
-                .hearingWindow(HearingsDetailsMapping.buildHearingWindow(caseData, shouldBeAutoListed))
+                .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData))
                 .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
-                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData.getProcessingVenue(), referenceDataServiceHolder))
+                .hearingLocations(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired())
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData))
@@ -59,15 +60,16 @@ public final class ServiceHearingValuesMapping {
                 .hearingChannels(getHearingChannelsHmcReference(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
+                .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
             .build();
     }
 
     public static Judiciary getJudiciary(@Valid SscsCaseData sscsCaseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         return Judiciary.builder()
-                .roleType(HearingsDetailsMapping.getRoleTypes())
-                .authorisationTypes(HearingsDetailsMapping.getAuthorisationTypes())
-                .authorisationSubType(HearingsDetailsMapping.getAuthorisationSubTypes())
-                .judiciarySpecialisms(PanelMemberSpecialismsMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
+                .roleType(HearingsPanelMapping.getRoleTypes(sscsCaseData.getBenefitCode()))
+                .authorisationTypes(HearingsPanelMapping.getAuthorisationTypes())
+                .authorisationSubType(HearingsPanelMapping.getAuthorisationSubTypes())
+                .judiciarySpecialisms(HearingsPanelMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
                 .judiciaryPreferences(getPanelPreferences())
                 .build();
     }
