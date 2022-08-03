@@ -278,7 +278,7 @@ public final class HearingsDetailsMapping {
 
 
     public static boolean isCaseLinked(@Valid SscsCaseData caseData) {
-        return isNotEmpty(LinkedCasesMapping.getLinkedCases(caseData));
+        return isNotEmpty(caseData.getLinkedCase());
     }
 
     public static boolean isPoOfficerAttending(@Valid SscsCaseData caseData) {
