@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -96,7 +97,9 @@ class OverridesMappingTest {
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder().build())
+                .overrideFields(OverrideFields.builder()
+                                    .appellantHearingChannel(HearingChannel.TELEPHONE)
+                                    .build())
                 .build())
             .build();
 
@@ -230,6 +233,7 @@ class OverridesMappingTest {
         assertThat(result.getAutoList()).isNotNull();
         assertThat(result.getHearingVenueEpimsIds()).isNotEmpty();
         assertThat(result.getPoToAttend()).isNotNull();
+        assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.TELEPHONE);
     }
 
     @DisplayName("When case data is given with reserved to judge, getReservedToJudge returns the correct Reserved To Member")
