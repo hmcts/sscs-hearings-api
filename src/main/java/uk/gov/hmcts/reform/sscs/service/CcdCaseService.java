@@ -7,7 +7,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
-import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -100,9 +99,10 @@ public class CcdCaseService {
         SearchSourceBuilder bulkCaseSearch = SearchSourceBuilder.searchSource()
             .query(QueryBuilders.termsQuery(CASE_ID_TERM, caseReferences));
 
-        List<CaseDetails> result = searchCases(idamService.getIdamTokens(), bulkCaseSearch).getCases();
+        SearchResult result = searchCases(idamService.getIdamTokens(), bulkCaseSearch);
 
         return Optional.ofNullable(result)
+            .map(SearchResult::getCases)
             .orElse(new ArrayList<>())
             .stream()
             .map(sscsCcdConvertService::getCaseDetails)

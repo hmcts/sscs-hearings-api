@@ -154,6 +154,15 @@ class CcdCaseServiceTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void getCasesViaElastic_noResult() throws UpdateCaseException {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+
+        List<SscsCaseDetails> result = ccdCaseService.getCasesViaElastic(List.of("1234"));
+
+        assertThat(result).isEmpty();
+    }
+
     private static Stream<Arguments> emptyCaseArguments() {
         return Stream.of(
             null,
