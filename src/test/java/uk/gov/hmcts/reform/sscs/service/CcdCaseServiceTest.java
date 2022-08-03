@@ -5,10 +5,15 @@ import feign.Request;
 import feign.RequestTemplate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
+import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
@@ -19,7 +24,10 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -129,5 +137,53 @@ class CcdCaseServiceTest {
         assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
                 () -> ccdCaseService.updateCaseData(
                         testCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION));
+    }
+
+    @ParameterizedTest
+    @MethodSource("emptyCaseArguments")
+    void getCasesViaElastic_noCases(List<CaseDetails> cases) throws UpdateCaseException {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+
+        SearchResult searchResult = SearchResult.builder().cases(cases).total(0).build();
+
+        given(coreCaseDataApi.searchCases(any(), any(), any(), any()))
+            .willReturn(searchResult);
+
+        List<SscsCaseDetails> result = ccdCaseService.getCasesViaElastic(List.of("1234"));
+
+        assertThat(result).isEmpty();
+    }
+
+    private static Stream<Arguments> emptyCaseArguments() {
+        return Stream.of(
+            null,
+            Arguments.of(new ArrayList<>())
+        );
+    }
+
+    @Test
+    void getCasesViaElastic() throws UpdateCaseException {
+        Long id = 1L;
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+
+        CaseDetails details = CaseDetails.builder().id(id).build();
+
+        SearchResult searchResult = SearchResult.builder()
+            .cases(List.of(details))
+            .total(1)
+            .build();
+
+        SscsCaseDetails sscsCaseDetails = SscsCaseDetails.builder().id(id).build();
+
+        given(coreCaseDataApi.searchCases(any(), any(), any(), any()))
+            .willReturn(searchResult);
+
+        given(sscsCcdConvertService.getCaseDetails(details)).willReturn(sscsCaseDetails);
+
+        List<SscsCaseDetails> result = ccdCaseService.getCasesViaElastic(List.of(id.toString()));
+
+        assertThat(result).hasSize(1);
+
+        assertThat(result.get(0)).isEqualTo(sscsCaseDetails);
     }
 }

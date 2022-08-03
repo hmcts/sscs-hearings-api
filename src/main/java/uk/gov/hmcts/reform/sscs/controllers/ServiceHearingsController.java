@@ -34,7 +34,6 @@ public class ServiceHearingsController {
 
     private final ServiceHearingsService serviceHearingsService;
 
-
     @PostMapping("/serviceHearingValues")
     @Operation(description = "Get Hearing Values for a case")
     @ApiResponses(value = {
@@ -77,7 +76,7 @@ public class ServiceHearingsController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "CCD Case ID and Hearing ID (could be null, empty string or missing) of the case the Linked Cases will be found", required = true,
                     content = @Content(schema = @Schema(implementation = ServiceHearingRequest.class, example = "{ \n  \"caseReference\": \"1234123412341234\",\n  \"hearingId\": \"123123123\"\n}")))
             @RequestBody ServiceHearingRequest request)
-        throws GetCaseException, InvalidMappingException {
+        throws GetCaseException {
         try {
             log.info("Retrieving case details using Case id : {}, for use in generating Service Linked Cases",
                     request.getCaseId());

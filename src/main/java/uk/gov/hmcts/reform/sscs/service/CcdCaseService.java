@@ -19,7 +19,9 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -94,20 +96,20 @@ public class CcdCaseService {
         }
     }
 
-    public List<SscsCaseData> getCases(List<String> caseReferences) {
-
+    public List<SscsCaseDetails> getCasesViaElastic(List<String> caseReferences) {
         SearchSourceBuilder bulkCaseSearch = SearchSourceBuilder.searchSource()
             .query(QueryBuilders.termsQuery(CASE_ID_TERM, caseReferences));
 
         List<CaseDetails> result = searchCases(idamService.getIdamTokens(), bulkCaseSearch).getCases();
 
-        return result.stream()
-            .map(caseDetail -> sscsCcdConvertService.getCaseData(caseDetail.getData()))
+        return Optional.ofNullable(result)
+            .orElse(new ArrayList<>())
+            .stream()
+            .map(sscsCcdConvertService::getCaseDetails)
             .collect(Collectors.toList());
     }
 
     private SearchResult searchCases(IdamTokens idamTokens, SearchSourceBuilder searchBuilder) {
-
         return coreCaseDataApi.searchCases(
             idamTokens.getIdamOauth2Token(),
             idamTokens.getServiceAuthorization(),

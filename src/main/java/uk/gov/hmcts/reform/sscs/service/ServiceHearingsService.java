@@ -34,9 +34,11 @@ import java.util.stream.Collectors;
 public class ServiceHearingsService {
 
     public static final int NUM_CASES_EXPECTED = 1;
+
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
@@ -66,14 +68,14 @@ public class ServiceHearingsService {
         throws GetCaseException {
 
         String caseId = request.getCaseId();
-        List<SscsCaseData> mainCaseData = ccdCaseService.getCases(List.of(request.getCaseId()));
+        List<SscsCaseDetails> mainCaseData = ccdCaseService.getCasesViaElastic(List.of(request.getCaseId()));
 
-        if (mainCaseData.size() != NUM_CASES_EXPECTED) {
+        if (mainCaseData == null || mainCaseData.size() != NUM_CASES_EXPECTED) {
             throw new IllegalStateException(
                 "Invalid search data returned: one case is required. Attempted to fetch data for " + caseId);
         }
 
-        SscsCaseData caseData = mainCaseData.get(0);
+        SscsCaseData caseData = mainCaseData.get(0).getData();
 
         List<String> linkedReferences = Optional.ofNullable(caseData.getLinkedCase())
             .orElseGet(Collections::emptyList).stream()
@@ -85,18 +87,16 @@ public class ServiceHearingsService {
 
         log.info("{} linked case references found for case: {}", linkedReferences.size(), caseData.getCaseReference());
 
-        List<SscsCaseData> linkedCases = ccdCaseService.getCases(linkedReferences);
+        List<SscsCaseDetails> linkedCases = ccdCaseService.getCasesViaElastic(linkedReferences);
 
         List<ServiceLinkedCases> serviceLinkedCases = new ArrayList<>();
 
-        for (SscsCaseData linkedCase : linkedCases) {
-            serviceLinkedCases.add(
-                ServiceLinkedCases.builder()
-                    .caseReference(linkedCase.getCaseReference())
-                    .caseName(linkedCase.getCaseAccessManagementFields().getCaseNamePublic())
-                    .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
-                    .build());
-        }
+        linkedCases.forEach(linkedCase -> serviceLinkedCases.add(
+            ServiceLinkedCases.builder()
+                .caseReference(linkedCase.getId().toString())
+                .caseName(linkedCase.getData().getCaseAccessManagementFields().getCaseNamePublic())
+                .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
+                .build()));
 
         return serviceLinkedCases;
     }
