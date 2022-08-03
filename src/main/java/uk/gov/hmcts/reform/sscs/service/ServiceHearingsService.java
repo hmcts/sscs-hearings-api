@@ -5,30 +5,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping;
-import uk.gov.hmcts.reform.sscs.helper.mapping.LinkedCasesMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingValuesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ServiceHearingsService {
 
+    public static final int NUM_CASES_EXPECTED = 1;
+
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
@@ -57,10 +66,34 @@ public class ServiceHearingsService {
     public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)
         throws GetCaseException {
 
-        SscsCaseData caseData = ccdCaseService.getCaseDetails(request.getCaseId()).getData();
+        String caseId = request.getCaseId();
+        List<SscsCaseDetails> mainCaseData = ccdCaseService.getCasesViaElastic(List.of(request.getCaseId()));
 
-        return LinkedCasesMapping.getLinkedCasesWithNameAndReasons(caseData, ccdCaseService);
+        if (mainCaseData == null || mainCaseData.size() != NUM_CASES_EXPECTED) {
+            throw new IllegalStateException(
+                "Invalid search data returned: one case is required. Attempted to fetch data for " + caseId);
+        }
 
+        SscsCaseData caseData = mainCaseData.get(0).getData();
 
+        List<String> linkedReferences = Optional.ofNullable(caseData.getLinkedCase())
+            .orElseGet(Collections::emptyList).stream()
+            .filter(Objects::nonNull)
+            .map(CaseLink::getValue)
+            .filter(Objects::nonNull)
+            .map(CaseLinkDetails::getCaseReference)
+            .collect(Collectors.toList());
+
+        log.info("{} linked case references found for case: {}", linkedReferences.size(), caseData.getCaseReference());
+
+        List<SscsCaseDetails> linkedCases = ccdCaseService.getCasesViaElastic(linkedReferences);
+
+        return linkedCases.stream().map(linkedCase ->
+            ServiceLinkedCases.builder()
+                .caseReference(linkedCase.getId().toString())
+                .caseName(linkedCase.getData().getCaseAccessManagementFields().getCaseNamePublic())
+                .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
+                .build())
+            .collect(Collectors.toList());
     }
 }
