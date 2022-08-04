@@ -84,7 +84,7 @@ public class ServiceHearingsService {
             .map(CaseLinkDetails::getCaseReference)
             .collect(Collectors.toList());
 
-        log.info("{} linked case references found for case: {}", linkedReferences.size(), caseData.getCaseReference());
+        log.info("{} linked case references found for case: {}", linkedReferences.size(), caseId);
 
         List<SscsCaseDetails> linkedCases = ccdCaseService.getCasesViaElastic(linkedReferences);
 
