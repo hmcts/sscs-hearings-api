@@ -97,9 +97,7 @@ class OverridesMappingTest {
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder()
-                                    .appellantHearingChannel(HearingChannel.TELEPHONE)
-                                    .build())
+                .defaultOverrideFields(OverrideFields.builder().build())
                 .build())
             .build();
 
@@ -202,7 +200,9 @@ class OverridesMappingTest {
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
     @Test
     void testSetDefaultOverrideFields() throws InvalidMappingException {
-        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(null);
+        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(OverrideFields.builder()
+                                                                              .appellantHearingChannel(HearingChannel.TELEPHONE)
+                                                                              .build());
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
 
