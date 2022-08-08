@@ -8,28 +8,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -104,6 +83,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                         .baseLocation(EPIMS_ID)
                                         .region(REGION)
                                         .build())
+            .dwpIsOfficerAttending("Yes")
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
@@ -116,7 +96,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getHearingWindow());
         assertNotNull(hearingDetails.getDuration());
         assertNotNull(hearingDetails.getHearingPriorityType());
-        assertEquals(0, hearingDetails.getNumberOfPhysicalAttendees());
+        assertEquals(1, hearingDetails.getNumberOfPhysicalAttendees());
         assertNotNull(hearingDetails.getHearingLocations());
         assertNull(hearingDetails.getListingComments());
         assertNull(hearingDetails.getHearingRequester());
@@ -230,6 +210,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
@@ -253,6 +234,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
             .build();
         Map<String, List<String>> multipleHearingLocations = new HashMap<>();
         multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
@@ -270,6 +252,36 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result.get(0).getLocationId()).isEqualTo("226511");
         assertThat(result.get(1).getLocationId()).isEqualTo("443014");
 
+    }
+
+    @DisplayName("Regional hearing location Test")
+    @Test
+    void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc() {
+        final SscsCaseData caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending("No")
+            .regionalProcessingCenter(RegionalProcessingCenter.builder().name("SSCS Leeds").build())
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("N").build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+        given(venueService.getRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName())).willReturn(Arrays.asList("112233","332211","123123","321321"));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).hasSize(4);
+        assertThat(result)
+            .hasSize(4)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(
+                tuple("112233", COURT),
+                tuple("332211", COURT),
+                tuple("123123", COURT),
+                tuple("321321", COURT));
     }
 
 
@@ -305,6 +317,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
