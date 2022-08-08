@@ -201,19 +201,32 @@ public final class HearingsDetailsMapping {
                 .collect(Collectors.toList());
         }
 
-        String epimsId = referenceDataServiceHolder
-            .getVenueService()
-            .getEpimsIdForVenue(caseData.getProcessingVenue())
-            .orElse(null);
+        if (HearingsChannelMapping.isPaperCase(caseData)) {
+            List<String> epimsIds = referenceDataServiceHolder
+                .getVenueService()
+                .getRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName());
 
-        Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
+            return epimsIds.stream()
+                .map(id -> HearingLocation.builder()
+                    .locationId(id)
+                    .locationType(COURT)
+                    .build())
+                .collect(Collectors.toList());
+        } else {
+            String epimsId = referenceDataServiceHolder
+                .getVenueService()
+                .getEpimsIdForVenue(caseData.getProcessingVenue())
+                .orElse(null);
 
-        return multipleHearingLocations.values().stream()
-            .filter(listValues ->  listValues.contains(epimsId))
-            .findFirst()
-            .orElseGet(() -> Collections.singletonList(epimsId))
-            .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
-            .collect(Collectors.toCollection(ArrayList::new));
+            Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
+
+            return multipleHearingLocations.values().stream()
+                .filter(listValues ->  listValues.contains(epimsId))
+                .findFirst()
+                .orElseGet(() -> Collections.singletonList(epimsId))
+                .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
+                .collect(Collectors.toCollection(ArrayList::new));
+        }
     }
 
     public static List<String> getFacilitiesRequired() {
