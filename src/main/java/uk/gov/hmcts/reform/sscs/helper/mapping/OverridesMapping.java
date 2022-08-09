@@ -74,7 +74,7 @@ public final class OverridesMapping {
 
         caseData.getSchedulingAndListingFields().setDefaultOverrideFields(defaultOverrideFields);
 
-        log.info("Just for testing will be reverted, casedata: ",
+        log.info("Default Override Fields set to {} for Case {}",
             defaultOverrideFields, wrapper.getCaseData());
     }
 
