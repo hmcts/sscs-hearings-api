@@ -204,7 +204,7 @@ public final class HearingsDetailsMapping {
         if (HearingsChannelMapping.isPaperCase(caseData)) {
             List<String> epimsIds = referenceDataServiceHolder
                 .getVenueService()
-                .getRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName());
+                .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName());
 
             return epimsIds.stream()
                 .map(id -> HearingLocation.builder()
