@@ -62,9 +62,9 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest extends HearingsMappingBase {
@@ -211,7 +211,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         //then
         assertFalse(serviceHearingValues.isAutoListFlag());
         assertEquals(30, serviceHearingValues.getDuration());
-        assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
+        assertEquals(SUBSTANTIVE, serviceHearingValues.getHearingType());
         assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
             .extracting("categoryType","categoryValue")
@@ -235,7 +235,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
-        assertEquals(List.of(FACE_TO_FACE.getHmcReference()), serviceHearingValues.getHearingChannels());
+        assertEquals(List.of(FACE_TO_FACE), serviceHearingValues.getHearingChannels());
         assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
     }
 

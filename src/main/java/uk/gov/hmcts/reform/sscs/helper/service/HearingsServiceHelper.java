@@ -10,7 +10,9 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,5 +99,12 @@ public final class HearingsServiceHelper {
     public static boolean isCaseHearingRequestedOrAwaitingListing(HmcStatus hmcStatus) {
         return HmcStatus.HEARING_REQUESTED == hmcStatus
             || HmcStatus.AWAITING_LISTING == hmcStatus;
+    }
+
+    public static HearingChannel getHearingBookedChannel(HearingGetResponse hearingGetResponse) {
+        return Optional.ofNullable(hearingGetResponse.getHearingDetails().getHearingChannels())
+            .orElse(Collections.emptyList()).stream()
+            .findFirst()
+            .orElse(null);
     }
 }
