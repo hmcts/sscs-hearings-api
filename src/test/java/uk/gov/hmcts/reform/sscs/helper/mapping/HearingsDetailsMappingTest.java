@@ -59,6 +59,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
@@ -192,9 +193,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("Hearing type should be substantive.")
     @Test
     void getHearingType() {
-        String result = HearingsDetailsMapping.getHearingType();
+        HearingTypeLov result = HearingsDetailsMapping.getHearingType();
 
-        assertEquals(result, HearingTypeLov.SUBSTANTIVE.getHmcReference());
+        assertThat(result).isEqualTo(SUBSTANTIVE);
     }
 
     @DisplayName("When urgentCase is yes, isCaseUrgent return True")

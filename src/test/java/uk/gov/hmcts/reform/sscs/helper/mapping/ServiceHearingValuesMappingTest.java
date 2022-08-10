@@ -211,7 +211,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         //then
         assertFalse(serviceHearingValues.isAutoListFlag());
         assertEquals(30, serviceHearingValues.getDuration());
-        assertEquals(SUBSTANTIVE.getHmcReference(), serviceHearingValues.getHearingType());
+        assertEquals(SUBSTANTIVE, serviceHearingValues.getHearingType());
         assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
             .extracting("categoryType","categoryValue")
@@ -235,7 +235,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
         assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
         assertNull(serviceHearingValues.getVocabulary());
-        assertEquals(List.of(FACE_TO_FACE.getHmcReference()), serviceHearingValues.getHearingChannels());
+        assertEquals(List.of(FACE_TO_FACE), serviceHearingValues.getHearingChannels());
         assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
     }
 

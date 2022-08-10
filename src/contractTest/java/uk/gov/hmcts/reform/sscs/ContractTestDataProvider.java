@@ -48,6 +48,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 public class ContractTestDataProvider {
 
@@ -162,7 +163,7 @@ public class ContractTestDataProvider {
     protected static HearingDetails hearingDetails() {
         HearingDetails hearingDetails = new HearingDetails();
         hearingDetails.setAutolistFlag(true);
-        hearingDetails.setHearingType("Some hearing type");
+        hearingDetails.setHearingType(SUBSTANTIVE);
         hearingDetails.setHearingWindow(hearingWindow());
         hearingDetails.setDuration(1);
         hearingDetails.setNonStandardHearingDurationReasons(Arrays.asList("First reason", "Second reason"));
@@ -378,7 +379,7 @@ public class ContractTestDataProvider {
             .booleanValue("hearingIsLinkedFlag", true)
             .booleanValue("privateHearingRequiredFlag", true)
             .booleanValue("hearingInWelshFlag", true)
-            .stringType("hearingType", "hearingType123")
+            .stringType("hearingType", "SUBSTANTIVE")
             .stringType("leadJudgeContractType", "leadJudgeContractType123")
             .stringType("listingComments", "listingComments123")
             .stringType("hearingRequester", "hearingRequester123")

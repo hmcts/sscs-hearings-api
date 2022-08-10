@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class HearingDetails {
 
     private boolean autolistFlag;
 
-    private String hearingType;
+    private HearingTypeLov hearingType;
 
     private HearingWindow hearingWindow;
 
@@ -54,6 +56,6 @@ public class HearingDetails {
 
     private boolean multiDayHearing;
 
-    private List<String> hearingChannels;
+    private List<HearingChannel> hearingChannels;
 
 }
