@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
@@ -55,6 +56,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     private VenueService venueService;
 
     public static final String PROCESSING_VENUE_1 = "test_place";
+
+    private static final String epimsId1 = "112233";
+    private static final String epimsId2 = "332211";
+    private static final String epimsId3 = "123123";
+    private static final String epimsId4 = "321321";
+    private static final List<VenueDetails> epimsIdsList = Arrays.asList(
+        VenueDetails.builder().epimsId(epimsId1).build(),
+        VenueDetails.builder().epimsId(epimsId2).build(),
+        VenueDetails.builder().epimsId(epimsId3).build(),
+        VenueDetails.builder().epimsId(epimsId4).build());
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
@@ -265,7 +276,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
-        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName())).willReturn(Arrays.asList("112233","332211","123123","321321"));
+        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName()))
+            .willReturn(epimsIdsList);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
@@ -278,10 +290,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .hasSize(4)
             .extracting("locationId","locationType")
             .containsExactlyInAnyOrder(
-                tuple("112233", COURT),
-                tuple("332211", COURT),
-                tuple("123123", COURT),
-                tuple("321321", COURT));
+                tuple(epimsId1, COURT),
+                tuple(epimsId2, COURT),
+                tuple(epimsId3, COURT),
+                tuple(epimsId4, COURT));
     }
 
 
