@@ -67,13 +67,13 @@ public final class HearingsChannelMapping {
         hearingChannels.add(individualPreferredHearingChannel);
 
         if (nonNull(caseData.getOtherParties())) {
-            hearingChannels.addAll(caseData.getOtherParties().stream()
-                                       .map(CcdValue::getValue)
-                                       .map(otherParty -> getIndividualPreferredHearingChannel(
-                                           otherParty.getHearingSubtype(),
-                                           otherParty.getHearingOptions(), null
-                                       ))
-                                       .collect(Collectors.toList()));
+            hearingChannels.addAll(
+                caseData.getOtherParties().stream()
+                    .map(CcdValue::getValue)
+                    .map(otherParty -> getIndividualPreferredHearingChannel(
+                        otherParty.getHearingSubtype(),
+                        otherParty.getHearingOptions(), null
+                    )).collect(Collectors.toList()));
         }
 
         return hearingChannels;
