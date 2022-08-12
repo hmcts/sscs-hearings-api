@@ -307,15 +307,8 @@ public final class HearingsPartiesMapping {
         List<RelatedParty> relatedParties = new ArrayList<>();
         EntityRoleCode roleCode = getEntityRoleCode(entity);
         switch (roleCode) {
-            case APPOINTEE:
-                relatedParties.add(getRelatedParty(partyId, roleCode.getHmcReference()));
-                break;
             case REPRESENTATIVE:
                 relatedParties.add(getRelatedParty(partyId, roleCode.getPartyRelationshipType().getRelationshipTypeCode()));
-                break;
-            case OTHER_PARTY:
-            case JOINT_PARTY:
-                relatedParties.add(getRelatedParty(appellantId, roleCode.getHmcReference()));
                 break;
             default:
                 break;
