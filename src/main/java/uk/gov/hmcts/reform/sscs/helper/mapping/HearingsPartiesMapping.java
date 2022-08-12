@@ -308,6 +308,7 @@ public final class HearingsPartiesMapping {
         EntityRoleCode roleCode = getEntityRoleCode(entity);
         switch (roleCode) {
             case REPRESENTATIVE:
+            case INTERPRETER:
                 relatedParties.add(getRelatedParty(partyId, roleCode.getPartyRelationshipType().getRelationshipTypeCode()));
                 break;
             default:
