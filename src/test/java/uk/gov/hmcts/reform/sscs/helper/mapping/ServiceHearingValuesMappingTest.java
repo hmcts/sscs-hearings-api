@@ -36,7 +36,7 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
-import uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
