@@ -214,21 +214,21 @@ public final class HearingsDetailsMapping {
                     .locationType(COURT)
                     .build())
                 .collect(Collectors.toList());
-        } else {
-            String epimsId = referenceDataServiceHolder
-                .getVenueService()
-                .getEpimsIdForVenue(caseData.getProcessingVenue())
-                .orElse(null);
-
-            Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
-
-            return multipleHearingLocations.values().stream()
-                .filter(listValues ->  listValues.contains(epimsId))
-                .findFirst()
-                .orElseGet(() -> Collections.singletonList(epimsId))
-                .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
-                .collect(Collectors.toCollection(ArrayList::new));
         }
+
+        String epimsId = referenceDataServiceHolder
+            .getVenueService()
+            .getEpimsIdForVenue(caseData.getProcessingVenue())
+            .orElse(null);
+
+        Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
+
+        return multipleHearingLocations.values().stream()
+            .filter(listValues ->  listValues.contains(epimsId))
+            .findFirst()
+            .orElseGet(() -> Collections.singletonList(epimsId))
+            .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static List<String> getFacilitiesRequired() {

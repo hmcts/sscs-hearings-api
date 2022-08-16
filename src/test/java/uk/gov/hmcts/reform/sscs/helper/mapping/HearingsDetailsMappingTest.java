@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,7 +9,29 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
+import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.RegionalProcessingCenter;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
@@ -57,15 +80,25 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     public static final String PROCESSING_VENUE_1 = "test_place";
 
-    private static final String epimsId1 = "112233";
-    private static final String epimsId2 = "332211";
-    private static final String epimsId3 = "123123";
-    private static final String epimsId4 = "321321";
-    private static final List<VenueDetails> epimsIdsList = Arrays.asList(
-        VenueDetails.builder().epimsId(epimsId1).build(),
-        VenueDetails.builder().epimsId(epimsId2).build(),
-        VenueDetails.builder().epimsId(epimsId3).build(),
-        VenueDetails.builder().epimsId(epimsId4).build());
+    private String epimsId1;
+    private String epimsId2;
+    private String epimsId3;
+    private String epimsId4;
+    private List<VenueDetails> epimsIdsList;
+
+    @BeforeEach
+    void setUp() {
+        epimsId1 = "112233";
+        epimsId2 = "332211";
+        epimsId3 = "123123";
+        epimsId4 = "321321";
+
+        epimsIdsList = Arrays.asList(
+            VenueDetails.builder().epimsId(epimsId1).build(),
+            VenueDetails.builder().epimsId(epimsId2).build(),
+            VenueDetails.builder().epimsId(epimsId3).build(),
+            VenueDetails.builder().epimsId(epimsId4).build());
+    }
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
@@ -265,14 +298,18 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     }
 
-    @DisplayName("Regional hearing location Test")
+    @DisplayName("When hearing is paper case, return list of regional hearing locations based on RPC name")
     @Test
     void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc() {
         final SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
-            .regionalProcessingCenter(RegionalProcessingCenter.builder().name("SSCS Leeds").build())
+            .regionalProcessingCenter(RegionalProcessingCenter.builder()
+                                          .name("SSCS Leeds")
+                                          .build())
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("N").build())
+                        .hearingOptions(HearingOptions.builder()
+                                            .wantsToAttend("N")
+                                            .build())
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
@@ -295,7 +332,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 tuple(epimsId3, COURT),
                 tuple(epimsId4, COURT));
     }
-
 
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
