@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PostponementRequest;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ProcessRequestAction;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 
 import java.time.LocalDate;
@@ -21,6 +23,8 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.ProcessRequestAction.GRANT;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY_POSTPONEMENT;
@@ -210,20 +214,56 @@ class HearingsWindowMappingTest {
         assertThat(result).isEqualTo(expected);
     }
 
+    @DisplayName("When unprocessedPostponementRequest is Yes isPostponementGranted returns false")
+    @Test
+    void testIsPostponementGrantedUnprocessed() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .postponementRequest(PostponementRequest.builder()
+                .unprocessedPostponementRequest(YES)
+                .actionPostponementRequestSelected(GRANT.getValue())
+                .build())
+            .build();
+
+        boolean result = HearingsWindowMapping.isCasePostponed(caseData);
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("When unprocessedPostponementRequest is not Yes isPostponementGranted returns true")
+    @ParameterizedTest
+    @EnumSource(
+        value = YesNo.class,
+        mode = EnumSource.Mode.INCLUDE,
+        names = {"NO"})
+    @NullSource
+    void testIsPostponementGranted(YesNo value) {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .postponementRequest(PostponementRequest.builder()
+                .unprocessedPostponementRequest(value)
+                .actionPostponementRequestSelected(GRANT.getValue())
+                .build())
+            .build();
+
+        boolean result = HearingsWindowMapping.isCasePostponed(caseData);
+
+        assertThat(result).isTrue();
+    }
+
     @DisplayName("When actionPostponementRequestSelected is Grant isPostponementGranted returns true")
     @ParameterizedTest
     @EnumSource(
         value = ProcessRequestAction.class,
         mode = EnumSource.Mode.INCLUDE,
         names = {"GRANT"})
-    void isPostponementGranted(ProcessRequestAction value) {
+    void testIsPostponementGranted(ProcessRequestAction value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .postponementRequest(PostponementRequest.builder()
+                .unprocessedPostponementRequest(NO)
                 .actionPostponementRequestSelected(value.getValue())
                 .build())
             .build();
 
-        boolean result = HearingsWindowMapping.isPostponementGranted(caseData);
+        boolean result = HearingsWindowMapping.isCasePostponed(caseData);
 
         assertThat(result).isTrue();
     }
@@ -234,14 +274,15 @@ class HearingsWindowMappingTest {
         value = ProcessRequestAction.class,
         mode = EnumSource.Mode.EXCLUDE,
         names = {"GRANT"})
-    void isPostponementGrantedFalse(ProcessRequestAction value) {
+    void testIsPostponementGrantedFalse(ProcessRequestAction value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .postponementRequest(PostponementRequest.builder()
+                .unprocessedPostponementRequest(NO)
                 .actionPostponementRequestSelected(value.getValue())
                 .build())
             .build();
 
-        boolean result = HearingsWindowMapping.isPostponementGranted(caseData);
+        boolean result = HearingsWindowMapping.isCasePostponed(caseData);
 
         assertThat(result).isFalse();
     }
@@ -249,14 +290,15 @@ class HearingsWindowMappingTest {
     @DisplayName("When actionPostponementRequestSelected is null or empty isPostponementGranted returns false")
     @ParameterizedTest
     @NullAndEmptySource
-    void isPostponementGrantedNull(String value) {
+    void testIsPostponementGrantedNull(String value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .postponementRequest(PostponementRequest.builder()
+                .unprocessedPostponementRequest(NO)
                 .actionPostponementRequestSelected(value)
                 .build())
             .build();
 
-        boolean result = HearingsWindowMapping.isPostponementGranted(caseData);
+        boolean result = HearingsWindowMapping.isCasePostponed(caseData);
 
         assertThat(result).isFalse();
     }

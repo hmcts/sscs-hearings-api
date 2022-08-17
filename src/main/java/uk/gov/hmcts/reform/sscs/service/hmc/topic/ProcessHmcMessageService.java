@@ -15,7 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
@@ -82,10 +82,10 @@ public class ProcessHmcMessageService {
     private void resolveEventAndUpdateCase(HearingGetResponse hearingResponse, HmcStatus hmcStatus, SscsCaseData caseData,
                                            String ccdUpdateDescription) throws UpdateCaseException {
 
-        Function<HearingGetResponse, EventType> eventMapper = hmcStatus.getEventMapper();
+        BiFunction<HearingGetResponse, SscsCaseData, EventType> eventMapper = hmcStatus.getEventMapper();
 
         if (eventMapper != null) {
-            EventType eventType = eventMapper.apply(hearingResponse);
+            EventType eventType = eventMapper.apply(hearingResponse, caseData);
             if (eventType != null) {
                 ccdCaseService.updateCaseData(
                     caseData,

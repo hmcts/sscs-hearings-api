@@ -365,7 +365,7 @@ class ProcessHmcMessageServiceTest {
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), HEARING_ID);
         verify(ccdCaseService, times(1))
                 .updateCaseData(caseData,
-                        hmcStatus.getEventMapper().apply(hearingGetResponse),
+                        hmcStatus.getEventMapper().apply(hearingGetResponse, caseData),
                         hmcStatus.getCcdUpdateSummary(),
                         ccdUpdateDescription);
     }
