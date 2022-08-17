@@ -36,7 +36,7 @@ public final class HearingsChannelMapping {
     }
 
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData) {
+        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
             return FACE_TO_FACE;
         }
 
