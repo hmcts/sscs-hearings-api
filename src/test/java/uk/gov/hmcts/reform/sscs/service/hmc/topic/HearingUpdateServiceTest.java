@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
@@ -280,6 +281,22 @@ class HearingUpdateServiceTest {
         hearingUpdateService.setHearingStatus(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getHearings()).isEmpty();
+    }
+
+    @DisplayName("When HmcStatus is listed, the caseData DwpState should be set as hearingDataIssued")
+    @Test
+    void testSetDwpState() {
+        hearingUpdateService.setDwpState(LISTED, caseData);
+
+        assertThat(caseData.getDwpState()).isEqualTo(DwpState.HEARING_DATE_ISSUED.getId());
+    }
+
+    @DisplayName("When HmcStatus is null, the caseData DwpState will not be updated and remain null")
+    @Test
+    void testSetDwpStateWhenNullHmcStatus() {
+        hearingUpdateService.setDwpState(null, caseData);
+
+        assertThat(caseData.getDwpState()).isNull();
     }
 
     @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates setHearingDate to the correct date")

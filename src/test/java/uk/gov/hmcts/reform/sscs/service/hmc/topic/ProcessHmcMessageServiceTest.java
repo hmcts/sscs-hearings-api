@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
@@ -151,7 +150,7 @@ class ProcessHmcMessageServiceTest {
         verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, caseData, hmcStatus);
     }
 
-    @DisplayName("When HmcStatus is Listed, set DwpState to Hearing State Issued, assert state set correctly")
+    @DisplayName("When HmcStatus is Listed, setDwpState is called")
     @Test
     void testListedStatusShouldUpdateDwpStateForCaseData() throws Exception {
         // given
@@ -169,29 +168,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        Assertions.assertEquals(DwpState.HEARING_DATE_ISSUED.getId(), caseData.getDwpState());
-    }
-
-    @DisplayName("When HmcStatus is non Listed, ensure DwpState is not being set, should remain null")
-    @ParameterizedTest
-    @EnumSource(value = HmcStatus.class, names = {"AWAITING_LISTING", "UPDATE_SUBMITTED", "CANCELLED"})
-    void testNonListedStatusShouldNotUpdateDwpStateForCaseData(HmcStatus hmcStatus) throws Exception {
-        // given
-        hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
-        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.FIXED);
-        hmcMessage.getHearingUpdate().setHmcStatus(hmcStatus);
-
-        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
-            .willReturn(hearingGetResponse);
-
-        given(ccdCaseService.getCaseDetails(CASE_ID))
-            .willReturn(sscsCaseDetails);
-
-        // when
-        processHmcMessageService.processEventMessage(hmcMessage);
-
-        // then
-        Assertions.assertNull(caseData.getDwpState());
+        verify(hearingUpdateService).setDwpState(hmcMessage.getHearingUpdate().getHmcStatus(), caseData);
     }
 
     @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")

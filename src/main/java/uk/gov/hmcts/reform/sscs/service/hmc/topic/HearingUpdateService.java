@@ -30,6 +30,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.DwpState.HEARING_DATE_ISSUED;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
@@ -114,6 +115,15 @@ public class HearingUpdateService {
         }
 
         hearing.getValue().setHearingStatus(hearingStatus);
+    }
+
+    public void setDwpState(HmcStatus hmcStatus, @Valid SscsCaseData caseData) {
+        if (isNull(hmcStatus)) {
+            return;
+        }
+        if (LISTED == hmcStatus) {
+            caseData.setDwpState(HEARING_DATE_ISSUED.getId());
+        }
     }
 
     public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus listAssistCaseStatus) {
