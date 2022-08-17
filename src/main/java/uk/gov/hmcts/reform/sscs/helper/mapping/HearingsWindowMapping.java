@@ -10,7 +10,7 @@ import javax.validation.Valid;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.ProcessRequestAction.GRANT;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 
 public final class HearingsWindowMapping {
 
@@ -46,7 +46,7 @@ public final class HearingsWindowMapping {
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData) {
-        if (isPostponementGranted(caseData)) {
+        if (isCasePostponed(caseData)) {
             return LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY_POSTPONEMENT);
         }
 
@@ -69,8 +69,7 @@ public final class HearingsWindowMapping {
         return null;
     }
 
-    public static boolean isPostponementGranted(SscsCaseData caseData) {
-        String requestSelected = caseData.getPostponementRequest().getActionPostponementRequestSelected();
-        return GRANT.getValue().equals(requestSelected);
+    public static boolean isCasePostponed(SscsCaseData caseData) {
+        return isYes(caseData.getPostponement().getUnprocessedPostponement());
     }
 }
