@@ -58,19 +58,21 @@ public final class HearingsChannelMapping {
         HearingChannel individualPreferredHearingChannel = getIndividualPreferredHearingChannel(
             caseData.getAppeal().getHearingSubtype(),
             caseData.getAppeal().getHearingOptions(),
-            null);
+            caseData.getSchedulingAndListingFields().getOverrideFields()
+        );
 
         List<HearingChannel> hearingChannels = new ArrayList<>();
 
         hearingChannels.add(individualPreferredHearingChannel);
 
         if (nonNull(caseData.getOtherParties())) {
-            hearingChannels.addAll(caseData.getOtherParties().stream()
-                .map(CcdValue::getValue)
-                .map(otherParty -> getIndividualPreferredHearingChannel(
-                    otherParty.getHearingSubtype(),
-                    otherParty.getHearingOptions(), null))
-                .collect(Collectors.toList()));
+            hearingChannels.addAll(
+                caseData.getOtherParties().stream()
+                    .map(CcdValue::getValue)
+                    .map(otherParty -> getIndividualPreferredHearingChannel(
+                        otherParty.getHearingSubtype(),
+                        otherParty.getHearingOptions(), null
+                    )).collect(Collectors.toList()));
         }
 
         return hearingChannels;
