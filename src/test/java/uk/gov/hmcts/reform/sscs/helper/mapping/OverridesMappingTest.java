@@ -200,9 +200,7 @@ class OverridesMappingTest {
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
     @Test
     void testSetDefaultOverrideFields() throws InvalidMappingException {
-        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(OverrideFields.builder()
-                                                                              .appellantHearingChannel(HearingChannel.TELEPHONE)
-                                                                              .build());
+        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
 
@@ -233,7 +231,7 @@ class OverridesMappingTest {
         assertThat(result.getAutoList()).isNotNull();
         assertThat(result.getHearingVenueEpimsIds()).isNotEmpty();
         assertThat(result.getPoToAttend()).isNotNull();
-        assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.TELEPHONE);
+        assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
     }
 
     @DisplayName("When case data is given with reserved to judge, getReservedToJudge returns the correct Reserved To Member")
