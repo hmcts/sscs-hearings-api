@@ -313,7 +313,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
-        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getName()))
+        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
             .willReturn(epimsIdsList);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
