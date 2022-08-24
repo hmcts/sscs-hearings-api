@@ -41,6 +41,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment.STEP_FREE_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.AM;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.PM;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.EXCLUDE;
@@ -48,7 +49,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.OPTIONAL_INCLUDE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.WITHDRAWN;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov.SUBSTANTIVE;
 
 public class ContractTestDataProvider {
 
@@ -379,7 +379,7 @@ public class ContractTestDataProvider {
             .booleanValue("hearingIsLinkedFlag", true)
             .booleanValue("privateHearingRequiredFlag", true)
             .booleanValue("hearingInWelshFlag", true)
-            .stringType("hearingType", "SUBSTANTIVE")
+            .stringType("hearingType", "BBA3-SUB")
             .stringType("leadJudgeContractType", "leadJudgeContractType123")
             .stringType("listingComments", "listingComments123")
             .stringType("hearingRequester", "hearingRequester123")
