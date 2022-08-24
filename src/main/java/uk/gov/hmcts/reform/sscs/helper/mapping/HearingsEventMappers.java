@@ -33,17 +33,17 @@ public final class HearingsEventMappers {
         }
     }
 
-    public static boolean shouldCaseBeRelisted(SscsCaseData caseData) {
+    private static boolean shouldCaseBeRelisted(SscsCaseData caseData) {
         return HearingsWindowMapping.isCasePostponed(caseData)
             && READY_TO_LIST.getId().equals(caseData.getPostponementRequest().getListingOption());
     }
 
-    public static boolean shouldCaseBeNotListable(SscsCaseData caseData) {
+    private static boolean shouldCaseBeNotListable(SscsCaseData caseData) {
         return HearingsWindowMapping.isCasePostponed(caseData)
             && NOT_LISTABLE.getId().equals(caseData.getPostponementRequest().getListingOption());
     }
 
-    public static boolean shouldCaseBeDormant(HearingGetResponse response) {
+    private static boolean shouldCaseBeDormant(HearingGetResponse response) {
         return nonNull(response.getHearingResponse().getHearingCancellationReason())
             && DORMANT_CANCELLATION_REASONS.contains(response.getHearingResponse().getHearingCancellationReason());
     }
