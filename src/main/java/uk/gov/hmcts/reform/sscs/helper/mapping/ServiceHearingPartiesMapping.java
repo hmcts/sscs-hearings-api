@@ -25,7 +25,6 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 
-
 @SuppressWarnings("PMD.ExcessiveImports")
 public final class ServiceHearingPartiesMapping {
 
