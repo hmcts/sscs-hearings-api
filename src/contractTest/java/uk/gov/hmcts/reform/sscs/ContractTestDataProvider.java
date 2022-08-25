@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.Adjustment;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.NotificationType;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.ServiceData;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -72,17 +75,21 @@ public class ContractTestDataProvider {
     public static final String APPLICATION_JSON = "application/json";
 
     public static final String HEARING_PATH = "/hearing";
+    public static final String PARTIES_NOTIFIED_PATH = "/partiesNotified";
     public static final String FIELD_STATUS = "status";
     public static final String BAD_REQUEST = "BAD_REQUEST";
     public static final String FIELD_MESSAGE = "message";
     public static final String FIELD_ERRORS = "errors";
-    public static final int ZERO_LENGTH = 0;
     public static final Number ZERO_NUMBER_LENGTH = 0;
     public static final String VALID_CASE_ID = "123";
     public static final String FORBIDDEN_CASE_ID = "456";
     public static final String NOT_FOUND_CASE_ID = "789";
+    public static final Long VALID_HEARING_ID = 123L;
+    public static final Long FORBIDDEN_HEARING_ID = 456L;
+    public static final Long NOT_FOUND_HEARING_ID = 789L;
     public static final String HEARING_DATE = "2030-08-20T12:40";
     public static final String ACTIVE = "ACTIVE";
+    public static final Long VERSION_NUMBER = 123L;
 
     private ContractTestDataProvider() {
 
@@ -502,6 +509,22 @@ public class ContractTestDataProvider {
 
 
         return result;
+    }
+
+    public static PartiesNotifiedRequestPayload generatePartiesPutRequest() {
+        return PartiesNotifiedRequestPayload.builder()
+            .requestVersion(VERSION_NUMBER)
+            .serviceData(ServiceData.builder()
+                .partyId("2")
+                .notificationType(NotificationType.LETTER)
+                .build())
+            .build();
+    }
+
+    public static PartiesNotifiedRequestPayload generateInvalidPartiesPutRequest() {
+        return PartiesNotifiedRequestPayload.builder()
+            .requestVersion(54L)
+            .build();
     }
 
 }

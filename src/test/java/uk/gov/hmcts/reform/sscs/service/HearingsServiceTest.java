@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -32,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
+import uk.gov.hmcts.reform.sscs.model.partiesnotified.PartiesNotifiedRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
@@ -55,6 +57,7 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.PARTY_NOTIFIED;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATED_CASE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
@@ -84,10 +87,16 @@ class HearingsServiceTest {
     private HmcHearingsApiService hmcHearingsApiService;
 
     @Mock
+    private HmcPartiesNotifiedApiService hmcPartiesNotifiedApiService;
+
+    @Mock
     private CcdCaseService ccdCaseService;
 
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
+
+    @Mock
+    private HmcPartiesNotifiedApi hmcPartiesNotifiedApi;
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -147,7 +156,7 @@ class HearingsServiceTest {
     void processHearingRequest(HearingState state) throws GetCaseException {
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
 
-        request.setHearingState(state);
+        request.setHearingState(UPDATED_CASE);
         assertThatNoException()
                 .isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
@@ -275,5 +284,27 @@ class HearingsServiceTest {
         wrapper.setCancellationReasons(List.of(OTHER));
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @DisplayName("When wrapper with a PARTY_NOTIFIED Hearing State is given partyNotified should run without error")
+    @Test
+    void partyNotified() {
+        wrapper.setState(PARTY_NOTIFIED);
+
+        wrapper.getCaseData()
+            .setHearings(Collections.singletonList(Hearing.builder()
+                .value(HearingDetails.builder()
+                    .hearingId(String.valueOf(HEARING_REQUEST_ID))
+                    .versionNumber(VERSION)
+                    .build())
+                .build()));
+
+        given(hmcPartiesNotifiedApiService.sendUpdatePartiesNotifiedRequest(
+            any(PartiesNotifiedRequestPayload.class),
+            eq(HEARING_REQUEST_ID), eq(VERSION), eq(null)))
+            .willReturn(ResponseEntity.ok().build());
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 }

@@ -13,8 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HmcPartiesNotifiedResponse {
-    private String hearingId;
+public class GetPartiesNotifiedResponse {
+    private Long hearingId;
 
     private List<PartiesNotifiedResponse> responses;
 }

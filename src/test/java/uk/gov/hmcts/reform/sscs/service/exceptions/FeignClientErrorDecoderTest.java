@@ -71,7 +71,7 @@ class FeignClientErrorDecoderTest {
     @MethodSource("get4xxErrorCodeTestArguments")
     void should_handle_4xx_post_put_error(int statusCode, String expected) throws IOException {
         Request request =
-            Request.create(Request.HttpMethod.POST, "url",
+            Request.create(Request.HttpMethod.POST, "/hearings",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
 
         Response response = buildResponse(request, statusCode);
@@ -99,7 +99,7 @@ class FeignClientErrorDecoderTest {
         requestTemplate.queries(queries);
 
         Request request =
-            Request.create(Request.HttpMethod.DELETE, "url",
+            Request.create(Request.HttpMethod.DELETE, "/hearings",
                            headers, Request.Body.empty(), requestTemplate);
         Response response = buildResponse(request, statusCode);
 
@@ -119,7 +119,7 @@ class FeignClientErrorDecoderTest {
     @Test
     void testShouldFallbackToStringIfJsonProcessingExceptionOccurs() throws JsonProcessingException {
         Request request =
-            Request.create(Request.HttpMethod.POST, "url",
+            Request.create(Request.HttpMethod.POST, "/hearings",
                 headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
 
         Response response = buildResponse(request, HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -140,7 +140,7 @@ class FeignClientErrorDecoderTest {
     @Test
     void should_handle_500_error() {
         Request request =
-            Request.create(Request.HttpMethod.PUT, "url",
+            Request.create(Request.HttpMethod.PUT, "/hearings",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
         Response response = Response.builder()
             .request(request)
@@ -158,7 +158,7 @@ class FeignClientErrorDecoderTest {
     @Test
     void testSendAppInsight() throws JsonProcessingException {
         Request request =
-            Request.create(Request.HttpMethod.POST, "url",
+            Request.create(Request.HttpMethod.POST, "/hearings",
                            headers, Request.Body.create(toJsonString(hearingRequestPayload)), null);
         Response response = buildResponse(request, 400);
 
@@ -171,7 +171,7 @@ class FeignClientErrorDecoderTest {
     @Test
     void testShouldThrowMappingException() {
         Request request =
-            Request.create(Request.HttpMethod.POST, "url",
+            Request.create(Request.HttpMethod.POST, "/hearings",
                            headers, Request.Body.create(toJsonString(new CaseDetails())), null);
         Response response = buildResponse(request, 400);
 

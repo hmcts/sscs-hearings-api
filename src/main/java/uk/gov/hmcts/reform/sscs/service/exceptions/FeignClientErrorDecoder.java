@@ -21,10 +21,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static feign.Request.HttpMethod.GET;
+import static feign.Request.HttpMethod.POST;
+import static feign.Request.HttpMethod.PUT;
+import static uk.gov.hmcts.reform.sscs.service.HmcHearingApi.HEARING_ENDPOINT;
+import static uk.gov.hmcts.reform.sscs.service.HmcPartiesNotifiedApi.PARTIES_NOTIFIED_ENDPOINT;
 
 @Slf4j
 public class FeignClientErrorDecoder implements ErrorDecoder {
-    public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?/hearing/)(\\d+)");
+    public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?" + HEARING_ENDPOINT + "/)(\\d+)");
+    public static final Pattern PARTIES_NOTIFIED_PATH_REGEX = Pattern.compile("(.*?" + PARTIES_NOTIFIED_ENDPOINT + "/)(\\d+)");
     private final AppInsightsService appInsightsService;
     private final ObjectMapper objectMapper;
 
@@ -57,9 +62,19 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
     private HmcFailureMessage extractFailMsg(String methodKey, Response response) {
         Request originalRequest = response.request();
         HttpMethod httpMethod = originalRequest.httpMethod();
+
         HmcFailureMessage failMsg = null;
 
-        if (httpMethod.equals(HttpMethod.POST) || httpMethod.equals(HttpMethod.PUT)) {
+        if (originalRequest.url().contains(PARTIES_NOTIFIED_ENDPOINT) && PUT == httpMethod) {
+            Long caseId = getPathId(response, PARTIES_NOTIFIED_PATH_REGEX);
+
+            failMsg = buildFailureMessage(httpMethod.toString(),
+                caseId,
+                LocalDateTime.now(),
+                String.valueOf(response.status()),
+                getOriginalErrorMessage(response));
+        } else if (originalRequest.url().contains(HEARING_ENDPOINT)
+            && (POST == httpMethod || PUT == httpMethod)) {
             HearingRequestPayload payload = null;
             try {
                 payload = mapToPostHearingRequest(originalRequest);
@@ -75,8 +90,8 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                     String.valueOf(response.status()),
                     getOriginalErrorMessage(response));
             }
-        } else if (GET.equals(httpMethod)) {
-            Long caseId = getPathId(response);
+        } else if (GET == httpMethod) {
+            Long caseId = getPathId(response, HEARING_PATH_REGEX);
 
             failMsg = buildFailureMessage(httpMethod.toString(),
                     caseId,
@@ -96,9 +111,9 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
         return failMsg;
     }
 
-    private Long getPathId(Response response) {
+    private Long getPathId(Response response, Pattern pathRegex) {
         String url = response.request().requestTemplate().url();
-        Matcher matches = HEARING_PATH_REGEX.matcher(url);
+        Matcher matches = pathRegex.matcher(url);
         if (matches.find()) {
             return Long.parseLong(matches.group(2));
         }

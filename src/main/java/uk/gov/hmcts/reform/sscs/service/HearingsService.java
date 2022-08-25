@@ -14,8 +14,10 @@ import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.OverridesMapping;
+import uk.gov.hmcts.reform.sscs.helper.mapping.PartiesNotifiedMapping;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -32,9 +34,6 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
-import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter"})
 // TODO Unsuppress in future
@@ -49,6 +48,8 @@ public class HearingsService {
     private final HmcHearingApiService hmcHearingApiService;
 
     private final HmcHearingsApiService hmcHearingsApiService;
+
+    private final HmcPartiesNotifiedApiService hmcPartiesNotifiedApiService;
 
     private final CcdCaseService ccdCaseService;
 
@@ -103,9 +104,9 @@ public class HearingsService {
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
         if (isNull(hearing)) {
-            updateIds(wrapper);
+            HearingsMapping.updateIds(wrapper);
             OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-            HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+            HearingRequestPayload hearingPayload = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
             HmcUpdateResponse hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -125,10 +126,10 @@ public class HearingsService {
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
-        updateIds(wrapper);
+        HearingsMapping.updateIds(wrapper);
         OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
-        String hearingId = getHearingId(wrapper);
+        HearingRequestPayload hearingPayload = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
+        String hearingId = HearingsServiceHelper.getHearingId(wrapper);
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -144,7 +145,7 @@ public class HearingsService {
     }
 
     private void cancelHearing(HearingWrapper wrapper) {
-        String hearingId = getHearingId(wrapper);
+        String hearingId = HearingsServiceHelper.getHearingId(wrapper);
         HearingCancelRequestPayload hearingPayload = HearingsRequestMapping.buildCancelHearingPayload(wrapper);
         HmcUpdateResponse response = hmcHearingApiService.sendCancelHearingRequest(hearingPayload, hearingId);
 
@@ -156,7 +157,11 @@ public class HearingsService {
     }
 
     private void partyNotified(HearingWrapper wrapper) {
-        // TODO SSCS-10075 - implement mapping for the event when a party has been notified, might not be needed
+        hmcPartiesNotifiedApiService.sendUpdatePartiesNotifiedRequest(
+            PartiesNotifiedMapping.buildUpdatePartiesNotifiedPayload(wrapper),
+            Long.valueOf(HearingsServiceHelper.getHearingId(wrapper)),
+            HearingsServiceHelper.getVersion(wrapper),
+            null);
     }
 
     @Retryable(
