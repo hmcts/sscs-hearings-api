@@ -286,7 +286,7 @@ class HearingUpdateServiceTest {
     @DisplayName("When HmcStatus is listed, the caseData DwpState should be set as hearingDataIssued")
     @Test
     void testSetDwpState() {
-        hearingUpdateService.setDwpState(LISTED, caseData);
+        hearingUpdateService.resolveDwpState(LISTED, caseData);
 
         assertThat(caseData.getDwpState()).isEqualTo(DwpState.HEARING_DATE_ISSUED.getId());
     }
@@ -294,7 +294,7 @@ class HearingUpdateServiceTest {
     @DisplayName("When HmcStatus is null, the caseData DwpState will not be updated and remain null")
     @Test
     void testSetDwpStateWhenNullHmcStatus() {
-        hearingUpdateService.setDwpState(null, caseData);
+        hearingUpdateService.resolveDwpState(null, caseData);
 
         assertThat(caseData.getDwpState()).isNull();
     }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
@@ -117,12 +118,12 @@ public class HearingUpdateService {
         hearing.getValue().setHearingStatus(hearingStatus);
     }
 
-    public void setDwpState(HmcStatus hmcStatus, @Valid SscsCaseData caseData) {
-        if (isNull(hmcStatus)) {
-            return;
-        }
-        if (LISTED == hmcStatus) {
+    public DwpState resolveDwpState(HmcStatus hmcStatus, @Valid SscsCaseData caseData) {
+        if (isCaseListed(hmcStatus)) {
             caseData.setDwpState(HEARING_DATE_ISSUED.getId());
+            return HEARING_DATE_ISSUED;
+        } else {
+            return null;
         }
     }
 
