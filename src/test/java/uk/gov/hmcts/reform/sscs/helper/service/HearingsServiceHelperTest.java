@@ -268,7 +268,7 @@ class HearingsServiceHelperTest {
         assertThat(result.getUnprocessedPostponementRequest()).isEqualTo(NO);
     }
 
-    @DisplayName("If case is not postponed clearTransientFields doesnt not clear PostponementRequest field")
+    @DisplayName("If case is not postponed clearTransientFields does not clear PostponementRequest field")
     @Test
     void testClearTransientFieldsNotPostponed() {
         wrapper.getCaseData().setPostponementRequest(PostponementRequest.builder()
