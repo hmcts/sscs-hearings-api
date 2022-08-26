@@ -74,8 +74,9 @@ public final class OverridesMapping {
 
         caseData.getSchedulingAndListingFields().setDefaultOverrideFields(defaultOverrideFields);
 
-        log.info("Default Override Fields set to {} for Case {}",
-            defaultOverrideFields, wrapper.getCaseData());
+        log.debug("Default Override Fields set to {} for Case ID {}",
+                  defaultOverrideFields,
+                  wrapper.getCaseData().getCcdCaseId());
     }
 
     public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
