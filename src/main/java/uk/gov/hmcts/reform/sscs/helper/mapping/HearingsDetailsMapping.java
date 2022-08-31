@@ -203,8 +203,7 @@ public final class HearingsDetailsMapping {
 
         String epimsId = referenceDataServiceHolder
             .getVenueService()
-            .getEpimsIdForVenue(caseData.getProcessingVenue())
-            .orElse(null);
+            .getEpimsIdForVenue(caseData.getProcessingVenue());
 
         Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
 
