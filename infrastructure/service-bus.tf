@@ -33,3 +33,17 @@ resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-hared-access-key" {
   value        = data.azurerm_key_vault_secret.hmc-servicebus-shared-access-key.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }
+
+resource "azurerm_servicebus_subscription_rule" "BBA3-filter" {
+  name            = "hmc-servicebus-subscription-rule"
+  subscription_id = azurerm_servicebus_subscription.servicebus_subscription.id
+  filter_type     = "CorrelationFilter"
+  
+  correlation_filter {
+    correlation_id = "x"
+    label          = "y"
+    properties     = {
+      hmctsServiceId = "BBA3"    
+    }
+  }
+}
