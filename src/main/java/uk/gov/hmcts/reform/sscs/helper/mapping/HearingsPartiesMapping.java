@@ -194,7 +194,7 @@ public final class HearingsPartiesMapping {
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(getIndividualHearingChannelEmail(hearingSubtype))
                 .hearingChannelPhone(getIndividualHearingChannelPhone(hearingSubtype))
-                .relatedParties(getIndividualRelatedParties(entity, partyId, appellantId))
+                .relatedParties(getIndividualRelatedParties(entity, partyId))
                 .custodyStatus(getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
                 .build();
