@@ -134,7 +134,7 @@ public final class ServiceHearingPartiesMapping {
                 .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(HearingsPartiesMapping.getIndividualHearingChannelEmail(hearingSubtype))
                 .hearingChannelPhone(HearingsPartiesMapping.getIndividualHearingChannelPhone(hearingSubtype))
-                .relatedParties(HearingsPartiesMapping.getIndividualRelatedParties(entity, partyId, appellantId))
+                .relatedParties(HearingsPartiesMapping.getIndividualRelatedParties(entity, partyId))
                 .custodyStatus(HearingsPartiesMapping.getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(HearingsPartiesMapping.getIndividualOtherReasonableAdjustmentDetails())
                 .build();
