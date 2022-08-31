@@ -303,7 +303,7 @@ public final class HearingsPartiesMapping {
         return phoneNumbers;
     }
 
-    public static List<RelatedParty> getIndividualRelatedParties(Entity entity, String partyId, String appellantId) {
+    public static List<RelatedParty> getIndividualRelatedParties(Entity entity, String partyId) {
         List<RelatedParty> relatedParties = new ArrayList<>();
         EntityRoleCode roleCode = getEntityRoleCode(entity);
         switch (roleCode) {
