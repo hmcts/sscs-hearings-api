@@ -194,7 +194,7 @@ public final class HearingsPartiesMapping {
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(getIndividualHearingChannelEmail(hearingSubtype))
                 .hearingChannelPhone(getIndividualHearingChannelPhone(hearingSubtype))
-                .relatedParties(getIndividualRelatedParties(entity, partyId, appellantId))
+                .relatedParties(getIndividualRelatedParties(entity, partyId))
                 .custodyStatus(getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(getIndividualOtherReasonableAdjustmentDetails())
                 .build();
@@ -303,19 +303,13 @@ public final class HearingsPartiesMapping {
         return phoneNumbers;
     }
 
-    public static List<RelatedParty> getIndividualRelatedParties(Entity entity, String partyId, String appellantId) {
+    public static List<RelatedParty> getIndividualRelatedParties(Entity entity, String partyId) {
         List<RelatedParty> relatedParties = new ArrayList<>();
         EntityRoleCode roleCode = getEntityRoleCode(entity);
         switch (roleCode) {
-            case APPOINTEE:
-                relatedParties.add(getRelatedParty(partyId, roleCode.getHmcReference()));
-                break;
             case REPRESENTATIVE:
+            case INTERPRETER:
                 relatedParties.add(getRelatedParty(partyId, roleCode.getPartyRelationshipType().getRelationshipTypeCode()));
-                break;
-            case OTHER_PARTY:
-            case JOINT_PARTY:
-                relatedParties.add(getRelatedParty(appellantId, roleCode.getHmcReference()));
                 break;
             default:
                 break;

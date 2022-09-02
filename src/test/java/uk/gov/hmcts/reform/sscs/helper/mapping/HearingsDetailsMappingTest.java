@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -232,7 +231,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
@@ -258,7 +257,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
         multipleHearingLocations.put("Manchester",new ArrayList<>(Arrays.asList("512401","701411")));
         multipleHearingLocations.put("Plymouth",new ArrayList<>(Arrays.asList("764728","235590")));
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("443014");
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(referenceDataServiceHolder.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
@@ -307,7 +306,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
