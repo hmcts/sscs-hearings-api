@@ -33,6 +33,23 @@ resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-hared-access-key" {
   value        = data.azurerm_key_vault_secret.hmc-servicebus-shared-access-key.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }
+  
+data "azurerm_servicebus_namespace" "servicebus_subscription_rule_sscs" {
+  name                = servicebus-subscription.namespace_name
+  resource_group_name = servicebus-subscription.resource_group_name
+}
+  
+resource "azurerm_servicebus_topic" "servicebus_subscription_rule_sscs" {
+  name                = "hmc-to-cft"
+  namespace_id        = "data.azurerm_servicebus_namespace.servicebus_subscription_rule_sscs.id
+  enable_partitioning = true
+}
+
+resource "azurerm_servicebus_subscription" "servicebus_subscription_rule_sscs" {
+  name               = servicebus-subscription.topic_name
+  topic_id           = azurerum_servicebus_topic.servicebus_subscription_rule_sscs.id
+  max_delivery_count = 1
+}
 
 resource "azurerm_servicebus_subscription_rule" "servicebus_subscription_rule_sscs" {
   name            = "hmc-servicebus-subscription-rule=bba3"
