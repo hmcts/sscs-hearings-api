@@ -39,21 +39,21 @@ data "azurerm_servicebus_namespace" "hmc" {
   resource_group_name = "hmc-shared-${var.env}"
 }
   
-resource "azurerm_servicebus_topic" "hmc-to-ctf" {
+resource "azurerm_servicebus_topic" "hmc-to-cft" {
   name                = "hmc-to-cft"
   namespace_id        = "data.azurerm_servicebus_namespace.servicebus_subscription_rule_sscs.id
   enable_partitioning = true
 }
 
-resource "azurerm_servicebus_subscription" "hmc-to-ctf" {
-  name               = servicebus-subscription.topic_name
+resource "azurerm_servicebus_subscription" "hmc-to-cft" {
+  name               = "hmc-to-cft-${var.env}"
   topic_id           = azurerum_servicebus_topic.servicebus_subscription_rule_sscs.id
   max_delivery_count = 1
 }
 
 resource "azurerm_servicebus_subscription_rule" "servicebus_subscription_rule_sscs" {
   name            = "hmc-servicebus-subscription-rule=bba3"
-  subscription_id = hmc-to-ctf.servicebus_subscription.id
+  subscription_id = azurerm_servicebus_subscription.hmc_to_cft.id
   filter_type     = "CorrelationFilter"
   
   correlation_filter {
