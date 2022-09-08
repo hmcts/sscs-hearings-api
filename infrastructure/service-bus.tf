@@ -34,18 +34,18 @@ resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-hared-access-key" {
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
 }
   
-data "azurerm_servicebus_namespace" "servicebus_subscription_rule_sscs" {
-  name                = servicebus-subscription.namespace_name
-  resource_group_name = servicebus-subscription.resource_group_name
+data "azurerm_servicebus_namespace" "hmc" {
+  name                = "hmc-servicebus-${var.env}" 
+  resource_group_name = "hmc-shared-${var.env}"
 }
   
-resource "azurerm_servicebus_topic" "servicebus_subscription_rule_sscs" {
+resource "azurerm_servicebus_topic" "hmc-to-ctf" {
   name                = "hmc-to-cft"
   namespace_id        = "data.azurerm_servicebus_namespace.servicebus_subscription_rule_sscs.id
   enable_partitioning = true
 }
 
-resource "azurerm_servicebus_subscription" "servicebus_subscription_rule_sscs" {
+resource "azurerm_servicebus_subscription" "hmc-to-ctf" {
   name               = servicebus-subscription.topic_name
   topic_id           = azurerum_servicebus_topic.servicebus_subscription_rule_sscs.id
   max_delivery_count = 1
@@ -53,7 +53,7 @@ resource "azurerm_servicebus_subscription" "servicebus_subscription_rule_sscs" {
 
 resource "azurerm_servicebus_subscription_rule" "servicebus_subscription_rule_sscs" {
   name            = "hmc-servicebus-subscription-rule=bba3"
-  subscription_id = azurerm_servicebus_subscription.servicebus_subscription.id
+  subscription_id = hmc-to-ctf.servicebus_subscription.id
   filter_type     = "CorrelationFilter"
   
   correlation_filter {
