@@ -36,6 +36,11 @@ public final class HearingsChannelMapping {
     }
 
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
+
+        if(caseData.getAdjournCaseTypeOfNextHearing() != null) {
+            return caseData.getAdjournCaseTypeOfNextHearing();
+        }
+
         if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
             return FACE_TO_FACE;
         }
