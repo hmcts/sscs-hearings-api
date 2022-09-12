@@ -24,10 +24,6 @@ public class HearingDetails {
 
     private HearingWindow hearingWindow;
 
-    private Number duration;
-
-    private List<String> nonStandardHearingDurationReasons;
-
     private String hearingPriorityType;
 
     private Number numberOfPhysicalAttendees;
