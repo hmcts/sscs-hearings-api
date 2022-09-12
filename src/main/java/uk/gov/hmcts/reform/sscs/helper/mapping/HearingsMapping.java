@@ -1,3 +1,4 @@
+
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
@@ -6,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Interpreter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
@@ -32,11 +34,14 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsPartiesMapping.bui
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping.buildHearingRequestDetails;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPELLANT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPOINTEE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.JOINT_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 
+
 @Slf4j
+@SuppressWarnings({"PMD.TooManyStaticImports","PMD.ExcessiveImports"})
 public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
@@ -150,12 +155,14 @@ public final class HearingsMapping {
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {
-        // TODO Future work - handle interpreter
         if (entity instanceof Appellant) {
             return APPELLANT;
         }
         if (entity instanceof Appointee) {
             return APPOINTEE;
+        }
+        if (entity instanceof Interpreter) {
+            return INTERPRETER;
         }
         if (entity instanceof Representative) {
             return REPRESENTATIVE;
