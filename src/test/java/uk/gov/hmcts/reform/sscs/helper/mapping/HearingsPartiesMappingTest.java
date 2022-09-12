@@ -479,17 +479,24 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
     }
 
-    @DisplayName("getPartyId Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "1,1",
-        "null,null",
-    }, nullValues = {"null"})
-    void getPartyId(String value, String expected) {
-        Entity entity = Appellant.builder().id(value).build();
+    @DisplayName("When a entity is given with an id getPartyId returns that value")
+    @Test
+    void testGetPartyId() {
+        Entity entity = Appellant.builder().id("0e839b6b-d7ac-4461-ae02-3ea093a22135").build();
         String result = HearingsPartiesMapping.getPartyId(entity);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo("0e839b6b-d7ac-4461-ae02-3ea093a22135");
+    }
+
+    @DisplayName("When a entity is given no id getPartyId returns a newly generated id")
+    @Test
+    void testGetPartyIdNull() {
+        Entity entity = Appellant.builder().build();
+        String result = HearingsPartiesMapping.getPartyId(entity);
+
+        assertThat(result)
+            .isNotNull()
+            .hasSize(36);
     }
 
     @DisplayName("getPartyType Parameterised Tests")
