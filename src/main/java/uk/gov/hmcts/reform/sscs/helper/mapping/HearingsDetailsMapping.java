@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
@@ -26,13 +25,13 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
-@SuppressWarnings({"PMD.GodClass"})
-@Slf4j
+
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -74,6 +73,7 @@ public final class HearingsDetailsMapping {
     public static boolean isCaseUrgent(@Valid SscsCaseData caseData) {
         return isYes(caseData.getUrgentCase());
     }
+
 
 
     public static String getHearingPriority(SscsCaseData caseData) {

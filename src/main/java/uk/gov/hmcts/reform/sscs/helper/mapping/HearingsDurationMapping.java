@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -17,9 +16,9 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 
 
-
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
+
     public static final int DURATION_DEFAULT = 30;
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
@@ -28,13 +27,14 @@ public final class HearingsDurationMapping {
     public static final String DURATION_UNITS_MINUTES = "minutes";
     public static final String DURATION_UNITS_SESSIONS = "sessions";
 
+
     private HearingsDurationMapping() {
 
     }
 
+
     public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-
         if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() >= MIN_HEARING_DURATION) {
             return overrideFields.getDuration().intValue();
         }
@@ -46,7 +46,6 @@ public final class HearingsDurationMapping {
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
     }
-
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
 
         if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
@@ -67,7 +66,7 @@ public final class HearingsDurationMapping {
     }
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
+        uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
         if (isNull(hearingDuration)) {
@@ -93,6 +92,7 @@ public final class HearingsDurationMapping {
         // TODO Future Work
         return Collections.emptyList();
     }
+
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     public static List<String> getElementsDisputed(SscsCaseData caseData) {
