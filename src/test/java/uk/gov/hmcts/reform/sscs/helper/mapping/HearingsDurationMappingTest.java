@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
+
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
@@ -67,13 +68,13 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
 
+
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expected);
     }
-
 
     @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
@@ -202,7 +203,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
                 .hearingOptions(HearingOptions.builder().build())
                 .build())
             .build();
-
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
             referenceDataServiceHolder
@@ -210,6 +210,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         assertThat(result).isNull();
     }
+
 
 
 
@@ -225,6 +226,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
+
         SscsCaseData caseData = wantsToAttendCaseBuilder("No");
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
@@ -234,8 +236,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         assertThat(result).isEqualTo(30);
     }
-
-
 
     @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
         + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
@@ -284,6 +284,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
                     .languageInterpreter("Yes")
                     .build())
                .build())
+
             .build();
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
@@ -295,6 +296,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
     @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is paper "
+
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
@@ -362,5 +364,4 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .hasSize(9)
             .containsOnly("WC");
     }
-
 }
