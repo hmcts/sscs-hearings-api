@@ -17,8 +17,8 @@ module "servicebus_subscription" {
   resource_group_name = local.resource_group_name
 }
 
-resource "azurerm_servicebus_subscription_rule" "rule_sscs" {
-  name            = "${local.namespace_name}-subscription-rule=bba3"
+resource "azurerm_servicebus_subscription_rule" "topic_filter_rule_sscs" {
+  name            = "${local.namespace_name}-subscription-rule-bba3"
   subscription_id = module.servicebus_subscription.id
   filter_type     = "CorrelationFilter"
 
