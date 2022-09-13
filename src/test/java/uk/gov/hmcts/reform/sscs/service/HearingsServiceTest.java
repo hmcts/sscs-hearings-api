@@ -44,6 +44,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -191,7 +192,7 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn(Optional.of("219164"));
 
         given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
                 .willReturn(HmcUpdateResponse.builder().build());
@@ -239,7 +240,7 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn(Optional.of("219164"));
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
