@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -196,6 +197,20 @@ public final class HearingsDetailsMapping {
                 .map(CcdValue::getValue)
                 .map(epimsId -> HearingLocation.builder()
                     .locationId(epimsId)
+                    .locationType(COURT)
+                    .build())
+                .collect(Collectors.toList());
+        }
+
+        if (HearingsChannelMapping.isPaperCase(caseData)) {
+            List<VenueDetails> venueDetailsList = referenceDataServiceHolder
+                .getVenueService()
+                .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
+
+            return venueDetailsList.stream()
+                .map(VenueDetails::getEpimsId)
+                .map(id -> HearingLocation.builder()
+                    .locationId(id)
                     .locationType(COURT)
                     .build())
                 .collect(Collectors.toList());

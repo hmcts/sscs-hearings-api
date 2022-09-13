@@ -34,7 +34,7 @@
     <vulnerabilityName>CVE-2020-5408</vulnerabilityName>
     <vulnerabilityName>CVE-2022-22976</vulnerabilityName>
   </suppress>
-  <suppress until="2022-09-01">
+  <suppress until="2022-10-12">
     <notes><![CDATA[ springframework spring-* packages:
     https://github.com/spring-projects/spring-framework/issues/24434#issuecomment-1132113566]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*?@[1-5]\..*$</packageUrl>
@@ -60,5 +60,14 @@
      ]]></notes>
     <packageUrl regex="true">^pkg:maven/org.apache.logging.log4j/log4j-api@.+$</packageUrl>
     <vulnerabilityName>CVE-2022-33915</vulnerabilityName>
+  </suppress>
+    <suppress until="2022-10-12">
+    <notes><![CDATA[
+     snake.yaml temp suppression
+     ]]></notes>
+    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-38750</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-25857</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-38749</vulnerabilityName>
   </suppress>
 </suppressions>
