@@ -65,7 +65,10 @@
     <notes><![CDATA[
      snake.yaml temp suppression
      ]]></notes>
+    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-38750</vulnerabilityName>
     <vulnerabilityName>CVE-2022-25857</vulnerabilityName>
+    <vulnerabilityName>CVE-2022-38749</vulnerabilityName>
   </suppress>
 
 </suppressions>
