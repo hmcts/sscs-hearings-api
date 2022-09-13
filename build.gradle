@@ -303,7 +303,7 @@ def versions= [
   tomcat: '9.0.65',
   wiremock: '2.27.2'
 ]
- 
+
 dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
@@ -349,7 +349,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.15.4'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.15.5'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
@@ -426,6 +426,11 @@ dependencyManagement {
       entry 'spring-jms'
       entry 'spring-messaging'
     }
+
+  //CVE-2022-25857
+  dependencySet(group: 'org.yaml', version: '1.31') {
+      entry 'snakeyaml'
+  }
   }
 }
 
