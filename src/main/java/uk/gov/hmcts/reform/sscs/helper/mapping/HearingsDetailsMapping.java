@@ -41,6 +41,8 @@ public final class HearingsDetailsMapping {
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
             .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData))
+            .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+            .nonStandardHearingDurationReasons(HearingsDurationMapping.getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
             .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())

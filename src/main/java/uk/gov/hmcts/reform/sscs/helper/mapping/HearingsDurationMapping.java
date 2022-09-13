@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
@@ -18,9 +16,13 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.get
 
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
-    //public static final int DURATION_HOURS_MULTIPLIER = 60;
     public static final int DURATION_DEFAULT = 30;
     public static final int MIN_HEARING_DURATION = 30;
+    public static final int MIN_HEARING_SESSION_DURATION = 1;
+    public static final String DURATION_TYPE_NON_STANDARD_TIME_SLOT = "nonStandardTimeSlot";
+    public static final String DURATION_TYPE_STANDARD_TIME_SLOT = "standardTimeSlot";
+    public static final String DURATION_UNITS_MINUTES = "minutes";
+    public static final String DURATION_UNITS_SESSIONS = "sessions";
 
     private HearingsDurationMapping() {
 
@@ -28,11 +30,12 @@ public final class HearingsDurationMapping {
 
     public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
         if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() >= MIN_HEARING_DURATION) {
             return overrideFields.getDuration().intValue();
         }
 
-        Integer duration = getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+        Integer duration = getHearingDurationAdjournment(caseData);
         if (isNull(duration)) {
             duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
         }
@@ -40,23 +43,24 @@ public final class HearingsDurationMapping {
         return nonNull(duration) ? duration : DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationAdjournment(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
 
-        if ("standardTimeSlot".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())) {
-            return getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
-        }
-        if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
-            Integer duration =  Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
-            if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
+        if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
+            && isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
+            int duration =  Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
+
+            if (DURATION_UNITS_SESSIONS.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
+                && duration >= MIN_HEARING_SESSION_DURATION) {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
-            }
-            String minutes = "minutes";
-            if (minutes.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits()) && duration >= MIN_HEARING_DURATION) {
+            } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
+                       && duration >= MIN_HEARING_DURATION) {
+
+
                 return duration;
             }
         }
-        return getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
-        //return null;
+
+        return null;
     }
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
@@ -87,16 +91,5 @@ public final class HearingsDurationMapping {
         return Collections.emptyList();
     }
 
-
-    public static HearingDuration buildHearingDuration(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        SscsCaseData caseData = wrapper.getCaseData();
-
-        return HearingDuration.builder()
-            .duration(getHearingDuration(caseData, referenceDataServiceHolder))
-            .nonStandardHearingDurationReasons(getNonStandardHearingDurationReasons())
-            .durationBenefitIssueCodes(getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder))
-            .adjournmentDuration(getHearingDurationAdjournment(caseData, referenceDataServiceHolder))
-            .build();
-    }
 
 }
