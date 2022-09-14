@@ -539,42 +539,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
 
 
-    @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
-    @Test
-    void getElementsDisputedNull() {
-        SscsCaseData caseData = SscsCaseData.builder().build();
-
-        List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
-
-        assertThat(result).isEmpty();
-    }
-
-    @DisplayName("getElementsDisputed returns a List of elements of all elements in each of the elementDisputed fields in SscsCaseData")
-    @Test
-    void getElementsDisputed() {
-        ElementDisputed elementDisputed = ElementDisputed.builder()
-            .value(ElementDisputedDetails.builder()
-                       .issueCode("WC")
-                       .outcome("Test")
-                       .build())
-            .build();
-        SscsCaseData caseData = SscsCaseData.builder()
-            .elementsDisputedGeneral(List.of(elementDisputed))
-            .elementsDisputedSanctions(List.of(elementDisputed))
-            .elementsDisputedOverpayment(List.of(elementDisputed))
-            .elementsDisputedHousing(List.of(elementDisputed))
-            .elementsDisputedChildCare(List.of(elementDisputed))
-            .elementsDisputedCare(List.of(elementDisputed))
-            .elementsDisputedChildElement(List.of(elementDisputed))
-            .elementsDisputedChildDisabled(List.of(elementDisputed))
-            .elementsDisputedLimitedWork(List.of(elementDisputed))
-            .build();
-        List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
-
-        assertThat(result)
-            .hasSize(9)
-            .containsOnly("WC");
-    }
 
     @DisplayName("When dwpIsOfficerAttending is yes, isPoOfficerAttending return True")
     @Test
