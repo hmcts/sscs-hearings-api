@@ -31,9 +31,11 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
+
 @SuppressWarnings({"PMD.GodClass"})
 @Slf4j
 // TODO Unsuppress in future
+
 public final class HearingsDetailsMapping {
 
     private HearingsDetailsMapping() {
@@ -75,46 +77,6 @@ public final class HearingsDetailsMapping {
         return isYes(caseData.getUrgentCase());
     }
 
-
-<<<<<<< HEAD
-=======
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
-    public static List<String> getElementsDisputed(SscsCaseData caseData) {
-        List<ElementDisputed> elementDisputed = new ArrayList<>();
-        if (isNotEmpty(caseData.getElementsDisputedGeneral())) {
-            elementDisputed.addAll(caseData.getElementsDisputedGeneral());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedSanctions())) {
-            elementDisputed.addAll(caseData.getElementsDisputedSanctions());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedOverpayment())) {
-            elementDisputed.addAll(caseData.getElementsDisputedOverpayment());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedHousing())) {
-            elementDisputed.addAll(caseData.getElementsDisputedHousing());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedChildCare())) {
-            elementDisputed.addAll(caseData.getElementsDisputedChildCare());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedCare())) {
-            elementDisputed.addAll(caseData.getElementsDisputedCare());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedChildElement())) {
-            elementDisputed.addAll(caseData.getElementsDisputedChildElement());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedChildDisabled())) {
-            elementDisputed.addAll(caseData.getElementsDisputedChildDisabled());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedLimitedWork())) {
-            elementDisputed.addAll(caseData.getElementsDisputedLimitedWork());
-        }
-        return elementDisputed.stream()
-            .map(ElementDisputed::getValue)
-            .map(ElementDisputedDetails::getIssueCode)
-            .collect(Collectors.toList());
-    }
-
->>>>>>> feat: first cut of second attempt
     public static String getHearingPriority(SscsCaseData caseData) {
         // urgentCase Should go to top of queue in LA - also consider case created date
         // Flag to Lauren - how  can this be captured in HMC queue?

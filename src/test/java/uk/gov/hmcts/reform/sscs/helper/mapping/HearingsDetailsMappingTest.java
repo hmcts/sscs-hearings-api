@@ -238,6 +238,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend("Yes")
                     .build())
+
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
             .dwpIsOfficerAttending("Yes")
