@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
@@ -63,6 +64,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.SOLICITOR;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 
@@ -70,6 +72,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     public static final String EMAIL_ADDRESS = "test@test.com";
     public static final String TELEPHONE_NUMBER = "01000000000";
+    public static final String DWP_ID = "DWP";
 
     @DisplayName("When a valid hearing wrapper without OtherParties or joint party is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
@@ -107,7 +110,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
 
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
     }
 
     @DisplayName("When a valid hearing wrapper when PO attending is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -137,17 +140,30 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails)
+            .hasSize(2)
+            .extracting(PartyDetails::getPartyID)
+            .contains(appellantId);
 
-        PartyDetails dwpPartyDetails = partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
-            null);
-        assertThat(dwpPartyDetails).isNotNull();
-        assertThat(dwpPartyDetails.getPartyType()).isNotNull();
-        assertThat(dwpPartyDetails.getPartyRole()).isNotNull();
-        assertThat(dwpPartyDetails.getIndividualDetails()).isNull();
-        assertThat(dwpPartyDetails.getOrganisationDetails()).isNotNull();
-        assertThat(dwpPartyDetails.getUnavailabilityDayOfWeek()).isEmpty();
-        assertThat(dwpPartyDetails.getUnavailabilityRanges()).isEmpty();
+        assertThat(partiesDetails)
+            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
+            .hasSize(1)
+            .extracting(
+                PartyDetails::getPartyType,
+                PartyDetails::getPartyRole,
+                PartyDetails::getOrganisationDetails,
+                PartyDetails::getUnavailabilityDayOfWeek,
+                PartyDetails::getUnavailabilityRanges)
+            .contains(tuple(INDIVIDUAL, "RESP", null, List.of(), List.of()));
+
+        assertThat(partiesDetails)
+            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
+            .extracting(PartyDetails::getIndividualDetails)
+            .extracting(
+                IndividualDetails::getFirstName,
+                IndividualDetails::getLastName,
+                IndividualDetails::getPreferredHearingChannel)
+            .contains(tuple("Presenting", "Officer", FACE_TO_FACE));
     }
 
     @DisplayName("When a valid hearing wrapper when PO attending is not Yes given buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -181,7 +197,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
     }
 
     @DisplayName("When a valid hearing wrapper is given with OtherParties buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -235,7 +251,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
 
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
 
     }
 
@@ -279,7 +295,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
         assertThat(partiesDetails.stream().anyMatch(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())));
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
     }
 
     @DisplayName("When HearingOption is  Null return empty string")
