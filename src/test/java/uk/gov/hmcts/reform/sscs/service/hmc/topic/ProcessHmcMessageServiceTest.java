@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -220,7 +221,7 @@ class ProcessHmcMessageServiceTest {
     void testShouldSetCcdStateForCancelledHearingsCorrectly(HmcStatus status) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(status);
-        hearingGetResponse.getHearingResponse().setHearingCancellationReason(WITHDRAWN);
+        hearingGetResponse.getRequestDetails().setCancellationReasonCodes(List.of(WITHDRAWN));
         hmcMessage.getHearingUpdate().setHmcStatus(status);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
@@ -245,7 +246,7 @@ class ProcessHmcMessageServiceTest {
     void testShouldUpdateCcdStateDormantForCancelledHearings(CancellationReason reason) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
-        hearingGetResponse.getHearingResponse().setHearingCancellationReason(reason);
+        hearingGetResponse.getRequestDetails().setCancellationReasonCodes(List.of(reason));
         hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
@@ -270,7 +271,7 @@ class ProcessHmcMessageServiceTest {
     void testShouldNotUpdateCcdStateForCancelledHearings(CancellationReason reason) throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
-        hearingGetResponse.getHearingResponse().setHearingCancellationReason(reason);
+        hearingGetResponse.getRequestDetails().setCancellationReasonCodes(List.of(reason));
         hmcMessage.getHearingUpdate().setHmcStatus(CANCELLED);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
@@ -283,7 +284,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
+        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
     }
 
     @DisplayName("When no cancellation reason is given but status is Cancelled, "
@@ -304,7 +305,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
+        verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, CANCELLED);
 
     }
 
@@ -386,7 +387,7 @@ class ProcessHmcMessageServiceTest {
         String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), HEARING_ID);
         verify(ccdCaseService, times(1))
                 .updateCaseData(caseData,
-                        hmcStatus.getEventMapper().apply(hearingGetResponse),
+                        hmcStatus.getEventMapper().apply(hearingGetResponse, caseData),
                         hmcStatus.getCcdUpdateSummary(),
                         ccdUpdateDescription);
     }

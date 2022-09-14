@@ -32,9 +32,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingTypeLov;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
 class HearingsDetailsMappingTest extends HearingsMappingBase {
@@ -192,9 +194,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("Hearing type should be substantive.")
     @Test
     void getHearingType() {
-        String result = HearingsDetailsMapping.getHearingType();
+        HearingType result = HearingsDetailsMapping.getHearingType();
 
-        assertEquals(result, HearingTypeLov.SUBSTANTIVE.getHmcReference());
+        assertThat(result).isEqualTo(SUBSTANTIVE);
     }
 
     @DisplayName("When urgentCase is yes, isCaseUrgent return True")
@@ -231,7 +233,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
@@ -257,7 +259,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
         multipleHearingLocations.put("Manchester",new ArrayList<>(Arrays.asList("512401","701411")));
         multipleHearingLocations.put("Plymouth",new ArrayList<>(Arrays.asList("764728","235590")));
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("443014");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(referenceDataServiceHolder.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
@@ -306,7 +308,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
