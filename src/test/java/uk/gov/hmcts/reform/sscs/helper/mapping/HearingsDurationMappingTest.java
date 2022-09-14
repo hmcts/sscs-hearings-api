@@ -10,6 +10,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -301,12 +303,13 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         assertThat(result).isNull();
     }
+
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
     @Test
     void getElementsDisputedNull() {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
+        List<String> result = HearingsDurationMapping.getElementsDisputed(caseData);
 
         assertThat(result).isEmpty();
     }
@@ -331,7 +334,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .elementsDisputedChildDisabled(List.of(elementDisputed))
             .elementsDisputedLimitedWork(List.of(elementDisputed))
             .build();
-        List<String> result = HearingsDetailsMapping.getElementsDisputed(caseData);
+        List<String> result = HearingsDurationMapping.getElementsDisputed(caseData);
 
         assertThat(result)
             .hasSize(9)
