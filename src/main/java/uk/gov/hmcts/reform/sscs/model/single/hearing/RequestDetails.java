@@ -7,8 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +25,8 @@ public class RequestDetails {
     private String hearingRequestId;
 
     private HmcStatus status;
+
+    private List<CancellationReason> cancellationReasonCodes;
 
     private LocalDateTime timestamp;
 

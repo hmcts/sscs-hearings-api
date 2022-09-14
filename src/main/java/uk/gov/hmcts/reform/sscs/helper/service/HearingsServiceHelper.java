@@ -4,13 +4,17 @@ import org.jetbrains.annotations.Nullable;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Postponement;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +24,7 @@ import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 
 public final class HearingsServiceHelper {
 
@@ -97,5 +102,21 @@ public final class HearingsServiceHelper {
     public static boolean isCaseHearingRequestedOrAwaitingListing(HmcStatus hmcStatus) {
         return HmcStatus.HEARING_REQUESTED == hmcStatus
             || HmcStatus.AWAITING_LISTING == hmcStatus;
+    }
+
+    public static HearingChannel getHearingBookedChannel(HearingGetResponse hearingGetResponse) {
+        return Optional.ofNullable(hearingGetResponse.getHearingDetails().getHearingChannels())
+            .orElse(Collections.emptyList()).stream()
+            .findFirst()
+            .orElse(null);
+    }
+
+    public static void clearTransientFields(HearingWrapper wrapper) {
+        SscsCaseData caseData = wrapper.getCaseData();
+        if (HearingsWindowMapping.isCasePostponed(caseData)) {
+            caseData.setPostponement(Postponement.builder()
+                .unprocessedPostponement(NO)
+                .build());
+        }
     }
 }

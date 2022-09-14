@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListAssistCaseStatus;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus;
-import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +30,7 @@ public class HearingResponse {
 
     private ListingStatus listingStatus;
 
-    private CancellationReason hearingCancellationReason;
+    private String hearingCancellationReason;
 
     @JsonProperty("hearingDaySchedule")
     private List<HearingDaySchedule> hearingSessions;
