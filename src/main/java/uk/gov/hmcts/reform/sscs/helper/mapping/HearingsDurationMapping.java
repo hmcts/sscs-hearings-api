@@ -52,7 +52,6 @@ public final class HearingsDurationMapping {
         if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
             && isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
             int duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
-
             if (DURATION_UNITS_SESSIONS.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
                 && duration >= MIN_HEARING_SESSION_DURATION) {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
@@ -68,6 +67,7 @@ public final class HearingsDurationMapping {
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
+
             caseData.getBenefitCode(), caseData.getIssueCode());
 
         if (isNull(hearingDuration)) {
@@ -93,6 +93,7 @@ public final class HearingsDurationMapping {
         // TODO Future Work
         return Collections.emptyList();
     }
+
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     public static List<String> getElementsDisputed(SscsCaseData caseData) {
@@ -120,4 +121,5 @@ public final class HearingsDurationMapping {
             .map(ElementDisputedDetails::getIssueCode)
             .collect(Collectors.toList());
     }
+
 }
