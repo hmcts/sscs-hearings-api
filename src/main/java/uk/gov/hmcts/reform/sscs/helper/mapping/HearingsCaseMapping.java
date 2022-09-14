@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
@@ -102,6 +103,8 @@ public final class HearingsCaseMapping {
         List<CaseCategory> categories = new ArrayList<>();
 
         SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceDataServiceHolder);
+        Objects.requireNonNull(sessionCaseCode, "sessionCaseCode is null. The benefit/issue code is probably an incorrect combination and cannot be mapped"
+            + " to a session code. Refer to the session-category-map.json file for the correct combinations.");
 
         categories.addAll(getCaseTypes(sessionCaseCode, referenceDataServiceHolder));
         categories.addAll(getCaseSubTypes(sessionCaseCode, referenceDataServiceHolder));

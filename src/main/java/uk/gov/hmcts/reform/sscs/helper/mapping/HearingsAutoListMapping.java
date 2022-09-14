@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -82,6 +83,8 @@ public final class HearingsAutoListMapping {
 
     public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
         SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
+        Objects.requireNonNull(sessionCategoryMap, "sessionCategoryMap is null. The benefit/issue code is probably an incorrect combination and cannot be mapped"
+            + " to a session code. Refer to the session-category-map.json file for the correct combinations.");
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);
     }
