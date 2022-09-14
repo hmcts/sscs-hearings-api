@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
@@ -37,6 +38,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGE
 
 
 @SuppressWarnings({"PMD.GodClass"})
+@Slf4j
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
@@ -214,6 +216,9 @@ public final class HearingsDetailsMapping {
             List<VenueDetails> venueDetailsList = referenceDataServiceHolder
                 .getVenueService()
                 .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
+
+            log.info("Found {} venues under RPC {} for paper case {}", venueDetailsList.size(),
+                caseData.getRegionalProcessingCenter().getName(), caseData.getCcdCaseId());
 
             return venueDetailsList.stream()
                 .map(VenueDetails::getEpimsId)
