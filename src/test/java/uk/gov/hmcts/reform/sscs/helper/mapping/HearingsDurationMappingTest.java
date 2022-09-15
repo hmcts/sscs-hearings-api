@@ -23,6 +23,19 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private HearingDurationsService hearingDurations;
 
+    private SscsCaseData adjourningCaseBuilder(String adjournCaseDuration, String adjournCaseDurationUnits) {
+        return SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
+            .adjournCaseNextHearingListingDuration(adjournCaseDuration)
+            .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .build();
+    }
+
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
@@ -34,16 +47,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
 
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
-            .adjournCaseNextHearingListingDuration(adjournCaseDuration)
-            .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
-            .build();
+        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
+
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(expected, result);
@@ -65,16 +70,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             ));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
-            .adjournCaseNextHearingListingDuration(adjournCaseDuration)
-            .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
-            .build();
+        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
+
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertEquals(30, result);
@@ -89,16 +86,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "20,minutes",
     }, nullValues = {"null"})
     void getHearingDurationFailure(String adjournCaseDuration, String adjournCaseDurationUnits) {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
-            .adjournCaseNextHearingListingDuration(adjournCaseDuration)
-            .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
-            .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
-            .build();
+        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
         assertThrows(NullPointerException.class, () -> {
             Object result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -284,11 +272,11 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes")
-                                            .languageInterpreter("Yes")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .languageInterpreter("Yes")
+                    .build())
+               .build())
             .build();
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
