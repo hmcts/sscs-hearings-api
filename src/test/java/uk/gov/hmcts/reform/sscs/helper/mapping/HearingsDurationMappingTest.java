@@ -50,7 +50,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
 
-
     @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
@@ -66,10 +65,10 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             ));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
             .adjournCaseNextHearingListingDuration(adjournCaseDuration)
             .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
             .appeal(Appeal.builder()
@@ -81,7 +80,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertEquals(30, result);
     }
 
-    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration returns the correct duration Parameterized Tests")
+    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
     @ParameterizedTest
     @CsvSource(value = {
         ",sessions",
@@ -90,7 +89,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "20,minutes",
     }, nullValues = {"null"})
     void getHearingDurationFailure(String adjournCaseDuration, String adjournCaseDurationUnits) {
-
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
@@ -101,9 +99,11 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
                         .hearingOptions(HearingOptions.builder().build())
                         .build())
             .build();
+
         assertThrows(NullPointerException.class, () -> {
             Object result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
         });
+
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
