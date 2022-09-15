@@ -17,6 +17,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 
 
+
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_DEFAULT = 30;
@@ -97,41 +98,26 @@ public final class HearingsDurationMapping {
     public static List<String> getElementsDisputed(SscsCaseData caseData) {
         List<ElementDisputed> elementDisputed = new ArrayList<>();
 
+        List<List<ElementDisputed>> elementsToCheck = new ArrayList<>();
+        elementsToCheck.add(caseData.getElementsDisputedGeneral());
+        elementsToCheck.add(caseData.getElementsDisputedSanctions());
+        elementsToCheck.add(caseData.getElementsDisputedOverpayment());
+        elementsToCheck.add(caseData.getElementsDisputedHousing());
+        elementsToCheck.add(caseData.getElementsDisputedChildCare());
+        elementsToCheck.add(caseData.getElementsDisputedCare());
+        elementsToCheck.add(caseData.getElementsDisputedChildElement());
+        elementsToCheck.add(caseData.getElementsDisputedChildDisabled());
+        elementsToCheck.add(caseData.getElementsDisputedLimitedWork());
 
+        elementsToCheck.forEach((List<ElementDisputed> list) -> {
+            if (isNotEmpty(list)) {
+                elementDisputed.addAll(list);
+            }
+        });
 
-
-
-        if (isNotEmpty(caseData.getElementsDisputedGeneral())) {
-            elementDisputed.addAll(caseData.getElementsDisputedGeneral());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedSanctions())) {
-            elementDisputed.addAll(caseData.getElementsDisputedSanctions());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedOverpayment())) {
-            elementDisputed.addAll(caseData.getElementsDisputedOverpayment());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedHousing())) {
-            elementDisputed.addAll(caseData.getElementsDisputedHousing());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedChildCare())) {
-            elementDisputed.addAll(caseData.getElementsDisputedChildCare());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedCare())) {
-            elementDisputed.addAll(caseData.getElementsDisputedCare());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedChildElement())) {
-            elementDisputed.addAll(caseData.getElementsDisputedChildElement());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedChildDisabled())) {
-            elementDisputed.addAll(caseData.getElementsDisputedChildDisabled());
-        }
-        if (isNotEmpty(caseData.getElementsDisputedLimitedWork())) {
-            elementDisputed.addAll(caseData.getElementsDisputedLimitedWork());
-        }
         return elementDisputed.stream()
             .map(ElementDisputed::getValue)
             .map(ElementDisputedDetails::getIssueCode)
             .collect(Collectors.toList());
     }
-
 }
