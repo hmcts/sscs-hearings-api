@@ -320,7 +320,7 @@ public final class HearingsPartiesMapping {
 
     public static RelatedParty getRelatedParty(String id, String relationshipType) {
         return RelatedParty.builder()
-                .relatedPartyId(id)
+                .relatedPartyId(id.substring(0, 15))
                 .relationshipType(relationshipType)
                 .build();
     }
