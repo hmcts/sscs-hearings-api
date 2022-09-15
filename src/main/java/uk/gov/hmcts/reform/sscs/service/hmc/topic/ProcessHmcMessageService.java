@@ -15,9 +15,10 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
@@ -58,6 +59,12 @@ public class ProcessHmcMessageService {
             return;
         }
 
+        log.info("Processing message for HMC status {} with cancellation reasons {} for the Hearing ID {} and Case ID"
+                + " {}",
+            hmcStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
+            hearingId, caseId
+        );
+
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
         hearingUpdateService.resolveDwpState(hmcStatus, caseData);
@@ -84,19 +91,27 @@ public class ProcessHmcMessageService {
     private void resolveEventAndUpdateCase(HearingGetResponse hearingResponse, HmcStatus hmcStatus, SscsCaseData caseData,
                                            String ccdUpdateDescription) throws UpdateCaseException {
 
-        Function<HearingGetResponse, EventType> eventMapper = hmcStatus.getEventMapper();
+        BiFunction<HearingGetResponse, SscsCaseData, EventType> eventMapper = hmcStatus.getEventMapper();
+        log.info("PostponementRequest {}", caseData.getPostponement());
 
-        if (eventMapper != null) {
-            EventType eventType = eventMapper.apply(hearingResponse);
-            if (eventType != null) {
-                ccdCaseService.updateCaseData(
-                    caseData,
-                    eventType,
-                    hmcStatus.getCcdUpdateSummary(),
-                    ccdUpdateDescription
-                );
-            }
+        if (isNull(eventMapper)) {
+            log.info("Case has not been updated for HMC Status {} with null eventMapper for the Case ID {}",
+                hmcStatus, caseData.getCcdCaseId());
+            return;
         }
+
+        EventType eventType = eventMapper.apply(hearingResponse, caseData);
+        if (isNull(eventType)) {
+            log.info("Case has not been updated for HMC Status {} with null eventType for the Case ID {}",
+                hmcStatus, caseData.getCcdCaseId());
+            return;
+        }
+
+        ccdCaseService.updateCaseData(
+            caseData,
+            eventType,
+            hmcStatus.getCcdUpdateSummary(),
+            ccdUpdateDescription);
     }
 
     private void checkStatuses(Long caseId, String hearingId, HmcStatus hmcMessageStatus, HmcStatus hmcStatus)
@@ -134,7 +149,7 @@ public class ProcessHmcMessageService {
 
     private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return hmcStatus == CANCELLED
-            || nonNull(hearingResponse.getHearingResponse().getHearingCancellationReason())
+            || isNotEmpty(hearingResponse.getRequestDetails().getCancellationReasonCodes())
             || CNCL == hearingResponse.getHearingResponse().getListingStatus();
     }
 

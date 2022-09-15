@@ -350,7 +350,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: versions.sscsCommon
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.15.5'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: versions.slf4j
 
@@ -426,6 +426,10 @@ dependencyManagement {
       entry 'spring-webmvc'
       entry 'spring-jms'
       entry 'spring-messaging'
+    }
+
+    dependencySet(group: 'org.yaml', version: '1.31') {
+      entry 'snakeyaml'
     }
   }
 }
