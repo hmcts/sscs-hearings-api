@@ -34,11 +34,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGE
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
-    public static final int DURATION_SESSIONS_MULTIPLIER = 165;
-    public static final int DURATION_HOURS_MULTIPLIER = 60;
-    public static final int DURATION_DEFAULT = 30;
-    public static final int MIN_HEARING_DURATION = 1;
-
     private HearingsDetailsMapping() {
 
     }
