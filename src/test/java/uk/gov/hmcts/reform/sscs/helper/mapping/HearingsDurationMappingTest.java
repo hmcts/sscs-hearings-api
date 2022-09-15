@@ -131,15 +131,15 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .adjournCaseNextHearingListingDuration(null)
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                            .overrideFields(OverrideFields.builder()
-                                                                .duration(overrideDuration)
-                                                                .build())
-                                            .build())
+                .overrideFields(OverrideFields.builder()
+                    .duration(overrideDuration)
+                    .build())
+                .build())
             .build();
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -157,15 +157,15 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .adjournCaseNextHearingListingDuration(null)
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                            .overrideFields(OverrideFields.builder()
-                                                                .duration(60)
-                                                                .build())
-                                            .build())
+                .overrideFields(OverrideFields.builder()
+                    .duration(60)
+                    .build())
+                .build())
             .build();
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -190,9 +190,9 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .benefitCode(benefitCode)
             .issueCode(issueCode)
             .appeal(Appeal.builder()
-                        .hearingSubtype(HearingSubtype.builder().build())
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .build();
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
