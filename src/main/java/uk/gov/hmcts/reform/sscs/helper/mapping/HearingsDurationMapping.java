@@ -16,7 +16,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 
 
-
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_DEFAULT = 30;
@@ -57,7 +56,6 @@ public final class HearingsDurationMapping {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
             } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
                 && duration >= MIN_HEARING_DURATION) {
-
 
                 return duration;
             }

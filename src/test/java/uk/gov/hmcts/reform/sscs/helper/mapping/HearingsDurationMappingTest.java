@@ -49,6 +49,31 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
+    @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns null values")
+    @ParameterizedTest
+    @CsvSource(value = {
+        ",sessions,null",
+        "1,hours,null",
+        "0,sessions,null",
+        "20,minutes,null",
+    }, nullValues = {"null"})
+    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
+            .adjournCaseNextHearingListingDuration(adjournCaseDuration)
+            .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().build())
+                        .build())
+            .build();
+        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+
+        assertEquals(expected, result);
+    }
+
     @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
