@@ -205,7 +205,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
 
 
-    @DisplayName("When wantsToAttend for the Appeal is null and the hearing type is paper "
+    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is paper "
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesPaper() {
