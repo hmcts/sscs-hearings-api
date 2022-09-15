@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public final class HearingsDurationMapping {
 
         if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
             && isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
-            int duration =  Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
+            int duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
 
             if (DURATION_UNITS_SESSIONS.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
                 && duration >= MIN_HEARING_SESSION_DURATION) {
@@ -65,7 +66,7 @@ public final class HearingsDurationMapping {
     }
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
+        HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
         if (isNull(hearingDuration)) {
@@ -95,6 +96,11 @@ public final class HearingsDurationMapping {
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     public static List<String> getElementsDisputed(SscsCaseData caseData) {
         List<ElementDisputed> elementDisputed = new ArrayList<>();
+
+
+
+
+
         if (isNotEmpty(caseData.getElementsDisputedGeneral())) {
             elementDisputed.addAll(caseData.getElementsDisputedGeneral());
         }
