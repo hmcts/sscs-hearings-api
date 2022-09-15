@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -72,7 +71,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
 
@@ -95,7 +94,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
-        assertEquals(30, result);
+        assertThat(result).isEqualTo(30);
     }
 
     @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
