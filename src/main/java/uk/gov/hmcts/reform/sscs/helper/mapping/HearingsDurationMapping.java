@@ -65,7 +65,7 @@ public final class HearingsDurationMapping {
     }
 
     public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
+        hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
         if (isNull(hearingDuration)) {

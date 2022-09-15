@@ -133,10 +133,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void testIsCaseLinked() {
         SscsCaseData caseData = SscsCaseData.builder()
             .linkedCase(List.of(CaseLink.builder()
-                                    .value(CaseLinkDetails.builder()
-                                               .caseReference("123456")
-                                               .build())
-                                    .build()))
+                .value(CaseLinkDetails.builder()
+                    .caseReference("123456")
+                    .build())
+                .build()))
             .build();
         boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
 
@@ -149,15 +149,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .linkedCase(List.of(
                 CaseLink.builder()
-                    .value(CaseLinkDetails.builder()
-                               .caseReference("123456")
-                               .build())
-                    .build(),
+                .value(CaseLinkDetails.builder()
+                .caseReference("123456")
+                .build())
+                .build(),
                 CaseLink.builder()
-                    .value(CaseLinkDetails.builder()
-                               .caseReference("654321")
-                               .build())
-                    .build()
+                .value(CaseLinkDetails.builder()
+                .caseReference("654321")
+                .build())
+                .build()
             ))
             .build();
         boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
@@ -223,8 +223,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
@@ -246,8 +246,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() {
         final SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
         Map<String, List<String>> multipleHearingLocations = new HashMap<>();
@@ -298,8 +298,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
@@ -371,24 +371,25 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         if (nonNull(otherPartiesComments)) {
             otherParties = new ArrayList<>();
             otherParties.add(new CcdValue<>(OtherParty.builder()
-                                                .name(Name.builder()
-                                                          .title("Mx")
-                                                          .firstName("Test")
-                                                          .lastName("OtherParty")
-                                                          .build())
-                                                .hearingOptions(HearingOptions.builder()
-                                                                    .other(otherPartiesComments)
-                                                                    .build())
-                                                .build()));
+                .name(Name.builder()
+                    .title("Mx")
+                    .firstName("Test")
+                    .lastName("OtherParty")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .other(otherPartiesComments)
+                    .build())
+                .build()));
         }
 
-        Appeal appeal = Appeal.builder().appellant(Appellant.builder()
-                                                       .name(Name.builder()
-                                                                 .title("Mx")
-                                                                 .firstName("Test")
-                                                                 .lastName("Appellant")
-                                                                 .build())
-                                                       .build())
+        Appeal appeal = Appeal.builder()
+            .appellant(Appellant.builder()
+                .name(Name.builder()
+                    .title("Mx")
+                    .firstName("Test")
+                    .lastName("Appellant")
+                    .build())
+                .build())
             .build();
         if (nonNull(appellant)) {
             appeal.setHearingOptions(HearingOptions.builder().other(appellant).build());
@@ -417,8 +418,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         if (nonNull(otherPartiesComments)) {
             for (String otherPartyComment : splitCsvParamArray(otherPartiesComments)) {
                 otherParties.add(new CcdValue<>(OtherParty.builder()
-                                                    .hearingOptions(HearingOptions.builder().other(otherPartyComment).build())
-                                                    .build()));
+                    .hearingOptions(HearingOptions.builder().other(otherPartyComment).build())
+                    .build()));
             }
         } else {
             otherParties = null;
@@ -444,8 +445,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getPartyRole() {
         Party party = Appellant.builder()
             .role(Role.builder()
-                      .name("Test Role")
-                      .build())
+                .name("Test Role")
+                .build())
             .build();
         String result = HearingsDetailsMapping.getPartyRole(party);
 
@@ -467,8 +468,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getPartyRoleNoRole(String role) {
         Party party = Appellant.builder()
             .role(Role.builder()
-                      .name(role)
-                      .build())
+                .name(role)
+                .build())
             .build();
         String result = HearingsDetailsMapping.getPartyRole(party);
 
@@ -483,10 +484,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         Party party = Appellant.builder()
             .isAppointee(isAppointee)
             .name(Name.builder()
-                      .title("Mx")
-                      .firstName("Test")
-                      .lastName("Appellant")
-                      .build())
+                .title("Mx")
+                .firstName("Test")
+                .lastName("Appellant")
+                .build())
             .build();
         String result = HearingsDetailsMapping.getEntityName(party);
 
@@ -501,17 +502,17 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         Party party = Appellant.builder()
             .isAppointee(isAppointee)
             .appointee(Appointee.builder()
-                           .name(Name.builder()
-                                     .title("Mx")
-                                     .firstName("Test")
-                                     .lastName("Appointee")
-                                     .build())
-                           .build())
+                .name(Name.builder()
+                    .title("Mx")
+                    .firstName("Test")
+                    .lastName("Appointee")
+                    .build())
+                .build())
             .name(Name.builder()
-                      .title("Mx")
-                      .firstName("Test")
-                      .lastName("Appellant")
-                      .build())
+                .title("Mx")
+                .firstName("Test")
+                .lastName("Appellant")
+                .build())
             .build();
         String result = HearingsDetailsMapping.getEntityName(party);
 
