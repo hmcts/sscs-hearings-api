@@ -168,7 +168,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        verify(hearingUpdateService).resolveDwpState(hmcMessage.getHearingUpdate().getHmcStatus(), caseData);
+        verify(hearingUpdateService).resolveDwpState(hmcMessage.getHearingUpdate().getHmcStatus());
     }
 
     @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")
