@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingInterpreter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Interpreter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
@@ -60,6 +61,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPELL
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_PARTY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.SOLICITOR;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
@@ -942,14 +944,30 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(
             entity,
-            "1",
-            "2"
+            "1"
         );
 
         assertThat(result)
             .isNotEmpty()
             .extracting("relatedPartyId", "relationshipType")
             .contains(tuple("1", SOLICITOR.getRelationshipTypeCode()));
+    }
+
+    @DisplayName("When relationship type is INTERPRETER, "
+        + "related party is returned with correct id and relationship type code ")
+    @Test
+    void getIndividualRelatedParties_shouldReturnRelatedPartyForInterpreter() {
+        Entity entity = Interpreter.builder().build();
+
+        List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(
+            entity,
+            "1"
+        );
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("relatedPartyId", "relationshipType")
+            .contains(tuple("1", INTERPRETER.getRelationshipTypeCode()));
     }
 
     @DisplayName("getPartyOrganisationDetails Test")

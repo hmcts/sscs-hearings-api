@@ -7,8 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Postponement;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PostponementRequest;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -25,6 +28,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.ProcessRequestAction.GRANT;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQUESTED;
@@ -246,4 +252,39 @@ class HearingsServiceHelperTest {
 
         assertThat(result).isFalse();
     }
+
+    @DisplayName("If case is postponed clearTransientFields clears the required PostponementRequest field")
+    @Test
+    void testClearTransientFieldsPostponed() {
+        wrapper.getCaseData().setPostponement(Postponement.builder()
+            .unprocessedPostponement(YES)
+            .postponementEvent(EventType.READY_TO_LIST)
+            .build());
+
+        HearingsServiceHelper.clearTransientFields(wrapper);
+
+        Postponement result = wrapper.getCaseData().getPostponement();
+
+        assertThat(result)
+            .hasAllNullFieldsOrPropertiesExcept("unprocessedPostponement");
+        assertThat(result.getUnprocessedPostponement()).isEqualTo(NO);
+    }
+
+    @DisplayName("If case is not postponed clearTransientFields does not clear PostponementRequest field")
+    @Test
+    void testClearTransientFieldsNotPostponed() {
+        wrapper.getCaseData().setPostponementRequest(PostponementRequest.builder()
+            .unprocessedPostponementRequest(YES)
+            .actionPostponementRequestSelected(GRANT.getValue())
+            .build());
+
+        HearingsServiceHelper.clearTransientFields(wrapper);
+
+        PostponementRequest result = wrapper.getCaseData().getPostponementRequest();
+
+        assertThat(result.getUnprocessedPostponementRequest()).isEqualTo(YES);
+        assertThat(result.getActionPostponementRequestSelected()).isEqualTo(GRANT.getValue());
+    }
+
+
 }

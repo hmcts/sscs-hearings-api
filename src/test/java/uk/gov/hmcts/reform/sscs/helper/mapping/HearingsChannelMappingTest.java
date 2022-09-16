@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 
@@ -195,7 +194,7 @@ class HearingsChannelMappingTest {
 
     @DisplayName("should return hmc reference")
     @Test
-    void  getHearingChannelsHmcReference_hearingOptionsNotAttending() {
+    void  getHearingChannels_hearingOptionsNotAttending() {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
@@ -213,11 +212,11 @@ class HearingsChannelMappingTest {
             .dwpIsOfficerAttending(NO.getValue())
             .build();
 
-        List<String> result = getHearingChannelsHmcReference(caseData);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
 
         assertThat(result)
             .hasSize(1)
-            .containsOnly(PAPER.getHmcReference());
+            .containsOnly(PAPER);
     }
 
     @DisplayName("When no one wants to attend, isPaperCase returns True")
