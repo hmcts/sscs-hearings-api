@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
@@ -166,7 +167,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getPartyId(Entity entity) {
-        return entity.getId();
+        return entity.getId().length() > 15 ? entity.getId().substring(0, 15) : entity.getId();
     }
 
     public static PartyType getPartyType(Entity entity) {
@@ -318,9 +319,10 @@ public final class HearingsPartiesMapping {
     }
 
 
-    public static RelatedParty getRelatedParty(String id, String relationshipType) {
+    public static RelatedParty getRelatedParty(@NonNull String id, String relationshipType) {
+        String shortenId = id.length() > 15 ? id.substring(0, 15) : id;
         return RelatedParty.builder()
-                .relatedPartyId(id.substring(0, 15))
+                .relatedPartyId(shortenId)
                 .relationshipType(relationshipType)
                 .build();
     }

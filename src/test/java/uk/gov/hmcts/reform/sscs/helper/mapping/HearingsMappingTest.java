@@ -71,7 +71,6 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                .id("1")
                                 .name(Name.builder()
                                         .title("title")
                                         .firstName("first")
