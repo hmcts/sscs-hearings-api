@@ -62,7 +62,7 @@ public final class OverridesMapping {
         Appeal appeal = caseData.getAppeal();
 
         OverrideFields defaultOverrideFields = OverrideFields.builder()
-            .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+            .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .reservedToJudge(getReservedToJudge(caseData))
             .appellantInterpreter(getAppellantInterpreter(appeal, referenceDataServiceHolder))
             .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(), appeal.getHearingOptions(), null))
