@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,6 +23,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.RegionalProcessingCenter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
@@ -29,6 +31,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
@@ -73,6 +76,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     public static final String PROCESSING_VENUE_1 = "test_place";
 
+    private String epimsId1;
+    private String epimsId2;
+    private String epimsId3;
+    private String epimsId4;
+    private List<VenueDetails> epimsIdsList;
+
+    @BeforeEach
+    void setUp() {
+        epimsId1 = "112233";
+        epimsId2 = "332211";
+        epimsId3 = "123123";
+        epimsId4 = "321321";
+
+        epimsIdsList = Arrays.asList(
+            VenueDetails.builder().epimsId(epimsId1).build(),
+            VenueDetails.builder().epimsId(epimsId2).build(),
+            VenueDetails.builder().epimsId(epimsId3).build(),
+            VenueDetails.builder().epimsId(epimsId4).build());
+    }
+
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
     void buildHearingDetails() {
@@ -100,6 +123,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                         .baseLocation(EPIMS_ID)
                                         .region(REGION)
                                         .build())
+            .dwpIsOfficerAttending("Yes")
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
@@ -112,7 +136,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getHearingWindow());
         assertNotNull(hearingDetails.getDuration());
         assertNotNull(hearingDetails.getHearingPriorityType());
-        assertEquals(0, hearingDetails.getNumberOfPhysicalAttendees());
+        assertEquals(1, hearingDetails.getNumberOfPhysicalAttendees());
         assertNotNull(hearingDetails.getHearingLocations());
         assertNull(hearingDetails.getListingComments());
         assertNull(hearingDetails.getHearingRequester());
@@ -226,6 +250,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .hearingOptions(HearingOptions.builder().build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
@@ -249,6 +274,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .hearingOptions(HearingOptions.builder().build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
             .build();
         Map<String, List<String>> multipleHearingLocations = new HashMap<>();
         multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
@@ -268,6 +294,40 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     }
 
+    @DisplayName("When hearing is paper case, return list of regional hearing locations based on RPC name")
+    @Test
+    void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc() {
+        final SscsCaseData caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending("No")
+            .regionalProcessingCenter(RegionalProcessingCenter.builder()
+                                          .name("SSCS Leeds")
+                                          .build())
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                            .wantsToAttend("N")
+                                            .build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
+            .willReturn(epimsIdsList);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).hasSize(4);
+        assertThat(result)
+            .hasSize(4)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(
+                tuple(epimsId1, COURT),
+                tuple(epimsId2, COURT),
+                tuple(epimsId3, COURT),
+                tuple(epimsId4, COURT));
+    }
 
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
@@ -301,6 +361,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .hearingOptions(HearingOptions.builder().build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));

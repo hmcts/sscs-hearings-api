@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
@@ -9,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -29,6 +31,9 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
+@SuppressWarnings({"PMD.GodClass"})
+@Slf4j
+// TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
     private HearingsDetailsMapping() {
@@ -98,6 +103,23 @@ public final class HearingsDetailsMapping {
                 .map(CcdValue::getValue)
                 .map(epimsId -> HearingLocation.builder()
                     .locationId(epimsId)
+                    .locationType(COURT)
+                    .build())
+                .collect(Collectors.toList());
+        }
+
+        if (HearingsChannelMapping.isPaperCase(caseData)) {
+            List<VenueDetails> venueDetailsList = referenceDataServiceHolder
+                .getVenueService()
+                .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
+
+            log.info("Found {} venues under RPC {} for paper case {}", venueDetailsList.size(),
+                caseData.getRegionalProcessingCenter().getName(), caseData.getCcdCaseId());
+
+            return venueDetailsList.stream()
+                .map(VenueDetails::getEpimsId)
+                .map(id -> HearingLocation.builder()
+                    .locationId(id)
                     .locationType(COURT)
                     .build())
                 .collect(Collectors.toList());
