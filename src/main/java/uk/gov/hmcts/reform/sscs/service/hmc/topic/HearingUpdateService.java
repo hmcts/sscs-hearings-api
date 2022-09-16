@@ -119,9 +119,8 @@ public class HearingUpdateService {
         hearing.getValue().setHearingStatus(hearingStatus);
     }
 
-    public DwpState resolveDwpState(HmcStatus hmcStatus, @Valid SscsCaseData caseData) {
+    public DwpState resolveDwpState(HmcStatus hmcStatus) {
         if (isCaseListed(hmcStatus)) {
-            caseData.setDwpState(HEARING_DATE_ISSUED.getId());
             return HEARING_DATE_ISSUED;
         } else {
             return null;

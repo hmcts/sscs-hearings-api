@@ -67,8 +67,10 @@ public class ProcessHmcMessageService {
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
-        hearingUpdateService.resolveDwpState(hmcStatus, caseData);
-
+        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcStatus);
+        if (resolvedState != null) {
+            caseData.setDwpState(resolvedState);
+        }
         if (isHearingUpdated(hmcStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
