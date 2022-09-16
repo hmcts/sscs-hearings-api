@@ -22,8 +22,8 @@ import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.EntityRoleCode.RESPONDENT;
 
 @SuppressWarnings("PMD.ExcessiveImports")
 public final class ServiceHearingPartiesMapping {
@@ -134,7 +134,7 @@ public final class ServiceHearingPartiesMapping {
                 .vulnerabilityDetails(HearingsPartiesMapping.getIndividualVulnerabilityDetails())
                 .hearingChannelEmail(HearingsPartiesMapping.getIndividualHearingChannelEmail(hearingSubtype))
                 .hearingChannelPhone(HearingsPartiesMapping.getIndividualHearingChannelPhone(hearingSubtype))
-                .relatedParties(HearingsPartiesMapping.getIndividualRelatedParties(entity, partyId, appellantId))
+                .relatedParties(HearingsPartiesMapping.getIndividualRelatedParties(entity, partyId))
                 .custodyStatus(HearingsPartiesMapping.getIndividualCustodyStatus())
                 .otherReasonableAdjustmentDetails(HearingsPartiesMapping.getIndividualOtherReasonableAdjustmentDetails())
                 .build();

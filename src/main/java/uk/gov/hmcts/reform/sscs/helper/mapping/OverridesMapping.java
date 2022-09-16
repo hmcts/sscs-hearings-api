@@ -65,7 +65,7 @@ public final class OverridesMapping {
             .duration(HearingsDetailsMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .reservedToJudge(getReservedToJudge(caseData))
             .appellantInterpreter(getAppellantInterpreter(appeal, referenceDataServiceHolder))
-            .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(), appeal.getHearingOptions(), caseData.getSchedulingAndListingFields().getDefaultOverrideFields()))
+            .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(), appeal.getHearingOptions(), null))
             .hearingWindow(getHearingDetailsHearingWindow(caseData))
             .autoList(getHearingDetailsAutoList(caseData, referenceDataServiceHolder))
             .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
@@ -74,8 +74,9 @@ public final class OverridesMapping {
 
         caseData.getSchedulingAndListingFields().setDefaultOverrideFields(defaultOverrideFields);
 
-        log.info("Just for testing will be reverted, casedata: ",
-            defaultOverrideFields, wrapper.getCaseData());
+        log.debug("Default Override Fields set to {} for Case ID {}",
+                  defaultOverrideFields,
+                  wrapper.getCaseData().getCcdCaseId());
     }
 
     public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {

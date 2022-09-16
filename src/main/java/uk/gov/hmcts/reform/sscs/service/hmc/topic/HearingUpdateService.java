@@ -92,6 +92,7 @@ public class HearingUpdateService {
         hearingDetails.setHearingDate(hearingDate);
         String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
         hearingDetails.setTime(hearingTime);
+        hearingDetails.setHearingChannel(HearingsServiceHelper.getHearingBookedChannel(hearingGetResponse));
 
         log.info(
             "Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
