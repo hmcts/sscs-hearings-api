@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.DwpState.HEARING_DATE_ISSUED;
 import static uk.gov.hmcts.reform.sscs.helper.service.CaseHearingLocationHelper.mapVenueDetailsToVenue;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
@@ -115,6 +117,14 @@ public class HearingUpdateService {
         }
 
         hearing.getValue().setHearingStatus(hearingStatus);
+    }
+
+    public DwpState resolveDwpState(HmcStatus hmcStatus) {
+        if (isCaseListed(hmcStatus)) {
+            return HEARING_DATE_ISSUED;
+        } else {
+            return null;
+        }
     }
 
     public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus listAssistCaseStatus) {
