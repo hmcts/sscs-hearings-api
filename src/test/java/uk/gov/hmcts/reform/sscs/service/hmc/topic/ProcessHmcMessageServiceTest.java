@@ -150,6 +150,27 @@ class ProcessHmcMessageServiceTest {
         verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, caseData, hmcStatus);
     }
 
+    @DisplayName("When HmcStatus is Listed, setDwpState is called")
+    @Test
+    void testListedStatusShouldUpdateDwpStateForCaseData() throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(LISTED);
+        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.FIXED);
+        hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        verify(hearingUpdateService).resolveDwpState(hmcMessage.getHearingUpdate().getHmcStatus());
+    }
+
     @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")
     @Test
     void testUpdateHearingListingStatusNull() throws Exception {
