@@ -88,13 +88,16 @@ class HearingsNumberAttendeesMappingTest {
         assertThat(result).isEqualTo(1);
     }
 
-    @DisplayName("When only the PO wants to Attend, getNumberOfPhysicalAttendees returns one")
+    @DisplayName("When the PO wants to Attend a face to face hearing, getNumberOfPhysicalAttendees should include the PO")
     @Test
     void shouldGetNumberOfPhysicalAttendeesOnlPO() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
+                    .wantsToAttend("Yes")
                     .build())
                 .build())
             .dwpIsOfficerAttending("Yes")
@@ -102,7 +105,7 @@ class HearingsNumberAttendeesMappingTest {
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);
 
-        assertThat(result).isEqualTo(1);
+        assertThat(result).isEqualTo(2);
     }
 
     @DisplayName("When wantsToAttend is not Yes, getNumberOfAppellantAttendees returns zero")

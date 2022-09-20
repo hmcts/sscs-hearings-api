@@ -597,9 +597,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNull(result);
     }
 
-
-
-
     @DisplayName("When dwpIsOfficerAttending is yes, isPoOfficerAttending return True")
     @Test
     void testIsPoOfficerAttending() {
