@@ -60,20 +60,6 @@ class HearingsChannelMappingTest {
         assertThat(result).isEqualTo(FACE_TO_FACE);
     }
 
-    @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
-    @Test
-    void getHearingChannels_whenDwpIsAttending_thenReturnFaceToFace_asPreferredHearingType() throws Exception {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending(YES.getValue())
-            .appeal(Appeal.builder().build())
-            .build();
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
-
-        assertThat(result)
-            .hasSize(1)
-            .containsOnly(FACE_TO_FACE);
-    }
-
     @DisplayName("The resolved hearing channel should follow the hierarchy face to face > video > telephone")
     @ParameterizedTest
     @MethodSource("hearingChannelArguments")
@@ -235,11 +221,13 @@ class HearingsChannelMappingTest {
     void testIsPaperCaseAttending() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
+                    .wantsToAttend("Yes")
                     .build())
                 .build())
-            .dwpIsOfficerAttending("Yes")
             .build();
 
         boolean result = HearingsChannelMapping.isPaperCase(caseData);

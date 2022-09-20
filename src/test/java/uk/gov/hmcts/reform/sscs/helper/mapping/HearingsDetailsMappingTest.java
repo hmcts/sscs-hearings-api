@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
@@ -117,8 +118,13 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .caseManagementLocation(CaseManagementLocation.builder()
                                         .baseLocation(EPIMS_ID)
                                         .region(REGION)
@@ -136,7 +142,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertNotNull(hearingDetails.getHearingWindow());
         assertNotNull(hearingDetails.getDuration());
         assertNotNull(hearingDetails.getHearingPriorityType());
-        assertEquals(1, hearingDetails.getNumberOfPhysicalAttendees());
+        assertEquals(2, hearingDetails.getNumberOfPhysicalAttendees());
         assertNotNull(hearingDetails.getHearingLocations());
         assertNull(hearingDetails.getListingComments());
         assertNull(hearingDetails.getHearingRequester());
@@ -247,7 +253,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
             .dwpIsOfficerAttending("Yes")
@@ -271,7 +282,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() {
         final SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
             .dwpIsOfficerAttending("Yes")
@@ -358,7 +374,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
             .dwpIsOfficerAttending("Yes")
@@ -596,9 +617,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertNull(result);
     }
-
-
-
 
     @DisplayName("When dwpIsOfficerAttending is yes, isPoOfficerAttending return True")
     @Test
