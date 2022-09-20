@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.*;
 
 class HearingsChannelMappingTest {
 
@@ -119,7 +119,7 @@ class HearingsChannelMappingTest {
             Arguments.of(YES.getValue(), YES.getValue(), YES.getValue(), FACE_TO_FACE),
             Arguments.of(NO.getValue(), YES.getValue(), NO.getValue(), HearingChannel.VIDEO),
             Arguments.of(NO.getValue(), YES.getValue(), YES.getValue(), HearingChannel.VIDEO),
-            Arguments.of(NO.getValue(), NO.getValue(), YES.getValue(), HearingChannel.TELEPHONE));
+            Arguments.of(NO.getValue(), NO.getValue(), YES.getValue(), TELEPHONE));
     }
 
     @DisplayName("should throw HearingChannelNotFoundException if no party has a preference selected but want to attend.")
@@ -233,5 +233,17 @@ class HearingsChannelMappingTest {
         boolean result = HearingsChannelMapping.isPaperCase(caseData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("Return Adjourn case type of next hearing when value present")
+    @Test
+    public void getHearingChannel_returnAdjournCaseTypeOfNextHearing() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseTypeOfNextHearing(TELEPHONE)
+            .appeal(Appeal.builder().build())
+            .build();
+
+        HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
+        assertEquals("Telephone", result.getValueEn());
     }
 }
