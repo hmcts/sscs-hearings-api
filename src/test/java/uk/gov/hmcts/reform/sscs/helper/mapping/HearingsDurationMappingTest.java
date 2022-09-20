@@ -294,7 +294,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(75);
     }
 
-    @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is not paper "
+    @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is paper "
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
@@ -323,7 +323,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             referenceDataServiceHolder
         );
 
-        assertThat(result).isNull();
+        assertThat(result).isEqualTo(30);
     }
 
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
