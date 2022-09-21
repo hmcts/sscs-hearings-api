@@ -239,7 +239,7 @@ class HearingsChannelMappingTest {
     @Test
     public void getHearingChannel_returnAdjournCaseTypeOfNextHearing() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .adjournCaseTypeOfNextHearing(TELEPHONE)
+            .adjournCaseTypeOfNextHearing("Telephone")
             .appeal(Appeal.builder().build())
             .build();
 
