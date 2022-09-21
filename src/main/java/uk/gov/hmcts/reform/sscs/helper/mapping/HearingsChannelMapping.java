@@ -36,10 +36,6 @@ public final class HearingsChannelMapping {
     }
 
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            return FACE_TO_FACE;
-        }
-
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
 
         if (hearingChannels.contains(FACE_TO_FACE)) {
@@ -76,12 +72,6 @@ public final class HearingsChannelMapping {
         }
 
         return hearingChannels;
-    }
-
-    public static List<String> getHearingChannelsHmcReference(@Valid SscsCaseData caseData) {
-        return getHearingChannels(caseData).stream()
-            .map(HearingChannel::getHmcReference)
-            .collect(Collectors.toList());
     }
 
     public static HearingChannel getIndividualPreferredHearingChannel(HearingSubtype hearingSubtype, HearingOptions hearingOptions, OverrideFields overrideFields) {

@@ -37,6 +37,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,7 +151,7 @@ class ServiceHearingsServiceTest {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -172,8 +173,9 @@ class ServiceHearingsServiceTest {
             .caseId(String.valueOf(CASE_ID))
             .build();
 
-        caseData.getAppeal().getAppellant().setId("1");
-        caseData.getAppeal().getRep().setId("2");
+        caseData.getAppeal().getAppellant().setId("87399f1d-fcf9-416f-a3d0-f5ab0eb1109d");
+        caseData.getAppeal().getRep().setId("9f6fe72e-7e6e-4ad5-9a47-e70fc37e9de4");
+        caseData.getJointParty().setId("c11dc4a2-0447-4cd2-80fe-250df5c8d0a9");
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,true,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -185,7 +187,7 @@ class ServiceHearingsServiceTest {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 

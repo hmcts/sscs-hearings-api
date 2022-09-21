@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannelsHmcReference;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 
@@ -61,20 +60,6 @@ class HearingsChannelMappingTest {
         assertThat(result).isEqualTo(FACE_TO_FACE);
     }
 
-    @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
-    @Test
-    void getHearingChannels_whenDwpIsAttending_thenReturnFaceToFace_asPreferredHearingType() throws Exception {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending(YES.getValue())
-            .appeal(Appeal.builder().build())
-            .build();
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
-
-        assertThat(result)
-            .hasSize(1)
-            .containsOnly(FACE_TO_FACE);
-    }
-
     @DisplayName("The resolved hearing channel should follow the hierarchy face to face > video > telephone")
     @ParameterizedTest
     @MethodSource("hearingChannelArguments")
@@ -93,7 +78,6 @@ class HearingsChannelMappingTest {
                 .hearingTelephoneNumber("1234")
                 .hearingVideoEmail("email")
                 .build())
-            .id("2")
             .name(Name.builder()
                 .title("title")
                 .firstName("first")
@@ -112,7 +96,6 @@ class HearingsChannelMappingTest {
                     .hearingVideoEmail("email")
                     .build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -148,7 +131,6 @@ class HearingsChannelMappingTest {
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend(YES.getValue()).build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -175,7 +157,6 @@ class HearingsChannelMappingTest {
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend(NO.getValue()).build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -195,14 +176,13 @@ class HearingsChannelMappingTest {
 
     @DisplayName("should return hmc reference")
     @Test
-    void  getHearingChannelsHmcReference_hearingOptionsNotAttending() {
+    void  getHearingChannels_hearingOptionsNotAttending() {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend(NO.getValue()).build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -213,11 +193,11 @@ class HearingsChannelMappingTest {
             .dwpIsOfficerAttending(NO.getValue())
             .build();
 
-        List<String> result = getHearingChannelsHmcReference(caseData);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
 
         assertThat(result)
             .hasSize(1)
-            .containsOnly(PAPER.getHmcReference());
+            .containsOnly(PAPER);
     }
 
     @DisplayName("When no one wants to attend, isPaperCase returns True")
@@ -241,11 +221,13 @@ class HearingsChannelMappingTest {
     void testIsPaperCaseAttending() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
+                    .wantsToAttend("Yes")
                     .build())
                 .build())
-            .dwpIsOfficerAttending("Yes")
             .build();
 
         boolean result = HearingsChannelMapping.isPaperCase(caseData);

@@ -33,7 +33,6 @@ import java.util.List;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.updateIds;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @SuppressWarnings({"PMD.UnusedFormalParameter"})
@@ -102,30 +101,36 @@ public class HearingsService {
 
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
+        HmcUpdateResponse hmcUpdateResponse;
+
         if (isNull(hearing)) {
-            updateIds(wrapper);
             OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
-            HmcUpdateResponse hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+            hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 caseId,
                 wrapper.getState().getState(),
                 hmcUpdateResponse.toString());
-
-            hearingResponseUpdate(wrapper, hmcUpdateResponse);
         } else {
-            HmcUpdateResponse hmcUpdateResponse = HmcUpdateResponse.builder()
+            hmcUpdateResponse = HmcUpdateResponse.builder()
                 .hearingRequestId(hearing.getHearingId())
                 .versionNumber(hearing.getRequestVersion())
                 .status(hearing.getHmcStatus())
                 .build();
-            hearingResponseUpdate(wrapper, hmcUpdateResponse);
+
+            log.debug("Existing hearing found, skipping Create Hearing Request for Case ID {}, Hearing State {} and "
+                    + "Hearing Id {}",
+                caseId,
+                hearing.getHmcStatus(),
+                hearing.getHearingId());
         }
+
+        hearingResponseUpdate(wrapper, hmcUpdateResponse);
+        HearingsServiceHelper.clearTransientFields(wrapper);
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
-        updateIds(wrapper);
         OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);

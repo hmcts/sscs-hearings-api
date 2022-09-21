@@ -43,6 +43,7 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,7 +126,6 @@ class OverridesMappingTest {
             .isNotNull()
             .extracting(
                 "duration",
-                "reservedToJudge",
                 "appellantInterpreter",
                 "appellantHearingChannel",
                 "hearingWindow",
@@ -207,7 +207,7 @@ class OverridesMappingTest {
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 60,75,30));
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
 
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(new Language("fre","Test",null,null, List.of()));
@@ -223,7 +223,6 @@ class OverridesMappingTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getDuration()).isNotNull();
-        assertThat(result.getReservedToJudge()).isNotNull();
         assertThat(result.getAppellantInterpreter()).isNotNull();
         assertThat(result.getAppellantHearingChannel()).isNotNull();
         assertThat(result.getHearingWindow()).isNotNull();
@@ -529,7 +528,7 @@ class OverridesMappingTest {
     @DisplayName("When valid case data is given, getHearingDetailsHearingWindow returns the default venue epims ids")
     @Test
     void testGetHearingDetailsLocations() {
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
 
         given(referenceData.getVenueService()).willReturn(venueService);
 
