@@ -97,4 +97,8 @@ public class ServiceHearingValues {
     private String hmctsServiceID;
 
     private boolean caseInterpreterRequiredFlag;
+
+    private String adjournCaseInterpreterLanguage;
+
+    private String adjournCaseInterpreterRequired;
 }

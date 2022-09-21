@@ -43,4 +43,8 @@ public class CaseDetails {
     @JsonProperty("caseSLAStartDate")
     private String caseSlaStartDate;
 
+    private String adjournCaseInterpreterRequired;
+
+    private String adjournCaseInterpreterLanguage;
+
 }

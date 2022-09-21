@@ -212,4 +212,14 @@ public final class HearingsDetailsMapping {
 
         return isYes(caseData.getDwpIsOfficerAttending());
     }
+
+    public static String adjournCaseInterpreterLanguage(@Valid SscsCaseData caseData) {
+        if (isYes(caseData.getAdjournCaseInterpreterRequired()) && nonNull(caseData.getAdjournCaseInterpreterLanguage())) {
+            return caseData.getAdjournCaseInterpreterLanguage();
+        }
+        if (!isYes(caseData.getAdjournCaseInterpreterRequired())) {
+            return "no interpreter required";
+        }
+        return caseData.getLanguagePreference().getCode();
+    }
 }

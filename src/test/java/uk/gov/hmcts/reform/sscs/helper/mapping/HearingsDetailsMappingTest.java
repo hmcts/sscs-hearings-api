@@ -689,4 +689,29 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(result).isFalse();
     }
+
+    @DisplayName("Interpreter requirements selected during Adjournment is used in next hearing request (German interpreter required) ")
+    @Test
+    void testAdjournInterpreterRequirementsUsedInNextHearingRequestGermanLanguage() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseInterpreterRequired("Yes")
+            .adjournCaseInterpreterLanguage("German")
+            .build();
+
+        String language = HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData);
+
+        assertThat(language).isEqualTo("German");
+    }
+
+    @DisplayName("Interpreter requirements selected during Adjournment is used in next hearing request (no interpreter required) ")
+    @Test
+    void testAdjournInterpreterRequirementsUsedInNextHearingRequestNoInterpreter() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseInterpreterRequired("No")
+            .build();
+
+        String language = HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData);
+
+        assertThat(language).isEqualTo("no interpreter required");
+    }
 }

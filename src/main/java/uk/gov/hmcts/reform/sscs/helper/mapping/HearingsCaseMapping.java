@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
@@ -147,6 +148,10 @@ public final class HearingsCaseMapping {
 
     public static List<String> getReasonsForLink(SscsCaseData caseData) {
         return new ArrayList<>();
+    }
+
+    public static YesNo adjournCaseInterpreterRequired(HearingOptions hearingOptions) {
+        return  YesNo.valueOf(hearingOptions.getLanguageInterpreter());
     }
 
 }

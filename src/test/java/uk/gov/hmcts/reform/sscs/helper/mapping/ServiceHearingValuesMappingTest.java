@@ -106,6 +106,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
             .adjournCaseCanCaseBeListedRightAway("Yes")
+            .adjournCaseInterpreterRequired("Yes")
+            .adjournCaseInterpreterLanguage("Bulgarian")
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")
@@ -241,6 +243,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertNull(serviceHearingValues.getVocabulary());
         assertEquals(List.of(FACE_TO_FACE), serviceHearingValues.getHearingChannels());
         assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
+        assertEquals("Bulgarian", serviceHearingValues.getAdjournCaseInterpreterLanguage());
+        assertEquals(YesNo.YES.getValue(), serviceHearingValues.getAdjournCaseInterpreterRequired());
     }
 
     @Test
@@ -401,6 +405,13 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .flagParentId("1")
                     .flagId("67")
                     .flagDescription("Urgent flag")
+                    .flagStatus(null)
+                    .build());
+                add(PartyFlags.builder()
+                    .partyName(null)
+                    .flagParentId("2")
+                    .flagId("70")
+                    .flagDescription("Language Interpreter")
                     .flagStatus(null)
                     .build());
             }
