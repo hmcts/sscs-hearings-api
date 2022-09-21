@@ -5,22 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Benefit;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -31,11 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType.MUST_INCLUDE;
 
 class HearingsPanelMappingTest extends HearingsMappingBase {
 
@@ -102,107 +91,10 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         assertThat(result).isEmpty();
     }
 
-    @DisplayName("When isReservedToMember override is Yes and a reserved member is given, getPanelPreferences returns a List with the requested Judges details")
-    @Test
-    void testGetPanelPreferences() {
-
-        DynamicList reservedMember = new DynamicList(new DynamicListItem(JUDGE_ID_JUDGE_ROLE_TYPE, "Judge Dredd"), List.of());
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder()
-                    .reservedToJudge(ReservedToMember.builder()
-                        .isReservedToMember(YES)
-                        .reservedMember(reservedMember)
-                        .build())
-                    .build())
-                .build())
-            .build();
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
-
-        assertThat(result)
-            .hasSize(1)
-            .extracting("memberID", "memberType", "requirementType")
-            .containsExactlyInAnyOrder(tuple(JUDGE_ID, JUDGE_ROLE_TYPE, MUST_INCLUDE));
-    }
-
-    @DisplayName("When isReservedToMember override is not Yes getPanelPreferences returns an empty list")
-    @ParameterizedTest
-    @EnumSource(
-        value = YesNo.class,
-        names = {"NO"},
-        mode = INCLUDE)
-    @NullSource
-    void testGetPanelPreferences(YesNo value) {
-
-        DynamicList reservedMember = new DynamicList(new DynamicListItem(JUDGE_ID, "Judge Dredd"), List.of());
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder()
-                    .reservedToJudge(ReservedToMember.builder()
-                        .isReservedToMember(value)
-                        .reservedMember(reservedMember)
-                        .build())
-                    .build())
-                .build())
-            .build();
-
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
-
-        assertThat(result).isEmpty();
-    }
-
-    @DisplayName("When when the reserved member item has the wrong formatted code, getPanelPreferences returns an empty list")
-    @Test
-    void testGetPanelPreferencesWrongCodeFormat() {
-
-        DynamicList reservedMember = new DynamicList(new DynamicListItem("wrong format", "Judge Dredd"), List.of());
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder()
-                    .reservedToJudge(ReservedToMember.builder()
-                        .isReservedToMember(YES)
-                        .reservedMember(reservedMember)
-                        .build())
-                    .build())
-                .build())
-            .build();
-
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
-
-        assertThat(result).isEmpty();
-    }
-
-    @DisplayName("When isReservedToMember override is Yes and but no reserved member is given, getPanelPreferences returns an empty list")
-    @Test
-    void testGetPanelPreferencesJudgeNull() {
-
-        DynamicList reservedMember = new DynamicList(null, List.of());
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder()
-                    .reservedToJudge(ReservedToMember.builder()
-                        .isReservedToMember(YES)
-                        .reservedMember(reservedMember)
-                        .build())
-                    .build())
-                .build())
-            .build();
-
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
-
-        assertThat(result).isEmpty();
-    }
-
     @DisplayName("When overrideFields are null getPanelPreferences returns an empty list")
     @Test
     void testGetPanelPreferencesOverrideFieldsNull() {
-        SscsCaseData caseData = SscsCaseData.builder().build();
-
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences();
 
         assertThat(result).isEmpty();
     }

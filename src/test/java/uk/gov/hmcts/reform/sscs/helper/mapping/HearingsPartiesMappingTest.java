@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
@@ -63,6 +64,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.SOLICITOR;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 
@@ -70,18 +72,20 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     public static final String EMAIL_ADDRESS = "test@test.com";
     public static final String TELEPHONE_NUMBER = "01000000000";
+    public static final String PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb29";
+    public static final String OTHER_PARTY_ID = "4dd6b6fa-6562-4699-8e8b-6c70cf8a333e";
+    public static final String DWP_ID = "DWP";
 
     @DisplayName("When a valid hearing wrapper without OtherParties or joint party is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
     void buildHearingPartiesDetails() throws InvalidMappingException {
-        String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                       .id(appellantId)
+                                       .id(PARTY_ID)
                                        .name(Name.builder()
                                                  .title("title")
                                                  .firstName("first")
@@ -97,7 +101,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        PartyDetails partyDetails = partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+        PartyDetails partyDetails = partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
             null);
         assertThat(partyDetails).isNotNull();
         assertThat(partyDetails.getPartyType()).isNotNull();
@@ -107,13 +111,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
 
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
     }
 
     @DisplayName("When a valid hearing wrapper when PO attending is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
     void buildHearingPartiesDetailsPoAttending() throws InvalidMappingException {
-        String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("Yes")
             .appeal(Appeal.builder()
@@ -121,7 +124,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                       .id(appellantId)
+                                       .id(PARTY_ID)
                                        .name(Name.builder()
                                                  .title("title")
                                                  .firstName("first")
@@ -137,17 +140,27 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        PartyDetails dwpPartyDetails = partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
-            null);
-        assertThat(dwpPartyDetails).isNotNull();
-        assertThat(dwpPartyDetails.getPartyType()).isNotNull();
-        assertThat(dwpPartyDetails.getPartyRole()).isNotNull();
-        assertThat(dwpPartyDetails.getIndividualDetails()).isNull();
-        assertThat(dwpPartyDetails.getOrganisationDetails()).isNotNull();
-        assertThat(dwpPartyDetails.getUnavailabilityDayOfWeek()).isEmpty();
-        assertThat(dwpPartyDetails.getUnavailabilityRanges()).isEmpty();
+        assertThat(partiesDetails)
+            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
+            .hasSize(1)
+            .extracting(
+                PartyDetails::getPartyType,
+                PartyDetails::getPartyRole,
+                PartyDetails::getOrganisationDetails,
+                PartyDetails::getUnavailabilityDayOfWeek,
+                PartyDetails::getUnavailabilityRanges)
+            .contains(tuple(INDIVIDUAL, "RESP", null, List.of(), List.of()));
+
+        assertThat(partiesDetails)
+            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
+            .extracting(PartyDetails::getIndividualDetails)
+            .extracting(
+                IndividualDetails::getFirstName,
+                IndividualDetails::getLastName,
+                IndividualDetails::getPreferredHearingChannel)
+            .contains(tuple("Presenting", "Officer", FACE_TO_FACE));
     }
 
     @DisplayName("When a valid hearing wrapper when PO attending is not Yes given buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -155,7 +168,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"No"})
     @NullAndEmptySource
     void buildHearingPartiesDetailsPoAttending(String officerAttending) throws InvalidMappingException {
-        String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(officerAttending)
             .appeal(Appeal.builder()
@@ -163,7 +175,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                       .id(appellantId)
+                                       .id(PARTY_ID)
                                        .name(Name.builder()
                                                  .title("title")
                                                  .firstName("first")
@@ -179,16 +191,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
     }
 
     @DisplayName("When a valid hearing wrapper is given with OtherParties buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
     void buildHearingPartiesDetailsOtherParties() throws InvalidMappingException {
-        String appellantId = "1";
-        String otherPartyId = "2";
+        String otherPartyId = OTHER_PARTY_ID;
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                                             .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
@@ -207,7 +218,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                       .id(appellantId)
+                                       .id(PARTY_ID)
                                        .name(Name.builder()
                                                  .title("title")
                                                  .firstName("first")
@@ -223,9 +234,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        PartyDetails partyDetails = partiesDetails.stream().filter(o -> otherPartyId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+        PartyDetails partyDetails = partiesDetails.stream().filter(o -> otherPartyId.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
             null);
         assertThat(partyDetails).isNotNull();
         assertThat(partyDetails.getPartyType()).isNotNull();
@@ -235,7 +246,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
 
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
 
     }
 
@@ -244,16 +255,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @EnumSource(value = YesNo.class)
     @NullSource
     void buildHearingPartiesDetailsJointParty(YesNo jointParty) throws InvalidMappingException {
-        String appellantId = "1";
-        String jointPartyId = "2";
-
         Name name = Name.builder()
             .title("title")
             .firstName("first")
             .lastName("last")
             .build();
 
-        JointParty jointPartyDetails = JointParty.builder().id(jointPartyId)
+        JointParty jointPartyDetails = JointParty.builder().id(OTHER_PARTY_ID)
             .hasJointParty(jointParty)
             .name(name)
             .build();
@@ -265,7 +273,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                       .id(appellantId)
+                                       .id(PARTY_ID)
                                        .name(name)
                                        .build())
                         .build())
@@ -277,9 +285,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
-        assertThat(partiesDetails.stream().anyMatch(o -> jointPartyId.equalsIgnoreCase(o.getPartyID())));
-        assertThat(partiesDetails.stream().filter(o -> "DWP".equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().anyMatch(o -> OTHER_PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())));
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
     }
 
     @DisplayName("When HearingOption is  Null return empty string")
@@ -302,18 +310,16 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         ",false",
     }, nullValues = {"null"})
     void buildHearingPartiesPartyDetailsAppointee(String isAppointee, boolean expected) throws InvalidMappingException {
-        String appointeeId = "2";
         Appointee appointee = Appointee.builder()
-            .id(appointeeId)
+            .id(OTHER_PARTY_ID)
             .name(Name.builder()
                       .title("title")
                       .firstName("first")
                       .lastName("last")
                       .build())
             .build();
-        String appellantId = "1";
         Party party = Appellant.builder()
-            .id(appellantId)
+            .id(PARTY_ID)
             .isAppointee(isAppointee)
             .name(Name.builder()
                       .title("title")
@@ -329,13 +335,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             null,
             hearingOptions,
             HearingSubtype.builder().build(),
-            appellantId,
+            PARTY_ID,
             null, referenceData
         );
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        PartyDetails appointeeDetails = partiesDetails.stream().filter(o -> appointeeId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+        PartyDetails appointeeDetails = partiesDetails.stream().filter(o -> OTHER_PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
             null);
         if (expected) {
             assertThat(appointeeDetails).isNotNull();
@@ -360,9 +366,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         ",false",
     }, nullValues = {"null"})
     void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected) throws InvalidMappingException {
-        String repId = "3";
         Representative rep = Representative.builder()
-            .id(repId)
+            .id(OTHER_PARTY_ID)
             .hasRepresentative(hasRepresentative)
             .name(Name.builder()
                       .title("title")
@@ -371,9 +376,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                       .build())
             .build();
 
-        String appellantId = "1";
         Party party = Appellant.builder()
-            .id(appellantId)
+            .id(PARTY_ID)
             .name(Name.builder()
                       .title("title")
                       .firstName("first")
@@ -388,13 +392,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             rep,
             hearingOptions,
             hearingSubtype,
-            appellantId,
+            PARTY_ID,
             null, referenceData
         );
 
-        assertThat(partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        PartyDetails repDetails = partiesDetails.stream().filter(o -> repId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+        PartyDetails repDetails = partiesDetails.stream().filter(o -> OTHER_PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
             null);
         if (expected) {
             assertThat(repDetails).isNotNull();
@@ -418,9 +422,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         ",false",
     }, nullValues = {"null"})
     void buildHearingPartiesPartyDetailsAppointeeRepNull() throws InvalidMappingException {
-        String appellantId = "1";
         Party party = Appellant.builder()
-            .id(appellantId)
+            .id(PARTY_ID)
             .name(Name.builder()
                       .title("title")
                       .firstName("first")
@@ -434,11 +437,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             null,
             hearingOptions,
             HearingSubtype.builder().build(),
-            appellantId,
+            PARTY_ID,
             null, referenceData
         );
 
-        PartyDetails partyDetails = partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+        PartyDetails partyDetails = partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
             null);
         assertThat(partyDetails).isNotNull();
         assertThat(partyDetails.getPartyType()).isNotNull();
@@ -453,7 +456,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void createHearingPartyDetails() throws InvalidMappingException {
         Entity entity = Appellant.builder()
-            .id("1")
+            .id(PARTY_ID)
             .name(Name.builder()
                       .title("title")
                       .firstName("first")
@@ -465,8 +468,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             entity,
             hearingOptions,
             HearingSubtype.builder().build(),
-            "1",
-            "1",
+            PARTY_ID,
+            PARTY_ID,
             null, referenceData
         );
 
@@ -479,17 +482,33 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
     }
 
-    @DisplayName("getPartyId Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "1,1",
-        "null,null",
-    }, nullValues = {"null"})
-    void getPartyId(String value, String expected) {
-        Entity entity = Appellant.builder().id(value).build();
+    @DisplayName("When a entity is given with an id getPartyId returns that value")
+    @Test
+    void testGetPartyId() {
+        Entity entity = Appellant.builder().id(PARTY_ID).build();
         String result = HearingsPartiesMapping.getPartyId(entity);
 
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(PARTY_ID.substring(0,15));
+    }
+
+    @DisplayName("When a entity is given with an id getPartyId returns that value")
+    @Test
+    void testGetPartyIdShort() {
+        Entity entity = Appellant.builder().id("1").build();
+        String result = HearingsPartiesMapping.getPartyId(entity);
+
+        assertThat(result).isEqualTo("1");
+    }
+
+    @DisplayName("When a entity is given no id getPartyId returns a newly generated id")
+    @Test
+    void testGetPartyIdNull() {
+        Entity entity = Appellant.builder().build();
+        String result = HearingsPartiesMapping.getPartyId(entity);
+
+        assertThat(result)
+            .isNotNull()
+            .hasSize(15);
     }
 
     @DisplayName("getPartyType Parameterised Tests")
@@ -943,8 +962,22 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         Entity entity = Representative.builder().build();
 
         List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(
-            entity,
-            "1"
+            entity, PARTY_ID
+        );
+
+        assertThat(result)
+            .isNotEmpty()
+            .extracting("relatedPartyId", "relationshipType")
+            .contains(tuple(PARTY_ID.substring(0,15), SOLICITOR.getRelationshipTypeCode()));
+    }
+
+    @DisplayName("getIndividualRelatedParties when given a short id will return it correctly")
+    @Test
+    void getIndividualRelatedPartiesShortId() {
+        Entity entity = Representative.builder().build();
+
+        List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(
+            entity, "1"
         );
 
         assertThat(result)
@@ -961,13 +994,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty> result = HearingsPartiesMapping.getIndividualRelatedParties(
             entity,
-            "1"
+            PARTY_ID
         );
 
         assertThat(result)
             .isNotEmpty()
             .extracting("relatedPartyId", "relationshipType")
-            .contains(tuple("1", INTERPRETER.getRelationshipTypeCode()));
+            .contains(tuple("a2b837d5-ee28-4", INTERPRETER.getRelationshipTypeCode()));
     }
 
     @DisplayName("getPartyOrganisationDetails Test")
@@ -1034,7 +1067,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(1);
-        String appellantId = "1";
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder()
@@ -1045,7 +1077,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                       .id(appellantId)
+                                       .id(PARTY_ID)
                                        .name(Name.builder()
                                                  .title("title")
                                                  .firstName("first")
@@ -1061,7 +1093,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
 
-        PartyDetails partyDetails = partiesDetails.stream().filter(o -> appellantId.equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+        PartyDetails partyDetails = partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
             null);
         assertThat(partyDetails).isNotNull();
         assertThat(partyDetails.getUnavailabilityRanges()).hasSize(1);

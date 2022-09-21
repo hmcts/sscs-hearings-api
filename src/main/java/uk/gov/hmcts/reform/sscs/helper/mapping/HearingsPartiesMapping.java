@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
@@ -43,9 +44,9 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ORGANISATION_TYPE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityRoleCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
@@ -58,6 +59,8 @@ public final class HearingsPartiesMapping {
 
     public static final String LANGUAGE_REFERENCE_TEMPLATE = "%s%s";
     public static final String LANGUAGE_DIALECT_TEMPLATE = "-%s";
+    public static final String DWP_PO_FIRST_NAME = "Presenting";
+    public static final String DWP_PO_LAST_NAME = "Officer";
 
     private HearingsPartiesMapping() {
 
@@ -79,7 +82,7 @@ public final class HearingsPartiesMapping {
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
         if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) { // TODO SSCS-10243 - Might need to change
-            partiesDetails.add(createDwpPartyDetails());
+            partiesDetails.add(createDwpPartyDetails(caseData));
         }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
@@ -147,17 +150,15 @@ public final class HearingsPartiesMapping {
         return partyDetails.build();
     }
 
-    public static PartyDetails createDwpPartyDetails() {
-        PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
-
-        partyDetails.partyID(DWP_ID);
-        partyDetails.partyType(ORGANISATION);
-        partyDetails.partyRole(RESPONDENT.getHmcReference());
-        partyDetails.organisationDetails(getDwpOrganisationDetails());
-        partyDetails.unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(null));
-
-        return partyDetails.build();
+    public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) {
+        return PartyDetails.builder()
+            .partyID(DWP_ID)
+            .partyType(INDIVIDUAL)
+            .partyRole(RESPONDENT.getHmcReference())
+            .individualDetails(getDwpIndividualDetails(caseData))
+            .unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek())
+            .unavailabilityRanges(getPartyUnavailabilityRange(null))
+            .build();
     }
 
     public static PartyDetails createJointPartyDetails(SscsCaseData caseData) {
@@ -166,7 +167,7 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getPartyId(Entity entity) {
-        return entity.getId();
+        return entity.getId().length() > 15 ? entity.getId().substring(0, 15) : entity.getId();
     }
 
     public static PartyType getPartyType(Entity entity) {
@@ -175,6 +176,15 @@ public final class HearingsPartiesMapping {
 
     public static String getPartyRole(Entity entity) {
         return getEntityRoleCode(entity).getHmcReference();
+    }
+
+
+    public static IndividualDetails getDwpIndividualDetails(SscsCaseData caseData) {
+        return IndividualDetails.builder()
+            .firstName(DWP_PO_FIRST_NAME)
+            .lastName(DWP_PO_LAST_NAME)
+            .preferredHearingChannel(getHearingChannel(caseData))
+            .build();
     }
 
     public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions,
@@ -318,9 +328,10 @@ public final class HearingsPartiesMapping {
     }
 
 
-    public static RelatedParty getRelatedParty(String id, String relationshipType) {
+    public static RelatedParty getRelatedParty(@NonNull String id, String relationshipType) {
+        String shortenId = id.length() > 15 ? id.substring(0, 15) : id;
         return RelatedParty.builder()
-                .relatedPartyId(id)
+                .relatedPartyId(shortenId)
                 .relationshipType(relationshipType)
                 .build();
     }
@@ -338,10 +349,6 @@ public final class HearingsPartiesMapping {
     public static String getPartyChannelSubType() {
         // TODO Future work
         return null;
-    }
-
-    public static OrganisationDetails getDwpOrganisationDetails() {
-        return getOrganisationDetails(DWP_ID, DWP_ORGANISATION_TYPE, null);
     }
 
     public static OrganisationDetails getPartyOrganisationDetails() {

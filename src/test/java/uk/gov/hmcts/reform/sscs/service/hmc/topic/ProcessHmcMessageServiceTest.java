@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
@@ -29,6 +30,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
@@ -148,6 +150,49 @@ class ProcessHmcMessageServiceTest {
         verify(hearingUpdateService, never()).updateHearing(any(),any());
         verify(hearingUpdateService).setHearingStatus(HEARING_ID, caseData, hmcStatus);
         verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, caseData, hmcStatus);
+    }
+
+    @Test
+    void testReturnedStatusShouldUpdateDwpStateForCaseData() throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(LISTED);
+        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.FIXED);
+        hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
+
+        given(hearingUpdateService.resolveDwpState(LISTED))
+            .willReturn(DwpState.HEARING_DATE_ISSUED);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        assertThat(sscsCaseDetails.getData().getDwpState()).isEqualTo(DwpState.HEARING_DATE_ISSUED.getId());
+    }
+
+    @Test
+    void testNoStatusShouldNotUpdateDwpStateForCaseData() throws Exception {
+        // given
+        hearingGetResponse.getRequestDetails().setStatus(LISTED);
+        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.FIXED);
+        hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
+
+        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
+            .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
+
+        // when
+        processHmcMessageService.processEventMessage(hmcMessage);
+
+        // then
+        assertThat(sscsCaseDetails.getData().getDwpState()).isNull();
     }
 
     @DisplayName("When listing Status is null or cannot be mapped, updateHearing and updateCaseData are not called")

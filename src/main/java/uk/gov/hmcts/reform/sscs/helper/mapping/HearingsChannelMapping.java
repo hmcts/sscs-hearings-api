@@ -41,10 +41,6 @@ public final class HearingsChannelMapping {
             return caseData.getAdjournCaseTypeOfNextHearing();
         }
 
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            return FACE_TO_FACE;
-        }
-
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
 
         if (hearingChannels.contains(FACE_TO_FACE)) {

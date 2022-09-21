@@ -23,7 +23,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 
 @SuppressWarnings("PMD.ExcessiveImports")
 public final class ServiceHearingPartiesMapping {
@@ -40,10 +40,9 @@ public final class ServiceHearingPartiesMapping {
 
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        // Temporarily removing DWP for SHV because of missing Party Name in ExUI - SSCS-10659
-        //if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-        //    partiesDetails.add(createDwpPartyDetails());
-        //}
+        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
+            partiesDetails.add(createDwpPartyDetails(caseData));
+        }
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
             partiesDetails.add(createJointPartyDetails());
@@ -101,13 +100,13 @@ public final class ServiceHearingPartiesMapping {
         return partyDetails.build();
     }
 
-    public static PartyDetails createDwpPartyDetails() {
+    public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(DWP_ID);
-        partyDetails.partyType(ORGANISATION);
+        partyDetails.partyType(INDIVIDUAL);
         partyDetails.partyRole(RESPONDENT.getHmcReference());
-        partyDetails.organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails());
+        partyDetails.individualDetails(HearingsPartiesMapping.getDwpIndividualDetails(caseData));
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(null);
 
