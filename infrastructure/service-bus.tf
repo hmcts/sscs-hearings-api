@@ -34,7 +34,7 @@ data "azurerm_key_vault" "hmc" {
   resource_group_name = local.resource_group_name
 }
 
-data "azurerm_key_vault_secret" "this" {
+data "azurerm_key_vault_secret" "hmc" {
   for_each     = toset(local.key_vault_secrets)
   key_vault_id = data.azurerm_key_vault.hmc.id
   name         = each.key
