@@ -126,7 +126,6 @@ class OverridesMappingTest {
             .isNotNull()
             .extracting(
                 "duration",
-                "reservedToJudge",
                 "appellantInterpreter",
                 "appellantHearingChannel",
                 "hearingWindow",
@@ -224,7 +223,6 @@ class OverridesMappingTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getDuration()).isNotNull();
-        assertThat(result.getReservedToJudge()).isNotNull();
         assertThat(result.getAppellantInterpreter()).isNotNull();
         assertThat(result.getAppellantHearingChannel()).isNotNull();
         assertThat(result.getHearingWindow()).isNotNull();

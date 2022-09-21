@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.*;
 
 class HearingsChannelMappingTest {
 
@@ -60,20 +60,6 @@ class HearingsChannelMappingTest {
         assertThat(result).isEqualTo(FACE_TO_FACE);
     }
 
-    @DisplayName("When DWP is attending then return Face to Face as preferred hearing type")
-    @Test
-    void getHearingChannels_whenDwpIsAttending_thenReturnFaceToFace_asPreferredHearingType() throws Exception {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending(YES.getValue())
-            .appeal(Appeal.builder().build())
-            .build();
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
-
-        assertThat(result)
-            .hasSize(1)
-            .containsOnly(FACE_TO_FACE);
-    }
-
     @DisplayName("The resolved hearing channel should follow the hierarchy face to face > video > telephone")
     @ParameterizedTest
     @MethodSource("hearingChannelArguments")
@@ -92,7 +78,6 @@ class HearingsChannelMappingTest {
                 .hearingTelephoneNumber("1234")
                 .hearingVideoEmail("email")
                 .build())
-            .id("2")
             .name(Name.builder()
                 .title("title")
                 .firstName("first")
@@ -111,7 +96,6 @@ class HearingsChannelMappingTest {
                     .hearingVideoEmail("email")
                     .build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -135,7 +119,7 @@ class HearingsChannelMappingTest {
             Arguments.of(YES.getValue(), YES.getValue(), YES.getValue(), FACE_TO_FACE),
             Arguments.of(NO.getValue(), YES.getValue(), NO.getValue(), HearingChannel.VIDEO),
             Arguments.of(NO.getValue(), YES.getValue(), YES.getValue(), HearingChannel.VIDEO),
-            Arguments.of(NO.getValue(), NO.getValue(), YES.getValue(), HearingChannel.TELEPHONE));
+            Arguments.of(NO.getValue(), NO.getValue(), YES.getValue(), TELEPHONE));
     }
 
     @DisplayName("should throw HearingChannelNotFoundException if no party has a preference selected but want to attend.")
@@ -147,7 +131,6 @@ class HearingsChannelMappingTest {
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend(YES.getValue()).build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -174,7 +157,6 @@ class HearingsChannelMappingTest {
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend(NO.getValue()).build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -201,7 +183,6 @@ class HearingsChannelMappingTest {
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend(NO.getValue()).build())
                 .appellant(Appellant.builder()
-                    .id("1")
                     .name(Name.builder()
                         .title("title")
                         .firstName("first")
@@ -240,15 +221,29 @@ class HearingsChannelMappingTest {
     void testIsPaperCaseAttending() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
+                    .wantsToAttend("Yes")
                     .build())
                 .build())
-            .dwpIsOfficerAttending("Yes")
             .build();
 
         boolean result = HearingsChannelMapping.isPaperCase(caseData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("Return Adjourn case type of next hearing when value present")
+    @Test
+    public void getHearingChannel_returnAdjournCaseTypeOfNextHearing() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseTypeOfNextHearing("Telephone")
+            .appeal(Appeal.builder().build())
+            .build();
+
+        HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
+        assertEquals("Telephone", result.getValueEn());
     }
 }

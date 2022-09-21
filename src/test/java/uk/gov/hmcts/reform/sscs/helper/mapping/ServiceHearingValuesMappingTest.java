@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
@@ -63,7 +64,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +75,9 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     public static final String BENEFIT = "Benefit";
 
-    public static final String REPRESENTATIVE_PARTY_ID = "12321";
+    public static final String APPELLANT_PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb296292997e-14d4-4814-a163-e64018d2c441";
+    public static final String REPRESENTATIVE_PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb29";
+    public static final String OTHER_PARTY_ID = "4dd6b6fa-6562-4699-8e8b-6c70cf8a333e";
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -110,6 +113,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                 .hearingType("final")
                 .appellant(Appellant.builder()
+                    .id(APPELLANT_PARTY_ID)
                     .name(Name.builder()
                         .firstName("Fred")
                         .lastName("Flintstone")
@@ -247,10 +251,20 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         //then
-        assertEquals(3, serviceHearingValues.getParties().size());
-        assertEquals(EntityRoleCode.APPELLANT.getHmcReference(), serviceHearingValues.getParties().stream().findFirst().orElseThrow().getPartyRole());
-        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
-        assertEquals(EntityRoleCode.OTHER_PARTY.getHmcReference(), serviceHearingValues.getParties().stream().filter(partyDetails -> "party_id_1".equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertThat(serviceHearingValues.getParties())
+            .hasSize(3)
+            .anySatisfy(partyDetails -> {
+                assertThat(partyDetails.getPartyID()).isEqualTo(APPELLANT_PARTY_ID.substring(0,15));
+                assertThat(partyDetails.getPartyRole()).isEqualTo(EntityRoleCode.APPELLANT.getHmcReference());
+            })
+            .anySatisfy(partyDetails -> {
+                assertThat(partyDetails.getPartyID()).isEqualTo(REPRESENTATIVE_PARTY_ID.substring(0,15));
+                assertThat(partyDetails.getPartyRole()).isEqualTo(EntityRoleCode.REPRESENTATIVE.getHmcReference());
+            })
+            .anySatisfy(partyDetails -> {
+                assertThat(partyDetails.getPartyID()).isEqualTo(OTHER_PARTY_ID.substring(0,15));
+                assertThat(partyDetails.getPartyRole()).isEqualTo(EntityRoleCode.OTHER_PARTY.getHmcReference());
+            });
     }
 
     @Test
@@ -261,8 +275,10 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         //then
-        assertEquals(EntityRoleCode.REPRESENTATIVE.getHmcReference(),
-            serviceHearingValues.getParties().stream().filter(partyDetails -> partyDetails.getPartyType() != ORGANISATION && REPRESENTATIVE_PARTY_ID.equals(partyDetails.getPartyID())).findFirst().orElseThrow().getPartyRole());
+        assertThat(serviceHearingValues.getParties())
+            .filteredOn(partyDetails -> EntityRoleCode.REPRESENTATIVE.getHmcReference().equals(partyDetails.getPartyRole()))
+            .extracting(PartyDetails::getPartyType)
+            .containsOnly(INDIVIDUAL);
     }
 
     private List<Event> getEventsOfCaseData() {
@@ -283,7 +299,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         return new ArrayList<>() {
             {
                 add(new CcdValue<>(OtherParty.builder()
-                                   .id("party_id_1")
+                                   .id(OTHER_PARTY_ID)
                                    .name(Name.builder()
                                              .firstName("Barny")
                                              .lastName("Boulderstone")

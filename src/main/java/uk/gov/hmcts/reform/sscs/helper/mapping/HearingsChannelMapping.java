@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -38,11 +39,9 @@ public final class HearingsChannelMapping {
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
 
         if(caseData.getAdjournCaseTypeOfNextHearing() != null) {
-            return caseData.getAdjournCaseTypeOfNextHearing();
-        }
-
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            return FACE_TO_FACE;
+            return Arrays.stream(HearingChannel.values())
+                .filter(v -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(v.getValueEn()))
+                .findFirst().orElse(null);
         }
 
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
