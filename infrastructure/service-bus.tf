@@ -41,7 +41,7 @@ data "azurerm_key_vault_secret" "hmc" {
 }
 
 resource "azurerm_key_vault_secret" "shared_access_key" {
-  for_each     = data.azurerm_key_vault_secret.this
+  for_each     = data.azurerm_key_vault_secret.hmc
   name         = each.value.name
   value        = each.value.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
