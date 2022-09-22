@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,12 +56,12 @@ import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
@@ -81,6 +82,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     private VenueService venueService;
 
     public static final String PROCESSING_VENUE_1 = "test_place";
+    private static final String PHONE_NUMBER = "07483871426";
+    private static final String HEARING_VENUE_ID_1 = "219164";
+    private static final String HEARING_VENUE_ID_2 = "436578";
 
     private String epimsId1;
     private String epimsId2;
@@ -336,18 +340,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
             caseData,
-            referenceDataServiceHolder
-        );
+            referenceDataServiceHolder);
 
-        assertThat(result).hasSize(4);
-        assertThat(result)
-            .hasSize(4)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(
-                tuple(epimsId1, COURT),
-                tuple(epimsId2, COURT),
-                tuple(epimsId3, COURT),
-                tuple(epimsId4, COURT));
+        checkHearingLocationResults(result,
+            new Tuple[] {tuple(epimsId1, COURT), tuple(epimsId2, COURT),
+                tuple(epimsId3, COURT), tuple(epimsId4, COURT)});
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
@@ -375,7 +372,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
-    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    @CsvSource(value = {HEARING_VENUE_ID_1 + ",court"}, nullValues = {"null"})
     void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
@@ -390,15 +387,13 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending("Yes")
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of(HEARING_VENUE_ID_1));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
 
-        assertThat(result)
-            .hasSize(1)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(tuple("219164", COURT));
+        checkHearingLocationResults(result,
+            new Tuple[] {tuple(HEARING_VENUE_ID_1, COURT)});
     }
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
@@ -408,12 +403,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
 
-        assertThat(result)
-            .hasSize(2)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(
-                tuple("219164", COURT),
-                tuple("436578", COURT));
+        checkHearingLocationResults(result,
+            new Tuple[] {tuple(HEARING_VENUE_ID_1, COURT), tuple(HEARING_VENUE_ID_2, COURT)});
     }
 
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
@@ -421,23 +412,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsAdjournmentNewVenue() {
         SscsCaseData caseData = buildOverrideHearingLocations();
 
-        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder()
-                .wantsHearingTypeTelephone("yes")
-                .hearingTelephoneNumber("07483871426").build());
-        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("yes").build());
+        setupAppeal(caseData);
+        setupAdjournedHearingVenue(caseData, "somewhereElse");
 
-        DynamicListItem item = new DynamicListItem("219164", "");
-        DynamicList list = new DynamicList(item, Collections.emptyList());
-
-        caseData.setAdjournCaseNextHearingVenue("somewhereElse");
-        caseData.setAdjournCaseNextHearingVenueSelected(list);
-
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
-
-        assertThat(result)
-            .hasSize(1)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(tuple("219164", COURT));
+        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+            new Tuple[] {tuple(HEARING_VENUE_ID_1, COURT)});
     }
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
@@ -445,28 +424,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsAdjournmentSameVenue() {
         SscsCaseData caseData = buildOverrideHearingLocations();
 
-        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder()
-                .wantsHearingTypeTelephone("yes")
-                .hearingTelephoneNumber("07483871426").build());
-        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("yes").build());
+        setupAppeal(caseData);
+        setupAdjournedHearingVenue(caseData, "sameVenue");
 
         caseData.setHearings(Collections.singletonList(Hearing.builder()
                     .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
-                    .venueId(String.valueOf("219164")).build())
+                    .venueId(HEARING_VENUE_ID_2).build())
                 .build()));
 
-        DynamicListItem item = new DynamicListItem("219164", "");
-        DynamicList list = new DynamicList(item, Collections.emptyList());
-
-        caseData.setAdjournCaseNextHearingVenue("sameVenue");
-        caseData.setAdjournCaseNextHearingVenueSelected(list);
-
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
-
-        assertThat(result)
-            .hasSize(1)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(tuple("219164", COURT));
+        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+            new Tuple[] {tuple(HEARING_VENUE_ID_2, COURT)});
     }
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
@@ -474,39 +441,56 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsAdjournmentNewVenuePaperCase() {
         SscsCaseData caseData = buildOverrideHearingLocations();
 
-        DynamicListItem item = new DynamicListItem("219164", "");
-        DynamicList list = new DynamicList(item, Collections.emptyList());
+        setupAdjournedHearingVenue(caseData, "somewhereElse");
 
-        caseData.setAdjournCaseNextHearingVenue("somewhereElse");
-        caseData.setAdjournCaseNextHearingVenueSelected(list);
-
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
-
-        assertThat(result)
-            .hasSize(2)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(
-                tuple("219164", COURT),
-                tuple("436578", COURT));
+        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+            new Tuple[] {tuple(HEARING_VENUE_ID_1, COURT), tuple(HEARING_VENUE_ID_2, COURT)});
     }
 
-    @DisplayName("If the adjournCaseNextHearingVenue isn't recognised, throw an error")
+    @DisplayName("Checks both the errors we can throw when trying to obtain the venue ID when getting the locations")
     @Test
-    void getHearingLocationsFailOnWrongNextHearingVenue() {
+    void getHearingLocationsFailOnGettingVenueId() {
         SscsCaseData caseData = buildOverrideHearingLocations();
 
-        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder()
-                .wantsHearingTypeTelephone("yes")
-                .hearingTelephoneNumber("07483871426").build());
-        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("yes").build());
+        setupAppeal(caseData);
 
-        caseData.setAdjournCaseNextHearingVenue("UnknownValue");
+        String unknownValue = "UnknownValue";
+        setupAdjournedHearingVenue(caseData, "UnknownValue");
 
-        assertThrows(IllegalStateException.class,
-            () -> HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder));
+        assertThatThrownBy(() -> HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Failed to determine next hearing venue: " + unknownValue);
+
+        caseData.setAdjournCaseNextHearingVenue("sameVenue");
+
+        assertThatThrownBy(() -> HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Failed to determine next hearing venue due to no latest hearing");
     }
 
-    private SscsCaseData buildOverrideHearingLocations() {
+    void setupAdjournedHearingVenue(SscsCaseData caseData, String nextHearingVenue) {
+        DynamicListItem item = new DynamicListItem(HEARING_VENUE_ID_1, "");
+        DynamicList list = new DynamicList(item, Collections.emptyList());
+
+        caseData.setAdjournCaseNextHearingVenue(nextHearingVenue);
+        caseData.setAdjournCaseNextHearingVenueSelected(list);
+    }
+
+    void checkHearingLocationResults(List<HearingLocation> hearingLocations, Tuple[] expectedResult) {
+        assertThat(hearingLocations)
+            .hasSize(expectedResult.length)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(expectedResult);
+    }
+
+    void setupAppeal(SscsCaseData caseData) {
+        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder()
+                                                   .wantsHearingTypeTelephone("yes")
+                                                   .hearingTelephoneNumber(PHONE_NUMBER).build());
+        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("yes").build());
+    }
+
+    SscsCaseData buildOverrideHearingLocations() {
         return SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().build())
@@ -516,12 +500,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .hearingVenueEpimsIds(List.of(
                         CcdValue.<CcdValue<String>>builder()
                             .value(CcdValue.<String>builder()
-                                .value("219164")
+                                .value(HEARING_VENUE_ID_1)
                                 .build())
                             .build(),
                         CcdValue.<CcdValue<String>>builder()
                             .value(CcdValue.<String>builder()
-                                .value("436578")
+                                .value(HEARING_VENUE_ID_2)
                                 .build())
                             .build()))
                     .build())
