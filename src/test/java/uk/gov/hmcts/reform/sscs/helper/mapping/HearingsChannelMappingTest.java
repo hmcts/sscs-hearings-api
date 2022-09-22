@@ -25,7 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.*;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
 
 class HearingsChannelMappingTest {
 
