@@ -1,7 +1,14 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
@@ -37,7 +44,8 @@ public final class HearingsDetailsMapping {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
+                                                     ReferenceDataServiceHolder referenceDataServiceHolder) {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
@@ -100,13 +108,13 @@ public final class HearingsDetailsMapping {
             return hearingLocations.stream()
                 .filter(location -> location.getLocationId().equals(getVenueID(caseData, nextHearingVenueName)))
                 .collect(Collectors.toList());
+        } else {
+            return hearingLocations;
         }
-
-        return hearingLocations;
     }
 
     private static List<HearingLocation> getAllHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                                ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
@@ -180,10 +188,10 @@ public final class HearingsDetailsMapping {
         }
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
             listingComments.addAll(otherParties.stream()
-                                       .map(CcdValue::getValue)
-                                       .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
-                                       .map(o -> getComment(o, o.getHearingOptions().getOther()))
-                                       .collect(Collectors.toList()));
+                    .map(CcdValue::getValue)
+                    .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
+                    .map(o -> getComment(o, o.getHearingOptions().getOther()))
+                    .collect(Collectors.toList()));
         }
 
         if (listingComments.isEmpty()) {
