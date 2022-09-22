@@ -38,11 +38,13 @@ public final class HearingsChannelMapping {
 
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
 
-        if(caseData.getAdjournCaseTypeOfNextHearing() != null) {
+        if (caseData.getAdjournCaseTypeOfNextHearing() != null) {
             return Arrays.stream(HearingChannel.values())
                 .filter(v -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(v.getValueEn()))
                 .findFirst().orElse(null);
         }
+        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
+                 caseData.getCaseCode());
 
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
 
