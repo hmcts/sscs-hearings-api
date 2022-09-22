@@ -101,7 +101,6 @@ public final class HearingsChannelMapping {
         }
 
         throw new IllegalStateException("Failed to determine a preferred hearing channel");
-
     }
 
     public static boolean shouldPreferVideoHearingChannel(HearingSubtype hearingSubtype) {
