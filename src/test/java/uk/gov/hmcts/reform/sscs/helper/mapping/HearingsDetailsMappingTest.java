@@ -370,7 +370,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
-    @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
+    @DisplayName("When case data with a valid processing venue is given," +
+        "getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {HEARING_VENUE_ID_1 + ",court"}, nullValues = {"null"})
     void getHearingLocations() {
@@ -387,7 +388,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending("Yes")
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of(HEARING_VENUE_ID_1));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue()))
+            .willReturn(Optional.of(HEARING_VENUE_ID_1));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
@@ -525,7 +527,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         + "getListingComments returns all the comments separated by newlines")
     @ParameterizedTest
     @CsvSource(value = {
-        "AppellantComments,'OpComments1',Appellant - Mx Test Appellant:\\nAppellantComments\\n\\nOther Party - Mx Test OtherParty:\\nOpComments1",
+        "AppellantComments,'OpComments1',Appellant - Mx Test Appellant:\\nAppellantComments\\n\\nOther Party - " +
+            "Mx Test OtherParty:\\nOpComments1",
         "AppellantComments,'',Appellant - Mx Test Appellant:\\nAppellantComments",
         "AppellantComments,null,Appellant - Mx Test Appellant:\\nAppellantComments",
     }, nullValues = {"null"})
