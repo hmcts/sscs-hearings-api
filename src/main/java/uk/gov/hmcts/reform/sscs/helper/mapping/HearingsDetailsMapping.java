@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -64,6 +65,7 @@ public final class HearingsDetailsMapping {
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCodes(OverridesMapping.getAmendReasonCodes(caseData))
             .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData))
+            .interpreterLanguage(adjournCaseInterpreterLanguage(caseData))
             .build();
     }
 
@@ -214,12 +216,13 @@ public final class HearingsDetailsMapping {
     }
 
     public static String adjournCaseInterpreterLanguage(@Valid SscsCaseData caseData) {
+        if (isNull(caseData.getAdjournCaseInterpreterRequired())) {
+            return caseData.getLanguagePreference().getCode();
+        }
         if (isYes(caseData.getAdjournCaseInterpreterRequired()) && nonNull(caseData.getAdjournCaseInterpreterLanguage())) {
             return caseData.getAdjournCaseInterpreterLanguage();
         }
-        if (!isYes(caseData.getAdjournCaseInterpreterRequired())) {
-            return "no interpreter required";
-        }
-        return caseData.getLanguagePreference().getCode();
+        return "no interpreter required";
+
     }
 }

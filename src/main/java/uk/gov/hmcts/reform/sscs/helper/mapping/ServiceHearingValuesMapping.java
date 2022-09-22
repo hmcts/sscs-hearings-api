@@ -60,8 +60,7 @@ public final class ServiceHearingValuesMapping {
                 .screenFlow(null)
                 .vocabulary(null)
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .adjournCaseInterpreterRequired(caseData.getAdjournCaseInterpreterRequired())
-                .adjournCaseInterpreterLanguage(caseData.getAdjournCaseInterpreterLanguage())
+                .adjournCaseInterpreterLanguage(HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData))
             .build();
     }
 

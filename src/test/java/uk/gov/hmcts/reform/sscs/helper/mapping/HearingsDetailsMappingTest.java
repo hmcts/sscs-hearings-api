@@ -714,4 +714,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThat(language).isEqualTo("no interpreter required");
     }
+
+    @DisplayName("Original hearing requirements are used in next hearing request if none are specified in Adjournment request")
+    @Test
+    void testNoHearingRequirementsInAdjournmentOriginalInterpreterRequirementsUsedInNextHearingRequest() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseInterpreterRequired(null)
+            .build();
+
+        String language = HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData);
+
+        assertThat(language).isEqualTo("english");
+    }
 }

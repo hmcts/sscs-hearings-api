@@ -244,7 +244,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         assertEquals(List.of(FACE_TO_FACE), serviceHearingValues.getHearingChannels());
         assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
         assertEquals("Bulgarian", serviceHearingValues.getAdjournCaseInterpreterLanguage());
-        assertEquals(YesNo.YES.getValue(), serviceHearingValues.getAdjournCaseInterpreterRequired());
     }
 
     @Test

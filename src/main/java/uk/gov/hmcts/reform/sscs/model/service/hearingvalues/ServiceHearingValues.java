@@ -100,5 +100,4 @@ public class ServiceHearingValues {
 
     private String adjournCaseInterpreterLanguage;
 
-    private String adjournCaseInterpreterRequired;
 }

@@ -58,4 +58,6 @@ public class HearingDetails {
 
     private List<HearingChannel> hearingChannels;
 
+    private String interpreterLanguage;
+
 }
