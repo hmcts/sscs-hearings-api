@@ -9,27 +9,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.RegionalProcessingCenter;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
@@ -44,6 +24,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -399,8 +380,94 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
     void getHearingLocationsOverride() {
+        SscsCaseData caseData = buildOverrideHearingLocations();
 
-        SscsCaseData caseData = SscsCaseData.builder()
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
+
+        assertThat(result)
+            .hasSize(2)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(
+                tuple("219164", COURT),
+                tuple("436578", COURT));
+    }
+
+    @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
+    @Test
+    void getHearingLocationsAdjournmentNewVenue() {
+        SscsCaseData caseData = buildOverrideHearingLocations();
+
+        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder().wantsHearingTypeTelephone("yes").hearingTelephoneNumber("07483871426").build());
+        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("yes").build());
+
+        DynamicListItem item = new DynamicListItem("219164", "");
+        DynamicList list = new DynamicList(item, Arrays.asList());
+
+        caseData.setAdjournCaseNextHearingVenue("somewhereElse");
+        caseData.setAdjournCaseNextHearingVenueSelected(list);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
+
+        assertThat(result)
+            .hasSize(1)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(tuple("219164", COURT));
+    }
+
+    @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
+    @Test
+    void getHearingLocationsAdjournmentSameVenue() {
+        SscsCaseData caseData = buildOverrideHearingLocations();
+
+        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder()
+                                                   .wantsHearingTypeTelephone("yes")
+                                                   .hearingTelephoneNumber("07483871426").build());
+        caseData.getAppeal().setHearingOptions(HearingOptions.builder()
+                                                   .wantsToAttend("yes").build());
+
+        caseData.setHearings(Collections.singletonList(Hearing.builder()
+                                                           .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
+                                                                      .venueId(String.valueOf("219164"))
+                                                                      .build())
+                                                           .build()));
+
+        DynamicListItem item = new DynamicListItem("219164", "");
+        DynamicList list = new DynamicList(item, Arrays.asList());
+
+        caseData.setAdjournCaseNextHearingVenue("sameVenue");
+        caseData.setAdjournCaseNextHearingVenueSelected(list);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
+
+        assertThat(result)
+            .hasSize(1)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(tuple("219164", COURT));
+    }
+
+    @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
+    @Test
+    void getHearingLocationsAdjournmentNewVenuePaperCase() {
+        SscsCaseData caseData = buildOverrideHearingLocations();
+
+        DynamicListItem item = new DynamicListItem("219164", "");
+        DynamicList list = new DynamicList(item, Arrays.asList());
+
+        caseData.setAdjournCaseNextHearingVenue("somewhereElse");
+        caseData.setAdjournCaseNextHearingVenueSelected(list);
+
+        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
+
+        assertThat(result)
+            .hasSize(2)
+            .extracting("locationId","locationType")
+            .containsExactlyInAnyOrder(
+                tuple("219164", COURT),
+                tuple("436578", COURT));
+    }
+
+    private SscsCaseData buildOverrideHearingLocations() {
+        return SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().build())
                 .build())
@@ -415,21 +482,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         CcdValue.<CcdValue<String>>builder()
                             .value(CcdValue.<String>builder()
                                 .value("436578")
-                                .build())
-                            .build()))
+                            .build())
+                        .build()))
                     .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
-
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder);
-
-        assertThat(result)
-            .hasSize(2)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(
-                tuple("219164", COURT),
-                tuple("436578", COURT));
     }
 
     @DisplayName("getFacilitiesRequired returns an empty list")

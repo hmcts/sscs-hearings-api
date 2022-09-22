@@ -1,13 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
@@ -35,6 +29,9 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGE
 @Slf4j
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
+
+    private static final String SOMEWHERE_ELSE = "somewhereElse";
+    private static final String SAME_VENUE = "sameVenue";
 
     private HearingsDetailsMapping() {
 
@@ -95,6 +92,21 @@ public final class HearingsDetailsMapping {
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
+        List<HearingLocation> hearingLocations = getAllHearingLocations(caseData, referenceDataServiceHolder);
+
+        String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
+
+        if (isNotEmpty(nextHearingVenueName) && !HearingsChannelMapping.isPaperCase(caseData)) {
+            return hearingLocations.stream()
+                .filter(location -> location.getLocationId().equals(getVenueID(caseData, nextHearingVenueName)))
+                .collect(Collectors.toList());
+        }
+
+        return hearingLocations;
+    }
+
+    private static List<HearingLocation> getAllHearingLocations(SscsCaseData caseData,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
@@ -138,6 +150,20 @@ public final class HearingsDetailsMapping {
             .orElseGet(() -> Collections.singletonList(epimsId))
             .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
             .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private static String getVenueID(SscsCaseData caseData, String nextHearingVenue) {
+        if (SOMEWHERE_ELSE.equals(nextHearingVenue)) {
+            return caseData.getAdjournCaseNextHearingVenueSelected().getValue().getCode();
+        } else if (SAME_VENUE.equals(nextHearingVenue)) {
+            Hearing latestHearing = caseData.getLatestHearing();
+
+            if (nonNull(latestHearing)) {
+                return latestHearing.getValue().getVenueId();
+            }
+        }
+
+        throw new IllegalStateException("Failed to determine next hearing venue");
     }
 
     public static List<String> getFacilitiesRequired() {
