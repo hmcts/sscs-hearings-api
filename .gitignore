@@ -37,6 +37,8 @@ tmp/
 pacts/
 
 
-**/override.tf
-**/.terraform/
-**/.terraform.lock.hcl
+# Terraform
+**/.terraform
+.idea/
+*terraform.lock.hcl
+**/**/override.tf
