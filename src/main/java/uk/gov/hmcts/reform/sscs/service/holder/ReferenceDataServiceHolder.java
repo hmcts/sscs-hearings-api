@@ -46,6 +46,9 @@ public class ReferenceDataServiceHolder {
     @Value("${sscs.serviceCode}")
     private String sscsServiceCode;
 
+    @Value("${flags.adjournment.enabled}")
+    private boolean adjournmentFlagEnabled;
+
     @Getter(lazy = true)
     private final Map<String, List<String>> multipleHearingLocations = prepareMultipleHearingLocations();
 
