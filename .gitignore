@@ -35,3 +35,8 @@ bin/
 *.log
 tmp/
 pacts/
+
+
+**/override.tf
+**/.terraform/
+**/.terraform.lock.hcl
