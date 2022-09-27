@@ -9,7 +9,7 @@ module "servicebus-subscription" {
 
 resource "azurerm_servicebus_subscription_rule" "topic_filter_rule_sscs" {
   name            = "hmc-servicebus-${var.env}-subscription-rule-bba3"
-  subscription_id = module.servicebus_subscription.id
+  subscription_id = module.servicebus-subscription.id
   filter_type     = "CorrelationFilter"
 
   correlation_filter {
