@@ -1,16 +1,22 @@
-variable "product" {}
+variable "product" {
+  description = "Project short name (sscs)"
+}
 
-variable "component" {}
+variable "component" {
+  description = "Current Repository Name"
+}
 
 variable "location" {
   default = "UK South"
 }
 
-variable "env" {}
+variable "env" {
+  description = "Current Environment"
+}
 
-variable "subscription" {}
-
-variable "deployment_namespace" {}
+variable "subscription" {
+  description = "Target Azure Subscription"
+}
 
 variable "common_tags" {
   type = map(string)
