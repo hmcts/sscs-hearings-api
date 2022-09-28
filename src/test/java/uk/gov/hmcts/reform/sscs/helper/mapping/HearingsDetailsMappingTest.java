@@ -99,7 +99,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @BeforeEach
     void setUp() {
         caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder().hearingOptions(HearingOptions.builder().build()).build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                .build())
+            .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
 
@@ -357,10 +360,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
-        caseData = SscsCaseData.builder()
-            .urgentCase(isUrgentCase)
-            .adjournCasePanelMembersExcluded(isAdjournCase)
-            .build();
+         caseData.setUrgentCase(isUrgentCase);
+         caseData.setAdjournCasePanelMembersExcluded(isAdjournCase);
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
         assertEquals(expected, result);
