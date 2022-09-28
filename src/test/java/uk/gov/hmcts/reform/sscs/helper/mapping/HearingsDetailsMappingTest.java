@@ -474,9 +474,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void checkHearingLocationResults(List<HearingLocation> hearingLocations, String... expectedResults) {
         assertThat(hearingLocations)
             .hasSize(expectedResults.length)
-            .extracting("locationId","locationType")
-            .containsExactlyInAnyOrder(Arrays.stream(expectedResults)
-                .map(result -> new Tuple(result, COURT)).toArray(Tuple[]::new));
+            .allSatisfy(hearingLocation ->
+                assertThat(hearingLocation.getLocationType).isEqualTo(COURT))
+            .extracting(HearingLocation::getLocationId)
+            .containsExactlyInAnyOrder(expectedResults);
     }
 
     void setupAppeal(SscsCaseData caseData) {
