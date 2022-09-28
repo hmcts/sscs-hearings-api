@@ -30,7 +30,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.NextHearingVenueType.SAME_VENUE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.NextHearingVenueType.SOMEWHERE_ELSE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
@@ -111,7 +110,7 @@ public final class HearingsDetailsMapping {
                 return hearingLocations.stream()
                     .filter(location -> location.getLocationId().equals(venueID))
                     .collect(Collectors.toList());
-            } catch (InvalidMappingException | IllegalStateException e) {
+            } catch (InvalidMappingException e) {
                 log.error("Defaulting to all hearing locations {}", e.getMessage());
             }
         }
@@ -169,17 +168,15 @@ public final class HearingsDetailsMapping {
     private static String getVenueID(SscsCaseData caseData, String nextHearingVenue) throws InvalidMappingException {
         if (SOMEWHERE_ELSE.getValue().equals(nextHearingVenue)) {
             return caseData.getAdjournCaseNextHearingVenueSelected().getValue().getCode();
-        } else if (SAME_VENUE.getValue().equals(nextHearingVenue)) {
-            Hearing latestHearing = caseData.getLatestHearing();
-
-            if (nonNull(latestHearing)) {
-                return latestHearing.getValue().getVenueId();
-            } else {
-                throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing");
-            }
-        } else {
-            throw new IllegalStateException("Failed to determine next hearing venue: " + nextHearingVenue);
         }
+
+        Hearing latestHearing = caseData.getLatestHearing();
+
+        if (nonNull(latestHearing)) {
+            return latestHearing.getValue().getVenueId();
+        }
+
+        throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing");
     }
 
     public static List<String> getFacilitiesRequired() {
