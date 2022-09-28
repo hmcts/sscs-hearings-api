@@ -422,11 +422,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsFailOnGettingVenueId() {
         buildOverrideHearingLocations();
 
-        setupAdjournedHearingVenue("UnknownValue");
-
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
-                                    EPIMS_ID_1, EPIMS_ID_2);
-
         caseData.setAdjournCaseNextHearingVenue(SAME_VENUE.getValue());
 
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
