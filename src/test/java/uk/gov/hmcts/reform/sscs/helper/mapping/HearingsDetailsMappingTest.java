@@ -426,6 +426,19 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
+    @DisplayName("Checks that the flag will make sure the code isn't run and returns the override values")
+    @Test
+    void getHearingLocationsCheckFlag() {
+        buildOverrideHearingLocations();
+
+        caseData.setAdjournCaseNextHearingVenue(SAME_VENUE.getValue());
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false); //TODO: remove flag
+
+        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+                                    EPIMS_ID_1, EPIMS_ID_2);
+    }
+
     void setupAdjournedHearingVenue(String nextHearingVenue) {
         DynamicListItem item = new DynamicListItem(EPIMS_ID_1, "");
         DynamicList list = new DynamicList(item, Collections.emptyList());
