@@ -111,9 +111,10 @@ public final class HearingsDetailsMapping {
 
                 log.info("Getting hearing locations with the venue ID of {}", venueID);
 
-                return hearingLocations.stream()
-                    .filter(location -> location.getLocationId().equals(venueID))
-                    .collect(Collectors.toList());
+                return HearingLocation.builder()
+                    .locationId(epimsId)
+                    .locationType(COURT)
+                    .build()
             } catch (InvalidMappingException e) {
                 log.error("Defaulting to all hearing locations: {}", e.getMessage());
             }
@@ -177,7 +178,7 @@ public final class HearingsDetailsMapping {
         Hearing latestHearing = caseData.getLatestHearing();
 
         if (nonNull(latestHearing)) {
-            return latestHearing.getValue().getVenueId();
+            return latestHearing.getValue().getEpimsId();
         }
 
         throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing on case "
