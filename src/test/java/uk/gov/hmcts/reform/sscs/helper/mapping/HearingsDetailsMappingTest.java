@@ -99,14 +99,13 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @BeforeEach
     void setUp() {
         caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder().hearingOptions(HearingOptions.builder().build()).build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeTelephone("yes")
+                    .hearingTelephoneNumber(PHONE_NUMBER).build()).build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
-
-        caseData.getAppeal().setHearingSubtype(HearingSubtype.builder()
-            .wantsHearingTypeTelephone("yes")
-            .hearingTelephoneNumber(PHONE_NUMBER).build());
-        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("yes").build());
     }
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
