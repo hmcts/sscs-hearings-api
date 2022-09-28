@@ -19,13 +19,13 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_DEFAULT = 30;
-    public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
     public static final String DURATION_TYPE_NON_STANDARD_TIME_SLOT = "nonStandardTimeSlot";
     public static final String DURATION_TYPE_STANDARD_TIME_SLOT = "standardTimeSlot";
     public static final String DURATION_UNITS_MINUTES = "minutes";
     public static final String DURATION_UNITS_SESSIONS = "sessions";
-
+    public static final int DURATION_HOURS_MULTIPLIER = 60;
+    public static final int MIN_HEARING_DURATION = 1;
     private HearingsDurationMapping() {
 
     }
@@ -38,14 +38,37 @@ public final class HearingsDurationMapping {
             return overrideFields.getDuration().intValue();
         }
 
-        Integer duration = getHearingDurationAdjournment(caseData);
+        Integer duration = getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
         if (isNull(duration)) {
             duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
         }
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
     }
-    public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
+
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        if (referenceDataServiceHolder.isAdjourmentFlagEnabled()) {
+            return getHearingDurationAdjournmentNew(caseData)
+        }
+        return getHearingDurationAdjournmentOld(caseData)
+    }
+    private static Integer getHearingDurationAdjournmentOld(SscsCaseData caseData) {
+        if (isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())
+            && Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) >= MIN_HEARING_DURATION) {
+
+            if ("sessions".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
+                return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_SESSIONS_MULTIPLIER;
+            }
+            if ("hours".equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())) {
+                // TODO Adjournments - check no other measurement than hours, sessions and null
+                return Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration()) * DURATION_HOURS_MULTIPLIER;
+            }
+        }
+
+        return null;
+    }
+
+    private static Integer getHearingDurationAdjournmentNew(SscsCaseData caseData) {
 
         if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
             && isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
