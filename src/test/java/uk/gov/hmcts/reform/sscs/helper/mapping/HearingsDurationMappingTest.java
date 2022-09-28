@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
-
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
@@ -67,8 +66,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "1,sessions,165",
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
-
-
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -85,17 +83,18 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
+                                        60, 75, 30
             ));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-
         assertThat(result).isEqualTo(30);
+
     }
 
     @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
@@ -108,10 +107,11 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDurationFailure(String adjournCaseDuration, String adjournCaseDurationUnits) {
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
-
-        assertThrows(NullPointerException.class, () -> {
-            Object result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-        });
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        assertThrows(
+            NullPointerException.class,
+            () -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder)
+        );
 
     }
 
@@ -124,9 +124,10 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "-1, 75"
     }, nullValues = {"null"})
     void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
+                                        60, 75, 30
             ));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
@@ -154,6 +155,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expectedResult);
+
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -190,7 +192,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "null,DD",
     }, nullValues = {"null"})
     void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode) {
-
         given(hearingDurations.getHearingDuration(benefitCode, issueCode)).willReturn(null);
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
