@@ -394,7 +394,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         caseData.setHearings(Collections.singletonList(Hearing.builder()
                     .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
-                    .venueId(EPIMS_ID_2).build())
+                    .epimsId(EPIMS_ID_2).build())
                 .build()));
 
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),

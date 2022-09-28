@@ -105,12 +105,12 @@ public final class HearingsDetailsMapping {
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)
             && !HearingsChannelMapping.isPaperCase(caseData)) {
             try {
-                String venueID = getVenueID(caseData, nextHearingVenueName);
+                String epimsID = getEpimsID(caseData, nextHearingVenueName);
 
-                log.info("Getting hearing location with the venue ID of {}", venueID);
+                log.info("Getting hearing location with the venue ID of {}", epimsID);
 
                 return List.of(HearingLocation.builder()
-                    .locationId(venueID)
+                    .locationId(epimsID)
                     .locationType(COURT)
                     .build());
             } catch (InvalidMappingException e) {
@@ -168,7 +168,7 @@ public final class HearingsDetailsMapping {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static String getVenueID(SscsCaseData caseData, String nextHearingVenue) throws InvalidMappingException {
+    private static String getEpimsID(SscsCaseData caseData, String nextHearingVenue) throws InvalidMappingException {
         if (SOMEWHERE_ELSE.getValue().equals(nextHearingVenue)) {
             return caseData.getAdjournCaseNextHearingVenueSelected().getValue().getCode();
         }
@@ -176,7 +176,7 @@ public final class HearingsDetailsMapping {
         Hearing latestHearing = caseData.getLatestHearing();
 
         if (nonNull(latestHearing)) {
-            return latestHearing.getValue().getVenueId();
+            return latestHearing.getValue().getEpimsId();
         }
 
         throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing on case "
