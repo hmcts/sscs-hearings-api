@@ -99,8 +99,6 @@ public final class HearingsDetailsMapping {
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
-        List<HearingLocation> hearingLocations = getAllHearingLocations(caseData, referenceDataServiceHolder);
-
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
         //TODO: remove flag
@@ -109,18 +107,18 @@ public final class HearingsDetailsMapping {
             try {
                 String venueID = getVenueID(caseData, nextHearingVenueName);
 
-                log.info("Getting hearing locations with the venue ID of {}", venueID);
+                log.info("Getting hearing location with the venue ID of {}", venueID);
 
-                return HearingLocation.builder()
-                    .locationId(epimsId)
+                return List.of(HearingLocation.builder()
+                    .locationId(venueID)
                     .locationType(COURT)
-                    .build()
+                    .build());
             } catch (InvalidMappingException e) {
                 log.error("Defaulting to all hearing locations: {}", e.getMessage());
             }
         }
 
-        return hearingLocations;
+        return getAllHearingLocations(caseData, referenceDataServiceHolder);
     }
 
     private static List<HearingLocation> getAllHearingLocations(SscsCaseData caseData,
@@ -178,7 +176,7 @@ public final class HearingsDetailsMapping {
         Hearing latestHearing = caseData.getLatestHearing();
 
         if (nonNull(latestHearing)) {
-            return latestHearing.getValue().getEpimsId();
+            return latestHearing.getValue().getVenueId();
         }
 
         throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing on case "
