@@ -356,10 +356,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
-        caseData = SscsCaseData.builder()
-            .urgentCase(isUrgentCase)
-            .adjournCasePanelMembersExcluded(isAdjournCase)
-            .build();
+        caseData.setUrgentCase(isUrgentCase);
+        caseData.setAdjournCasePanelMembersExcluded(isAdjournCase);
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
         assertEquals(expected, result);
@@ -490,10 +488,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         "AppellantComments,null,Appellant - Mx Test Appellant:\\nAppellantComments",
     }, nullValues = {"null"})
     void getListingComments(String appellant, String otherPartiesComments, String expected) {
-        List<CcdValue<OtherParty>> otherParties = null;
+        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
 
         if (nonNull(otherPartiesComments)) {
-            otherParties = new ArrayList<>();
             otherParties.add(new CcdValue<>(OtherParty.builder()
                 .name(Name.builder()
                     .title("Mx")
