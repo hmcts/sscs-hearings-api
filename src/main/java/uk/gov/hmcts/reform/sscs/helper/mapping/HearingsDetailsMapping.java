@@ -108,9 +108,8 @@ public final class HearingsDetailsMapping {
             return hearingLocations.stream()
                 .filter(location -> location.getLocationId().equals(getVenueID(caseData, nextHearingVenueName)))
                 .collect(Collectors.toList());
-        } else {
-            return hearingLocations;
         }
+        return hearingLocations;
     }
 
     private static List<HearingLocation> getAllHearingLocations(SscsCaseData caseData,
