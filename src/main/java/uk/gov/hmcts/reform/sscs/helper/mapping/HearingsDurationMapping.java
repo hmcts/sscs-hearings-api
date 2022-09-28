@@ -45,7 +45,7 @@ public final class HearingsDurationMapping {
 
         return nonNull(duration) ? duration : DURATION_DEFAULT;
     }
-
+co
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         if (referenceDataServiceHolder.isAdjourmentFlagEnabled()) {
             return getHearingDurationAdjournmentNew(caseData)
