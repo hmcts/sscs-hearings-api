@@ -103,7 +103,8 @@ public final class HearingsDetailsMapping {
 
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
-        if (isNotEmpty(nextHearingVenueName) && !HearingsChannelMapping.isPaperCase(caseData)) {
+        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)
+            && !HearingsChannelMapping.isPaperCase(caseData)) {
             try {
                 String venueID = getVenueID(caseData, nextHearingVenueName);
 

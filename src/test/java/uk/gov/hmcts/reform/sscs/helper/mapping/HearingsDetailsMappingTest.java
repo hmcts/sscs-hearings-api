@@ -384,6 +384,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue());
 
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
+
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_1);
     }
@@ -399,6 +401,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
                     .venueId(EPIMS_ID_2).build())
                 .build()));
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
 
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_2);
