@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -97,22 +96,19 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
     }
 
-    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
+    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given to getHearingDurationAdjournment a null value is returned")
     @ParameterizedTest
     @CsvSource(value = {
         ",sessions",
         "1,hours",
         "0,sessions",
-        "20,minutes",
+        "0,minutes",
     }, nullValues = {"null"})
     void getHearingDurationFailure(String adjournCaseDuration, String adjournCaseDurationUnits) {
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-        assertThrows(
-            NullPointerException.class,
-            () -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder)
-        );
-
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+        assertThat(result).isEqualTo(null);
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
