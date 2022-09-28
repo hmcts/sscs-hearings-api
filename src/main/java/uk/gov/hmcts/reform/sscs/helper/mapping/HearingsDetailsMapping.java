@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
@@ -29,6 +30,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.NextHearingVenueType.SAME_VENUE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.NextHearingVenueType.SOMEWHERE_ELSE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
@@ -36,9 +39,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGE
 @Slf4j
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
-
-    private static final String SOMEWHERE_ELSE = "somewhereElse";
-    private static final String SAME_VENUE = "sameVenue";
 
     private HearingsDetailsMapping() {
 
@@ -105,10 +105,17 @@ public final class HearingsDetailsMapping {
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
         if (isNotEmpty(nextHearingVenueName) && !HearingsChannelMapping.isPaperCase(caseData)) {
-            return hearingLocations.stream()
-                .filter(location -> location.getLocationId().equals(getVenueID(caseData, nextHearingVenueName)))
-                .collect(Collectors.toList());
+            try {
+                String venueID = getVenueID(caseData, nextHearingVenueName);
+
+                return hearingLocations.stream()
+                    .filter(location -> location.getLocationId().equals(venueID))
+                    .collect(Collectors.toList());
+            } catch (InvalidMappingException | IllegalStateException e) {
+                log.error("Defaulting to all hearing locations {}", e.getMessage());
+            }
         }
+
         return hearingLocations;
     }
 
@@ -159,10 +166,10 @@ public final class HearingsDetailsMapping {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static String getVenueID(SscsCaseData caseData, String nextHearingVenue) {
-        if (SOMEWHERE_ELSE.equals(nextHearingVenue)) {
+    private static String getVenueID(SscsCaseData caseData, String nextHearingVenue) throws InvalidMappingException {
+        if (SOMEWHERE_ELSE.getValue().equals(nextHearingVenue)) {
             return caseData.getAdjournCaseNextHearingVenueSelected().getValue().getCode();
-        } else if (SAME_VENUE.equals(nextHearingVenue)) {
+        } else if (SAME_VENUE.getValue().equals(nextHearingVenue)) {
             Hearing latestHearing = caseData.getLatestHearing();
 
             if (nonNull(latestHearing)) {
