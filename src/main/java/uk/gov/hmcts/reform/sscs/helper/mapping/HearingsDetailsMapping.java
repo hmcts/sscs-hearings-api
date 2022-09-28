@@ -168,7 +168,7 @@ public final class HearingsDetailsMapping {
             if (nonNull(latestHearing)) {
                 return latestHearing.getValue().getVenueId();
             } else {
-                throw new IllegalStateException("Failed to determine next hearing venue due to no latest hearing");
+                throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing");
             }
         } else {
             throw new IllegalStateException("Failed to determine next hearing venue: " + nextHearingVenue);
