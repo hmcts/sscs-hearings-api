@@ -1,5 +1,11 @@
 terraform {
-  backend "azurerm" {}
+  backend "azurerm" {
+    features {
+      key_vault {
+        purge_soft_delete_on_destroy = false
+      }
+    }
+  }
 
   required_providers {
     azurerm = {
