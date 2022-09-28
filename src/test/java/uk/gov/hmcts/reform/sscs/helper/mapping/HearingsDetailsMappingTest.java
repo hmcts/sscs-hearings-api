@@ -114,12 +114,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void buildHearingDetails() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+                                            60, 75, 30));
+
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                               false, false, SessionCategory.CATEGORY_03, null
-            ));
+                                               false, false, SessionCategory.CATEGORY_03, null));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
@@ -199,8 +198,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .value(CaseLinkDetails.builder()
                 .caseReference("654321")
                 .build())
-                .build()
-            ))
+                .build()))
             .build();
         boolean result = HearingsDetailsMapping.isCaseLinked(caseData);
 
@@ -384,8 +382,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue());
 
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
-
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_1);
     }
@@ -401,8 +397,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
                     .venueId(EPIMS_ID_2).build())
                 .build()));
-
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
 
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_2);
@@ -450,6 +444,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
     void buildOverrideHearingLocations() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true); //TODO: remove flag
+
         caseData.getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder()
             .hearingVenueEpimsIds(List.of(
                 CcdValue.<CcdValue<String>>builder()

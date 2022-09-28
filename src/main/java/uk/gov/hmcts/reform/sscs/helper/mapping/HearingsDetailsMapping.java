@@ -103,16 +103,19 @@ public final class HearingsDetailsMapping {
 
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)
+        //TODO: remove flag
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)
             && !HearingsChannelMapping.isPaperCase(caseData)) {
             try {
                 String venueID = getVenueID(caseData, nextHearingVenueName);
+
+                log.info("Getting hearing locations with the venue ID of {}", venueID);
 
                 return hearingLocations.stream()
                     .filter(location -> location.getLocationId().equals(venueID))
                     .collect(Collectors.toList());
             } catch (InvalidMappingException e) {
-                log.error("Defaulting to all hearing locations {}", e.getMessage());
+                log.error("Defaulting to all hearing locations: {}", e.getMessage());
             }
         }
 
@@ -177,7 +180,8 @@ public final class HearingsDetailsMapping {
             return latestHearing.getValue().getVenueId();
         }
 
-        throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing");
+        throw new InvalidMappingException("Failed to determine next hearing venue due to no latest hearing on case "
+                                          + caseData.getCcdCaseId());
     }
 
     public static List<String> getFacilitiesRequired() {
