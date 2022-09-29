@@ -21,7 +21,6 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.NextHearingVenueType.SOMEWHERE_ELSE;
 
-@SuppressWarnings({"PMD.GodClass"})
 @Slf4j
 public final class HearingsLocationMapping {
 
