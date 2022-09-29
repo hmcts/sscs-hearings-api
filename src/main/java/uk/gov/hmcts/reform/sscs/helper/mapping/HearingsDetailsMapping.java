@@ -98,24 +98,21 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) 
+                                                            throws InvalidMappingException {
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
         //TODO: remove flag
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)
             && !HearingsChannelMapping.isPaperCase(caseData)) {
-            try {
-                String epimsID = getEpimsID(caseData, nextHearingVenueName);
+            String epimsID = getEpimsID(caseData, nextHearingVenueName);
 
-                log.info("Getting hearing location with the venue ID of {}", epimsID);
+            log.info("Getting hearing location with the venue ID of {}", epimsID);
 
-                return List.of(HearingLocation.builder()
-                    .locationId(epimsID)
-                    .locationType(COURT)
-                    .build());
-            } catch (InvalidMappingException e) {
-                log.error("Defaulting to all hearing locations: {}", e.getMessage());
-            }
+            return List.of(HearingLocation.builder()
+                .locationId(epimsID)
+                .locationType(COURT)
+                .build());
         }
 
         return getAllHearingLocations(caseData, referenceDataServiceHolder);
