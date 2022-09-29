@@ -427,7 +427,8 @@ dependencyManagement {
       entry 'spring-messaging'
     }
 
-    dependencySet(group: 'org.yaml', version: '1.31') {
+    // CVE-2022-38752
+    dependencySet(group: 'org.yaml', version: '1.32') {
       entry 'snakeyaml'
     }
   }
