@@ -196,8 +196,10 @@ public final class HearingsDetailsMapping {
         if (nonNull(otherParties) && !otherParties.isEmpty()) {
             listingComments.addAll(otherParties.stream()
                     .map(CcdValue::getValue)
-                    .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
-                    .map(o -> getComment(o, o.getHearingOptions().getOther()))
+                    .map(OtherParty::getHearingOptions)
+                    .map(HearingOptions::getOther)
+                    .filter(StringUtils::isNotBlank)
+                    .map(this::getComment)
                     .collect(Collectors.toList()));
         }
 
