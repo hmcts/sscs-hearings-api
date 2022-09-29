@@ -275,16 +275,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .dwpIsOfficerAttending("Yes")
             .build();
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of(EPIMS_ID_1));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
-            caseData,
-            referenceDataServiceHolder);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getLocationId()).isEqualTo("9876");
-        assertThat(result.get(0).getLocationType()).isEqualTo(COURT);
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+                                    EPIMS_ID_1);
     }
 
     @DisplayName("Multiple hearing location Test")
@@ -309,7 +304,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("443014"));
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(referenceDataServiceHolder.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+        List<HearingLocation> result = HearingsLocationMapping.getHearingLocations(
             caseData, referenceDataServiceHolder);
 
         assertThat(result).hasSize(2);
@@ -338,7 +333,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .willReturn(EPIMS_ID_LIST);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
+        List<HearingLocation> result = HearingsLocationMapping.getHearingLocations(
             caseData,
             referenceDataServiceHolder);
 
@@ -373,25 +368,26 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsOverride() throws InvalidMappingException {
         buildOverrideHearingLocations();
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
     void getHearingLocationsAdjournmentNewVenue() throws InvalidMappingException {
-        buildOverrideHearingLocations();
+        enableAdjournmentFlag();
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue());
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
-                                    EPIMS_ID_1);
+        checkHearingLocationResults(
+            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+            EPIMS_ID_1);
     }
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
     void getHearingLocationsAdjournmentSameVenue() throws InvalidMappingException {
-        buildOverrideHearingLocations();
+        enableAdjournmentFlag();
 
         setupAdjournedHearingVenue(SAME_VENUE.getValue());
 
@@ -400,8 +396,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .epimsId(EPIMS_ID_2).build())
                 .build()));
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
-                                    EPIMS_ID_2);
+        checkHearingLocationResults(
+            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+            EPIMS_ID_2);
     }
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
@@ -413,34 +410,33 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         caseData.getSchedulingAndListingFields().getOverrideFields().setAppellantHearingChannel(HearingChannel.PAPER);
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
     @DisplayName("Checks both the errors we can throw when trying to obtain the venue ID when getting the locations")
     @Test
     void getHearingLocationsFailOnGettingVenueId() {
-        buildOverrideHearingLocations();
+        enableAdjournmentFlag();
 
         caseData.setAdjournCaseNextHearingVenue(SAME_VENUE.getValue());
 
-        assertThatThrownBy(() -> HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+        assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
             .isInstanceOf(InvalidMappingException.class)
-            .hasMessageContaining("Failed to determine next hearing venue due to no latest hearing on case "
+            .hasMessageContaining("Failed to determine next hearing location due to no latest hearing on case "
                                       + caseData.getCcdCaseId());
     }
 
     @DisplayName("Checks that the flag will make sure the code isn't run and returns the override values")
     @Test
     void getHearingLocationsCheckFlag() throws InvalidMappingException {
-        buildOverrideHearingLocations();
-
-        caseData.setAdjournCaseNextHearingVenue(SAME_VENUE.getValue());
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of(EPIMS_ID_1));
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false); //TODO: remove flag
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
-                                    EPIMS_ID_1, EPIMS_ID_2);
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+                                    EPIMS_ID_1);
     }
 
     void setupAdjournedHearingVenue(String nextHearingVenue) {
@@ -461,8 +457,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     }
 
     void buildOverrideHearingLocations() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true); //TODO: remove flag
-
         caseData.getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder()
             .hearingVenueEpimsIds(List.of(
                 CcdValue.<CcdValue<String>>builder()
@@ -476,6 +470,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                             .build())
                     .build()))
                 .build());
+    }
+
+    void enableAdjournmentFlag() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true); //TODO: remove flag
     }
 
     @DisplayName("getFacilitiesRequired returns an empty list")
