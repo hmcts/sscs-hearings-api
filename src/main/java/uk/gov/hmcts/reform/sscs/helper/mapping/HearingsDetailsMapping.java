@@ -44,7 +44,8 @@ public final class HearingsDetailsMapping {
     }
 
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
-                                                     ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                     ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
@@ -98,7 +99,7 @@ public final class HearingsDetailsMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) 
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder)
                                                             throws InvalidMappingException {
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
@@ -118,7 +119,7 @@ public final class HearingsDetailsMapping {
         return getAllHearingLocations(caseData, referenceDataServiceHolder);
     }
 
-    private static List<HearingLocation> getAllHearingLocations(SscsCaseData caseData,
+    public static List<HearingLocation> getAllHearingLocations(SscsCaseData caseData,
                                                                 ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 

@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
@@ -56,6 +57,7 @@ import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -110,7 +112,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingDetails returns the correct Hearing Details")
     @Test
-    void buildHearingDetails() {
+    void buildHearingDetails() throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30));
@@ -259,7 +261,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
 
     @Test
-    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() {
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws InvalidMappingException {
         caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
@@ -287,7 +289,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("Multiple hearing location Test")
     @Test
-    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() {
+    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws InvalidMappingException {
         caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
@@ -318,7 +320,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When hearing is paper case, return list of regional hearing locations based on RPC name")
     @Test
-    void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc() {
+    void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc()
+        throws InvalidMappingException {
         caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
             .regionalProcessingCenter(RegionalProcessingCenter.builder()
@@ -365,7 +368,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() {
+    void getHearingLocationsOverride() throws InvalidMappingException {
         buildOverrideHearingLocations();
 
         checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
@@ -374,7 +377,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
-    void getHearingLocationsAdjournmentNewVenue() {
+    void getHearingLocationsAdjournmentNewVenue() throws InvalidMappingException {
         buildOverrideHearingLocations();
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue());
@@ -385,7 +388,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
-    void getHearingLocationsAdjournmentSameVenue() {
+    void getHearingLocationsAdjournmentSameVenue() throws InvalidMappingException {
         buildOverrideHearingLocations();
 
         setupAdjournedHearingVenue(SAME_VENUE.getValue());
@@ -401,7 +404,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
     @Test
-    void getHearingLocationsAdjournmentNewVenuePaperCase() {
+    void getHearingLocationsAdjournmentNewVenuePaperCase() throws InvalidMappingException {
         buildOverrideHearingLocations();
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue());
@@ -419,13 +422,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         caseData.setAdjournCaseNextHearingVenue(SAME_VENUE.getValue());
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
-                                    EPIMS_ID_1, EPIMS_ID_2);
+        assertThatThrownBy(() -> HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+            .isInstanceOf(InvalidMappingException.class)
+            .hasMessageContaining("Failed to determine next hearing venue due to no latest hearing on case "
+                                      + caseData.getCcdCaseId());
     }
 
     @DisplayName("Checks that the flag will make sure the code isn't run and returns the override values")
     @Test
-    void getHearingLocationsCheckFlag() {
+    void getHearingLocationsCheckFlag() throws InvalidMappingException {
         buildOverrideHearingLocations();
 
         caseData.setAdjournCaseNextHearingVenue(SAME_VENUE.getValue());
