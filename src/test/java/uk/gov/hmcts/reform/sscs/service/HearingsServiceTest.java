@@ -58,6 +58,8 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATED_CASE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,10 +112,10 @@ class HearingsServiceTest {
             .issueCode(ISSUE_CODE)
             .caseManagementLocation(CaseManagementLocation.builder().build())
             .appeal(Appeal.builder()
-                .rep(Representative.builder().hasRepresentative("No").build())
-                .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                .rep(Representative.builder().hasRepresentative(NO).build())
+                .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                 .appellant(Appellant.builder()
                     .name(Name.builder().build())
                     .build())

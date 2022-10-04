@@ -5,9 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -57,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
@@ -119,17 +120,17 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .caseManagementLocation(CaseManagementLocation.builder()
                                         .baseLocation(EPIMS_ID)
                                         .region(REGION)
                                         .build())
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
@@ -228,7 +229,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void testIsCaseUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .urgentCase("Yes")
+            .urgentCase(YES)
             .build();
         boolean result = HearingsDetailsMapping.isCaseUrgent(caseData);
 
@@ -237,9 +238,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When urgentCase is No or blank, isCaseUrgent return False")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void testIsCaseUrgent(String value) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void testIsCaseUrgent(YesNo value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(value)
             .build();
@@ -254,14 +255,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
@@ -283,14 +284,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         final SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
         Map<String, List<String>> multipleHearingLocations = new HashMap<>();
         multipleHearingLocations.put("Chester",new ArrayList<>(Arrays.asList("226511", "443014")));
@@ -314,15 +315,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc() {
         final SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending("No")
+            .dwpIsOfficerAttending(NO)
             .regionalProcessingCenter(RegionalProcessingCenter.builder()
-                                          .name("SSCS Leeds")
-                                          .build())
+                .name("SSCS Leeds")
+                .build())
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("N")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend(NO)
+                    .build())
+                .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
         given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
@@ -348,16 +349,17 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,Urgent", "Yes,No,Urgent", "No,Yes,Urgent",
-        "No,No,Standard",
-        "Yes,null,Urgent", "No,null,Standard",
-        "null,Yes,Urgent", "null,No,Standard",
+        "Yes,YES,Urgent",
+        "Yes,NO,Urgent",
+        "No,YES,Urgent",
+        "No,NO,Standard",
+        "Yes,null,Urgent",
+        "No,null,Standard",
+        "null,YES,Urgent",
+        "null,NO,Standard",
         "null,null,Standard",
-        "Yes,,Urgent", "No,,Standard",
-        ",Yes,Urgent", ",No,Standard",
-        ",,Standard"
     }, nullValues = {"null"})
-    void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
+    void getHearingPriority(String isAdjournCase, YesNo isUrgentCase, String expected) {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(isUrgentCase)
@@ -375,14 +377,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .processingVenue(PROCESSING_VENUE_1)
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
@@ -560,9 +562,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("getPartyName where Appointee is null Test")
     @ParameterizedTest
-    @ValueSource(strings = {"Yes", "No"})
-    @NullAndEmptySource
-    void getPartyName(String isAppointee) {
+    @EnumSource(value = YesNo.class)
+    @NullSource
+    void getPartyName(YesNo isAppointee) {
         Party party = Appellant.builder()
             .isAppointee(isAppointee)
             .name(Name.builder()
@@ -578,9 +580,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("getPartyName No Appointee Test")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void getPartyNameAppellant(String isAppointee) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void getPartyNameAppellant(YesNo isAppointee) {
         Party party = Appellant.builder()
             .isAppointee(isAppointee)
             .appointee(Appointee.builder()
@@ -622,7 +624,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void testIsPoOfficerAttending() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
@@ -632,9 +634,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When dwpIsOfficerAttending is No or blank, isPoOfficerAttending return False")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void testIsPoOfficerAttending(String value) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void testIsPoOfficerAttending(YesNo value) {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(value)
             .build();
@@ -662,7 +664,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override poToAttend is not Yes, isPoOfficerAttending returns the default value")
     @ParameterizedTest
-    @ValueSource(strings = {"NO"})
+    @EnumSource(value = YesNo.class, names = {"NO"})
     @NullSource
     void testIsPoOfficerAttendingOverride(YesNo value) {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -671,7 +673,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .poToAttend(value)
                     .build())
                 .build())
-            .dwpIsOfficerAttending("No")
+            .dwpIsOfficerAttending(NO)
             .build();
 
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
@@ -683,7 +685,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void testIsPoOfficerAttendingOverrideNull() {
         SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending("No")
+            .dwpIsOfficerAttending(NO)
             .build();
 
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);

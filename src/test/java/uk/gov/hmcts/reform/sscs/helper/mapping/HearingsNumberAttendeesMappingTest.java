@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 
 import java.util.List;
 
@@ -29,10 +30,10 @@ class HearingsNumberAttendeesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
+                    .wantsToAttend(NO)
                     .build())
                 .build())
-            .dwpIsOfficerAttending("No")
+            .dwpIsOfficerAttending(NO)
             .build();
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);
@@ -46,22 +47,22 @@ class HearingsNumberAttendeesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
-                    .languageInterpreter("Yes")
+                    .wantsToAttend(YES)
+                    .languageInterpreter(YES)
                     .build())
                 .build())
             .otherParties(List.of(
                 CcdValue.<OtherParty>builder()
                     .value(OtherParty.builder()
                         .hearingOptions(HearingOptions.builder()
-                            .wantsToAttend("Yes")
+                            .wantsToAttend(YES)
                             .build())
                         .build())
                     .build()))
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);
@@ -75,10 +76,10 @@ class HearingsNumberAttendeesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .build();
@@ -94,13 +95,13 @@ class HearingsNumberAttendeesMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);
@@ -110,9 +111,9 @@ class HearingsNumberAttendeesMappingTest {
 
     @DisplayName("When wantsToAttend is not Yes, getNumberOfAppellantAttendees returns zero")
     @ParameterizedTest
-    @ValueSource(strings = {"No", "Test"})
-    @NullAndEmptySource
-    void testGetNumberOfAppellantAttendeesNoAttend(String value) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void testGetNumberOfAppellantAttendeesNoAttend(YesNo value) {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
                 .wantsToAttend(value)
@@ -130,10 +131,10 @@ class HearingsNumberAttendeesMappingTest {
 
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .wantsToAttend("Yes")
+                .wantsToAttend(YES)
                 .build())
             .rep(Representative.builder()
-                .hasRepresentative("Yes")
+                .hasRepresentative(YES)
                 .build())
             .build();
 
@@ -151,7 +152,7 @@ class HearingsNumberAttendeesMappingTest {
 
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .wantsToAttend("Yes")
+                .wantsToAttend(YES)
                 .build())
             .rep(Representative.builder()
                 .build())
@@ -171,10 +172,10 @@ class HearingsNumberAttendeesMappingTest {
     void testGetNumberOfAppellantAttendeesAppellantRepOnly() {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .wantsToAttend("Yes")
+                .wantsToAttend(YES)
                 .build())
             .rep(Representative.builder()
-                .hasRepresentative("Yes")
+                .hasRepresentative(YES)
                 .build())
             .build();
 
@@ -190,7 +191,7 @@ class HearingsNumberAttendeesMappingTest {
     void testGetNumberOfAppellantAttendeesAppellantJointOnly() {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .wantsToAttend("Yes")
+                .wantsToAttend(YES)
                 .build())
             .build();
 
@@ -209,17 +210,17 @@ class HearingsNumberAttendeesMappingTest {
         List<CcdValue<OtherParty>> otherParties = List.of(
             CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
-                    .hearingOptions(HearingOptions.builder().wantsToAttend("Yes").build())
+                    .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                     .build())
                 .build(),
             CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
-                    .hearingOptions(HearingOptions.builder().wantsToAttend("Yes").build())
+                    .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                     .build())
                 .build(),
             CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
-                    .hearingOptions(HearingOptions.builder().wantsToAttend("No").build())
+                    .hearingOptions(HearingOptions.builder().wantsToAttend(NO).build())
                     .build())
                 .build(),
             CcdValue.<OtherParty>builder()

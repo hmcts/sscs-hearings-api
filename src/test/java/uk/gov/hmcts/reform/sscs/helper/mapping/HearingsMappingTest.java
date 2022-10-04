@@ -27,6 +27,8 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 class HearingsMappingTest extends HearingsMappingBase {
 
@@ -66,10 +68,10 @@ class HearingsMappingTest extends HearingsMappingBase {
                         .caseNamePublic(CASE_NAME_PUBLIC)
                         .build())
                 .appeal(Appeal.builder()
-                        .rep(Representative.builder().hasRepresentative("no").build())
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .rep(Representative.builder().hasRepresentative(NO).build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                 .name(Name.builder()
                                         .title("title")

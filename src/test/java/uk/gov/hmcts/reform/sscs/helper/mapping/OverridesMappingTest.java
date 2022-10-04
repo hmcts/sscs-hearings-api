@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -90,10 +91,10 @@ class OverridesMappingTest {
                         .build())
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
@@ -200,7 +201,7 @@ class OverridesMappingTest {
     @Test
     void testSetDefaultOverrideFields() throws InvalidMappingException {
         caseData.getSchedulingAndListingFields().setDefaultOverrideFields(null);
-        caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
+        caseData.getAppeal().getHearingOptions().setLanguageInterpreter(YES);
         caseData.getAppeal().getHearingOptions().setLanguages("French");
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
@@ -253,7 +254,7 @@ class OverridesMappingTest {
     void testGetAppellantInterpreter() throws InvalidMappingException {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .languageInterpreter("Yes")
+                .languageInterpreter(YES)
                 .languages("French")
                 .build())
             .build();
@@ -284,7 +285,7 @@ class OverridesMappingTest {
     void testGetAppellantInterpreterDialect() throws InvalidMappingException {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .languageInterpreter("Yes")
+                .languageInterpreter(YES)
                 .languages("French")
                 .build())
             .build();
@@ -315,7 +316,7 @@ class OverridesMappingTest {
     void testGetAppellantInterpreterDialectInvalidLanguage()  {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .languageInterpreter("Yes")
+                .languageInterpreter(YES)
                 .languages("Bad Language")
                 .build())
             .build();
@@ -383,7 +384,7 @@ class OverridesMappingTest {
     void testGetAppellantInterpreterNotWanted() throws InvalidMappingException {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
-                .languageInterpreter("No")
+                .languageInterpreter(NO)
                 .languages("French")
                 .build())
             .build();
@@ -399,7 +400,7 @@ class OverridesMappingTest {
     @Test
     void testGetInterpreter() {
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .arrangements(List.of("signLanguageInterpreter"))
             .build();
 
@@ -412,7 +413,7 @@ class OverridesMappingTest {
     @Test
     void testGetInterpreterLanguageYes() {
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .arrangements(List.of())
             .build();
 
@@ -425,7 +426,7 @@ class OverridesMappingTest {
     @Test
     void testGetInterpreterSignLanguage() {
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("No")
+            .languageInterpreter(NO)
             .arrangements(List.of("signLanguageInterpreter"))
             .build();
 
@@ -451,7 +452,7 @@ class OverridesMappingTest {
     @Test
     void testGetInterpreterLanguage() throws InvalidMappingException {
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages("French")
             .build();
 
@@ -468,9 +469,9 @@ class OverridesMappingTest {
 
     @DisplayName("When the appellant doesn't want a language interpreter, getInterpreterLanguage returns null")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void testGetInterpreterLanguage(String value) throws InvalidMappingException {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void testGetInterpreterLanguage(YesNo value) throws InvalidMappingException {
         HearingOptions hearingOptions = HearingOptions.builder()
             .languageInterpreter(value)
             .languages("French")
@@ -543,9 +544,9 @@ class OverridesMappingTest {
 
     @DisplayName("When valid case data is given, getHearingDetailsHearingWindow returns the default Po to attend value")
     @ParameterizedTest
-    @ValueSource(strings = {"Yes", "No"})
-    @NullAndEmptySource
-    void testGetPoToAttend(String value) {
+    @EnumSource(value = YesNo.class)
+    @NullSource
+    void testGetPoToAttend(YesNo value) {
         caseData.setDwpIsOfficerAttending(value);
 
         YesNo result = OverridesMapping.getPoToAttend(caseData);

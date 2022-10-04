@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -26,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
@@ -44,7 +47,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .build();
     }
 
-    private SscsCaseData wantsToAttendCaseBuilder(String wantsToAttend) {
+    private SscsCaseData wantsToAttendCaseBuilder(YesNo wantsToAttend) {
         return SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
@@ -140,7 +143,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
@@ -166,7 +169,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .adjournCaseNextHearingListingDurationUnits(null)
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
@@ -225,7 +228,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        SscsCaseData caseData = wantsToAttendCaseBuilder("No");
+        SscsCaseData caseData = wantsToAttendCaseBuilder(NO);
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
@@ -251,7 +254,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        SscsCaseData caseData = wantsToAttendCaseBuilder("Yes");
+        SscsCaseData caseData = wantsToAttendCaseBuilder(YES);
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
@@ -280,8 +283,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
-                    .languageInterpreter("Yes")
+                    .wantsToAttend(YES)
+                    .languageInterpreter(YES)
                     .build())
                .build())
             .build();
@@ -312,10 +315,10 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .appeal(Appeal.builder()
                         .hearingSubtype(HearingSubtype.builder().build())
                         .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("No")
+                                            .wantsToAttend(NO)
                                             .build())
                         .build())
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .build();
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(

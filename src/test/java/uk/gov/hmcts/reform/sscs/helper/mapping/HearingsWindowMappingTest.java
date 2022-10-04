@@ -103,10 +103,10 @@ class HearingsWindowMappingTest {
     @DisplayName("When case with valid DWP_RESPOND event getHearingWindowStart returns a window starting within 28 days of the event's date")
     @ParameterizedTest
     @CsvSource(value = {
-        "2021-12-01,Yes,2021-12-02",
-        "2021-12-01,No,2021-12-29",
+        "2021-12-01,YES,2021-12-02",
+        "2021-12-01,NO,2021-12-29",
     }, nullValues = {"null"})
-    void testGetHearingWindowStart(String dwpResponded, String isUrgent, LocalDate expected) {
+    void testGetHearingWindowStart(String dwpResponded, YesNo isUrgent, LocalDate expected) {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate(dwpResponded)
             .urgentCase(isUrgent)
@@ -139,7 +139,7 @@ class HearingsWindowMappingTest {
     void testBuildHearingWindowNotAutoListUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate(LocalDate.now().toString())
-            .appeal(new Appeal(null, null, null, new HearingOptions("yes", null, null, null, null, null, null, null, null, null), null, null, null, null, new HearingSubtype("yes", "07444123456", null, null, null), null))
+            .appeal(new Appeal(null, null, null, new HearingOptions(YES, null, null, null, null, null, null, null, null, null), null, null, null, null, new HearingSubtype(YES, "07444123456", null, null, null), null))
             .build();
         HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
 
@@ -157,7 +157,7 @@ class HearingsWindowMappingTest {
     void testBuildHearingWindowNotAutoListIsUrgent() {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpResponseDate("2021-12-01")
-            .urgentCase("Yes")
+            .urgentCase(YES)
             .build();
         HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
 

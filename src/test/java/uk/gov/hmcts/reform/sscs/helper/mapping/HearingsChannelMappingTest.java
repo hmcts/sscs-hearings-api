@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.util.ArrayList;
@@ -47,10 +48,10 @@ class HearingsChannelMappingTest {
     @Test
     void testGetIndividualPreferredHearingChannel() {
         HearingSubtype hearingSubtype = HearingSubtype.builder()
-            .wantsHearingTypeFaceToFace(YES.getValue())
+            .wantsHearingTypeFaceToFace(YES)
             .build();
         HearingOptions hearingOptions = HearingOptions.builder()
-            .wantsToAttend(YES.getValue())
+            .wantsToAttend(YES)
             .build();
         OverrideFields overrideFields = OverrideFields.builder()
             .appellantHearingChannel(null)
@@ -63,14 +64,16 @@ class HearingsChannelMappingTest {
     @DisplayName("The resolved hearing channel should follow the hierarchy face to face > video > telephone")
     @ParameterizedTest
     @MethodSource("hearingChannelArguments")
-    void getHearingChannels_whenOneOfTheParties_containsFaceToFace_selectFaceToFace_asPreferredValue(String faceToFace,
-                                                                                  String video, String telephone,
-                                                                                  HearingChannel resolvedHearingChannel) {
+    void getHearingChannels_whenOneOfTheParties_containsFaceToFace_selectFaceToFace_asPreferredValue(YesNo faceToFace,
+                                                                                                     YesNo video, YesNo telephone,
+                                                                                                     HearingChannel resolvedHearingChannel) {
 
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
             .hearingOptions(
-                HearingOptions.builder().wantsToAttend(YES.getValue()).build())
+                HearingOptions.builder()
+                    .wantsToAttend(YES)
+                    .build())
             .hearingSubtype(HearingSubtype.builder()
                 .wantsHearingTypeFaceToFace(faceToFace)
                 .wantsHearingTypeVideo(video)
@@ -87,7 +90,9 @@ class HearingsChannelMappingTest {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().wantsToAttend(YES.getValue()).build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend(YES)
+                    .build())
                 .hearingSubtype(HearingSubtype.builder()
                     .wantsHearingTypeFaceToFace(faceToFace)
                     .wantsHearingTypeVideo(video)
@@ -103,7 +108,7 @@ class HearingsChannelMappingTest {
                         .build())
                     .build())
                 .build())
-            .dwpIsOfficerAttending(NO.getValue())
+            .dwpIsOfficerAttending(NO)
             .otherParties(otherParties)
             .build();
         List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
@@ -115,11 +120,11 @@ class HearingsChannelMappingTest {
 
     private static Stream<Arguments> hearingChannelArguments() {
         return Stream.of(
-            Arguments.of(YES.getValue(), NO.getValue(), NO.getValue(), FACE_TO_FACE),
-            Arguments.of(YES.getValue(), YES.getValue(), YES.getValue(), FACE_TO_FACE),
-            Arguments.of(NO.getValue(), YES.getValue(), NO.getValue(), HearingChannel.VIDEO),
-            Arguments.of(NO.getValue(), YES.getValue(), YES.getValue(), HearingChannel.VIDEO),
-            Arguments.of(NO.getValue(), NO.getValue(), YES.getValue(), HearingChannel.TELEPHONE));
+            Arguments.of(YES, NO, NO, FACE_TO_FACE),
+            Arguments.of(YES, YES, YES, FACE_TO_FACE),
+            Arguments.of(NO, YES, NO, HearingChannel.VIDEO),
+            Arguments.of(NO, YES, YES, HearingChannel.VIDEO),
+            Arguments.of(NO, NO, YES, HearingChannel.TELEPHONE));
     }
 
     @DisplayName("should throw HearingChannelNotFoundException if no party has a preference selected but want to attend.")
@@ -129,7 +134,7 @@ class HearingsChannelMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend(YES.getValue()).build())
+                    .wantsToAttend(YES).build())
                 .appellant(Appellant.builder()
                     .name(Name.builder()
                         .title("title")
@@ -138,7 +143,7 @@ class HearingsChannelMappingTest {
                         .build())
                     .build())
                 .build())
-            .dwpIsOfficerAttending(NO.getValue())
+            .dwpIsOfficerAttending(NO)
             .build();
 
         List<HearingChannel> hearingChannels = HearingsChannelMapping.getHearingChannels(caseData);
@@ -155,7 +160,7 @@ class HearingsChannelMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend(NO.getValue()).build())
+                    .wantsToAttend(NO).build())
                 .appellant(Appellant.builder()
                     .name(Name.builder()
                         .title("title")
@@ -164,7 +169,7 @@ class HearingsChannelMappingTest {
                         .build())
                     .build())
                 .build())
-            .dwpIsOfficerAttending(NO.getValue())
+            .dwpIsOfficerAttending(NO)
             .build();
 
         List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
@@ -181,7 +186,7 @@ class HearingsChannelMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend(NO.getValue()).build())
+                    .wantsToAttend(NO).build())
                 .appellant(Appellant.builder()
                     .name(Name.builder()
                         .title("title")
@@ -190,7 +195,7 @@ class HearingsChannelMappingTest {
                         .build())
                     .build())
                 .build())
-            .dwpIsOfficerAttending(NO.getValue())
+            .dwpIsOfficerAttending(NO)
             .build();
 
         List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
@@ -206,7 +211,7 @@ class HearingsChannelMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
+                    .wantsToAttend(NO)
                     .build())
                 .build())
             .build();
@@ -222,10 +227,10 @@ class HearingsChannelMappingTest {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .build())
             .build();

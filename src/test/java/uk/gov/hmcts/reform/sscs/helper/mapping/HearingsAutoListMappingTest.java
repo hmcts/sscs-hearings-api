@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -24,6 +23,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.List;
@@ -53,10 +53,10 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                         .build())
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .hearingSubtype(HearingSubtype.builder()
-                    .wantsHearingTypeFaceToFace("Yes")
+                    .wantsHearingTypeFaceToFace(YES)
                     .build())
                 .build())
             .build();
@@ -133,7 +133,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     void testHasOrgRepresentative() {
         caseData.getAppeal()
                 .setRep(Representative.builder()
-                        .hasRepresentative("Yes")
+                        .hasRepresentative(YES)
                         .organisation("test")
                         .build());
 
@@ -156,13 +156,13 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         List<CcdValue<OtherParty>> otherParties = List.of(
                 new CcdValue<OtherParty>(OtherParty.builder()
                         .rep(Representative.builder()
-                                .hasRepresentative("Yes")
+                                .hasRepresentative(YES)
                                 .organisation("Test")
                                 .build())
                         .build()),
                 new CcdValue<OtherParty>(OtherParty.builder()
                         .rep(Representative.builder()
-                                .hasRepresentative("Yes")
+                                .hasRepresentative(YES)
                                 .build())
                         .build()));
 
@@ -177,13 +177,13 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         List<CcdValue<OtherParty>> otherParties = List.of(
                 new CcdValue<OtherParty>(OtherParty.builder()
                         .rep(Representative.builder()
-                                .hasRepresentative("Yes")
+                                .hasRepresentative(YES)
                                 .organisation("")
                                 .build())
                         .build()),
                 new CcdValue<OtherParty>(OtherParty.builder()
                         .rep(Representative.builder()
-                                .hasRepresentative("Yes")
+                                .hasRepresentative(YES)
                                 .build())
                         .build()));
 
@@ -204,7 +204,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @Test
     void testIsRepresentativeOrg() {
         Representative rep = Representative.builder()
-                .hasRepresentative("Yes")
+                .hasRepresentative(YES)
                 .organisation("Test")
                 .build();
 
@@ -215,9 +215,9 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When hasRepresentative is No, blank or null, isRepresentativeOrg should return False")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void testIsRepresentativeOrgNull(String value) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void testIsRepresentativeOrgNull(YesNo value) {
         Representative rep = Representative.builder()
                 .hasRepresentative(value)
                 .organisation("Test")
@@ -233,7 +233,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void testIsRepresentativeOrgBlankOrg(String value) {
         Representative rep = Representative.builder()
-                .hasRepresentative("Yes")
+                .hasRepresentative(YES)
                 .organisation(value)
                 .build();
 
@@ -253,8 +253,8 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @DisplayName("When wants to attend and PO is attending is no, isPaperCaseAndPoNotAttending return True")
     @Test
     void testIsPaperCaseAndPoNotAttending() {
-        caseData.setDwpIsOfficerAttending("No");
-        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
+        caseData.setDwpIsOfficerAttending(NO);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend(NO);
 
         boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
@@ -264,8 +264,8 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @DisplayName("When wants to attend is No and PO is attending is Yes, isPaperCaseAndPoNotAttending return False")
     @Test
     void testIsPaperCaseAndPoNotAttendingPoAttending() {
-        caseData.setDwpIsOfficerAttending("Yes");
-        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
+        caseData.setDwpIsOfficerAttending(YES);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend(NO);
 
         boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
@@ -275,8 +275,8 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @DisplayName("When wants to attend is Yes and PO is attending is No, isPaperCaseAndPoNotAttending return False")
     @Test
     void testIsPaperCaseAndPoNotAttendingNotPaper() {
-        caseData.setDwpIsOfficerAttending("No");
-        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+        caseData.setDwpIsOfficerAttending(NO);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend(YES);
 
         boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 
@@ -286,8 +286,8 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
     @DisplayName("When appellant wants to attend and PO is attending is Yes, isPaperCaseAndPoNotAttending return False")
     @Test
     void testIsPaperCaseAndPoNotAttendingPoAppellantAttending() {
-        caseData.setDwpIsOfficerAttending("Yes");
-        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+        caseData.setDwpIsOfficerAttending(YES);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend(YES);
 
         boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
 

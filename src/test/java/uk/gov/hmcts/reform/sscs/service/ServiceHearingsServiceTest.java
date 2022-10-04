@@ -50,6 +50,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
 
@@ -86,8 +88,8 @@ class ServiceHearingsServiceTest {
             .ccdCaseId("1234")
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .urgentCase("Yes")
-            .adjournCaseCanCaseBeListedRightAway("Yes")
+            .urgentCase(YES)
+            .adjournCaseCanCaseBeListedRightAway(YES)
             .dwpResponseDate("2022-07-07")
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
@@ -105,15 +107,15 @@ class ServiceHearingsServiceTest {
                 .hearingSubtype(HearingSubtype.builder()
                     .hearingTelephoneNumber("0999733733")
                     .hearingVideoEmail("test@gmail.com")
-                    .wantsHearingTypeFaceToFace("Yes")
-                    .wantsHearingTypeTelephone("No")
-                    .wantsHearingTypeVideo("No")
+                    .wantsHearingTypeFaceToFace(YES)
+                    .wantsHearingTypeTelephone(NO)
+                    .wantsHearingTypeVideo(NO)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
+                    .wantsToAttend(YES)
                     .build())
                 .rep(Representative.builder()
-                    .hasRepresentative("Yes")
+                    .hasRepresentative(YES)
                     .name(Name.builder()
                         .title("Mr")
                         .firstName("Harry")
@@ -121,8 +123,8 @@ class ServiceHearingsServiceTest {
                         .build())
                     .build())
                 .build())
-            .languagePreferenceWelsh("No")
-            .linkedCasesBoolean("No")
+            .languagePreferenceWelsh(NO)
+            .linkedCasesBoolean(NO)
             .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
                 .panelDoctorSpecialism("cardiologist")
                 .secondPanelDoctorSpecialism("eyeSurgeon")

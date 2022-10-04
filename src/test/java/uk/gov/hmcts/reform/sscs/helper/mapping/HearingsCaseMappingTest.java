@@ -166,14 +166,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,YES,true",
-        "Yes,NO,true",
-        "No,YES,true",
-        "No,NO,false",
+        "YES,YES,true",
+        "YES,NO,true",
+        "NO,YES,true",
+        "NO,NO,false",
         "null,YES,true",
         "null,NO,false",
     }, nullValues = {"null"})
-    void shouldBeAdditionalSecurityFlag(String dwpUcbFlag, YesNo otherPartiesUcb, boolean expected) {
+    void shouldBeAdditionalSecurityFlag(YesNo dwpUcbFlag, YesNo otherPartiesUcb, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
@@ -223,24 +223,20 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,Yes,true",
-        "Yes,Yes,No,true",
-        "Yes,No,Yes,true",
-        "Yes,No,No,true",
-        "No,Yes,Yes,true",
-        "No,Yes,No,true",
-        "No,No,Yes,true",
-        "No,No,No,false",
-        "null,Yes,Yes,true",
-        "null,Yes,No,true",
-        "null,No,Yes,true",
-        "null,No,No,false",
-        ",Yes,Yes,true",
-        ",Yes,No,true",
-        ",No,Yes,true",
-        ",No,No,false",
+        "YES,YES,YES,true",
+        "YES,YES,NO,true",
+        "YES,NO,YES,true",
+        "YES,NO,NO,true",
+        "NO,YES,YES,true",
+        "NO,YES,NO,true",
+        "NO,NO,YES,true",
+        "NO,NO,NO,false",
+        "null,YES,YES,true",
+        "null,YES,NO,true",
+        "null,NO,YES,true",
+        "null,NO,NO,false",
     }, nullValues = {"null"})
-    void isInterpreterRequired(String adjournCaseInterpreter, String appellantInterpreter, String otherPartyInterpreter, boolean expected) {
+    void isInterpreterRequired(YesNo adjournCaseInterpreter, YesNo appellantInterpreter, YesNo otherPartyInterpreter, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
@@ -267,12 +263,12 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("isInterpreterRequiredOtherParties when otherParties are not null Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,true,true",
-        "Yes,false,true",
-        "No,true,true",
-        "No,false,false",
+        "YES,true,true",
+        "YES,false,true",
+        "NO,true,true",
+        "NO,false,false",
     }, nullValues = {"null"})
-    void isInterpreterRequiredOtherParties(String interpreter, boolean signLanguage, boolean expected) {
+    void isInterpreterRequiredOtherParties(YesNo interpreter, boolean signLanguage, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
                 .value(OtherParty.builder()
@@ -299,28 +295,23 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("isInterpreterRequiredHearingOptions Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,signLanguageInterpreter|somethingElse,true",
-        "Yes,signLanguageInterpreter,true",
-        "Yes,somethingElse,true",
-        "Yes,null,true",
-        "Yes,,true",
-        "No,signLanguageInterpreter|somethingElse,true",
-        "No,signLanguageInterpreter,true",
-        "No,somethingElse,false",
-        "No,null,false",
-        "No,,false",
+        "YES,signLanguageInterpreter|somethingElse,true",
+        "YES,signLanguageInterpreter,true",
+        "YES,somethingElse,true",
+        "YES,null,true",
+        "YES,,true",
+        "NO,signLanguageInterpreter|somethingElse,true",
+        "NO,signLanguageInterpreter,true",
+        "NO,somethingElse,false",
+        "NO,null,false",
+        "NO,,false",
         "null,signLanguageInterpreter|somethingElse,true",
         "null,signLanguageInterpreter,true",
         "null,somethingElse,false",
         "null,null,false",
         "null,,false",
-        ",signLanguageInterpreter|somethingElse,true",
-        ",signLanguageInterpreter,true",
-        ",somethingElse,false",
-        ",null,false",
-        ",,false",
     }, nullValues = {"null"})
-    void isInterpreterRequiredHearingOptions(String interpreter, String arrangements, boolean expected) {
+    void isInterpreterRequiredHearingOptions(YesNo interpreter, String arrangements, boolean expected) {
 
         HearingOptions hearingOptions = HearingOptions.builder()
                 .languageInterpreter(interpreter)

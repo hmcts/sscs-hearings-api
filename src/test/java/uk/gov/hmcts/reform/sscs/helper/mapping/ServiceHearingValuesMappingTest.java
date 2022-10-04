@@ -29,7 +29,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
@@ -60,6 +59,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
@@ -75,7 +76,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
     public static final String BENEFIT = "Benefit";
 
-    public static final String APPELLANT_PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb296292997e-14d4-4814-a163-e64018d2c441";
+    public static final String APPELLANT_PARTY_ID = "6292997e-14d4-4814-a163-e64018d2c441";
     public static final String REPRESENTATIVE_PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb29";
     public static final String OTHER_PARTY_ID = "4dd6b6fa-6562-4699-8e8b-6c70cf8a333e";
 
@@ -104,8 +105,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .ccdCaseId("1234")
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .urgentCase("Yes")
-            .adjournCaseCanCaseBeListedRightAway("Yes")
+            .urgentCase(YES)
+            .adjournCaseCanCaseBeListedRightAway(YES)
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")
@@ -123,14 +124,14 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                 .hearingSubtype(HearingSubtype.builder()
                     .hearingTelephoneNumber("0999733733")
                     .hearingVideoEmail("test@gmail.com")
-                    .wantsHearingTypeFaceToFace("Yes")
-                    .wantsHearingTypeTelephone("No")
-                    .wantsHearingTypeVideo("No")
+                    .wantsHearingTypeFaceToFace(YES)
+                    .wantsHearingTypeTelephone(NO)
+                    .wantsHearingTypeVideo(NO)
                     .build())
                 .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
-                    .wantsSupport("Yes")
-                    .languageInterpreter("Yes")
+                    .wantsToAttend(YES)
+                    .wantsSupport(YES)
+                    .languageInterpreter(YES)
                     .languages("Bulgarian")
                     .signLanguageType("Makaton")
                     .arrangements(Arrays.asList(
@@ -138,14 +139,14 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                         "hearingLoop",
                         "disabledAccess"
                     ))
-                    .scheduleHearing("No")
+                    .scheduleHearing(NO)
                     .excludeDates(getExcludeDates())
-                    .agreeLessNotice("No")
+                    .agreeLessNotice(NO)
                     .other(NOTE_FROM_APPELLANT)
                     .build())
                 .rep(Representative.builder()
                     .id(REPRESENTATIVE_PARTY_ID)
-                    .hasRepresentative("Yes")
+                    .hasRepresentative(YES)
                     .name(Name.builder()
                         .title("Mr")
                         .firstName("Harry")
@@ -166,9 +167,9 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .build())
                 .build())
             .events(getEventsOfCaseData())
-            .languagePreferenceWelsh("No")
+            .languagePreferenceWelsh(NO)
             .otherParties(getOtherParties())
-            .linkedCasesBoolean("No")
+            .linkedCasesBoolean(NO)
             .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
                 .panelDoctorSpecialism("cardiologist")
                 .secondPanelDoctorSpecialism("eyeSurgeon")
@@ -306,35 +307,35 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                                              .title("Mr")
                                              .build())
                                    .address(Address.builder().build())
-                                   .confidentialityRequired(YesNo.NO)
-                                   .unacceptableCustomerBehaviour(YesNo.YES)
+                                   .confidentialityRequired(NO)
+                                   .unacceptableCustomerBehaviour(YES)
                                    .hearingSubtype(HearingSubtype.builder()
                                                        .hearingTelephoneNumber("0999733735")
                                                        .hearingVideoEmail("test2@gmail.com")
-                                                       .wantsHearingTypeFaceToFace("Yes")
-                                                       .wantsHearingTypeTelephone("No")
-                                                       .wantsHearingTypeVideo("No")
+                                                       .wantsHearingTypeFaceToFace(YES)
+                                                       .wantsHearingTypeTelephone(NO)
+                                                       .wantsHearingTypeVideo(NO)
                                                        .build())
                                    .hearingOptions(HearingOptions.builder()
-                                                       .wantsToAttend("Yes")
-                                                       .wantsSupport("Yes")
-                                                       .languageInterpreter("Yes")
+                                                       .wantsToAttend(YES)
+                                                       .wantsSupport(YES)
+                                                       .languageInterpreter(YES)
                                                        .languages("Bulgarian")
-                                                       .scheduleHearing("No")
+                                                       .scheduleHearing(NO)
                                                        .excludeDates(getExcludeDates())
-                                                       .agreeLessNotice("No")
+                                                       .agreeLessNotice(NO)
                                                        .other(NOTE_FROM_OTHER_PARTY)
                                                        .build())
-                                   .isAppointee("No")
+                                   .isAppointee(NO)
                                    .appointee(Appointee.builder().build())
                                    .rep(Representative.builder().build())
                                    .otherPartySubscription(Subscription.builder().build())
                                    .otherPartyAppointeeSubscription(Subscription.builder().build())
                                    .otherPartyRepresentativeSubscription(Subscription.builder().build())
-                                   .sendNewOtherPartyNotification(YesNo.NO)
+                                   .sendNewOtherPartyNotification(NO)
                                    .reasonableAdjustment(ReasonableAdjustmentDetails.builder()
                                                              .reasonableAdjustmentRequirements("Some adjustments...")
-                                                             .wantsReasonableAdjustment(YesNo.YES)
+                                                             .wantsReasonableAdjustment(YES)
                                                              .build())
                                    .appointeeReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
                                    .repReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())

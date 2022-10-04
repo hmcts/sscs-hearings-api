@@ -81,9 +81,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void buildHearingPartiesDetails() throws InvalidMappingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -118,11 +118,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void buildHearingPartiesDetailsPoAttending() throws InvalidMappingException {
         SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending("Yes")
+            .dwpIsOfficerAttending(YES)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -165,15 +165,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper when PO attending is not Yes given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void buildHearingPartiesDetailsPoAttending(String officerAttending) throws InvalidMappingException {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void buildHearingPartiesDetailsPoAttending(YesNo officerAttending) throws InvalidMappingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(officerAttending)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -202,8 +202,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         String otherPartyId = OTHER_PARTY_ID;
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
-                                            .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
-                                            .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                                            .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
+                                            .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                                             .id(otherPartyId)
                                             .name(Name.builder()
                                                       .title("title")
@@ -214,9 +214,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .otherParties(otherParties)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -269,9 +269,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .jointParty(jointPartyDetails)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingOptions(HearingOptions.builder().wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(name)
@@ -304,12 +304,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,true",
-        "No,false",
+        "YES,true",
+        "NO,false",
         "null,false",
-        ",false",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsAppointee(String isAppointee, boolean expected) throws InvalidMappingException {
+    void buildHearingPartiesPartyDetailsAppointee(YesNo isAppointee, boolean expected) throws InvalidMappingException {
         Appointee appointee = Appointee.builder()
             .id(OTHER_PARTY_ID)
             .name(Name.builder()
@@ -360,12 +359,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("buildHearingPartiesPartyDetails when Rep is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,true",
-        "No,false",
+        "YES,true",
+        "NO,false",
         "null,false",
-        ",false",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected) throws InvalidMappingException {
+    void buildHearingPartiesPartyDetailsRep(YesNo hasRepresentative, boolean expected) throws InvalidMappingException {
         Representative rep = Representative.builder()
             .id(OTHER_PARTY_ID)
             .hasRepresentative(hasRepresentative)
@@ -384,8 +382,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                       .lastName("last")
                       .build())
             .build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build();
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(
             party,
@@ -581,7 +579,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages(lang)
             .build();
 
@@ -600,7 +598,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages(value)
             .build();
 
@@ -655,7 +653,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void testGetIndividualInterpreterLanguageOverride() throws InvalidMappingException {
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages("Acholi")
             .build();
 
@@ -674,7 +672,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void testGetIndividualInterpreterLanguageOverrideNo() throws InvalidMappingException {
 
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages("Acholi")
             .build();
 
@@ -697,7 +695,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages("Acholi")
             .build();
 
@@ -720,7 +718,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         HearingOptions hearingOptions = HearingOptions.builder()
-            .languageInterpreter("Yes")
+            .languageInterpreter(YES)
             .languages("Acholi")
             .build();
 
@@ -793,9 +791,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When hearing type oral and video then return LOV VIDEO")
     @Test
     void getIndividualPreferredHearingChannelOralVideoTest() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").hearingVideoEmail(
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo(YES).hearingVideoEmail(
             "test@email.com").build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
         HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
         assertThat(result.getHmcReference()).isEqualTo(HearingChannel.VIDEO.getHmcReference());
     }
@@ -803,9 +801,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When hearing type oral and telephone then return LOV TELEPHONE")
     @Test
     void getIndividualPreferredHearingChannelOralTelephoneTest() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").hearingTelephoneNumber(
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone(YES).hearingTelephoneNumber(
             "01111234567").build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
         HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
         assertThat(result.getHmcReference()).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
@@ -813,8 +811,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set throw IllegalStateException")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsTelephoneExample() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone(YES).build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
 
         assertThatExceptionOfType(
             IllegalStateException.class).isThrownBy(() ->
@@ -827,8 +825,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When hearing type oral and face to face then return LOV FACE TO FACE")
     @Test
     void getIndividualPreferredHearingChannelOralFaceToFaceTest() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
         HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
         assertThat(result).isEqualTo(FACE_TO_FACE);
     }
@@ -836,8 +834,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When hearing type is blank and face to face then return LOV not attending")
     @Test
     void getIndividualPreferredHearingChannelBlankFaceToFaceTest() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("Yes").build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
         HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
         assertThat(result).isEqualTo(FACE_TO_FACE);
     }
@@ -845,8 +843,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set throw IllegalStateException")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsVideoExample() {
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
-        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo(YES).build();
+        HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend(YES).build();
 
         assertThatExceptionOfType(
             IllegalStateException.class).isThrownBy(() ->
@@ -1073,9 +1071,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                             .excludeDates(List.of(ExcludeDate.builder()
                                                                       .value(DateRange.builder().start(start.toString())
                                                                                  .end(end.toString()).build()).build()))
-                                            .wantsToAttend("yes").build())
+                                            .wantsToAttend(YES).build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace(YES).build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()

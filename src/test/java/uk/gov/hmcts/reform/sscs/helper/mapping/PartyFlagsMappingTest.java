@@ -37,9 +37,9 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     void shouldAddTheMappingsGivenTheValuesAreNotNull() {
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme("dwpPHME")
-                .dwpUcb("dwpUCB")
-                .urgentCase(YES.toString())
+                .dwpPhme(YES)
+                .dwpUcb(YES)
+                .urgentCase(YES)
                 .adjournCaseInterpreterLanguage("adjournCaseInterpreterLanguage")
                 .isConfidentialCase(YES)
                 .appeal(Appeal.builder().hearingOptions(
@@ -270,7 +270,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void dwpUcb() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpUcb("dwpUcb")
+                .dwpUcb(YES)
                 .build();
 
         PartyFlags result = PartyFlagsMapping.dwpUcb(caseData);
@@ -284,11 +284,12 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
 
     @DisplayName("dwpUcb returns null Parameterised Tests")
     @ParameterizedTest
-    @NullAndEmptySource
-    void dwpUcb(String dwpUcb) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void dwpUcb(YesNo value) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpUcb(dwpUcb)
-                .build();
+            .dwpUcb(value)
+            .build();
 
         PartyFlags result = PartyFlagsMapping.dwpUcb(caseData);
 
@@ -299,7 +300,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void dwpPhme() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme("dwpPhme")
+                .dwpPhme(YES)
                 .build();
 
         PartyFlags result = PartyFlagsMapping.dwpPhme(caseData);
@@ -313,10 +314,11 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
 
     @DisplayName("dwpPhme return null Parameterised Tests")
     @ParameterizedTest
-    @NullAndEmptySource
-    void dwpPhme(String dwpPhme) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void dwpPhme(YesNo value) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme(dwpPhme)
+                .dwpPhme(value)
                 .build();
 
         PartyFlags result = PartyFlagsMapping.dwpPhme(caseData);
@@ -328,7 +330,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void urgentCase() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .urgentCase("Yes")
+                .urgentCase(YES)
                 .build();
 
         PartyFlags result = PartyFlagsMapping.urgentCase(caseData);
@@ -342,9 +344,9 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
 
     @DisplayName("urgentCase returns null Parameterised Tests")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
-    @NullAndEmptySource
-    void urgentCase(String urgentCase) {
+    @EnumSource(value = YesNo.class, names = {"NO"})
+    @NullSource
+    void urgentCase(YesNo urgentCase) {
         SscsCaseData caseData = SscsCaseData.builder()
                 .urgentCase(urgentCase)
                 .build();
