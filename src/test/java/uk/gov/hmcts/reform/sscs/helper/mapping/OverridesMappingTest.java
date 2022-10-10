@@ -43,7 +43,6 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,7 +96,7 @@ class OverridesMappingTest {
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .defaultOverrideFields(OverrideFields.builder().build())
+                .defaultListingValues(OverrideFields.builder().build())
                 .build())
             .build();
 
@@ -130,8 +129,7 @@ class OverridesMappingTest {
                 "appellantHearingChannel",
                 "hearingWindow",
                 "autoList",
-                "hearingVenueEpimsIds",
-                "poToAttend")
+                "hearingVenueEpimsIds")
             .containsOnlyNulls();
     }
 
@@ -199,7 +197,7 @@ class OverridesMappingTest {
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
     @Test
     void testSetDefaultOverrideFields() throws InvalidMappingException {
-        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(null);
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
 
@@ -207,7 +205,7 @@ class OverridesMappingTest {
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 60,75,30));
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(new Language("fre","Test",null,null, List.of()));
@@ -218,7 +216,7 @@ class OverridesMappingTest {
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         OverridesMapping.setDefaultOverrideFields(wrapper, referenceData);
-        OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultOverrideFields();
+        OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
 
         assertThat(result).isNotNull();
@@ -228,7 +226,6 @@ class OverridesMappingTest {
         assertThat(result.getHearingWindow()).isNotNull();
         assertThat(result.getAutoList()).isNotNull();
         assertThat(result.getHearingVenueEpimsIds()).isNotEmpty();
-        assertThat(result.getPoToAttend()).isNotNull();
         assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
     }
 
@@ -528,7 +525,7 @@ class OverridesMappingTest {
     @DisplayName("When valid case data is given, getHearingDetailsHearingWindow returns the default venue epims ids")
     @Test
     void testGetHearingDetailsLocations() {
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("219164"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
         given(referenceData.getVenueService()).willReturn(venueService);
 

@@ -44,7 +44,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -63,12 +62,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.O
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
     private static final long HEARING_REQUEST_ID = 12345;
-    private static final String HMC_STATUS = "TestStatus";
-    private static final long VERSION = 1;
     private static final long CASE_ID = 1625080769409918L;
-    private static final long MISSING_CASE_ID = 99250807409918L;
-    private static final String IDAM_OAUTH2_TOKEN = "TestOauth2Token";
-    private static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     public static final String PROCESSING_VENUE = "Processing Venue";
@@ -192,7 +186,7 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn(Optional.of("219164"));
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
         given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
                 .willReturn(HmcUpdateResponse.builder().build());
@@ -240,7 +234,7 @@ class HearingsServiceTest {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn(Optional.of("219164"));
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 

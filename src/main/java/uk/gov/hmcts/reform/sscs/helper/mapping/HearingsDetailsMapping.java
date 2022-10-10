@@ -127,8 +127,7 @@ public final class HearingsDetailsMapping {
 
         String epimsId = referenceDataServiceHolder
             .getVenueService()
-            .getEpimsIdForVenue(caseData.getProcessingVenue())
-            .orElse(null);
+            .getEpimsIdForVenue(caseData.getProcessingVenue());
 
         Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
 
@@ -206,11 +205,6 @@ public final class HearingsDetailsMapping {
     }
 
     public static boolean isPoOfficerAttending(@Valid SscsCaseData caseData) {
-        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-        if (nonNull(overrideFields.getPoToAttend())) {
-            return isYes(overrideFields.getPoToAttend());
-        }
-
         return isYes(caseData.getDwpIsOfficerAttending());
     }
 }
