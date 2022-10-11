@@ -100,7 +100,8 @@ public final class HearingsLocationMapping {
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)) {
             String epimsID = getEpimsID(caseData, nextHearingVenueName);
 
-            log.info("Getting hearing location with the epims ID of {}", epimsID);
+            log.info("Getting hearing location {} with the epims ID of {}", referenceDataServiceHolder.getVenueService()
+                .getVenueDetailsForActiveVenueByEpimsId(epimsID).getVenName(), epimsID);
 
             return List.of(HearingLocation.builder()
                                .locationId(epimsID)

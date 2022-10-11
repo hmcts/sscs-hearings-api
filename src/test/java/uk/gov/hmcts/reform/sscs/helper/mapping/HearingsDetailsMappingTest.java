@@ -83,6 +83,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Mock
     private VenueService venueService;
 
+    @Mock
+    private VenueDetails venueDetails;
+
     public static final String PROCESSING_VENUE_1 = "test_place";
     private static final String PHONE_NUMBER = "07483871426";
 
@@ -377,6 +380,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsAdjournmentNewVenue() throws InvalidMappingException {
         enableAdjournmentFlag();
 
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_1)).willReturn(venueDetails);
+
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue());
 
         checkHearingLocationResults(
@@ -390,6 +396,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         enableAdjournmentFlag();
 
         setupAdjournedHearingVenue(SAME_VENUE.getValue());
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
 
         caseData.setHearings(Collections.singletonList(Hearing.builder()
                     .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
