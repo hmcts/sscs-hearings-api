@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -98,12 +99,17 @@ public final class HearingsLocationMapping {
 
         //TODO: remove flag
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)) {
-            String epimsID = getEpimsID(caseData, nextHearingVenueName);
+            VenueService venueService = referenceDataServiceHolder.getVenueService();
 
-            log.info("Getting hearing location {} with the epims ID of {}", referenceDataServiceHolder.getVenueService()
-                .getVenueDetailsForActiveVenueByEpimsId(epimsID).getVenName(), epimsID);
+            String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
 
-            return List.of(HearingLocation.builder()
+            VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
+
+            String venueName = venueDetails.getVenName();
+
+            log.info("Getting hearing location {} with the epims ID of {}", venueName, epimsID);
+
+            return List.of(HearingLocation.builder().locationName(venueName)
                                .locationId(epimsID)
                                .locationType(COURT)
                                .build());
@@ -116,8 +122,7 @@ public final class HearingsLocationMapping {
                                                               ReferenceDataServiceHolder referenceDataServiceHolder) {
         String epimsId = referenceDataServiceHolder
             .getVenueService()
-            .getEpimsIdForVenue(caseData.getProcessingVenue())
-            .orElse(null);
+            .getEpimsIdForVenue(caseData.getProcessingVenue());
 
         Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
 
@@ -129,9 +134,12 @@ public final class HearingsLocationMapping {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static String getEpimsID(SscsCaseData caseData, String nextHearingVenue) throws InvalidMappingException {
+    private static String getEpimsID(SscsCaseData caseData, VenueService venueService,
+                                     String nextHearingVenue) throws InvalidMappingException {
         if (SOMEWHERE_ELSE.getValue().equals(nextHearingVenue)) {
-            return caseData.getAdjournCaseNextHearingVenueSelected().getValue().getCode();
+            String venueId = caseData.getAdjournCaseNextHearingVenueSelected().getValue().getCode();
+
+            return venueService.getEpimsIdForVenueId(venueId);
         }
 
         Hearing latestHearing = caseData.getLatestHearing();
