@@ -117,10 +117,8 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         }
-        assertThrows(NullPointerException.class, () -> {
-            HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-        });
-
+        assertThrows(NullPointerException.class, () ->
+            HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder));
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -222,7 +220,7 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
 
-    @DisplayName("When wantsToAttend for the Apeal is no and the hearing type is paper "
+    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is paper "
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesPaper() {
@@ -344,7 +342,8 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEmpty();
     }
 
-    @DisplayName("getElementsDisputed returns a List of elements of all elements in each of the elementDisputed fields in SscsCaseData")
+    @DisplayName("getElementsDisputed returns a List of elements of all elements "
+        + "in each of the elementDisputed fields in SscsCaseData")
     @Test
     void getElementsDisputed() {
         ElementDisputed elementDisputed = ElementDisputed.builder()
