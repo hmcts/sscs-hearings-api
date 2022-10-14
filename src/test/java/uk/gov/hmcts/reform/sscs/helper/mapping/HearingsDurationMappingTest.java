@@ -459,21 +459,21 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
         }
         SscsCaseData caseData = SscsCaseData.builder()
-        .benefitCode(BENEFIT_CODE)
-        .issueCode(ISSUE_CODE)
-        .adjournCaseNextHearingListingDuration(null)
-        .adjournCaseNextHearingListingDurationUnits(null)
-        .appeal(Appeal.builder()
-            .hearingOptions(HearingOptions.builder()
-                .wantsToAttend("Yes")
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDuration(null)
+            .adjournCaseNextHearingListingDurationUnits(null)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
                 .build())
-            .build())
-        .schedulingAndListingFields(SchedulingAndListingFields.builder()
-            .overrideFields(OverrideFields.builder()
-                .duration(60)
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .duration(60)
+                    .build())
                 .build())
-            .build())
-        .build();
+            .build();
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
