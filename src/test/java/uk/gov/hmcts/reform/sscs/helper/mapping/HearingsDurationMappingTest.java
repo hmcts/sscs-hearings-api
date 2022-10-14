@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-public class HearingsDurationMappingTest  extends HearingsMappingBase {
+class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private HearingDurationsService hearingDurations;
 
@@ -59,7 +59,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    @DisplayName("when a valid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration returns the correct duration Parameterized Tests")
+    @DisplayName("when a valid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration "
+        + "returns the correct duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "120,minutes,120",
@@ -77,7 +78,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
 
-    @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
+    @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration "
+        + "returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null",
@@ -90,9 +92,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -103,7 +103,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(30);
     }
 
-    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
+    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
+        + "getHearingDuration a null pointer exception is thrown")
     @ParameterizedTest
     @CsvSource(value = {
         ",sessions",
@@ -135,9 +136,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(75);
@@ -192,7 +191,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(60);
     }
 
-    @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")
+    @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes "
+        + "returns null Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null",
@@ -227,9 +227,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Test
     void getHearingDurationBenefitIssueCodesPaper() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -258,9 +256,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(60);
@@ -282,9 +278,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Test
     void getHearingDurationBenefitIssueCodesInterpreter() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(75), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(75);
@@ -316,9 +310,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -326,11 +318,11 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingSubtype(HearingSubtype.builder().build())
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("No")
-                                            .build())
-                        .build())
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("No")
+                    .build())
+                .build())
             .dwpIsOfficerAttending("Yes")
             .build();
 
@@ -357,9 +349,9 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     void getElementsDisputed() {
         ElementDisputed elementDisputed = ElementDisputed.builder()
             .value(ElementDisputedDetails.builder()
-                       .issueCode("WC")
-                       .outcome("Test")
-                       .build())
+                .issueCode("WC")
+                .outcome("Test")
+                .build())
             .build();
         SscsCaseData caseData = SscsCaseData.builder()
             .elementsDisputedGeneral(List.of(elementDisputed))
@@ -379,7 +371,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .containsOnly("WC");
     }
 
-    @DisplayName("old version: when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
+    @DisplayName("old version: when a invalid adjournCaseDuration or adjournCaseDurationUnits is given "
+        + "getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null",
@@ -392,9 +385,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -405,7 +396,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(30);
     }
 
-    @DisplayName("old version: when a valid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration returns the correct duration Parameterized Tests")
+    @DisplayName("old version: when a valid adjournCaseDuration and adjournCaseDurationUnits is given "
+        + "getHearingDuration returns the correct duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "2,hours,120",
@@ -425,7 +417,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
     @DisplayName("old version: When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
-                     + "is not present then override the duration of hearing")
+        + "is not present then override the duration of hearing")
     @ParameterizedTest
     @CsvSource(value = {
         "null,75",
@@ -437,9 +429,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(75);
@@ -447,57 +437,58 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
-                                    .benefitCode(BENEFIT_CODE)
-                                    .issueCode(ISSUE_CODE)
-                                    .adjournCaseNextHearingListingDuration(null)
-                                    .adjournCaseNextHearingListingDurationUnits(null)
-                                    .appeal(Appeal.builder()
-                                                .hearingOptions(HearingOptions.builder()
-                                                                    .wantsToAttend("Yes")
-                                                                    .build())
-                                                .build())
-                                    .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                                                    .overrideFields(OverrideFields.builder()
-                                                                                        .duration(overrideDuration)
-                                                                                        .build())
-                                                                    .build())
-                                    .build();
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .adjournCaseNextHearingListingDuration(null)
+            .adjournCaseNextHearingListingDurationUnits(null)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .duration(overrideDuration)
+                    .build())
+                .build())
+            .build();
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expectedResult);
     }
 
-    @DisplayName("Old Version: When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
-                     + "is present then override the duration of hearing")
+    @DisplayName("Old Version: When an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
+        + "and overrideDuration is present then override the duration of hearing")
     @Test
     void getHearingDurationWillReturnOverrideDurationWhenPresentOld() {
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
         }
         SscsCaseData caseData = SscsCaseData.builder()
-                                    .benefitCode(BENEFIT_CODE)
-                                    .issueCode(ISSUE_CODE)
-                                    .adjournCaseNextHearingListingDuration(null)
-                                    .adjournCaseNextHearingListingDurationUnits(null)
-                                    .appeal(Appeal.builder()
-                                                .hearingOptions(HearingOptions.builder()
-                                                                    .wantsToAttend("Yes")
-                                                                    .build())
-                                                .build())
-                                    .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                                                                    .overrideFields(OverrideFields.builder()
-                                                                                        .duration(60)
-                                                                                        .build())
-                                                                    .build())
-                                    .build();
+        .benefitCode(BENEFIT_CODE)
+        .issueCode(ISSUE_CODE)
+        .adjournCaseNextHearingListingDuration(null)
+        .adjournCaseNextHearingListingDurationUnits(null)
+        .appeal(Appeal.builder()
+            .hearingOptions(HearingOptions.builder()
+                .wantsToAttend("Yes")
+                .build())
+            .build())
+        .schedulingAndListingFields(SchedulingAndListingFields.builder()
+            .overrideFields(OverrideFields.builder()
+                .duration(60)
+                .build())
+            .build())
+        .build();
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(60);
     }
 
-    @DisplayName("Old Version: When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")
+    @DisplayName("Old Version: When the benefit or issue code is null getHearingDurationBenefitIssueCodes "
+        + "returns null Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null",
@@ -513,13 +504,13 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
-                                    .benefitCode(benefitCode)
-                                    .issueCode(issueCode)
-                                    .appeal(Appeal.builder()
-                                                .hearingSubtype(HearingSubtype.builder().build())
-                                                .hearingOptions(HearingOptions.builder().build())
-                                                .build())
-                                    .build();
+            .benefitCode(benefitCode)
+            .issueCode(issueCode)
+            .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
+            .build();
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
@@ -530,16 +521,14 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
     @DisplayName("Old version: When wantsToAttend for the Appeal is null and the hearing type is paper "
-                     + "getHearingDurationBenefitIssueCodes return the correct paper durations")
+        + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesPaperOld() {
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -554,16 +543,14 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }
 
     @DisplayName("Old Version: When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
-                     + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
+        + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
     @Test
     void getHearingDurationBenefitIssueCodesFaceToFaceOld() {
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
         }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(60);
@@ -579,7 +566,4 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
 
         assertThat(result).isEqualTo(60);
     }
-
-
-
 }

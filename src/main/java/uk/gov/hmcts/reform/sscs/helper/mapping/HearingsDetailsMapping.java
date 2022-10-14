@@ -31,15 +31,12 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
-
 @SuppressWarnings({"PMD.GodClass"})
 @Slf4j
 // TODO Unsuppress in future
-
 public final class HearingsDetailsMapping {
 
     private HearingsDetailsMapping() {
-
     }
 
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
