@@ -244,9 +244,6 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
     @Test
     void getHearingDurationBenefitIssueCodesFaceToFace() {
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
-            given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-        }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
