@@ -62,6 +62,10 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
 class HearingsDetailsMappingTest extends HearingsMappingBase {
 
+    public static final String ENGLISH = "english";
+    public static final String GERMAN = "German";
+    public static final String NO_INTERPRETER_REQUIRED = "no interpreter required";
+    public static final String PROCESSING_VENUE_1 = "test_place";
     @Mock
     private HearingDurationsService hearingDurations;
 
@@ -74,7 +78,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Mock
     private VenueService venueService;
 
-    public static final String PROCESSING_VENUE_1 = "test_place";
 
     private String epimsId1;
     private String epimsId2;
@@ -690,20 +693,22 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("Interpreter requirements selected during Adjournment is used in next hearing request (German interpreter required) ")
+    @DisplayName("Interpreter requirements selected during Adjournment is used in next hearing request "
+        + "(German interpreter required)")
     @Test
     void testAdjournInterpreterRequirementsUsedInNextHearingRequestGermanLanguage() {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournCaseInterpreterRequired("Yes")
-            .adjournCaseInterpreterLanguage("German")
+            .adjournCaseInterpreterLanguage(GERMAN)
             .build();
 
         String language = HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData);
 
-        assertThat(language).isEqualTo("German");
+        assertThat(language).isEqualTo(GERMAN);
     }
 
-    @DisplayName("Interpreter requirements selected during Adjournment is used in next hearing request (no interpreter required) ")
+    @DisplayName("Interpreter requirements selected during Adjournment is used in next hearing request "
+        + "(no interpreter required)")
     @Test
     void testAdjournInterpreterRequirementsUsedInNextHearingRequestNoInterpreter() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -712,10 +717,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         String language = HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData);
 
-        assertThat(language).isEqualTo("no interpreter required");
+        assertThat(language).isEqualTo(NO_INTERPRETER_REQUIRED);
     }
 
-    @DisplayName("Original hearing requirements are used in next hearing request if none are specified in Adjournment request")
+    @DisplayName("Original hearing requirements are used in next hearing request "
+        + "if none are specified in Adjournment request")
     @Test
     void testNoHearingRequirementsInAdjournmentOriginalInterpreterRequirementsUsedInNextHearingRequest() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -724,6 +730,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         String language = HearingsDetailsMapping.adjournCaseInterpreterLanguage(caseData);
 
-        assertThat(language).isEqualTo("english");
+        assertThat(language).isEqualTo(ENGLISH);
     }
 }

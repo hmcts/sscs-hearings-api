@@ -29,7 +29,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
@@ -37,7 +36,6 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -55,11 +53,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
@@ -70,6 +66,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
+    public static final String BULGARIAN = "Bulgarian";
     private static final String NOTE_FROM_OTHER_PARTY = "other party note";
     private static final String NOTE_FROM_APPELLANT = "appellant note";
 
@@ -107,7 +104,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .urgentCase("Yes")
             .adjournCaseCanCaseBeListedRightAway("Yes")
             .adjournCaseInterpreterRequired("Yes")
-            .adjournCaseInterpreterLanguage("Bulgarian")
+            .adjournCaseInterpreterLanguage(BULGARIAN)
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")
@@ -133,7 +130,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .wantsToAttend("Yes")
                     .wantsSupport("Yes")
                     .languageInterpreter("Yes")
-                    .languages("Bulgarian")
+                    .languages(BULGARIAN)
                     .signLanguageType("Makaton")
                     .arrangements(Arrays.asList(
                         "signLanguageInterpreter",
@@ -181,11 +178,11 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                 false, false, SessionCategory.CATEGORY_06, null);
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE,true,false))
-                .willReturn(sessionCategoryMap);
+            .willReturn(sessionCategoryMap);
         given(sessionCategoryMaps.getCategoryTypeValue(sessionCategoryMap))
-                .willReturn("BBA3-002");
+            .willReturn("BBA3-002");
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
-                .willReturn("BBA3-002-DD");
+            .willReturn("BBA3-002-DD");
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
@@ -197,59 +194,57 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
-                .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
+        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage(BULGARIAN))
+            .willReturn(new Language("bul","Test",null,null,List.of(BULGARIAN)));
 
         given(referenceDataServiceHolder.getSignLanguages().getSignLanguage("Makaton"))
-                .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
+            .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
     }
 
     @Test
     void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
         // given
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
             .dateRangeStart(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY))
             .build();
         //then
-        assertFalse(serviceHearingValues.isAutoListFlag());
-        assertEquals(30, serviceHearingValues.getDuration());
-        assertEquals(SUBSTANTIVE, serviceHearingValues.getHearingType());
-        assertEquals(BENEFIT, serviceHearingValues.getCaseType());
+        assertThat(serviceHearingValues.isAutoListFlag()).isFalse();
+        assertThat(serviceHearingValues.getDuration()).isEqualTo(30);
+        assertThat(serviceHearingValues.getHearingType()).isEqualTo(SUBSTANTIVE);
+        assertThat(serviceHearingValues.getCaseType()).isEqualTo(BENEFIT);
         assertThat(serviceHearingValues.getCaseCategories())
             .extracting("categoryType","categoryValue")
             .containsExactlyInAnyOrder(
                 tuple(CASE_TYPE,"BBA3-002"),
                 tuple(CASE_SUBTYPE,"BBA3-002-DD"));
-        assertEquals(expectedHearingWindow, serviceHearingValues.getHearingWindow());
-        assertEquals(HearingPriority.URGENT.getHmcReference(), serviceHearingValues.getHearingPriorityType());
-        assertEquals(4, serviceHearingValues.getNumberOfPhysicalAttendees());
-        assertFalse(serviceHearingValues.isHearingInWelshFlag());
-        assertEquals(1, serviceHearingValues.getHearingLocations().size());
-        assertTrue(serviceHearingValues.getCaseAdditionalSecurityFlag());
+        assertThat(serviceHearingValues.getHearingWindow()).isEqualTo(expectedHearingWindow);
+        assertThat(serviceHearingValues.getHearingPriorityType()).isEqualTo(HearingPriority.URGENT.getHmcReference());
+        assertThat(serviceHearingValues.getNumberOfPhysicalAttendees()).isEqualTo(4);
+        assertThat(serviceHearingValues.isHearingInWelshFlag()).isFalse();
+        assertThat(serviceHearingValues.getHearingLocations()).hasSize(1);
+        assertThat(serviceHearingValues.getCaseAdditionalSecurityFlag()).isTrue();
         assertThat(serviceHearingValues.getFacilitiesRequired()).isEmpty();
         assertThat(serviceHearingValues.getListingComments())
             .isEqualToNormalizingNewlines("Appellant - Mr Fred Flintstone:\n" + NOTE_FROM_APPELLANT
                 + "\n\n" + "party_role - Mr Barny Boulderstone:\n" + NOTE_FROM_OTHER_PARTY);
-        assertNull(serviceHearingValues.getHearingRequester());
-        assertFalse(serviceHearingValues.isPrivateHearingRequiredFlag());
-        assertNull(serviceHearingValues.getLeadJudgeContractType());
+        assertThat(serviceHearingValues.getHearingRequester()).isNull();
+        assertThat(serviceHearingValues.isPrivateHearingRequiredFlag()).isFalse();
+        assertThat(serviceHearingValues.getLeadJudgeContractType()).isNull();
         assertThat(serviceHearingValues.getJudiciary()).isNotNull();
-        assertFalse(serviceHearingValues.isHearingIsLinkedFlag());
-        assertEquals(getCaseFlags(), serviceHearingValues.getCaseFlags());
-        assertNull(serviceHearingValues.getVocabulary());
-        assertEquals(List.of(FACE_TO_FACE), serviceHearingValues.getHearingChannels());
-        assertEquals(true, serviceHearingValues.isCaseInterpreterRequiredFlag());
-        assertEquals("Bulgarian", serviceHearingValues.getAdjournCaseInterpreterLanguage());
+        assertThat(serviceHearingValues.isHearingIsLinkedFlag()).isFalse();
+        assertThat(serviceHearingValues.getCaseFlags()).isEqualTo(getCaseFlags());
+        assertThat(serviceHearingValues.getVocabulary()).isNull();
+        assertThat(serviceHearingValues.getHearingChannels()).isEqualTo(List.of(FACE_TO_FACE));
+        assertThat(serviceHearingValues.isCaseInterpreterRequiredFlag()).isTrue();
+        assertThat(serviceHearingValues.getAdjournCaseInterpreterLanguage()).isEqualTo(BULGARIAN);
     }
 
     @Test
     void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
         // given
-
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
@@ -273,7 +268,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     @Test
     void shouldRepresentativeNotHaveOrganisation() throws InvalidMappingException {
         // given
-
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
@@ -285,84 +279,79 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     private List<Event> getEventsOfCaseData() {
-        return new ArrayList<>() {{
+        return new ArrayList<>() {
+            {
                 add(Event.builder()
-                        .value(EventDetails.builder()
-                                   .date("2022-02-12T20:30:00")
-                                   .type("responseReceived")
-                                   .description("Dwp respond")
-                                   .build())
-                        .build());
+                    .value(EventDetails.builder()
+                        .date("2022-02-12T20:30:00")
+                        .type("responseReceived")
+                        .description("Dwp respond")
+                        .build())
+                    .build());
             }
         };
     }
-
 
     private List<CcdValue<OtherParty>> getOtherParties() {
         return new ArrayList<>() {
             {
                 add(new CcdValue<>(OtherParty.builder()
-                                   .id(OTHER_PARTY_ID)
-                                   .name(Name.builder()
-                                             .firstName("Barny")
-                                             .lastName("Boulderstone")
-                                             .title("Mr")
-                                             .build())
-                                   .address(Address.builder().build())
-                                   .confidentialityRequired(YesNo.NO)
-                                   .unacceptableCustomerBehaviour(YesNo.YES)
-                                   .hearingSubtype(HearingSubtype.builder()
-                                                       .hearingTelephoneNumber("0999733735")
-                                                       .hearingVideoEmail("test2@gmail.com")
-                                                       .wantsHearingTypeFaceToFace("Yes")
-                                                       .wantsHearingTypeTelephone("No")
-                                                       .wantsHearingTypeVideo("No")
-                                                       .build())
-                                   .hearingOptions(HearingOptions.builder()
-                                                       .wantsToAttend("Yes")
-                                                       .wantsSupport("Yes")
-                                                       .languageInterpreter("Yes")
-                                                       .languages("Bulgarian")
-                                                       .scheduleHearing("No")
-                                                       .excludeDates(getExcludeDates())
-                                                       .agreeLessNotice("No")
-                                                       .other(NOTE_FROM_OTHER_PARTY)
-                                                       .build())
-                                   .isAppointee("No")
-                                   .appointee(Appointee.builder().build())
-                                   .rep(Representative.builder().build())
-                                   .otherPartySubscription(Subscription.builder().build())
-                                   .otherPartyAppointeeSubscription(Subscription.builder().build())
-                                   .otherPartyRepresentativeSubscription(Subscription.builder().build())
-                                   .sendNewOtherPartyNotification(YesNo.NO)
-                                   .reasonableAdjustment(ReasonableAdjustmentDetails.builder()
-                                                             .reasonableAdjustmentRequirements("Some adjustments...")
-                                                             .wantsReasonableAdjustment(YesNo.YES)
-                                                             .build())
-                                   .appointeeReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
-                                   .repReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
-                                   .role(Role.builder()
-                                             .name("party_role")
-                                             .description("description")
-                                             .build())
-                                   .build()));
+                    .id(OTHER_PARTY_ID)
+                    .name(Name.builder()
+                         .firstName("Barny")
+                         .lastName("Boulderstone")
+                         .title("Mr")
+                         .build())
+                    .address(Address.builder().build())
+                    .confidentialityRequired(NO)
+                    .unacceptableCustomerBehaviour(YES)
+                    .hearingSubtype(HearingSubtype.builder()
+                        .hearingTelephoneNumber("0999733735")
+                        .hearingVideoEmail("test2@gmail.com")
+                        .wantsHearingTypeFaceToFace("Yes")
+                        .wantsHearingTypeTelephone("No")
+                        .wantsHearingTypeVideo("No")
+                        .build())
+                    .hearingOptions(HearingOptions.builder()
+                        .wantsToAttend("Yes")
+                        .wantsSupport("Yes")
+                        .languageInterpreter("Yes")
+                        .languages(BULGARIAN)
+                        .scheduleHearing("No")
+                        .excludeDates(getExcludeDates())
+                        .agreeLessNotice("No")
+                        .other(NOTE_FROM_OTHER_PARTY)
+                        .build())
+                    .isAppointee("No")
+                    .appointee(Appointee.builder().build())
+                    .rep(Representative.builder().build())
+                    .otherPartySubscription(Subscription.builder().build())
+                    .otherPartyAppointeeSubscription(Subscription.builder().build())
+                    .otherPartyRepresentativeSubscription(Subscription.builder().build())
+                    .sendNewOtherPartyNotification(NO)
+                    .reasonableAdjustment(ReasonableAdjustmentDetails.builder()
+                        .reasonableAdjustmentRequirements("Some adjustments...")
+                        .wantsReasonableAdjustment(YES)
+                        .build())
+                    .appointeeReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
+                    .repReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
+                    .role(Role.builder()
+                         .name("party_role")
+                         .description("description")
+                         .build())
+                    .build()));
             }
         };
     }
-
-    private List<RelatedParty> getRelatedParties() {
-        return new ArrayList<>();
-    }
-
 
     private List<ExcludeDate> getExcludeDates() {
         return new ArrayList<>() {
             {
                 add(ExcludeDate.builder()
                     .value(DateRange.builder()
-                               .start("2022-01-12")
-                               .end("2022-01-19")
-                               .build())
+                        .start("2022-01-12")
+                        .end("2022-01-19")
+                        .build())
                     .build());
             }
         };
@@ -377,7 +366,8 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     private List<PartyFlags> getPartyFlags() {
-        return new ArrayList<>() {{
+        return new ArrayList<>() {
+            {
                 add(PartyFlags.builder()
                     .partyName(null)
                     .flagParentId("10")
