@@ -247,12 +247,6 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
             given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         }
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
-            given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-        }
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
-            given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-        }
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
