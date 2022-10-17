@@ -368,7 +368,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() {
+    void getHearingLocations() throws InvalidMappingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
@@ -385,7 +385,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_1);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
-        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
                                     EPIMS_ID_1);
     }
 

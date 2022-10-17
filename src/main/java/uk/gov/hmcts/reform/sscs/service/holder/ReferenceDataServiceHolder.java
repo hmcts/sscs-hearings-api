@@ -54,7 +54,8 @@ public class ReferenceDataServiceHolder {
 
     @SneakyThrows
     private Map<String, List<String>> prepareMultipleHearingLocations() {
-        return ImmutableMap.copyOf(OBJECT_MAPPER.readValue(new ClassPathResource("multipleHearingLocations.json").getInputStream(), new TypeReference<Map<String, List<String>>>(){}));
+        return ImmutableMap.copyOf(OBJECT_MAPPER.readValue(new ClassPathResource("multipleHearingLocations.json")
+                                                               .getInputStream(),
+                                                           new TypeReference<Map<String, List<String>>>(){}));
     }
-
 }
