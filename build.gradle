@@ -310,14 +310,15 @@ dependencies {
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '5.1.9'
 
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.3'
+  implementation group: 'com.github.hmcts', name: 'ccd-client', version: '4.8.6'
 
   implementation group: 'org.projectlombok', name:'lombok', version: '1.18.22'
   annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.22'
 
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
-  2
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.18.0-RC-CVE-Fix-3'
+
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.19.0'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
@@ -334,6 +335,10 @@ dependencies {
   implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.71'
 
   implementation group: 'org.elasticsearch', name: 'elasticsearch', version: '7.16.3'
+
+  implementation group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '2.6.4'
+  // https://mvnrepository.com/artifact/com.microsoft.azure/applicationinsights-web
+  implementation group: 'com.microsoft.azure', name: 'applicationinsights-web', version: '2.6.4'
 
   testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '4.5.1'
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: '4.5.1'
