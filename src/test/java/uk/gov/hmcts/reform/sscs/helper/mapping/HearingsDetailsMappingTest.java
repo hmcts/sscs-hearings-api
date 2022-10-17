@@ -365,6 +365,30 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertEquals(expected, result);
     }
 
+    @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
+    @ParameterizedTest
+    @CsvSource(value = {"219164,court"}, nullValues = {"null"})
+    void getHearingLocations() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeFaceToFace("Yes")
+                    .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .dwpIsOfficerAttending("Yes")
+            .build();
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_1);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        checkHearingLocationResults(HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+                                    EPIMS_ID_1);
+    }
+
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
     void getHearingLocationsOverride() throws InvalidMappingException {

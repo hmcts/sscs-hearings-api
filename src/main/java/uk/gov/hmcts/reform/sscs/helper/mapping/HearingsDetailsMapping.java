@@ -9,7 +9,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -17,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -25,6 +28,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
@@ -90,6 +94,52 @@ public final class HearingsDetailsMapping {
     public static boolean shouldBeHearingsInWelshFlag() {
         // TODO Future Work
         return false;
+    }
+
+    public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+
+        if (isNotEmpty(overrideFields.getHearingVenueEpimsIds())) {
+            return overrideFields.getHearingVenueEpimsIds().stream()
+                .map(CcdValue::getValue)
+                .map(CcdValue::getValue)
+                .map(epimsId -> HearingLocation.builder()
+                    .locationId(epimsId)
+                    .locationType(COURT)
+                    .build())
+                .collect(Collectors.toList());
+        }
+
+        if (HearingsChannelMapping.isPaperCase(caseData)) {
+            List<VenueDetails> venueDetailsList = referenceDataServiceHolder
+                .getVenueService()
+                .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
+
+            log.info("Found {} venues under RPC {} for paper case {}", venueDetailsList.size(),
+                caseData.getRegionalProcessingCenter().getName(), caseData.getCcdCaseId());
+
+            return venueDetailsList.stream()
+                .map(VenueDetails::getEpimsId)
+                .map(id -> HearingLocation.builder()
+                    .locationId(id)
+                    .locationType(COURT)
+                    .build())
+                .collect(Collectors.toList());
+        }
+
+        String epimsId = referenceDataServiceHolder
+            .getVenueService()
+            .getEpimsIdForVenue(caseData.getProcessingVenue());
+
+        Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
+
+        return multipleHearingLocations.values().stream()
+            .filter(listValues ->  listValues.contains(epimsId))
+            .findFirst()
+            .orElseGet(() -> Collections.singletonList(epimsId))
+            .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static List<String> getFacilitiesRequired() {
