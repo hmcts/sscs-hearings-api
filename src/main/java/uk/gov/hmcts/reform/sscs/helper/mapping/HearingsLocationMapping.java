@@ -106,12 +106,15 @@ public final class HearingsLocationMapping {
             VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
 
             String venueName = venueDetails.getVenName();
+            String regionalProcessingCentre = venueDetails.getRegionalProcessingCentre();
 
-            log.info("Getting hearing location {} with the epims ID of {}", venueName, epimsID);
+            log.info("Getting hearing location {} with the epims ID of {} and regional processing centre of {}",
+                     venueName, epimsID, regionalProcessingCentre);
 
             return List.of(HearingLocation.builder().locationName(venueName)
                                .locationId(epimsID)
                                .locationType(COURT)
+                               .region(regionalProcessingCentre)
                                .build());
         }
 
@@ -124,7 +127,7 @@ public final class HearingsLocationMapping {
             .getVenueService()
             .getEpimsIdForVenue(caseData.getProcessingVenue());
 
-        Map<String,List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
+        Map<String, List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
 
         return multipleHearingLocations.values().stream()
             .filter(listValues ->  listValues.contains(epimsId))
