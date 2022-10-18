@@ -1,9 +1,15 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
@@ -34,6 +40,8 @@ public class HearingsMappingBase {
     @Mock
     public ReferenceDataServiceHolder referenceData;
 
+    public SscsCaseData caseData;
+
     protected HearingsMappingBase() {
 
     }
@@ -57,6 +65,28 @@ public class HearingsMappingBase {
     public static final String EPIMS_ID = "239585";
 
     public static final String EX_UI_URL = "http://localhost:3455";
+
+    public static final int DURATION_FACE_TO_FACE = 60;
+
+    public static final int DURATION_INTERPRETER = 75;
+
+    public static final int DURATION_PAPER = 40;
+
+    @BeforeEach
+    public void setUpCaseData() {
+        caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .build())
+                .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .build())
+                .build())
+            .build();
+    }
 
     @NotNull
     public static List<String> splitCsvParamArray(String expected) {

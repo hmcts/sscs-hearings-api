@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -53,48 +54,48 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                    false,false,SessionCategory.CATEGORY_03,null));
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
-                .hearingOptions(HearingOptions.builder().build())
-                .appointee(Appointee.builder().build())
-                .rep(Representative.builder().build())
-                .build()));
+            .hearingOptions(HearingOptions.builder().build())
+            .appointee(Appointee.builder().build())
+            .rep(Representative.builder().build())
+            .build()));
         otherParties.add(new CcdValue<>(OtherParty.builder()
-                .hearingOptions(HearingOptions.builder().build())
-                .appointee(Appointee.builder().build())
-                .rep(Representative.builder().build())
-                .build()));
+            .hearingOptions(HearingOptions.builder().build())
+            .appointee(Appointee.builder().build())
+            .rep(Representative.builder().build())
+            .build()));
         SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId(String.valueOf(CASE_ID))
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .caseCreated(CASE_CREATED)
-                .caseAccessManagementFields(CaseAccessManagementFields.builder()
-                        .caseNameHmctsInternal(CASE_NAME_INTERNAL)
-                        .caseNamePublic(CASE_NAME_PUBLIC)
-                        .build())
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .appellant(Appellant.builder()
-                                .appointee(Appointee.builder().build())
-                                .build())
-                        .rep(Representative.builder().build())
-                        .build())
-                .otherParties(otherParties)
-                .caseManagementLocation(CaseManagementLocation.builder()
-                        .baseLocation(EPIMS_ID)
-                        .region(REGION)
-                        .build())
-                .build();
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .caseCreated(CASE_CREATED)
+            .caseAccessManagementFields(CaseAccessManagementFields.builder()
+                .caseNameHmctsInternal(CASE_NAME_INTERNAL)
+                .caseNamePublic(CASE_NAME_PUBLIC)
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .appellant(Appellant.builder()
+                    .appointee(Appointee.builder().build())
+                    .build())
+                .rep(Representative.builder().build())
+                .build())
+            .otherParties(otherParties)
+            .caseManagementLocation(CaseManagementLocation.builder()
+                .baseLocation(EPIMS_ID)
+                .region(REGION)
+                .build())
+            .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .caseData(caseData)
-                .build();
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
 
         CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceDataServiceHolder);
 
@@ -122,10 +123,10 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Test
     void getCaseDeepLink() {
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(SscsCaseData.builder()
-                        .ccdCaseId(String.valueOf(CASE_ID))
-                        .build())
-                .build();
+            .caseData(SscsCaseData.builder()
+                .ccdCaseId(String.valueOf(CASE_ID))
+                .build())
+            .build();
         Mockito.when(referenceDataServiceHolder.getExUiUrl()).thenReturn(EX_UI_URL);
         String result = HearingsCaseMapping.getCaseDeepLink(wrapper.getCaseData(), referenceDataServiceHolder);
         String expected = String.format(HearingsCaseMapping.CASE_DETAILS_URL, EX_UI_URL, CASE_ID);
@@ -138,10 +139,10 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getInternalCaseName() {
         String caseNameInternal = CASE_NAME_INTERNAL;
         SscsCaseData caseData = SscsCaseData.builder()
-                .caseAccessManagementFields(CaseAccessManagementFields.builder()
-                        .caseNameHmctsInternal(caseNameInternal)
-                        .build())
-                .build();
+            .caseAccessManagementFields(CaseAccessManagementFields.builder()
+                .caseNameHmctsInternal(caseNameInternal)
+                .build())
+            .build();
 
         String result = HearingsCaseMapping.getInternalCaseName(caseData);
 
@@ -153,10 +154,10 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getPublicCaseName() {
         String caseNamePublic = CASE_NAME_PUBLIC;
         SscsCaseData caseData = SscsCaseData.builder()
-                .caseAccessManagementFields(CaseAccessManagementFields.builder()
-                        .caseNamePublic(caseNamePublic)
-                        .build())
-                .build();
+            .caseAccessManagementFields(CaseAccessManagementFields.builder()
+                .caseNamePublic(caseNamePublic)
+                .build())
+            .build();
 
         String result = HearingsCaseMapping.getPublicCaseName(caseData);
 
@@ -176,17 +177,17 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void shouldBeAdditionalSecurityFlag(String dwpUcbFlag, YesNo otherPartiesUcb, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
-                .value(OtherParty.builder()
-                        .unacceptableCustomerBehaviour(otherPartiesUcb)
-                        .build())
-                .build());
+            .value(OtherParty.builder()
+                .unacceptableCustomerBehaviour(otherPartiesUcb)
+                .build())
+            .build());
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpUcb(dwpUcbFlag)
-                .appeal(Appeal.builder()
-                        .build())
-                .otherParties(otherParties)
-                .build();
+            .dwpUcb(dwpUcbFlag)
+            .appeal(Appeal.builder()
+                .build())
+            .otherParties(otherParties)
+            .build();
         boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData);
 
         assertEquals(expected, result);
@@ -203,10 +204,10 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
 
         otherParties.add(CcdValue.<OtherParty>builder()
-                .value(OtherParty.builder()
-                        .unacceptableCustomerBehaviour(ucb)
-                        .build())
-                .build());
+            .value(OtherParty.builder()
+                .unacceptableCustomerBehaviour(ucb)
+                .build())
+            .build());
         boolean result = HearingsCaseMapping.shouldBeAdditionalSecurityOtherParties(otherParties);
 
         assertEquals(expected, result);
@@ -223,42 +224,40 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,Yes,true",
-        "Yes,Yes,No,true",
-        "Yes,No,Yes,true",
-        "Yes,No,No,true",
-        "No,Yes,Yes,true",
-        "No,Yes,No,true",
-        "No,No,Yes,true",
-        "No,No,No,false",
+        "YES,Yes,Yes,true",
+        "YES,Yes,No,true",
+        "YES,No,Yes,true",
+        "YES,No,No,true",
+        "NO,Yes,Yes,true",
+        "NO,Yes,No,true",
+        "NO,No,Yes,true",
+        "NO,No,No,false",
         "null,Yes,Yes,true",
         "null,Yes,No,true",
         "null,No,Yes,true",
-        "null,No,No,false",
-        ",Yes,Yes,true",
-        ",Yes,No,true",
-        ",No,Yes,true",
-        ",No,No,false",
+        "null,No,No,false"
     }, nullValues = {"null"})
-    void isInterpreterRequired(String adjournCaseInterpreter, String appellantInterpreter, String otherPartyInterpreter, boolean expected) {
+    void isInterpreterRequired(YesNo adjournCaseInterpreter, String appellantInterpreter, String otherPartyInterpreter, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
-                .value(OtherParty.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                .languageInterpreter(otherPartyInterpreter)
-                                .build())
-                        .build())
-                .build());
+            .value(OtherParty.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .languageInterpreter(otherPartyInterpreter)
+                    .build())
+                .build())
+            .build());
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterRequired(adjournCaseInterpreter)
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                .languageInterpreter(appellantInterpreter)
-                                .build())
-                        .build())
-                .otherParties(otherParties)
-                .build();
+            .adjournment(Adjournment.builder()
+                .interpreterRequired(adjournCaseInterpreter)
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .languageInterpreter(appellantInterpreter)
+                    .build())
+                .build())
+            .otherParties(otherParties)
+            .build();
         boolean result = HearingsCaseMapping.isInterpreterRequired(caseData);
 
         assertEquals(expected, result);
@@ -275,13 +274,13 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void isInterpreterRequiredOtherParties(String interpreter, boolean signLanguage, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
-                .value(OtherParty.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                .languageInterpreter(interpreter)
-                                .arrangements(signLanguage ?  List.of("signLanguageInterpreter") : null)
-                                .build())
-                        .build())
-                .build());
+            .value(OtherParty.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .languageInterpreter(interpreter)
+                    .arrangements(signLanguage ?  List.of("signLanguageInterpreter") : null)
+                    .build())
+                .build())
+            .build());
 
         boolean result = HearingsCaseMapping.isInterpreterRequiredOtherParties(otherParties);
 
@@ -323,9 +322,9 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void isInterpreterRequiredHearingOptions(String interpreter, String arrangements, boolean expected) {
 
         HearingOptions hearingOptions = HearingOptions.builder()
-                .languageInterpreter(interpreter)
-                .arrangements(nonNull(arrangements) ?  splitCsvParamArray(arrangements) : null)
-                .build();
+            .languageInterpreter(interpreter)
+            .arrangements(nonNull(arrangements) ?  splitCsvParamArray(arrangements) : null)
+            .build();
         boolean result = HearingsCaseMapping.isInterpreterRequiredHearingOptions(hearingOptions);
 
         assertEquals(expected, result);
@@ -368,11 +367,11 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @Test
     void getCaseManagementLocationCode() {
         SscsCaseData caseData = SscsCaseData.builder()
-                    .caseManagementLocation(CaseManagementLocation.builder()
-                    .baseLocation(EPIMS_ID)
-                    .region(REGION)
-                    .build())
-                .build();
+                .caseManagementLocation(CaseManagementLocation.builder()
+                .baseLocation(EPIMS_ID)
+                .region(REGION)
+                .build())
+            .build();
         String result = HearingsCaseMapping.getCaseManagementLocationCode(caseData);
 
         assertEquals(EPIMS_ID, result);
@@ -391,8 +390,8 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     void getCaseCreated() {
         String caseCreatedDate = "2022-04-01";
         SscsCaseData caseData = SscsCaseData.builder()
-                .caseCreated(caseCreatedDate)
-                .build();
+            .caseCreated(caseCreatedDate)
+            .build();
 
         String result = HearingsCaseMapping.getCaseCreated(caseData);
 

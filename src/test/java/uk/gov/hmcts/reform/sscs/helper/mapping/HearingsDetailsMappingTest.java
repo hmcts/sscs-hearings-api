@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -344,20 +346,31 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,Urgent", "Yes,No,Urgent", "No,Yes,Urgent",
-        "No,No,Standard",
-        "Yes,null,Urgent", "No,null,Standard",
-        "null,Yes,Urgent", "null,No,Standard",
+        "YES,Yes,Urgent",
+        "YES,No,Urgent",
+        "NO,Yes,Urgent",
+        "NO,No,Standard",
+        "RESERVED,Yes,Urgent",
+        "RESERVED,No,Standard",
+        "YES,null,Urgent",
+        "NO,null,Standard",
+        "RESERVED,null,Standard",
+        "null,Yes,Urgent",
+        "null,No,Standard",
         "null,null,Standard",
-        "Yes,,Urgent", "No,,Standard",
-        ",Yes,Urgent", ",No,Standard",
-        ",,Standard"
+        "YES,,Urgent",
+        "NO,,Standard",
+        "RESERVED,,Standard"
     }, nullValues = {"null"})
-    void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
+    void getHearingPriority(AdjournCasePanelMembersExcluded panelMembersExcluded, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(isUrgentCase)
-            .adjournCasePanelMembersExcluded(isAdjournCase)
+            .adjournment(
+                Adjournment.builder()
+                    .panelMembersExcluded(panelMembersExcluded)
+                    .build()
+            )
             .build();
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
