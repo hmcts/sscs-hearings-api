@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
@@ -240,12 +241,28 @@ class HearingsChannelMappingTest {
     @DisplayName("Return Adjourn case type of next hearing when value present")
     @Test
     public void getHearingChannel_returnAdjournCaseTypeOfNextHearing() {
+
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournCaseTypeOfNextHearing("Telephone")
             .appeal(Appeal.builder().build())
             .build();
 
+        ReflectionTestUtils.setField(HearingsChannelMapping.class, "adjournmentFlagEnabled", true);
+
         HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
         assertThat(result.getValueTribunals()).isEqualTo("telephone");
+    }
+
+    @Test
+    public void getHearingChannel_adjournmentFlagEnabledFalse() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseTypeOfNextHearing("Paper")
+            .appeal(Appeal.builder().build())
+            .build();
+
+        ReflectionTestUtils.setField(HearingsChannelMapping.class, "adjournmentFlagEnabled", false);
+
+        HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
+        assertThat(result.getValueTribunals()).isEqualTo("paper");
     }
 }
