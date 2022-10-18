@@ -85,7 +85,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Mock
     private VenueDetails venueDetails;
 
-    public static final String PROCESSING_VENUE_1 = "test_place";
+    private static final String PROCESSING_VENUE_1 = "test_place";
 
     private static final String REGIONAL_PROCESSING_CENTRE = "test_regional_processing_centre";
     private static final String PHONE_NUMBER = "07483871426";
