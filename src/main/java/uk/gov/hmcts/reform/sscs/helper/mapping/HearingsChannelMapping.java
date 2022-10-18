@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -28,6 +29,9 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO
 @SuppressWarnings("PMD.CyclomaticComplexity")
 public final class HearingsChannelMapping {
 
+    @Value("${flags.adjournment.enabled}")
+    private static boolean adjournmentFlagEnabled;
+
     private HearingsChannelMapping() {
 
     }
@@ -36,15 +40,20 @@ public final class HearingsChannelMapping {
         return List.of(getHearingChannel(caseData));
     }
 
+    @SuppressWarnings("PMD.CollapsibleIfStatements")
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
 
-        if (caseData.getAdjournCaseTypeOfNextHearing() != null) {
-            return Arrays.stream(HearingChannel.values())
-                .filter(v -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(v.getValueTribunals()))
-                .findFirst().orElse(null);
+        if (adjournmentFlagEnabled) {
+            if (caseData.getAdjournCaseTypeOfNextHearing() != null) {
+                log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
+                         caseData.getCaseCode());
+
+                return Arrays.stream(HearingChannel.values())
+                    .filter(hearingChannel -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(
+                        hearingChannel.getValueTribunals()))
+                    .findFirst().orElse(null);
+            }
         }
-        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
-                 caseData.getCaseCode());
 
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
 
