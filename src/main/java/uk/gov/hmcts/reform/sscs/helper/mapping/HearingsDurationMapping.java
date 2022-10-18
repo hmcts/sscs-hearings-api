@@ -24,7 +24,6 @@ public final class HearingsDurationMapping {
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
     public static final String DURATION_TYPE_NON_STANDARD_TIME_SLOT = "nonStandardTimeSlot";
-    public static final String DURATION_TYPE_STANDARD_TIME_SLOT = "standardTimeSlot";
     public static final String DURATION_UNITS_MINUTES = "minutes";
     public static final String DURATION_UNITS_SESSIONS = "sessions";
 
@@ -40,11 +39,17 @@ public final class HearingsDurationMapping {
         }
 
         Integer duration = getHearingDurationAdjournment(caseData);
-        if (isNull(duration)) {
-            duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() // TODO remove flag when enabled
+            && nonNull(duration)) {
+            return duration;
         }
 
-        return nonNull(duration) ? duration : DURATION_DEFAULT;
+        duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
+        if (nonNull(duration)) {
+            return duration;
+        }
+
+        return DURATION_DEFAULT;
     }
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
