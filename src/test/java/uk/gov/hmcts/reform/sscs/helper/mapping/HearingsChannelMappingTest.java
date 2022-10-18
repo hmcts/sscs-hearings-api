@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
 class HearingsChannelMappingTest {
 
@@ -119,8 +119,8 @@ class HearingsChannelMappingTest {
         return Stream.of(
             Arguments.of(YES.getValue(), NO.getValue(), NO.getValue(), FACE_TO_FACE),
             Arguments.of(YES.getValue(), YES.getValue(), YES.getValue(), FACE_TO_FACE),
-            Arguments.of(NO.getValue(), YES.getValue(), NO.getValue(), HearingChannel.VIDEO),
-            Arguments.of(NO.getValue(), YES.getValue(), YES.getValue(), HearingChannel.VIDEO),
+            Arguments.of(NO.getValue(), YES.getValue(), NO.getValue(), VIDEO),
+            Arguments.of(NO.getValue(), YES.getValue(), YES.getValue(), VIDEO),
             Arguments.of(NO.getValue(), NO.getValue(), YES.getValue(), TELEPHONE));
     }
 
@@ -246,6 +246,6 @@ class HearingsChannelMappingTest {
             .build();
 
         HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
-        assertEquals("Telephone", result.getValueEn());
+        assertThat(result.getValueTribunals()).isEqualTo("telephone");
     }
 }
