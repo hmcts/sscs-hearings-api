@@ -86,6 +86,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     private VenueDetails venueDetails;
 
     public static final String PROCESSING_VENUE_1 = "test_place";
+
+    private static final String REGIONAL_PROCESSING_CENTRE = "test_regional_processing_centre";
     private static final String PHONE_NUMBER = "07483871426";
 
     private static final String VENUE_ID = "12";
@@ -406,12 +408,16 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_1)).willReturn(venueDetails);
         given(venueService.getEpimsIdForVenueId(VENUE_ID)).willReturn(EPIMS_ID_1);
+        given(venueDetails.getRegionalProcessingCentre()).willReturn(REGIONAL_PROCESSING_CENTRE);
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue(), VENUE_ID);
 
-        checkHearingLocationResults(
-            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
-            EPIMS_ID_1);
+        List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(
+            caseData, referenceDataServiceHolder);
+
+        checkHearingLocationResults(results, EPIMS_ID_1);
+
+        assertThat(results.get(0).getRegion()).isEqualTo(REGIONAL_PROCESSING_CENTRE);
     }
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
