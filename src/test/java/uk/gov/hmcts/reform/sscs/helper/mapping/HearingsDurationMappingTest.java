@@ -22,12 +22,12 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-public class HearingsDurationMappingTest  extends HearingsMappingBase {
+class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private HearingDurationsService hearingDurations;
 
@@ -59,13 +59,15 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    @DisplayName("when a valid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration returns the correct duration Parameterized Tests")
+    @DisplayName("When a valid adjournCaseDuration and adjournCaseDurationUnits is given "
+        + "getHearingDuration returns the correct duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "120,minutes,120",
         "1,sessions,165",
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
@@ -74,8 +76,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(expected);
     }
 
-
-    @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
+    @DisplayName("When a invalid adjournCaseDuration or adjournCaseDurationUnits is given "
+        + "getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null",
@@ -85,9 +87,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
@@ -97,7 +97,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(30);
     }
 
-    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
+    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
+        + "getHearingDuration a null pointer exception is thrown")
     @ParameterizedTest
     @CsvSource(value = {
         ",sessions",
@@ -108,9 +109,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     void getHearingDurationFailure(String adjournCaseDuration, String adjournCaseDurationUnits) {
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
-        assertThrows(NullPointerException.class, () -> {
-            Object result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-        });
+        assertThatThrownBy(() -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+            .isInstanceOf(NullPointerException.class);
 
     }
 
@@ -124,9 +124,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(75);
@@ -211,17 +209,13 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isNull();
     }
 
-
-
     @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is paper "
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesPaper() {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -235,16 +229,12 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(30);
     }
 
-
-
     @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
         + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
     @Test
     void getHearingDurationBenefitIssueCodesFaceToFace() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(60), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(60);
@@ -266,9 +256,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Test
     void getHearingDurationBenefitIssueCodesInterpreter() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
 
         given(hearingDurations.addExtraTimeIfNeeded(eq(75), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
             .willReturn(75);
@@ -300,9 +288,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60, 75, 30
-            ));
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -310,11 +296,11 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingSubtype(HearingSubtype.builder().build())
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("No")
-                                            .build())
-                        .build())
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("No")
+                    .build())
+                .build())
             .dwpIsOfficerAttending("Yes")
             .build();
 
@@ -336,14 +322,15 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEmpty();
     }
 
-    @DisplayName("getElementsDisputed returns a List of elements of all elements in each of the elementDisputed fields in SscsCaseData")
+    @DisplayName("getElementsDisputed returns a List of elements of all elements in "
+        + "each of the elementDisputed fields in SscsCaseData")
     @Test
     void getElementsDisputed() {
         ElementDisputed elementDisputed = ElementDisputed.builder()
             .value(ElementDisputedDetails.builder()
-                       .issueCode("WC")
-                       .outcome("Test")
-                       .build())
+                .issueCode("WC")
+                .outcome("Test")
+                .build())
             .build();
         SscsCaseData caseData = SscsCaseData.builder()
             .elementsDisputedGeneral(List.of(elementDisputed))
