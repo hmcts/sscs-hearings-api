@@ -40,7 +40,7 @@ public final class HearingsChannelMapping {
 
         if (caseData.getAdjournCaseTypeOfNextHearing() != null) {
             return Arrays.stream(HearingChannel.values())
-                .filter(v -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(v.getValueEn()))
+                .filter(v -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(v.getValueTribunals()))
                 .findFirst().orElse(null);
         }
         log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
