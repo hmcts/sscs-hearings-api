@@ -37,7 +37,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,7 +150,7 @@ class ServiceHearingsServiceTest {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -187,7 +186,7 @@ class ServiceHearingsServiceTest {
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(Optional.of("9876"));
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
