@@ -37,6 +37,8 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGE
 // TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
+    public static final String NO_INTERPRETER_REQUIRED = "no interpreter required";
+
     private HearingsDetailsMapping() {
 
     }
@@ -222,7 +224,7 @@ public final class HearingsDetailsMapping {
         if (isYes(caseData.getAdjournCaseInterpreterRequired()) && nonNull(caseData.getAdjournCaseInterpreterLanguage())) {
             return caseData.getAdjournCaseInterpreterLanguage();
         }
-        return "no interpreter required";
+        return NO_INTERPRETER_REQUIRED;
 
     }
 }
