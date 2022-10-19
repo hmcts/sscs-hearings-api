@@ -7,11 +7,13 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -97,7 +99,7 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(30);
     }
 
-    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
+    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
         + "getHearingDuration a null pointer exception is thrown")
     @ParameterizedTest
     @CsvSource(value = {
@@ -179,7 +181,8 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         assertThat(result).isEqualTo(60);
     }
 
-    @DisplayName("When the benefit or issue code is null getHearingDurationBenefitIssueCodes returns null Parameterized Tests")
+    @DisplayName("When the benefit or issue code is null "
+        + "getHearingDurationBenefitIssueCodes returns null Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
         "null,null",
@@ -227,6 +230,47 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         );
 
         assertThat(result).isEqualTo(30);
+    }
+
+    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is not paper "
+        + "getHearingDurationBenefitIssueCodes returns null")
+    @Test
+    void getHearingDurationBenefitIssueCodesNotPaper() {
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        List<CcdValue<OtherParty>> otherParties = List.of(new CcdValue<>(
+            OtherParty.builder()
+            .hearingOptions(HearingOptions.builder()
+                .wantsToAttend("yes")
+                .build())
+            .hearingSubtype(HearingSubtype.builder()
+                .wantsHearingTypeTelephone("yes")
+                .hearingTelephoneNumber("123123")
+                .build())
+            .build())
+        );
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .otherParties(otherParties)
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("no")
+                    .build())
+                .build())
+            .build();
+
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).isNull();
     }
 
     @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
@@ -280,36 +324,6 @@ class HearingsDurationMappingTest  extends HearingsMappingBase {
         );
 
         assertThat(result).isEqualTo(75);
-    }
-
-    @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is paper "
-        + "getHearingDurationBenefitIssueCodes return the correct paper durations")
-    @Test
-    void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,60, 75, 30));
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .appeal(Appeal.builder()
-                .hearingSubtype(HearingSubtype.builder().build())
-                .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("No")
-                    .build())
-                .build())
-            .dwpIsOfficerAttending("Yes")
-            .build();
-
-        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-            caseData,
-            referenceDataServiceHolder
-        );
-
-        assertThat(result).isEqualTo(30);
     }
 
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
