@@ -360,6 +360,47 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isNull();
     }
 
+    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is not paper "
+        + "getHearingDurationBenefitIssueCodes returns null")
+    @Test
+    void getHearingDurationBenefitIssueCodesNotPaper() {
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        List<CcdValue<OtherParty>> otherParties = List.of(new CcdValue<>(
+            OtherParty.builder()
+            .hearingOptions(HearingOptions.builder()
+                .wantsToAttend("yes")
+                .build())
+            .hearingSubtype(HearingSubtype.builder()
+                .wantsHearingTypeTelephone("yes")
+                .hearingTelephoneNumber("123123")
+                .build())
+            .build())
+        );
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .otherParties(otherParties)
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("no")
+                    .build())
+                .build())
+            .build();
+
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).isNull();
+    }
+
     @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
         + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
     @Test
