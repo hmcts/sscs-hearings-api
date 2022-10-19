@@ -63,7 +63,6 @@ public final class HearingsDurationMapping {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
             } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
                 && duration >= MIN_HEARING_DURATION) {
-
                 return duration;
             }
         }
@@ -84,9 +83,11 @@ public final class HearingsDurationMapping {
                 ? hearingDuration.getDurationInterpreter()
                 : hearingDuration.getDurationFaceToFace();
             return referenceDataServiceHolder.getHearingDurations()
-                .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
-                                      getElementsDisputed(caseData)
-                );
+                .addExtraTimeIfNeeded(
+                    duration,
+                    hearingDuration.getBenefitCode(),
+                    hearingDuration.getIssue(),
+                    getElementsDisputed(caseData));
         } else if (HearingsChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {
