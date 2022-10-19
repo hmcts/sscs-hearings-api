@@ -72,10 +72,9 @@ public final class OverridesMapping {
             .hearingWindow(getHearingDetailsHearingWindow(caseData))
             .autoList(getHearingDetailsAutoList(caseData, referenceDataServiceHolder))
             .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
-            .poToAttend(getPoToAttend(caseData))
             .build();
 
-        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(defaultOverrideFields);
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideFields);
 
         log.debug("Default Override Fields set to {} for Case ID {}",
                   defaultOverrideFields,

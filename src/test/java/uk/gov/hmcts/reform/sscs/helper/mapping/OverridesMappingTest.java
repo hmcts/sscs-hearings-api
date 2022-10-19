@@ -96,7 +96,7 @@ class OverridesMappingTest {
                     .build())
                 .build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .defaultOverrideFields(OverrideFields.builder().build())
+                .defaultListingValues(OverrideFields.builder().build())
                 .build())
             .build();
 
@@ -129,8 +129,7 @@ class OverridesMappingTest {
                 "appellantHearingChannel",
                 "hearingWindow",
                 "autoList",
-                "hearingVenueEpimsIds",
-                "poToAttend")
+                "hearingVenueEpimsIds")
             .containsOnlyNulls();
     }
 
@@ -198,7 +197,7 @@ class OverridesMappingTest {
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
     @Test
     void testSetDefaultOverrideFields() throws InvalidMappingException {
-        caseData.getSchedulingAndListingFields().setDefaultOverrideFields(null);
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
 
@@ -217,7 +216,7 @@ class OverridesMappingTest {
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         OverridesMapping.setDefaultOverrideFields(wrapper, referenceData);
-        OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultOverrideFields();
+        OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
 
         assertThat(result).isNotNull();
@@ -227,7 +226,6 @@ class OverridesMappingTest {
         assertThat(result.getHearingWindow()).isNotNull();
         assertThat(result.getAutoList()).isNotNull();
         assertThat(result.getHearingVenueEpimsIds()).isNotEmpty();
-        assertThat(result.getPoToAttend()).isNotNull();
         assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
     }
 

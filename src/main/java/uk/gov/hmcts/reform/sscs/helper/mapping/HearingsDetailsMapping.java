@@ -5,7 +5,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
@@ -157,11 +156,6 @@ public final class HearingsDetailsMapping {
     }
 
     public static boolean isPoOfficerAttending(@Valid SscsCaseData caseData) {
-        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-        if (nonNull(overrideFields.getPoToAttend())) {
-            return isYes(overrideFields.getPoToAttend());
-        }
-
         return isYes(caseData.getDwpIsOfficerAttending());
     }
 }
