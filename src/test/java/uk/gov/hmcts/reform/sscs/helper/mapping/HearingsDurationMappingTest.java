@@ -73,6 +73,10 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         );
     }
 
+    private void adjournmentFlagEnabled(boolean value) {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(value);
+    }
+
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
@@ -87,7 +91,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         "3,sessions,495",
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        adjournmentFlagEnabled(true);
 
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
@@ -106,6 +110,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
+        adjournmentFlagEnabled(true);
+
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(generateHearingDuration());
 
@@ -120,7 +126,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @DisplayName("When adjournment flag is disabled getHearingDurationAdjournment returns null")
     @Test
     void getHearingDurationAdjournedFeatureFlagDisabled() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
+        adjournmentFlagEnabled(false);
 
         SscsCaseData caseData = adjourningCaseBuilder("100", "minutes");
 
@@ -134,7 +140,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "uses default duration")
     @Test
     void getHearingDurationAdjournedFeatureFlagEnabled() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        adjournmentFlagEnabled(true);
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -175,7 +181,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         assertThatThrownBy(() -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .isInstanceOf(NullPointerException.class);
-
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -220,6 +225,19 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @DisplayName("When getAdjournCaseNextHearingListingDurationType is non standard and  "
+        + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")
+    @Test
+    void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
+        adjournmentFlagEnabled(true);
+
+        SscsCaseData caseData = adjourningCaseBuilder("", "1");
+
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isNull();
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
