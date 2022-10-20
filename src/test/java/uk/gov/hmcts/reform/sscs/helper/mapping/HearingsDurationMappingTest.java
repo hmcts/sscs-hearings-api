@@ -33,7 +33,7 @@ import static org.mockito.BDDMockito.given;
 class HearingsDurationMappingTest extends HearingsMappingBase {
     public static final int DURATION_FACE_TO_FACE = 60;
     public static final int DURATION_INTERPRETER = 75;
-    public static final int DURATION_PAPER = 30;
+    public static final int DURATION_PAPER = 40;
     @Mock
     private HearingDurationsService hearingDurations;
 
@@ -63,7 +63,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     }
 
     @NotNull
-    private static HearingDuration createHearingDuration() {
+    private static HearingDuration generateHearingDuration() {
         return new HearingDuration(
             BenefitCode.PIP_NEW_CLAIM,
             Issue.DD,
@@ -81,7 +81,10 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @CsvSource(value = {
         "120,minutes,120",
+        "70,minutes,70",
         "1,sessions,165",
+        "2,sessions,330",
+        "3,sessions,495",
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
@@ -91,6 +94,51 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expected);
+    }
+
+    @DisplayName("When adjournment flag is disabled getHearingDurationAdjournment returns null")
+    @Test
+    void getHearingDurationAdjournedFeatureFlagDisabled() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
+
+        SscsCaseData caseData = adjourningCaseBuilder("100", "minutes");
+
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isNull();
+    }
+
+
+    @DisplayName("When adjournment flag is enabled but getHearingDurationAdjournment returns null "
+        + "uses default duration")
+    @Test
+    void getHearingDurationAdjournedFeatureFlagEnabled() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(null);
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
+            .build();
+
+        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(
+            caseData, referenceDataServiceHolder);
+        assertThat(durationAdjourned).isNull();
+
+        Integer result = HearingsDurationMapping.getHearingDuration(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).isEqualTo(HearingsDurationMapping.DURATION_DEFAULT);
     }
 
     @DisplayName("When an invalid adjournCaseDuration or adjournCaseDurationUnits is given "
@@ -104,7 +152,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(createHearingDuration());
+            .willReturn(generateHearingDuration());
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
@@ -140,7 +188,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     }, nullValues = {"null"})
     void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(createHearingDuration());
+            .willReturn(generateHearingDuration());
 
         given(hearingDurations.addExtraTimeIfNeeded(
             eq(DURATION_FACE_TO_FACE),
@@ -237,7 +285,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     void getHearingDurationBenefitIssueCodesPaper() {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(createHearingDuration());
+            .willReturn(generateHearingDuration());
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -257,7 +305,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     void getHearingDurationBenefitIssueCodesNotPaper() {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(createHearingDuration());
+            .willReturn(generateHearingDuration());
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
@@ -297,7 +345,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @Test
     void getHearingDurationBenefitIssueCodesFaceToFace() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(createHearingDuration());
+            .willReturn(generateHearingDuration());
 
         given(hearingDurations.addExtraTimeIfNeeded(
             eq(DURATION_FACE_TO_FACE),
@@ -324,9 +372,14 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @Test
     void getHearingDurationBenefitIssueCodesInterpreter() {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(createHearingDuration());
+            .willReturn(generateHearingDuration());
 
-        given(hearingDurations.addExtraTimeIfNeeded(eq(DURATION_INTERPRETER), eq(BenefitCode.PIP_NEW_CLAIM), eq(Issue.DD), any()))
+        given(hearingDurations.addExtraTimeIfNeeded(
+            eq(DURATION_INTERPRETER),
+            eq(BenefitCode.PIP_NEW_CLAIM),
+            eq(Issue.DD),
+            any()
+        ))
             .willReturn(DURATION_INTERPRETER);
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
@@ -348,13 +401,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         );
 
         assertThat(result).isEqualTo(DURATION_INTERPRETER);
-    }
-
-    @DisplayName("When adjournment flag is enabled but getHearingDurationAdjournment returns null "
-        + "does not use adjournment duration calculator")
-    @Test
-    void getHearingDurationAdjournment() {
-
     }
 
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
