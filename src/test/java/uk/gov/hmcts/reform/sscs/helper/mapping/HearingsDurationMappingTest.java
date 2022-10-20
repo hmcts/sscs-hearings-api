@@ -229,6 +229,19 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expectedResult);
     }
 
+    @DisplayName("When getAdjournCaseNextHearingListingDurationType is non standard and  "
+        + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")
+    @Test
+    void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
+        adjournmentFlagEnabled(true);
+
+        SscsCaseData caseData = adjourningCaseBuilder("", "1");
+
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isNull();
+    }
+
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
