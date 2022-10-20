@@ -96,6 +96,27 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expected);
     }
 
+    @DisplayName("When an invalid adjournCaseDuration or adjournCaseDurationUnits is given "
+        + "getHearingDuration returns the default duration Parameterized Tests")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,null",
+        "null,60",
+        "1,test",
+    }, nullValues = {"null"})
+    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
+        // TODO Finish Test when method done
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(generateHearingDuration());
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
+
+        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isEqualTo(DURATION_PAPER);
+    }
+
     @DisplayName("When adjournment flag is disabled getHearingDurationAdjournment returns null")
     @Test
     void getHearingDurationAdjournedFeatureFlagDisabled() {
@@ -139,27 +160,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         );
 
         assertThat(result).isEqualTo(HearingsDurationMapping.DURATION_DEFAULT);
-    }
-
-    @DisplayName("When an invalid adjournCaseDuration or adjournCaseDurationUnits is given "
-        + "getHearingDuration returns the default duration Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "null,null",
-        "null,60",
-        "1,test",
-    }, nullValues = {"null"})
-    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
-        // TODO Finish Test when method done
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(generateHearingDuration());
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
-
-        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-
-        assertThat(result).isEqualTo(DURATION_PAPER);
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
