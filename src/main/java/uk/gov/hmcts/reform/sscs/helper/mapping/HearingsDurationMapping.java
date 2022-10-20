@@ -38,9 +38,8 @@ public final class HearingsDurationMapping {
             return overrideFields.getDuration().intValue();
         }
 
-        Integer duration = getHearingDurationAdjournment(caseData);
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() // TODO remove flag when enabled
-            && nonNull(duration)) {
+        Integer duration = getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+        if (nonNull(duration)) {
             return duration;
         }
 
@@ -52,18 +51,25 @@ public final class HearingsDurationMapping {
         return DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
+    public static Integer getHearingDurationAdjournment(
+        SscsCaseData caseData,
+        ReferenceDataServiceHolder referenceDataServiceHolder
+    ) {
+        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
+            return null;
+        }
+
         String nextHearingListingDuration = caseData.getAdjournCaseNextHearingListingDuration();
 
-        if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
+        if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equals(caseData.getAdjournCaseNextHearingListingDurationType())
             && isNotBlank(nextHearingListingDuration)) {
             int duration = Integer.parseInt(nextHearingListingDuration);
 
             String units = caseData.getAdjournCaseNextHearingListingDurationUnits();
-            if (DURATION_UNITS_SESSIONS.equalsIgnoreCase(units)
+            if (DURATION_UNITS_SESSIONS.equals(units)
                 && duration >= MIN_HEARING_SESSION_DURATION) {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
-            } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(units)
+            } else if (DURATION_UNITS_MINUTES.equals(units)
                 && duration >= MIN_HEARING_DURATION) {
                 return duration;
             }
