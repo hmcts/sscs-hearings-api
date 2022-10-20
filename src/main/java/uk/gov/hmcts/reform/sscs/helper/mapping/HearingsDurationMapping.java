@@ -53,15 +53,17 @@ public final class HearingsDurationMapping {
     }
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
+        String nextHearingListingDuration = caseData.getAdjournCaseNextHearingListingDuration();
 
         if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
-            && isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
-            int duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
+            && isNotBlank(nextHearingListingDuration)) {
+            int duration = Integer.parseInt(nextHearingListingDuration);
 
-            if (DURATION_UNITS_SESSIONS.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
+            String units = caseData.getAdjournCaseNextHearingListingDurationUnits();
+            if (DURATION_UNITS_SESSIONS.equalsIgnoreCase(units)
                 && duration >= MIN_HEARING_SESSION_DURATION) {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
-            } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
+            } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(units)
                 && duration >= MIN_HEARING_DURATION) {
                 return duration;
             }
