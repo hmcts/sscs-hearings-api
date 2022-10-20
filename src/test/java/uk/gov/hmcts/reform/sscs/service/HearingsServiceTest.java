@@ -62,12 +62,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.O
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceTest {
     private static final long HEARING_REQUEST_ID = 12345;
-    private static final String HMC_STATUS = "TestStatus";
-    private static final long VERSION = 1;
     private static final long CASE_ID = 1625080769409918L;
-    private static final long MISSING_CASE_ID = 99250807409918L;
-    private static final String IDAM_OAUTH2_TOKEN = "TestOauth2Token";
-    private static final String SERVICE_AUTHORIZATION = "TestServiceAuthorization";
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     public static final String PROCESSING_VENUE = "Processing Venue";

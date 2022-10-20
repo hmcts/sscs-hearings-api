@@ -205,11 +205,6 @@ public final class HearingsDetailsMapping {
     }
 
     public static boolean isPoOfficerAttending(@Valid SscsCaseData caseData) {
-        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-        if (nonNull(overrideFields.getPoToAttend())) {
-            return isYes(overrideFields.getPoToAttend());
-        }
-
         return isYes(caseData.getDwpIsOfficerAttending());
     }
 }
