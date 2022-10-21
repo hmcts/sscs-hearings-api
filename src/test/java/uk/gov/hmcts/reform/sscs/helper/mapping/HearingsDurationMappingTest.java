@@ -107,7 +107,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         "null,null",
         "null,60",
         "1,test",
-        "0,minutes"
+        "0,minutes",
+        "0,sessions"
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
