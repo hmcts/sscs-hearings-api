@@ -238,21 +238,6 @@ class HearingsChannelMappingTest {
         assertThat(result).isFalse();
     }
 
-    @DisplayName("Return Adjourn case type of next hearing when value present")
-    @Test
-    public void getHearingChannel_returnAdjournCaseTypeOfNextHearing() {
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .adjournCaseTypeOfNextHearing("Telephone")
-            .appeal(Appeal.builder().build())
-            .build();
-
-        ReflectionTestUtils.setField(HearingsChannelMapping.class, "adjournmentFlagEnabled", true);
-
-        HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
-        assertThat(result.getValueTribunals()).isEqualTo("telephone");
-    }
-
     @Test
     public void getHearingChannel_adjournmentFlagEnabledFalse() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -264,5 +249,29 @@ class HearingsChannelMappingTest {
 
         HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
         assertThat(result.getValueTribunals()).isEqualTo("paper");
+    }
+
+    @DisplayName("Return Adjourn case type of next hearing when value present")
+    @ParameterizedTest
+    @MethodSource("buildHearingChannelRequests")
+    public void getHearingChannel_returnAdjournCaseTypeOfNextHearing(HearingChannel hearingChannel) {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseTypeOfNextHearing(hearingChannel.getValueEn())
+            .appeal(Appeal.builder().build())
+            .build();
+
+        ReflectionTestUtils.setField(HearingsChannelMapping.class, "adjournmentFlagEnabled", true);
+
+        HearingChannel result = HearingsChannelMapping.getHearingChannel(caseData);
+        assertThat(result.getValueTribunals()).isEqualTo(hearingChannel.getValueTribunals());
+    }
+
+    private static Stream<Arguments> buildHearingChannelRequests() {
+        return Stream.of(
+            Arguments.of(FACE_TO_FACE),
+            Arguments.of(VIDEO),
+            Arguments.of(PAPER),
+            Arguments.of(TELEPHONE)
+        );
     }
 }
