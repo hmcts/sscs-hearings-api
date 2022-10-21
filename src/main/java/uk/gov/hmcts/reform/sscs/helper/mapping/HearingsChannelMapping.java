@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -40,19 +41,20 @@ public final class HearingsChannelMapping {
         return List.of(getHearingChannel(caseData));
     }
 
-    @SuppressWarnings("PMD.CollapsibleIfStatements")
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
 
-        if (adjournmentFlagEnabled) {
-            if (caseData.getAdjournCaseTypeOfNextHearing() != null) {
-                log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
-                         caseData.getCaseCode());
+        if (adjournmentFlagEnabled && caseData.getAdjournCaseTypeOfNextHearing() != null) {
+            log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
+                     caseData.getCaseCode()
+            );
 
-                return Arrays.stream(HearingChannel.values())
-                    .filter(hearingChannel -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(
-                        hearingChannel.getValueTribunals()))
-                    .findFirst().orElse(null);
-            }
+            // trim whitespace
+            caseData.setAdjournCaseTypeOfNextHearing(StringUtils.trimAllWhitespace(caseData.getAdjournCaseTypeOfNextHearing()));
+
+            return Arrays.stream(HearingChannel.values())
+                .filter(hearingChannel -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(
+                    hearingChannel.getValueTribunals()))
+                .findFirst().orElse(PAPER);
         }
 
         if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
