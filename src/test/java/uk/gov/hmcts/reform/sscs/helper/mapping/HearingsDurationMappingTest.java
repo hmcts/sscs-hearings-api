@@ -107,6 +107,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         "null,null",
         "null,60",
         "1,test",
+        "0,minutes"
     }, nullValues = {"null"})
     void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
@@ -168,7 +169,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(HearingsDurationMapping.DURATION_DEFAULT);
     }
 
-    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given "
+    @DisplayName("When an invalid adjournCaseDuration and valid adjournCaseDurationUnits is given "
         + "getHearingDuration a null pointer exception is thrown")
     @ParameterizedTest
     @CsvSource(value = {
@@ -227,19 +228,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expectedResult);
     }
 
-    @DisplayName("When getAdjournCaseNextHearingListingDurationType is non standard and  "
-        + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")
-    @Test
-    void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
-        adjournmentFlagEnabled(true);
-
-        SscsCaseData caseData = adjourningCaseBuilder("", "1");
-
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
-
-        assertThat(result).isNull();
-    }
-
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
@@ -264,6 +252,19 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(DURATION_FACE_TO_FACE);
+    }
+
+    @DisplayName("When getAdjournCaseNextHearingListingDurationType is non standard and  "
+        + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")
+    @Test
+    void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
+        adjournmentFlagEnabled(true);
+
+        SscsCaseData caseData = adjourningCaseBuilder("", "1");
+
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isNull();
     }
 
     @DisplayName("When the benefit or issue code is null "
