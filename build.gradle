@@ -367,9 +367,9 @@ dependencies {
 
   //pact contract testing
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.1.7'
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: '4.1.7'
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: '4.1.39'
   contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.1.7'
-  contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'java8',  version: '4.1.7'
+  contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'java8',  version: '4.1.39'
 }
 
 dependencyManagement {
