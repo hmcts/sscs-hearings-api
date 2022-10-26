@@ -423,6 +423,36 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(DURATION_INTERPRETER);
     }
 
+    @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is paper "
+        + "getHearingDurationBenefitIssueCodes return the correct paper durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(generateHearingDuration());
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .appeal(Appeal.builder()
+                .hearingSubtype(HearingSubtype.builder().build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("No")
+                    .build())
+                .build())
+            .dwpIsOfficerAttending("Yes")
+            .build();
+
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
+
+        assertThat(result).isEqualTo(DURATION_PAPER);
+    }
+
     @DisplayName("getElementsDisputed returns empty list when elementDisputed is Null")
     @Test
     void getElementsDisputedNull() {
