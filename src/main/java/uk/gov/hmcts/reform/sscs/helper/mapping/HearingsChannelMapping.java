@@ -26,6 +26,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
+
 @Slf4j
 @SuppressWarnings("PMD.CyclomaticComplexity")
 public final class HearingsChannelMapping {
@@ -43,18 +44,8 @@ public final class HearingsChannelMapping {
 
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
 
-        if (adjournmentFlagEnabled && caseData.getAdjournCaseTypeOfNextHearing() != null) {
-            log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
-                     caseData.getCaseCode()
-            );
-
-            // trim whitespace
-            caseData.setAdjournCaseTypeOfNextHearing(StringUtils.trimAllWhitespace(caseData.getAdjournCaseTypeOfNextHearing()));
-
-            return Arrays.stream(HearingChannel.values())
-                .filter(hearingChannel -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(
-                    hearingChannel.getValueTribunals()))
-                .findFirst().orElse(PAPER);
+        if (adjournmentFlagEnabled && nonNull(caseData.getAdjournCaseTypeOfNextHearing())) {
+            return getNextHearingChannel(caseData);
         }
 
         if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
@@ -72,6 +63,20 @@ public final class HearingsChannelMapping {
         } else {
             return PAPER;
         }
+    }
+
+
+    private static HearingChannel getNextHearingChannel(SscsCaseData caseData) {
+        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
+                 caseData.getCaseCode()
+        );
+
+        caseData.setAdjournCaseTypeOfNextHearing(StringUtils.trimAllWhitespace(caseData.getAdjournCaseTypeOfNextHearing()));
+
+        return Arrays.stream(HearingChannel.values())
+            .filter(hearingChannel -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(
+                hearingChannel.getValueTribunals()))
+            .findFirst().orElse(PAPER);
     }
 
     public static List<HearingChannel> getAllHearingChannelPreferences(@Valid SscsCaseData caseData) {
