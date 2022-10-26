@@ -229,19 +229,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expectedResult);
     }
 
-    @DisplayName("When getAdjournCaseNextHearingListingDurationType is non standard and  "
-        + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")
-    @Test
-    void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
-        adjournmentFlagEnabled(true);
-
-        SscsCaseData caseData = adjourningCaseBuilder("", "1");
-
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
-
-        assertThat(result).isNull();
-    }
-
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
@@ -339,47 +326,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(generateHearingDuration());
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-
-        List<CcdValue<OtherParty>> otherParties = List.of(new CcdValue<>(
-            OtherParty.builder()
-            .hearingOptions(HearingOptions.builder()
-                .wantsToAttend("yes")
-                .build())
-            .hearingSubtype(HearingSubtype.builder()
-                .wantsHearingTypeTelephone("yes")
-                .hearingTelephoneNumber("123123")
-                .build())
-            .build())
-        );
-
-        SscsCaseData caseData = SscsCaseData.builder()
-            .otherParties(otherParties)
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("no")
-                    .build())
-                .build())
-            .build();
-
-        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-            caseData,
-            referenceDataServiceHolder
-        );
-
-        assertThat(result).isNull();
-    }
-
-    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is not paper "
-        + "getHearingDurationBenefitIssueCodes returns null")
-    @Test
-    void getHearingDurationBenefitIssueCodesNotPaper() {
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30));
 
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
