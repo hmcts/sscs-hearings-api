@@ -4,7 +4,6 @@ java:
   readinessPath: '/health/readiness'
   aadIdentityName: sscs
   ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-#  Uncomment once the vault containing the app insights key has been set up
   keyVaults:
     sscs:
       secrets:
@@ -20,8 +19,8 @@ java:
           alias: IDAM_OAUTH2_CLIENT_ID
         - name: idam-sscs-oauth2-client-secret
           alias: IDAM_OAUTH2_CLIENT_SECRET
-        #- name: hmc-servicebus-shared-access-key-tf
-        #  alias: HMC_HEARINGS_TOPIC_ACCESS_KEY
+        - name: hmc-servicebus-shared-access-key-tf
+          alias: HMC_HEARINGS_TOPIC_ACCESS_KEY
         - name: sscs-servicebus-shared-access-key
           alias: TRIBUNALS_EVENT_QUEUE_ACCESS_KEY
   environment:
