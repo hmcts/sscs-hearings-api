@@ -37,7 +37,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
                 .dwpPhme("dwpPHME")
                 .dwpUcb("dwpUCB")
                 .urgentCase(YES.toString())
-                .adjournCaseInterpreterLanguage(null)
+                .adjournCaseInterpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage"))
                 .isConfidentialCase(YES)
                 .appeal(Appeal.builder().hearingOptions(
                         HearingOptions.builder()
