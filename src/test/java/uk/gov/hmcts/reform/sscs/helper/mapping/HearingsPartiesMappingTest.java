@@ -295,7 +295,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualInterpreterLanguageWhenHearingOptionsNull() throws InvalidMappingException {
 
         String individualInterpreterLanguage = HearingsPartiesMapping.getIndividualInterpreterLanguage(
-            null, null, referenceData
+            null, null, referenceData, "French"
         );
 
         assertThat(individualInterpreterLanguage).isNull();
@@ -336,7 +336,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             hearingOptions,
             HearingSubtype.builder().build(),
             PARTY_ID,
-            null, referenceData
+            null, referenceData,
+            null
         );
 
         assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
@@ -393,7 +394,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             hearingOptions,
             hearingSubtype,
             PARTY_ID,
-            null, referenceData
+            null, referenceData,
+            null
         );
 
         assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
@@ -438,7 +440,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             hearingOptions,
             HearingSubtype.builder().build(),
             PARTY_ID,
-            null, referenceData
+            null, referenceData,
+            null
         );
 
         PartyDetails partyDetails = partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
@@ -470,7 +473,8 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             HearingSubtype.builder().build(),
             PARTY_ID,
             PARTY_ID,
-            null, referenceData
+            null, referenceData,
+            null
         );
 
         assertThat(partyDetails.getPartyID()).isNotNull();
@@ -585,7 +589,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .languages(lang)
             .build();
 
-        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData, null);
         assertThat(result).isEqualTo(expected);
     }
 
@@ -605,7 +609,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .build();
 
         assertThatExceptionOfType(InvalidMappingException.class)
-            .isThrownBy(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
+            .isThrownBy(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData, null))
             .withMessageContaining("The language %s cannot be mapped", value);
     }
 
@@ -627,7 +631,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .signLanguageType(signLang)
             .build();
 
-        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData, null);
         assertThat(result).isEqualTo(expected);
     }
 
@@ -647,7 +651,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .build();
 
         assertThatExceptionOfType(InvalidMappingException.class)
-            .isThrownBy(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData))
+            .isThrownBy(() -> HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, referenceData, null))
             .withMessageContaining("The language %s cannot be mapped", value);
     }
 
@@ -665,7 +669,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
                 .build())
             .build();
-        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData, null);
         assertThat(result).isEqualTo("test");
     }
 
@@ -684,7 +688,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
                 .build())
             .build();
-        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData, null);
         assertThat(result).isNull();
     }
 
@@ -707,7 +711,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .interpreterLanguage(new DynamicList(new DynamicListItem("test", "Test Language"),List.of()))
                 .build())
             .build();
-        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData, null);
         assertThat(result).isEqualTo("ach");
     }
 
@@ -727,7 +731,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         OverrideFields overrideFields = OverrideFields.builder()
             .appellantInterpreter(null)
             .build();
-        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData);
+        String result = HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData, null);
         assertThat(result).isEqualTo("ach");
     }
 
