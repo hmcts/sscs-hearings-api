@@ -76,6 +76,46 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     public static final String OTHER_PARTY_ID = "4dd6b6fa-6562-4699-8e8b-6c70cf8a333e";
     public static final String DWP_ID = "DWP";
 
+    @DisplayName("When a valid hearing wrapper with language interpreter is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @Test
+    void buildHearingPartiesDetailsAdjournCaseInterpreterLanguageProvided() throws InvalidMappingException {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournCaseInterpreterRequired("yes")
+            .adjournCaseInterpreterLanguage(new DynamicList("French"))
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                        .hearingType("test")
+                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .appellant(Appellant.builder()
+                                       .id(PARTY_ID)
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .build();
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
+
+        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, referenceData);
+
+        PartyDetails partyDetails = partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst().orElse(
+            null);
+        assertThat(partyDetails).isNotNull();
+        assertThat(partyDetails.getPartyType()).isNotNull();
+        assertThat(partyDetails.getPartyRole()).isNotNull();
+        assertThat(partyDetails.getIndividualDetails()).isNotNull();
+        assertThat(partyDetails.getOrganisationDetails()).isNull();
+        assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
+        assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
+
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+    }
+
     @DisplayName("When a valid hearing wrapper without OtherParties or joint party is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
     void buildHearingPartiesDetails() throws InvalidMappingException {
