@@ -96,9 +96,9 @@ public final class HearingsPartiesMapping {
         }
 
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
-        
+
         String adjournLanguage = null;
-        if(isYes(caseData.getAdjournCaseInterpreterRequired())) {
+        if (isYes(caseData.getAdjournCaseInterpreterRequired())) {
             adjournLanguage = caseData.getAdjournCaseInterpreterLanguage().getValue().getCode();
         }
 
