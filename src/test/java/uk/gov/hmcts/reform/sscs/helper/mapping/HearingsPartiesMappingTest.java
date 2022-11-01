@@ -375,7 +375,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             null,
             hearingOptions,
             HearingSubtype.builder().build(),
-            PARTY_ID,
             null, referenceData,
             null
         );
@@ -433,7 +432,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             rep,
             hearingOptions,
             hearingSubtype,
-            PARTY_ID,
             null, referenceData,
             null
         );
@@ -479,7 +477,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             null,
             hearingOptions,
             HearingSubtype.builder().build(),
-            PARTY_ID,
             null, referenceData,
             null
         );
@@ -511,7 +508,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             entity,
             hearingOptions,
             HearingSubtype.builder().build(),
-            PARTY_ID,
             PARTY_ID,
             null, referenceData,
             null
