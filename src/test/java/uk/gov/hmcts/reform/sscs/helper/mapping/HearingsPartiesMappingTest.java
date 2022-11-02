@@ -335,10 +335,21 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void getIndividualInterpreterLanguageWhenHearingOptionsNull() throws InvalidMappingException {
 
         String individualInterpreterLanguage = HearingsPartiesMapping.getIndividualInterpreterLanguage(
-            null, null, referenceData, "French"
+            null, null, referenceData, null
         );
 
         assertThat(individualInterpreterLanguage).isNull();
+    }
+
+    @DisplayName("When HearingOption is Null and and adjournLanguage is provided return empty string")
+    @Test
+    void getIndividualInterpreterLanguageWhenHearingOptionsNullAndAdjournLanguageProvided() throws InvalidMappingException {
+
+        String individualInterpreterLanguage = HearingsPartiesMapping.getIndividualInterpreterLanguage(
+            null, null, referenceData, "TestLanguage"
+        );
+
+        assertEquals(individualInterpreterLanguage, "TestLanguage");
     }
 
     @DisplayName("buildHearingPartiesPartyDetails when Appointee is not null Parameterised Tests")

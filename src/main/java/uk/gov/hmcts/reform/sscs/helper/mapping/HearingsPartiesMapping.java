@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
@@ -97,14 +98,17 @@ public final class HearingsPartiesMapping {
 
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
-        String adjournLanguage = null;
-        if (isYes(caseData.getAdjournCaseInterpreterRequired())) {
-            adjournLanguage = caseData.getAdjournCaseInterpreterLanguage().getValue().getCode();
-        }
+        String adjournLanguageRef = Optional.ofNullable(caseData)
+            .filter(caseD -> isYes(caseD.getAdjournCaseInterpreterRequired()))
+            .map(SscsCaseData::getAdjournCaseInterpreterLanguage)
+            .map(DynamicList::getValue)
+            .map(DynamicListItem::getCode)
+            .filter(StringUtils::isNotBlank)
+            .orElse(null);
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
                 appellant, appeal.getRep(), appeal.getHearingOptions(),
-                appeal.getHearingSubtype(), overrideFields, referenceDataServiceHolder, adjournLanguage));
+                appeal.getHearingSubtype(), overrideFields, referenceDataServiceHolder, adjournLanguageRef));
 
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
@@ -113,7 +117,7 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        otherParty.getHearingSubtype(), null, referenceDataServiceHolder, adjournLanguage));
+                        otherParty.getHearingSubtype(), null, referenceDataServiceHolder, null));
             }
         }
 
@@ -235,6 +239,10 @@ public final class HearingsPartiesMapping {
             && nonNull(overrideFields.getAppellantInterpreter())
             && nonNull(overrideFields.getAppellantInterpreter().getIsInterpreterWanted())) {
             return getOverrideInterpreterLanguage(overrideFields);
+        }
+
+        if(nonNull(adjournLanguage)) {
+            return adjournLanguage;
         }
 
         if (isNull(hearingOptions)
