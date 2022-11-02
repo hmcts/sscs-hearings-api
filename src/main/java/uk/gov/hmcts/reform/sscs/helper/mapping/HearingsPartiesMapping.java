@@ -241,7 +241,7 @@ public final class HearingsPartiesMapping {
             return getOverrideInterpreterLanguage(overrideFields);
         }
 
-        if(nonNull(adjournLanguage)) {
+        if (nonNull(adjournLanguage)) {
             return adjournLanguage;
         }
 
