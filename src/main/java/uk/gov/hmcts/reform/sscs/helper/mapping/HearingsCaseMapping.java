@@ -81,7 +81,6 @@ public final class HearingsCaseMapping {
     }
 
     public static boolean isInterpreterRequired(SscsCaseData caseData) {
-        // TODO Adjournment - Check this is the correct logic for Adjournment
         Appeal appeal = caseData.getAppeal();
         return isYes(caseData.getAdjournCaseInterpreterRequired())
                 || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
