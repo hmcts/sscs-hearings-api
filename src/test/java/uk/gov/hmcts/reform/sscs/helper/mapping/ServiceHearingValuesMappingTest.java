@@ -403,7 +403,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .flagDescription("Urgent flag")
                     .flagStatus(null)
                     .build());
-            add(PartyFlags.builder()
+                add(PartyFlags.builder()
                     .partyName(null)
                     .flagParentId("2")
                     .flagId("70")
