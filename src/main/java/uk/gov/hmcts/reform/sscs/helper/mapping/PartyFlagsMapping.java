@@ -17,12 +17,12 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.isCaseUrgent;
-import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.LANGUAGE_INTERPRETER_FLAG;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_PHME;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_UCB;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.HEARING_LOOP;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.LANGUAGE_INTERPRETER_FLAG;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
 
