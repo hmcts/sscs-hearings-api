@@ -354,20 +354,20 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void adjournCaseInterpreterLanguage() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterRequired("Yes")
-                .appeal(Appeal.builder().hearingOptions(
-                    HearingOptions.builder()
-                        .build()).build())
-                .build();
+            .adjournCaseInterpreterRequired("Yes")
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .build()).build())
+            .build();
 
 
         PartyFlags result = PartyFlagsMapping.getLanguageInterpreterFlag(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                                         .flagId("70")
-                                         .flagParentId("2")
-                                         .flagDescription("Language Interpreter")
-                                         .build());
+             .flagId("70")
+             .flagParentId("2")
+             .flagDescription("Language Interpreter")
+             .build());
     }
 
     @DisplayName("noAdjournCaseInterpreterLanguage should not return party flag mapping")
