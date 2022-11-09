@@ -108,6 +108,9 @@ public final class HearingsLocationMapping {
             String venueName = venueDetails.getVenName();
             String regionalProcessingCentre = venueDetails.getRegionalProcessingCentre();
 
+            caseData.setProcessingVenue(venueName);
+            caseData.setRegion(regionalProcessingCentre);
+
             log.info("Getting hearing location {} with the epims ID of {} and regional processing centre of {}",
                      venueName, epimsID, regionalProcessingCentre);
 
