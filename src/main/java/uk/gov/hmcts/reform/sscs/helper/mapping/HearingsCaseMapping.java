@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
@@ -26,7 +27,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE
 public final class HearingsCaseMapping {
 
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
-    public static final String EMPTY_STRING = "";
 
     private HearingsCaseMapping() {
 
@@ -83,7 +83,8 @@ public final class HearingsCaseMapping {
     public static boolean isInterpreterRequired(SscsCaseData caseData) {
         // TODO Adjournment - Check this is the correct logic for Adjournment
         Appeal appeal = caseData.getAppeal();
-        return isYes(caseData.getAdjournCaseInterpreterRequired())
+        YesNo interpreterRequired = caseData.getAdjournment().getInterpreterRequired();
+        return nonNull(interpreterRequired) && isYes(interpreterRequired.getValue())
                 || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
                 || isInterpreterRequiredOtherParties(caseData.getOtherParties());
     }

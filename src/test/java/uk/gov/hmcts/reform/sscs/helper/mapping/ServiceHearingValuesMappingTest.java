@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -37,7 +38,6 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -60,6 +60,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
@@ -105,7 +106,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
-            .adjournCaseCanCaseBeListedRightAway("Yes")
+            .adjournment(Adjournment.builder().canCaseBeListedRightAway(YES).build())
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")
@@ -307,7 +308,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                                              .build())
                                    .address(Address.builder().build())
                                    .confidentialityRequired(YesNo.NO)
-                                   .unacceptableCustomerBehaviour(YesNo.YES)
+                                   .unacceptableCustomerBehaviour(YES)
                                    .hearingSubtype(HearingSubtype.builder()
                                                        .hearingTelephoneNumber("0999733735")
                                                        .hearingVideoEmail("test2@gmail.com")
@@ -334,7 +335,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                                    .sendNewOtherPartyNotification(YesNo.NO)
                                    .reasonableAdjustment(ReasonableAdjustmentDetails.builder()
                                                              .reasonableAdjustmentRequirements("Some adjustments...")
-                                                             .wantsReasonableAdjustment(YesNo.YES)
+                                                             .wantsReasonableAdjustment(YES)
                                                              .build())
                                    .appointeeReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
                                    .repReasonableAdjustment(ReasonableAdjustmentDetails.builder().build())
@@ -346,11 +347,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             }
         };
     }
-
-    private List<RelatedParty> getRelatedParties() {
-        return new ArrayList<>();
-    }
-
 
     private List<ExcludeDate> getExcludeDates() {
         return new ArrayList<>() {

@@ -8,7 +8,9 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
@@ -40,7 +42,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
                 .dwpPhme("dwpPHME")
                 .dwpUcb("dwpUCB")
                 .urgentCase(YES.toString())
-                .adjournCaseInterpreterLanguage("adjournCaseInterpreterLanguage")
+                .adjournment(Adjournment.builder()
+                    .interpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage")).build())
                 .isConfidentialCase(YES)
                 .appeal(Appeal.builder().hearingOptions(
                         HearingOptions.builder()
@@ -72,7 +75,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
                 .dwpPhme(null)
                 .dwpUcb(null)
                 .urgentCase(null)
-                .adjournCaseInterpreterLanguage(null)
+                .adjournment(Adjournment.builder()
+                    .interpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage")).build())
                 .isConfidentialCase(null)
                 .appeal(Appeal.builder().hearingOptions(
                         HearingOptions.builder()
@@ -360,7 +364,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"spanish", "french"})
     void adjournCaseInterpreterLanguage(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterLanguage(interpreterLanguage)
+                .adjournment(Adjournment.builder()
+                    .interpreterLanguage(new DynamicList(interpreterLanguage)).build())
                 .build();
 
         PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
@@ -377,7 +382,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void adjournCaseInterpreterLanguageNull(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterLanguage(interpreterLanguage)
+                .adjournment(Adjournment.builder()
+                    .interpreterLanguage(new DynamicList(interpreterLanguage)).build())
                 .build();
 
         PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);

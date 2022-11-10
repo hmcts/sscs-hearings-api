@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
@@ -137,11 +139,17 @@ public final class PartyFlagsMapping {
 
     public static PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
         PartyFlags adjournCasePartyFlag = null;
-        if (isNotBlank(caseData.getAdjournCaseInterpreterLanguage())) {
-            adjournCasePartyFlag = PartyFlags.builder()
-                .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
-                .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
-                .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();
+        Adjournment adjournment = caseData.getAdjournment();
+
+        if (nonNull(adjournment)) {
+            DynamicList interpreterLanguage = adjournment.getInterpreterLanguage();
+
+            if (nonNull(interpreterLanguage) && isNotBlank(interpreterLanguage.getValue().getLabel())) {
+                adjournCasePartyFlag = PartyFlags.builder()
+                    .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
+                    .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
+                    .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();
+            }
         }
         return adjournCasePartyFlag;
     }

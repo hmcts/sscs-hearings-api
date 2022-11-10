@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
@@ -22,22 +24,31 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType.NON_STANDARD;
 
 public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private HearingDurationsService hearingDurations;
 
-    private SscsCaseData adjourningCaseBuilder(String adjournCaseDuration, String adjournCaseDurationUnits) {
+    private SscsCaseData adjourningCaseBuilder(Integer adjournCaseDuration, String adjournCaseDurationUnits) {
+        AdjournCaseNextHearingDurationUnits nextHearingDurationUnits;
+
+        try {
+            nextHearingDurationUnits = AdjournCaseNextHearingDurationUnits.valueOf(adjournCaseDurationUnits);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            nextHearingDurationUnits = null;
+        }
+
         return SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .adjournCaseNextHearingListingDurationType("nonStandardTimeSlot")
-            .adjournCaseNextHearingListingDuration(adjournCaseDuration)
-            .adjournCaseNextHearingListingDurationUnits(adjournCaseDurationUnits)
+            .adjournment(Adjournment.builder()
+                 .nextHearingListingDurationType(NON_STANDARD)
+                 .nextHearingListingDuration(adjournCaseDuration)
+                 .nextHearingListingDurationUnits(nextHearingDurationUnits).build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().build())
                 .build())
@@ -59,22 +70,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    @DisplayName("when a valid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration returns the correct duration Parameterized Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "120,minutes,120",
-        "1,sessions,165",
-    }, nullValues = {"null"})
-    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
-
-        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
-
-        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-
-        assertThat(result).isEqualTo(expected);
-    }
-
-
     @DisplayName("when a invalid adjournCaseDuration or adjournCaseDurationUnits is given getHearingDuration returns the default duration Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
@@ -82,7 +77,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "null,60",
         "1,test",
     }, nullValues = {"null"})
-    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
+    void getHearingDuration(Integer adjournCaseDuration, String adjournCaseDurationUnits) {
         // TODO Finish Test when method done
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -95,23 +90,6 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(30);
-    }
-
-    @DisplayName("when an invalid adjournCaseDuration and adjournCaseDurationUnits is given getHearingDuration a null pointer exception is thrown")
-    @ParameterizedTest
-    @CsvSource(value = {
-        ",sessions",
-        "1,hours",
-        "0,sessions",
-        "20,minutes",
-    }, nullValues = {"null"})
-    void getHearingDurationFailure(String adjournCaseDuration, String adjournCaseDurationUnits) {
-        SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
-
-        assertThrows(NullPointerException.class, () -> {
-            Object result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-        });
-
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -136,8 +114,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .adjournCaseNextHearingListingDuration(null)
-            .adjournCaseNextHearingListingDurationUnits(null)
+            .adjournment(Adjournment.builder().build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend("Yes")
@@ -162,8 +139,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .adjournCaseNextHearingListingDuration(null)
-            .adjournCaseNextHearingListingDurationUnits(null)
+            .adjournment(Adjournment.builder().build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend("Yes")

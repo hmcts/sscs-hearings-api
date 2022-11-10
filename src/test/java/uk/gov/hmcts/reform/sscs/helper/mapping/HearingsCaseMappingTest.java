@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.getValue;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
@@ -251,7 +253,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build());
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterRequired(adjournCaseInterpreter)
+            .adjournment(Adjournment.builder().interpreterRequired(getValue(adjournCaseInterpreter)).build())
                 .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder()
                                 .languageInterpreter(appellantInterpreter)

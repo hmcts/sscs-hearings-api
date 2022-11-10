@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -46,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -354,10 +357,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         ",,Standard"
     }, nullValues = {"null"})
     void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
+        AdjournCasePanelMembersExcluded panelMembersExcluded = isNull(isAdjournCase) ? null : Arrays.stream(AdjournCasePanelMembersExcluded.values())
+            .filter(enumValue -> isAdjournCase.equals(enumValue.toString()))
+            .findAny()
+            .orElse(null);
+
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(isUrgentCase)
-            .adjournCasePanelMembersExcluded(isAdjournCase)
+            .adjournment(Adjournment.builder().panelMembersExcluded(panelMembersExcluded).build())
             .build();
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 

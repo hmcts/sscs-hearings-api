@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
@@ -20,9 +19,6 @@ public class HearingsMappingBase {
     public static final String CASE_CREATED = "2022-04-01";
 
     @Mock
-    public HearingDurationsService hearingDurations;
-
-    @Mock
     public SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
@@ -33,10 +29,6 @@ public class HearingsMappingBase {
 
     @Mock
     public ReferenceDataServiceHolder referenceData;
-
-    protected HearingsMappingBase() {
-
-    }
 
     public static final long CASE_ID = 1625080769409918L;
 
@@ -57,6 +49,10 @@ public class HearingsMappingBase {
     public static final String EPIMS_ID = "239585";
 
     public static final String EX_UI_URL = "http://localhost:3455";
+
+    protected HearingsMappingBase() {
+
+    }
 
     @NotNull
     public static List<String> splitCsvParamArray(String expected) {
