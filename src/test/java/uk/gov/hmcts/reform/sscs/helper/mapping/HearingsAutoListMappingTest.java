@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -59,6 +60,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
                     .wantsHearingTypeFaceToFace("Yes")
                     .build())
                 .build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .build();
     }
 

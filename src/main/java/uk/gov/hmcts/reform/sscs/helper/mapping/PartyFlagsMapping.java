@@ -43,7 +43,7 @@ public final class PartyFlagsMapping {
                 dwpUcb(caseData),
                 dwpPhme(caseData),
                 urgentCase(caseData),
-                adjournCaseInterpreterLanguage(caseData)
+                adjournCaseInterpreterLanguage(caseData.getAdjournment())
         ).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
@@ -137,11 +137,10 @@ public final class PartyFlagsMapping {
         return urgentCasePartyFlag;
     }
 
-    public static PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
+    public static PartyFlags adjournCaseInterpreterLanguage(Adjournment adjournment) {
         PartyFlags adjournCasePartyFlag = null;
-        Adjournment adjournment = caseData.getAdjournment();
 
-        if (nonNull(adjournment)) {
+        if (adjournment.getIsAdjournmentInProgress().toBoolean()) {
             DynamicList interpreterLanguage = adjournment.getInterpreterLanguage();
 
             if (nonNull(interpreterLanguage) && isNotBlank(interpreterLanguage.getValue().getLabel())) {

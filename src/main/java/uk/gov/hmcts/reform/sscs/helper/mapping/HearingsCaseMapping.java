@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -81,12 +82,18 @@ public final class HearingsCaseMapping {
     }
 
     public static boolean isInterpreterRequired(SscsCaseData caseData) {
-        // TODO Adjournment - Check this is the correct logic for Adjournment
         Appeal appeal = caseData.getAppeal();
-        YesNo interpreterRequired = caseData.getAdjournment().getInterpreterRequired();
-        return nonNull(interpreterRequired) && isYes(interpreterRequired.getValue())
-                || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
-                || isInterpreterRequiredOtherParties(caseData.getOtherParties());
+
+        return isAdjournedInterpreterRequired(caseData.getAdjournment())
+            || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
+            || isInterpreterRequiredOtherParties(caseData.getOtherParties());
+    }
+
+    private static boolean isAdjournedInterpreterRequired(Adjournment adjournment) {
+        YesNo interpreterRequired = adjournment.getInterpreterRequired();
+
+        return adjournment.getIsAdjournmentInProgress().toBoolean()
+            && nonNull(interpreterRequired) && isYes(interpreterRequired.getValue());
     }
 
     public static boolean isInterpreterRequiredOtherParties(List<CcdValue<OtherParty>> otherParties) {

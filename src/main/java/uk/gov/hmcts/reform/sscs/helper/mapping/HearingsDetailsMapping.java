@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
@@ -82,12 +83,18 @@ public final class HearingsDetailsMapping {
         // Flag to Lauren - how  can this be captured in HMC queue?
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
-        // TODO Adjournment - Check what should be used to check if there is adjournment
-        AdjournCasePanelMembersExcluded panelMembersExcluded = caseData.getAdjournment().getPanelMembersExcluded();
-        if (isCaseUrgent(caseData) || nonNull(panelMembersExcluded) && isYes(panelMembersExcluded.toString())) {
+        if (isCaseUrgent(caseData) || areAdjournedPanelMembersExcluded(caseData.getAdjournment())) {
             return URGENT.getHmcReference();
         }
         return STANDARD.getHmcReference();
+    }
+
+    private static boolean areAdjournedPanelMembersExcluded(Adjournment adjournment) {
+        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
+
+        return adjournment.getIsAdjournmentInProgress().toBoolean()
+            && nonNull(panelMembersExcluded)
+            && isYes(panelMembersExcluded.toString());
     }
 
     public static boolean shouldBeHearingsInWelshFlag() {

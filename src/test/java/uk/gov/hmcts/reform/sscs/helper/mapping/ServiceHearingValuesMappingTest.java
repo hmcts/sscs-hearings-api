@@ -106,7 +106,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
-            .adjournment(Adjournment.builder().canCaseBeListedRightAway(YES).build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).canCaseBeListedRightAway(YES).build())
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")

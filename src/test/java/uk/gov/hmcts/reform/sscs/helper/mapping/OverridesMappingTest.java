@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -95,6 +96,7 @@ class OverridesMappingTest {
                     .wantsHearingTypeFaceToFace("Yes")
                     .build())
                 .build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .schedulingAndListingFields(SchedulingAndListingFields.builder()
                 .defaultListingValues(OverrideFields.builder().build())
                 .build())

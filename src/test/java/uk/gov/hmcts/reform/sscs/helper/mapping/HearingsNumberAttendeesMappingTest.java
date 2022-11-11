@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -21,7 +22,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 class HearingsNumberAttendeesMappingTest {
-
 
     @DisplayName("When hearing not face to face, getNumberOfPhysicalAttendees returns zero")
     @Test
@@ -62,6 +62,7 @@ class HearingsNumberAttendeesMappingTest {
                         .build())
                     .build()))
             .dwpIsOfficerAttending("Yes")
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .build();
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);
@@ -81,6 +82,7 @@ class HearingsNumberAttendeesMappingTest {
                     .wantsToAttend("Yes")
                     .build())
                 .build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(NO).build())
             .build();
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);
@@ -101,6 +103,7 @@ class HearingsNumberAttendeesMappingTest {
                     .build())
                 .build())
             .dwpIsOfficerAttending("Yes")
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .build();
 
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData);

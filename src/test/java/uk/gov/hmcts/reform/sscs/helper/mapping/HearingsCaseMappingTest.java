@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.getValue;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
@@ -72,27 +73,28 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .rep(Representative.builder().build())
                 .build()));
         SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId(String.valueOf(CASE_ID))
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .caseCreated(CASE_CREATED)
-                .caseAccessManagementFields(CaseAccessManagementFields.builder()
-                        .caseNameHmctsInternal(CASE_NAME_INTERNAL)
-                        .caseNamePublic(CASE_NAME_PUBLIC)
-                        .build())
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder().build())
-                        .appellant(Appellant.builder()
-                                .appointee(Appointee.builder().build())
-                                .build())
-                        .rep(Representative.builder().build())
-                        .build())
-                .otherParties(otherParties)
-                .caseManagementLocation(CaseManagementLocation.builder()
-                        .baseLocation(EPIMS_ID)
-                        .region(REGION)
-                        .build())
-                .build();
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .caseCreated(CASE_CREATED)
+            .caseAccessManagementFields(CaseAccessManagementFields.builder()
+                .caseNameHmctsInternal(CASE_NAME_INTERNAL)
+                .caseNamePublic(CASE_NAME_PUBLIC)
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .appellant(Appellant.builder()
+                    .appointee(Appointee.builder().build())
+                    .build())
+                .rep(Representative.builder().build())
+                .build())
+            .otherParties(otherParties)
+            .caseManagementLocation(CaseManagementLocation.builder()
+                .baseLocation(EPIMS_ID)
+                .region(REGION)
+                .build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
+            .build();
         HearingWrapper wrapper = HearingWrapper.builder()
                 .caseData(caseData)
                 .caseData(caseData)
@@ -253,14 +255,17 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build());
 
         SscsCaseData caseData = SscsCaseData.builder()
-            .adjournment(Adjournment.builder().interpreterRequired(getValue(adjournCaseInterpreter)).build())
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                .languageInterpreter(appellantInterpreter)
-                                .build())
-                        .build())
-                .otherParties(otherParties)
-                .build();
+            .adjournment(Adjournment.builder()
+                .isAdjournmentInProgress(YES)
+                .interpreterRequired(getValue(adjournCaseInterpreter))
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .languageInterpreter(appellantInterpreter)
+                    .build())
+                .build())
+            .otherParties(otherParties)
+            .build();
         boolean result = HearingsCaseMapping.isInterpreterRequired(caseData);
 
         assertEquals(expected, result);

@@ -21,6 +21,7 @@ import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
@@ -39,18 +40,21 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     void shouldAddTheMappingsGivenTheValuesAreNotNull() {
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme("dwpPHME")
-                .dwpUcb("dwpUCB")
-                .urgentCase(YES.toString())
-                .adjournment(Adjournment.builder()
-                    .interpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage")).build())
-                .isConfidentialCase(YES)
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType("signLanguageType")
-                                .arrangements(List.of("disabledAccess", "hearingLoop"))
-                                .build()).build())
-                .build();
+            .dwpPhme("dwpPHME")
+            .dwpUcb("dwpUCB")
+            .urgentCase(YES.toString())
+            .adjournment(Adjournment.builder()
+                .isAdjournmentInProgress(YES)
+                .interpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage"))
+                 .build())
+            .isConfidentialCase(YES)
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType("signLanguageType")
+                    .arrangements(List.of("disabledAccess", "hearingLoop"))
+                    .build())
+                .build())
+            .build();
 
         List<PartyFlags> actual = PartyFlagsMapping.getPartyFlags(caseData);
 
@@ -72,26 +76,22 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void shouldNotThrowNullPointerWhenChainedValuesInCaseDataIsNull() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme(null)
-                .dwpUcb(null)
-                .urgentCase(null)
-                .adjournment(Adjournment.builder()
-                    .interpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage")).build())
-                .isConfidentialCase(null)
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType(null)
-                                .arrangements(
-                                        List.of("", ""))
-                                .build()).build())
-                .build();
-        NullPointerException npe = null;
-        try {
-            PartyFlagsMapping.getPartyFlags(caseData);
-        } catch (NullPointerException ex) {
-            npe = ex;
-        }
-        assertThat(npe).isNull();
+            .dwpPhme(null)
+            .dwpUcb(null)
+            .urgentCase(null)
+            .adjournment(Adjournment.builder()
+                .isAdjournmentInProgress(YES)
+                .interpreterLanguage(new DynamicList("adjournCaseInterpreterLanguage")).build())
+            .isConfidentialCase(null)
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType(null)
+                    .arrangements(List.of("", ""))
+                    .build())
+                .build())
+            .build();
+
+        assertDoesNotThrow(() -> PartyFlagsMapping.getPartyFlags(caseData));
     }
 
     @DisplayName("mapSignLanguageType returns flagParameterised Tests")
@@ -364,11 +364,13 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"spanish", "french"})
     void adjournCaseInterpreterLanguage(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournment(Adjournment.builder()
-                    .interpreterLanguage(new DynamicList(interpreterLanguage)).build())
-                .build();
+            .adjournment(Adjournment.builder()
+                .isAdjournmentInProgress(YES)
+                .interpreterLanguage(new DynamicList(interpreterLanguage))
+                .build())
+            .build();
 
-        PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
+        PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData.getAdjournment());
 
         assertThat(result).isEqualTo(PartyFlags.builder()
                 .flagId("70")
@@ -382,11 +384,13 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void adjournCaseInterpreterLanguageNull(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournment(Adjournment.builder()
-                    .interpreterLanguage(new DynamicList(interpreterLanguage)).build())
-                .build();
+            .adjournment(Adjournment.builder()
+                .isAdjournmentInProgress(YES)
+                .interpreterLanguage(new DynamicList(interpreterLanguage))
+                .build())
+            .build();
 
-        PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
+        PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData.getAdjournment());
 
         assertThat(result).isNull();
     }
@@ -397,16 +401,20 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
         // given
         SscsCaseData sscsCaseData = Mockito.mock(SscsCaseData.class);
         Appeal appeal = Mockito.mock(Appeal.class);
+        Adjournment adjournment = Mockito.mock(Adjournment.class);
         HearingOptions hearingOptions = Mockito.mock(HearingOptions.class);
         // when
         Mockito.when(hearingOptions.getSignLanguageType()).thenReturn("British Sign Language (BSL)");
         Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        Mockito.when(adjournment.getIsAdjournmentInProgress()).thenReturn(YES);
+        Mockito.when(sscsCaseData.getAdjournment()).thenReturn(adjournment);
         // then
         CaseFlags caseFlags = PartyFlagsMapping.getCaseFlags(sscsCaseData);
         assertEquals("", caseFlags.getFlagAmendUrl());
         assertEquals(1, caseFlags.getFlags().size());
-        assertEquals(SIGN_LANGUAGE_TYPE.getFlagId(), caseFlags.getFlags().stream().findFirst().orElseThrow().getFlagId());
+        assertEquals(SIGN_LANGUAGE_TYPE.getFlagId(),
+                     caseFlags.getFlags().stream().findFirst().orElseThrow().getFlagId());
     }
 
 }

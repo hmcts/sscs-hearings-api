@@ -33,7 +33,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRES
 public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
-    public static final String DWP_ORGANISATION_TYPE = "OGD";
 
     private HearingsMapping() {
     }

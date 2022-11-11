@@ -57,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -125,10 +126,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .build())
                 .build())
             .caseManagementLocation(CaseManagementLocation.builder()
-                                        .baseLocation(EPIMS_ID)
-                                        .region(REGION)
-                                        .build())
+                .baseLocation(EPIMS_ID)
+                .region(REGION)
+                .build())
             .dwpIsOfficerAttending("Yes")
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
@@ -330,8 +332,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         List<HearingLocation> result = HearingsDetailsMapping.getHearingLocations(
             caseData,
-            referenceDataServiceHolder
-        );
+            referenceDataServiceHolder);
 
         assertThat(result).hasSize(4);
         assertThat(result)
@@ -365,7 +366,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(isUrgentCase)
-            .adjournment(Adjournment.builder().panelMembersExcluded(panelMembersExcluded).build())
+            .adjournment(Adjournment.builder()
+                .isAdjournmentInProgress(YES)
+                .panelMembersExcluded(panelMembersExcluded)
+                .build())
             .build();
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 

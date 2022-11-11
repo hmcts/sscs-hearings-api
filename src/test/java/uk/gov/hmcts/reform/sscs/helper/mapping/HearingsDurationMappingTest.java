@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType.NON_STANDARD;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
@@ -46,6 +47,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .adjournment(Adjournment.builder()
+                 .isAdjournmentInProgress(YES)
                  .nextHearingListingDurationType(NON_STANDARD)
                  .nextHearingListingDuration(adjournCaseDuration)
                  .nextHearingListingDurationUnits(nextHearingDurationUnits).build())
@@ -64,6 +66,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
                     .wantsToAttend(wantsToAttend)
                     .build())
                 .build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .build();
     }
 
@@ -114,7 +117,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .adjournment(Adjournment.builder().build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
                     .wantsToAttend("Yes")
@@ -260,6 +263,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
                     .languageInterpreter("Yes")
                     .build())
                .build())
+            .adjournment(Adjournment.builder().isAdjournmentInProgress(YES).build())
             .build();
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
