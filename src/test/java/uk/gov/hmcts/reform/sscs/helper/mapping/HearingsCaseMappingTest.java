@@ -56,8 +56,12 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
-                .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                        false,false,SessionCategory.CATEGORY_03,null));
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM,
+                                               Issue.DD,
+                                               false,
+                                               false,
+                                               SessionCategory.CATEGORY_03,
+                                               null));
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
