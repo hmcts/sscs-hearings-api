@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -251,14 +252,16 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build());
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterRequired(adjournCaseInterpreter)
-                .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                .languageInterpreter(appellantInterpreter)
-                                .build())
-                        .build())
-                .otherParties(otherParties)
-                .build();
+            .adjournment(Adjournment.builder()
+                .interpreterRequired(YesNo.valueOf(adjournCaseInterpreter))
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .languageInterpreter(appellantInterpreter)
+                    .build())
+                .build())
+            .otherParties(otherParties)
+            .build();
         boolean result = HearingsCaseMapping.isInterpreterRequired(caseData);
 
         assertEquals(expected, result);

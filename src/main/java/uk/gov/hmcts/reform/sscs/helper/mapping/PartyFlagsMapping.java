@@ -137,7 +137,7 @@ public final class PartyFlagsMapping {
 
     public static PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
         PartyFlags adjournCasePartyFlag = null;
-        if (isNotBlank(caseData.getAdjournCaseInterpreterLanguage())) {
+        if (isNotBlank(caseData.getAdjournment().getInterpreterLanguage())) {
             adjournCasePartyFlag = PartyFlags.builder()
                 .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
                 .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
