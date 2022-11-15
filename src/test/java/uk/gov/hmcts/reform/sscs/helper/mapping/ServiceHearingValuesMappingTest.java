@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -105,7 +106,9 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
-            .adjournCaseCanCaseBeListedRightAway("Yes")
+            .adjournment(Adjournment.builder()
+                .canCaseBeListedRightAway(YesNo.YES)
+                .build())
             .caseManagementLocation(CaseManagementLocation.builder()
                 .baseLocation("LIVERPOOL SOCIAL SECURITY AND CHILD SUPPORT TRIBUNAL")
                 .region("North West")

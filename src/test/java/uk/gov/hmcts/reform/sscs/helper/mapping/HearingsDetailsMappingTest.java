@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
@@ -357,7 +359,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(isUrgentCase)
-            .adjournCasePanelMembersExcluded(isAdjournCase)
+            .adjournment(
+                Adjournment.builder()
+                    .panelMembersExcluded(AdjournCasePanelMembersExcluded.getPanelMembersExcludedByCcdDefinition(isAdjournCase))
+                    .build()
+            )
             .build();
         String result = HearingsDetailsMapping.getHearingPriority(caseData);
 
