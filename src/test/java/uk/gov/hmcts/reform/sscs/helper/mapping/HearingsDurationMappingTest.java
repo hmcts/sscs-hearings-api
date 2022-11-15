@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDateType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
