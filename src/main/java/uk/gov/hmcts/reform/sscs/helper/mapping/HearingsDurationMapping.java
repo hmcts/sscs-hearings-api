@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.jetbrains.annotations.Nullable;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
@@ -58,25 +59,32 @@ public final class HearingsDurationMapping {
         ReferenceDataServiceHolder referenceDataServiceHolder
     ) {
         if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            || isNoOrNull(caseData.getAdjournment().getIsAdjournmentInProgress())) {
+            || isNoOrNull(caseData.getAdjournment().getIsAdjournmentInProgress())
+        ) {
             return null;
         }
 
         Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
 
         if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD
-            && duration != null) {
-
-            AdjournCaseNextHearingDurationUnits units = caseData.getAdjournment().getNextHearingListingDurationUnits();
-            if (units == AdjournCaseNextHearingDurationUnits.SESSIONS
-                && duration >= MIN_HEARING_SESSION_DURATION) {
-                return duration * DURATION_SESSIONS_MULTIPLIER;
-            } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES
-                && duration >= MIN_HEARING_DURATION) {
-                return duration;
-            }
+            && duration != null
+        ) {
+            return handleNonStandardDuration(caseData, duration);
         }
 
+        return null;
+    }
+
+    @Nullable
+    private static Integer handleNonStandardDuration(SscsCaseData caseData, Integer duration) {
+        AdjournCaseNextHearingDurationUnits units = caseData.getAdjournment().getNextHearingListingDurationUnits();
+        if (units == AdjournCaseNextHearingDurationUnits.SESSIONS
+            && duration >= MIN_HEARING_SESSION_DURATION) {
+            return duration * DURATION_SESSIONS_MULTIPLIER;
+        } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES
+            && duration >= MIN_HEARING_DURATION) {
+            return duration;
+        }
         return null;
     }
 
