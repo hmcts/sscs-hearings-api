@@ -1,6 +1,10 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
+import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -12,7 +16,8 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType.NON_STANDARD;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 
@@ -23,9 +28,6 @@ public final class HearingsDurationMapping {
     public static final int DURATION_DEFAULT = 30;
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
-    public static final String DURATION_TYPE_NON_STANDARD_TIME_SLOT = "nonStandardTimeSlot";
-    public static final String DURATION_UNITS_MINUTES = "minutes";
-    public static final String DURATION_UNITS_SESSIONS = "sessions";
 
     private HearingsDurationMapping() {
 
@@ -55,21 +57,21 @@ public final class HearingsDurationMapping {
         SscsCaseData caseData,
         ReferenceDataServiceHolder referenceDataServiceHolder
     ) {
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()) {
+        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
+            || isNoOrNull(caseData.getAdjournment().getIsAdjournmentInProgress())) {
             return null;
         }
 
-        String nextHearingListingDuration = caseData.getAdjournCaseNextHearingListingDuration();
+        Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
 
-        if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equals(caseData.getAdjournCaseNextHearingListingDurationType())
-            && isNotBlank(nextHearingListingDuration)) {
-            int duration = Integer.parseInt(nextHearingListingDuration);
+        if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD
+            && duration != null) {
 
-            String units = caseData.getAdjournCaseNextHearingListingDurationUnits();
-            if (DURATION_UNITS_SESSIONS.equals(units)
+            AdjournCaseNextHearingDurationUnits units = caseData.getAdjournment().getNextHearingListingDurationUnits();
+            if (units == AdjournCaseNextHearingDurationUnits.SESSIONS
                 && duration >= MIN_HEARING_SESSION_DURATION) {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
-            } else if (DURATION_UNITS_MINUTES.equals(units)
+            } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES
                 && duration >= MIN_HEARING_DURATION) {
                 return duration;
             }
