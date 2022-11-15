@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -37,17 +38,19 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     void shouldAddTheMappingsGivenTheValuesAreNotNull() {
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme("dwpPHME")
-                .dwpUcb("dwpUCB")
-                .urgentCase(YES.toString())
-                .adjournCaseInterpreterLanguage("adjournCaseInterpreterLanguage")
-                .isConfidentialCase(YES)
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType("signLanguageType")
-                                .arrangements(List.of("disabledAccess", "hearingLoop"))
-                                .build()).build())
-                .build();
+            .dwpPhme("dwpPHME")
+            .dwpUcb("dwpUCB")
+            .urgentCase(YES.toString())
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage("adjournCaseInterpreterLanguage")
+                .build())
+            .isConfidentialCase(YES)
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType("signLanguageType")
+                    .arrangements(List.of("disabledAccess", "hearingLoop"))
+                    .build()).build())
+            .build();
 
         List<PartyFlags> actual = PartyFlagsMapping.getPartyFlags(caseData);
 
@@ -69,18 +72,20 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void shouldNotThrowNullPointerWhenChainedValuesInCaseDataIsNull() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme(null)
-                .dwpUcb(null)
-                .urgentCase(null)
-                .adjournCaseInterpreterLanguage(null)
-                .isConfidentialCase(null)
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType(null)
-                                .arrangements(
-                                        List.of("", ""))
-                                .build()).build())
-                .build();
+            .dwpPhme(null)
+            .dwpUcb(null)
+            .urgentCase(null)
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage(null)
+                .build())
+            .isConfidentialCase(null)
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType(null)
+                    .arrangements(
+                        List.of("", ""))
+                    .build()).build())
+            .build();
         NullPointerException npe = null;
         try {
             PartyFlagsMapping.getPartyFlags(caseData);
@@ -360,8 +365,10 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"spanish", "french"})
     void adjournCaseInterpreterLanguage(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterLanguage(interpreterLanguage)
-                .build();
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage(interpreterLanguage)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
 
@@ -377,8 +384,10 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void adjournCaseInterpreterLanguageNull(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterLanguage(interpreterLanguage)
-                .build();
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage(interpreterLanguage)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
 
