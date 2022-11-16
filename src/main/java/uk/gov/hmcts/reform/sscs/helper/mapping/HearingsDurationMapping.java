@@ -59,7 +59,7 @@ public final class HearingsDurationMapping {
         ReferenceDataServiceHolder referenceDataServiceHolder
     ) {
         if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            || isNoOrNull(caseData.getAdjournment().getIsAdjournmentInProgress())
+            || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())
         ) {
             return null;
         }
