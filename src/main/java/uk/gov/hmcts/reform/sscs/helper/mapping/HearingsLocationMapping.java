@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.RegionalProcessingCenter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
@@ -26,7 +27,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.NextHearingVenueType.
 public final class HearingsLocationMapping {
 
     private HearingsLocationMapping() {
-
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
@@ -104,17 +104,20 @@ public final class HearingsLocationMapping {
             String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
 
             VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
-
             String venueName = venueDetails.getVenName();
-            String regionalProcessingCentre = venueDetails.getRegionalProcessingCentre();
+
+            RegionalProcessingCenter regionalProcessingCenter = referenceDataServiceHolder
+                .getRegionalProcessingCenterService()
+                .getByVenueId(venueDetails.getVenueId());
+            String regionalProcessingCentreName = regionalProcessingCenter.getName();
 
             log.info("Getting hearing location {} with the epims ID of {} and regional processing centre of {}",
-                     venueName, epimsID, regionalProcessingCentre);
+                     venueName, epimsID, regionalProcessingCentreName);
 
             return List.of(HearingLocation.builder().locationName(venueName)
                                .locationId(epimsID)
                                .locationType(COURT)
-                               .region(regionalProcessingCentre)
+                               .region(regionalProcessingCentreName)
                                .build());
         }
 
