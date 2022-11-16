@@ -60,7 +60,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
                 .nextHearingListingDurationType(AdjournCaseNextHearingDurationType.NON_STANDARD)
                 .nextHearingListingDuration(adjournCaseDuration)
                 .nextHearingListingDurationUnits(adjournCaseDurationUnits)
-                .isAdjournmentInProgress(YesNo.YES)
+                .adjournmentInProgress(YesNo.YES)
                 .build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().build())
