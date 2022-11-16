@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
@@ -32,7 +31,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HearingsDurationMappingTest extends HearingsMappingBase {
     @Mock
     private HearingDurationsService hearingDurations;
@@ -40,7 +38,20 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    SscsCaseData caseData;
+
+    private void setWantsToAttend() {
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+    }
+
+    private void setDoesNotWantToAttend() {
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
+    }
+
+    private void setOverrideDuration(Integer overrideDuration) {
+        caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(overrideDuration);
+    }
+
     @Nested
     class HearingDurationsProvided {
 
@@ -55,6 +66,19 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
                 DURATION_INTERPRETER,
                 DURATION_PAPER
             ));
+
+            caseData = SscsCaseData.builder()
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
+                .appeal(Appeal.builder()
+                    .hearingOptions(HearingOptions.builder()
+                        .build())
+                    .build())
+                .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                    .overrideFields(OverrideFields.builder()
+                        .build())
+                    .build())
+                .build();
         }
 
         @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -75,24 +99,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
             ))
                 .willReturn(DURATION_INTERPRETER);
 
-            SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .adjournment(Adjournment.builder()
-                    .nextHearingListingDuration(null)
-                    .nextHearingListingDurationUnits(null)
-                    .build())
-                .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("Yes")
-                        .build())
-                    .build())
-                .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                    .overrideFields(OverrideFields.builder()
-                        .duration(overrideDuration)
-                        .build())
-                    .build())
-                .build();
+            setWantsToAttend();
+            setOverrideDuration(overrideDuration);
 
             int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
