@@ -58,6 +58,12 @@ public class HearingsMappingBase {
 
     public static final String EX_UI_URL = "http://localhost:3455";
 
+    public static final int DURATION_FACE_TO_FACE = 60;
+
+    public static final int DURATION_INTERPRETER = 75;
+
+    public static final int DURATION_PAPER = 40;
+
     @NotNull
     public static List<String> splitCsvParamArray(String expected) {
         List<String> paramArray = new ArrayList<>(List.of(expected.split(ARRAY_SPLIT_REGEX)));
