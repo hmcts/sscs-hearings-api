@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -35,8 +34,6 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    private SscsCaseData caseData;
-
     private void setAdjournmentDurationAndUnits(Integer duration, AdjournCaseNextHearingDurationUnits units) {
         caseData.getAdjournment().setNextHearingListingDuration(duration);
         caseData.getAdjournment().setNextHearingListingDurationUnits(units);
@@ -46,17 +43,8 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     void setUp() {
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
-        caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .adjournment(Adjournment.builder()
-                .nextHearingListingDurationType(AdjournCaseNextHearingDurationType.NON_STANDARD)
-                .adjournmentInProgress(YesNo.YES)
-                .build())
-            .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().build())
-                .build())
-            .build();
+        caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.NON_STANDARD);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
     }
 
     @DisplayName("When a valid adjournCaseDuration and adjournCaseDurationUnits is given "
@@ -91,19 +79,16 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     void getHearingDurationAdjournmentReturnsNullWithFeatureFlagEnabled() {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
-        given(hearingDurations.getHearingDuration(
-            HearingsMappingBase.BENEFIT_CODE,
-            HearingsMappingBase.ISSUE_CODE
-        )).willReturn(null);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(null);
 
         SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(HearingsMappingBase.BENEFIT_CODE)
-            .issueCode(HearingsMappingBase.ISSUE_CODE)
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .build();
 
         Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(
@@ -122,7 +107,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         + "getHearingDuration returns the default adjournment duration")
     @Test
     void getHearingDurationWithNullUnits() {
-        given(hearingDurations.getHearingDuration(HearingsMappingBase.BENEFIT_CODE, HearingsMappingBase.ISSUE_CODE))
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
                 Issue.DD,
