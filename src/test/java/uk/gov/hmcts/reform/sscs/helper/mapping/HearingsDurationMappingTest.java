@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
@@ -17,8 +16,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -38,13 +35,11 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    SscsCaseData caseData;
-
-    private void setWantsToAttend() {
+    private void setWantsToAttendYes() {
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
     }
 
-    private void setDoesNotWantToAttend() {
+    private void setWantsToAttendNo() {
         caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
     }
 
@@ -66,19 +61,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
                 DURATION_INTERPRETER,
                 DURATION_PAPER
             ));
-
-            caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .build())
-                    .build())
-                .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                    .overrideFields(OverrideFields.builder()
-                        .build())
-                    .build())
-                .build();
         }
 
         @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -99,7 +81,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
             ))
                 .willReturn(DURATION_INTERPRETER);
 
-            setWantsToAttend();
+            setWantsToAttendYes();
             setOverrideDuration(overrideDuration);
 
             int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -113,15 +95,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         @Test
         void getHearingDurationBenefitIssueCodesPaper() {
 
-            SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("No")
-                        .build())
-                    .build())
-                .build();
+            setWantsToAttendNo();
 
             Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
                 caseData,
@@ -148,16 +122,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
                     .build())
             );
 
-            SscsCaseData caseData = SscsCaseData.builder()
-                .otherParties(otherParties)
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("no")
-                        .build())
-                    .build())
-                .build();
+            caseData.setOtherParties(otherParties);
+            setWantsToAttendNo();
 
             Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
                 caseData,
@@ -180,15 +146,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
             ))
                 .willReturn(DURATION_FACE_TO_FACE);
 
-            SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("Yes")
-                        .build())
-                    .build())
-                .build();
+            setWantsToAttendYes();
 
             Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
                 caseData,
@@ -211,16 +169,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
             ))
                 .willReturn(DURATION_INTERPRETER);
 
-            SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("Yes")
-                        .languageInterpreter("Yes")
-                        .build())
-                    .build())
-                .build();
+            setWantsToAttendYes();
+            caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
 
             Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
                 caseData,
@@ -235,17 +185,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         @Test
         void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
 
-            SscsCaseData caseData = SscsCaseData.builder()
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(Appeal.builder()
-                    .hearingSubtype(HearingSubtype.builder().build())
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("No")
-                        .build())
-                    .build())
-                .dwpIsOfficerAttending("Yes")
-                .build();
+            setWantsToAttendNo();
+            caseData.setDwpIsOfficerAttending("Yes");
 
             Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
                 caseData,
@@ -261,24 +202,9 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "is present then override the duration of hearing")
     @Test
     void getHearingDurationWillReturnOverrideDurationWhenPresent() {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .benefitCode(BENEFIT_CODE)
-            .issueCode(ISSUE_CODE)
-            .adjournment(Adjournment.builder()
-                .nextHearingListingDuration(null)
-                .nextHearingListingDurationUnits(null)
-                .build())
-            .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend("Yes")
-                    .build())
-                .build())
-            .schedulingAndListingFields(SchedulingAndListingFields.builder()
-                .overrideFields(OverrideFields.builder()
-                    .duration(DURATION_FACE_TO_FACE)
-                    .build())
-                .build())
-            .build();
+
+        setWantsToAttendYes();
+        setOverrideDuration(DURATION_FACE_TO_FACE);
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
