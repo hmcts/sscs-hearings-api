@@ -253,7 +253,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
-                .interpreterRequired(YesNo.getValue(adjournCaseInterpreter))
+                .interpreterRequired(YesNo.getYesNo(adjournCaseInterpreter))
                 .build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
