@@ -39,11 +39,12 @@ public class TribunalsHearingsJmsConfig {
     @Value("${azure.service-bus.tribunals-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
 
-    public static final String AMQP_CONNECTION_STRING_TEMPLATE = "amqps://%1s?amqp.idleTimeout=%2d";
+    @Value("${azure.service-bus.amqp-connection-string-template:amqps://%1s?amqp.idleTimeout=%2d}")
+    public String amqpConnectionStringTemplate;
 
     @Bean
     public ConnectionFactory tribunalsHearingsJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
-        String connection = String.format(AMQP_CONNECTION_STRING_TEMPLATE, namespace + connectionPostfix, idleTimeout);
+        String connection = String.format(amqpConnectionStringTemplate, namespace + connectionPostfix, idleTimeout);
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
         jmsConnectionFactory.setUsername(username);
         jmsConnectionFactory.setPassword(password);
