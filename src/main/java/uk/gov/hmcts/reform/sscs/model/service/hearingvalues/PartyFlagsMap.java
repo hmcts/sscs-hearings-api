@@ -14,7 +14,7 @@ public enum PartyFlagsMap {
     DWP_UCB("56", "Unacceptable customer behaviour", "2"),
     DWP_PHME("63", "Potentially harmful medical evidence", "1"),
     URGENT_CASE("67", "Urgent flag", "1"),
-    ADJOURN_CASE_INTERPRETER_LANGUAGE("70", "Language Interpreter", "2");
+    LANGUAGE_INTERPRETER_FLAG("70", "Language Interpreter", "2");
 
     private final String flagId;
     private final String flagDescription;

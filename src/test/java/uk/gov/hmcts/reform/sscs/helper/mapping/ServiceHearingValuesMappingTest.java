@@ -406,6 +406,13 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .flagDescription("Urgent flag")
                     .flagStatus(null)
                     .build());
+                add(PartyFlags.builder()
+                    .partyName(null)
+                    .flagParentId("2")
+                    .flagId("70")
+                    .flagDescription("Language Interpreter")
+                    .flagStatus(null)
+                    .build());
             }
         };
     }
