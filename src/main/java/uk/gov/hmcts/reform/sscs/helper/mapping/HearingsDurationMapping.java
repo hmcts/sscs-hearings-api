@@ -54,7 +54,7 @@ public final class HearingsDurationMapping {
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData,
                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
+        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled() // TODO SSCS-10951
             || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())) {
             return null;
         }
