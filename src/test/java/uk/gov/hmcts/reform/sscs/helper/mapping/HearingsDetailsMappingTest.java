@@ -346,22 +346,25 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("getHearingPriority Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,Urgent", "Yes,No,Urgent", "No,Yes,Urgent",
-        "No,No,Standard",
-        "Yes,null,Urgent", "No,null,Standard",
-        "null,Yes,Urgent", "null,No,Standard",
+        "YES,Yes,Urgent",
+        "YES,No,Urgent",
+        "NO,Yes,Urgent",
+        "NO,No,Standard",
+        "YES,null,Urgent",
+        "NO,null,Standard",
+        "null,Yes,Urgent",
+        "null,No,Standard",
         "null,null,Standard",
-        "Yes,,Urgent", "No,,Standard",
-        ",Yes,Urgent", ",No,Standard",
-        ",,Standard"
+        "YES,,Urgent",
+        "NO,,Standard"
     }, nullValues = {"null"})
-    void getHearingPriority(String isAdjournCase, String isUrgentCase, String expected) {
+    void getHearingPriority(AdjournCasePanelMembersExcluded isAdjournCase, String isUrgentCase, String expected) {
         // TODO Finish Test when method done
         SscsCaseData caseData = SscsCaseData.builder()
             .urgentCase(isUrgentCase)
             .adjournment(
                 Adjournment.builder()
-                    .panelMembersExcluded(AdjournCasePanelMembersExcluded.getPanelMembersExcludedByCcdDefinition(isAdjournCase))
+                    .panelMembersExcluded(isAdjournCase)
                     .build()
             )
             .build();
