@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -29,173 +27,195 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 class HearingsDurationMappingTest extends HearingsMappingBase {
+
     @Mock
     private HearingDurationsService hearingDurations;
 
     @Mock
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    private void setWantsToAttendYes() {
-        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
-    }
-
-    private void setWantsToAttendNo() {
-        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
-    }
-
-    private void setOverrideDuration(Integer overrideDuration) {
-        caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(overrideDuration);
-    }
-
-    @Nested
-    class HearingDurationsProvided {
-
-        @BeforeEach
-        void setUp() {
-            given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-            given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-                .willReturn(new HearingDuration(
+    @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
+        + "is not present then override the duration of hearing")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,75",
+        "0,75",
+        "-1, 75"
+    }, nullValues = {"null"})
+    void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
                 Issue.DD,
                 DURATION_FACE_TO_FACE,
                 DURATION_INTERPRETER,
                 DURATION_PAPER
             ));
-        }
+        given(hearingDurations.addExtraTimeIfNeeded(
+            eq(DURATION_FACE_TO_FACE),
+            eq(BenefitCode.PIP_NEW_CLAIM),
+            eq(Issue.DD),
+            any()
+        ))
+            .willReturn(DURATION_INTERPRETER);
 
-        @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
-            + "is not present then override the duration of hearing")
-        @ParameterizedTest
-        @CsvSource(value = {
-            "null,75",
-            "0,75",
-            "-1, 75"
-        }, nullValues = {"null"})
-        void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+        caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(overrideDuration);
 
-            given(hearingDurations.addExtraTimeIfNeeded(
-                eq(DURATION_FACE_TO_FACE),
-                eq(BenefitCode.PIP_NEW_CLAIM),
-                eq(Issue.DD),
-                any()
-            ))
-                .willReturn(DURATION_INTERPRETER);
+        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
-            setWantsToAttendYes();
-            setOverrideDuration(overrideDuration);
-
-            int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
-
-            assertThat(result).isEqualTo(expectedResult);
-        }
+        assertThat(result).isEqualTo(expectedResult);
+    }
 
 
-        @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is paper "
-            + "getHearingDurationBenefitIssueCodes return the correct paper durations")
-        @Test
-        void getHearingDurationBenefitIssueCodesPaper() {
+    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is paper "
+        + "getHearingDurationBenefitIssueCodes return the correct paper durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesPaper() {
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(
+                BenefitCode.PIP_NEW_CLAIM,
+                Issue.DD,
+                DURATION_FACE_TO_FACE,
+                DURATION_INTERPRETER,
+                DURATION_PAPER
+            ));
 
-            setWantsToAttendNo();
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
 
-            Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-                caseData,
-                referenceDataServiceHolder
-            );
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
 
-            assertThat(result).isEqualTo(DURATION_PAPER);
-        }
+        assertThat(result).isEqualTo(DURATION_PAPER);
+    }
 
-        @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is not paper "
-            + "getHearingDurationBenefitIssueCodes returns null")
-        @Test
-        void getHearingDurationBenefitIssueCodesNotPaper() {
+    @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is not paper "
+        + "getHearingDurationBenefitIssueCodes returns null")
+    @Test
+    void getHearingDurationBenefitIssueCodesNotPaper() {
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(
+                BenefitCode.PIP_NEW_CLAIM,
+                Issue.DD,
+                DURATION_FACE_TO_FACE,
+                DURATION_INTERPRETER,
+                DURATION_PAPER
+            ));
 
-            List<CcdValue<OtherParty>> otherParties = List.of(new CcdValue<>(
-                OtherParty.builder()
-                    .hearingOptions(HearingOptions.builder()
-                        .wantsToAttend("yes")
-                        .build())
-                    .hearingSubtype(HearingSubtype.builder()
-                        .wantsHearingTypeTelephone("yes")
-                        .hearingTelephoneNumber("123123")
-                        .build())
+        List<CcdValue<OtherParty>> otherParties = List.of(new CcdValue<>(
+            OtherParty.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("yes")
                     .build())
-            );
+                .hearingSubtype(HearingSubtype.builder()
+                    .wantsHearingTypeTelephone("yes")
+                    .hearingTelephoneNumber("123123")
+                    .build())
+                .build())
+        );
 
-            caseData.setOtherParties(otherParties);
-            setWantsToAttendNo();
+        caseData.setOtherParties(otherParties);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
 
-            Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-                caseData,
-                referenceDataServiceHolder
-            );
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
 
-            assertThat(result).isNull();
-        }
+        assertThat(result).isNull();
+    }
 
-        @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
-            + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
-        @Test
-        void getHearingDurationBenefitIssueCodesFaceToFace() {
+    @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "
+        + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesFaceToFace() {
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(
+                BenefitCode.PIP_NEW_CLAIM,
+                Issue.DD,
+                DURATION_FACE_TO_FACE,
+                DURATION_INTERPRETER,
+                DURATION_PAPER
+            ));
+        given(hearingDurations.addExtraTimeIfNeeded(
+            eq(DURATION_FACE_TO_FACE),
+            eq(BenefitCode.PIP_NEW_CLAIM),
+            eq(Issue.DD),
+            any()
+        ))
+            .willReturn(DURATION_FACE_TO_FACE);
 
-            given(hearingDurations.addExtraTimeIfNeeded(
-                eq(DURATION_FACE_TO_FACE),
-                eq(BenefitCode.PIP_NEW_CLAIM),
-                eq(Issue.DD),
-                any()
-            ))
-                .willReturn(DURATION_FACE_TO_FACE);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
 
-            setWantsToAttendYes();
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
 
-            Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-                caseData,
-                referenceDataServiceHolder
-            );
+        assertThat(result).isEqualTo(DURATION_FACE_TO_FACE);
+    }
 
-            assertThat(result).isEqualTo(DURATION_FACE_TO_FACE);
-        }
+    @DisplayName("When wantsToAttend for the Appeal is Yes "
+        + "getHearingDurationBenefitIssueCodes return the correct interpreter durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesInterpreter() {
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(
+                BenefitCode.PIP_NEW_CLAIM,
+                Issue.DD,
+                DURATION_FACE_TO_FACE,
+                DURATION_INTERPRETER,
+                DURATION_PAPER
+            ));
+        given(hearingDurations.addExtraTimeIfNeeded(
+            eq(DURATION_INTERPRETER),
+            eq(BenefitCode.PIP_NEW_CLAIM),
+            eq(Issue.DD),
+            any()
+        ))
+            .willReturn(DURATION_INTERPRETER);
 
-        @DisplayName("When wantsToAttend for the Appeal is Yes "
-            + "getHearingDurationBenefitIssueCodes return the correct interpreter durations")
-        @Test
-        void getHearingDurationBenefitIssueCodesInterpreter() {
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+        caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
 
-            given(hearingDurations.addExtraTimeIfNeeded(
-                eq(DURATION_INTERPRETER),
-                eq(BenefitCode.PIP_NEW_CLAIM),
-                eq(Issue.DD),
-                any()
-            ))
-                .willReturn(DURATION_INTERPRETER);
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
 
-            setWantsToAttendYes();
-            caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
+        assertThat(result).isEqualTo(DURATION_INTERPRETER);
+    }
 
-            Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-                caseData,
-                referenceDataServiceHolder
-            );
+    @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is paper "
+        + "getHearingDurationBenefitIssueCodes return the correct paper durations")
+    @Test
+    void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
+            .willReturn(new HearingDuration(
+                BenefitCode.PIP_NEW_CLAIM,
+                Issue.DD,
+                DURATION_FACE_TO_FACE,
+                DURATION_INTERPRETER,
+                DURATION_PAPER
+            ));
 
-            assertThat(result).isEqualTo(DURATION_INTERPRETER);
-        }
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
+        caseData.setDwpIsOfficerAttending("Yes");
 
-        @DisplayName("When wantsToAttend for the Appeal is No and the hearing type is paper "
-            + "getHearingDurationBenefitIssueCodes return the correct paper durations")
-        @Test
-        void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
+        Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
+            caseData,
+            referenceDataServiceHolder
+        );
 
-            setWantsToAttendNo();
-            caseData.setDwpIsOfficerAttending("Yes");
-
-            Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
-                caseData,
-                referenceDataServiceHolder
-            );
-
-            assertThat(result).isEqualTo(DURATION_PAPER);
-        }
-
+        assertThat(result).isEqualTo(DURATION_PAPER);
     }
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
@@ -203,8 +223,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @Test
     void getHearingDurationWillReturnOverrideDurationWhenPresent() {
 
-        setWantsToAttendYes();
-        setOverrideDuration(DURATION_FACE_TO_FACE);
+        caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
+        caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(DURATION_FACE_TO_FACE);
 
         int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
@@ -219,7 +239,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         "002,null",
         "null,DD",
     }, nullValues = {"null"})
-    void getHearingDurationBenefitIssueCodesPaper(String benefitCode, String issueCode) {
+    void getHearingDurationBenefitIssueCodesPaperWithNullSources(String benefitCode, String issueCode) {
 
         given(hearingDurations.getHearingDuration(benefitCode, issueCode)).willReturn(null);
 
