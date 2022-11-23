@@ -3,10 +3,8 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
@@ -19,16 +17,12 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits.MINUTES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits.SESSIONS;
 
-
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
 
     @Mock
@@ -50,7 +44,13 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     @DisplayName("When a valid adjournCaseDuration and adjournCaseDurationUnits is given "
         + "getHearingDuration returns the correct duration Parameterized Tests")
     @ParameterizedTest
-    @MethodSource
+    @CsvSource(value = {
+        "120,MINUTES,120",
+        "70,MINUTES,70",
+        "1,SESSIONS,165",
+        "2,SESSIONS,330",
+        "3,SESSIONS,495"
+    })
     void getHearingDuration(
         Integer adjournCaseDuration,
         AdjournCaseNextHearingDurationUnits adjournCaseDurationUnits,
@@ -61,16 +61,6 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         Integer result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expected);
-    }
-
-    private Stream<Arguments> getHearingDuration() {
-        return Stream.of(
-            Arguments.of(120, MINUTES, 120),
-            Arguments.of(70, MINUTES, 70),
-            Arguments.of(1, SESSIONS, 165),
-            Arguments.of(2, SESSIONS, 330),
-            Arguments.of(3, SESSIONS, 495)
-        );
     }
 
     @DisplayName("When adjournment flag is enabled but getHearingDurationAdjournment returns null "
@@ -127,7 +117,12 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     @DisplayName("When an invalid adjournCaseDuration and valid adjournCaseDurationUnits is given "
         + "getHearingDuration a null pointer exception is thrown")
     @ParameterizedTest
-    @MethodSource
+    @CsvSource(value = {
+        "null,SESSIONS",
+        "0,SESSIONS",
+        "null,MINUTES",
+        "0,MINUTES"
+    }, nullValues = {"null"})
     void getHearingDurationWithInvalidUnitsThrowsException(
         Integer adjournCaseDuration,
         AdjournCaseNextHearingDurationUnits adjournCaseDurationUnits
@@ -137,16 +132,6 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         assertThatThrownBy(() -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .isInstanceOf(NullPointerException.class);
     }
-
-    private Stream<Arguments> getHearingDurationWithInvalidUnitsThrowsException() {
-        return Stream.of(
-            Arguments.of(null, SESSIONS),
-            Arguments.of(0, SESSIONS),
-            Arguments.of(0, MINUTES),
-            Arguments.of(null, MINUTES)
-        );
-    }
-
 
     @DisplayName("When getAdjournCaseNextHearingListingDurationType is non standard and  "
         + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")

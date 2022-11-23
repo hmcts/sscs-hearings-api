@@ -224,24 +224,20 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("shouldBeAdditionalSecurityFlag Parameterized Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,Yes,Yes,true",
-        "Yes,Yes,No,true",
-        "Yes,No,Yes,true",
-        "Yes,No,No,true",
-        "No,Yes,Yes,true",
-        "No,Yes,No,true",
-        "No,No,Yes,true",
-        "No,No,No,false",
+        "YES,Yes,Yes,true",
+        "YES,Yes,No,true",
+        "YES,No,Yes,true",
+        "YES,No,No,true",
+        "NO,Yes,Yes,true",
+        "NO,Yes,No,true",
+        "NO,No,Yes,true",
+        "NO,No,No,false",
         "null,Yes,Yes,true",
         "null,Yes,No,true",
         "null,No,Yes,true",
-        "null,No,No,false",
-        ",Yes,Yes,true",
-        ",Yes,No,true",
-        ",No,Yes,true",
-        ",No,No,false",
+        "null,No,No,false"
     }, nullValues = {"null"})
-    void isInterpreterRequired(String adjournCaseInterpreter, String appellantInterpreter, String otherPartyInterpreter, boolean expected) {
+    void isInterpreterRequired(YesNo adjournCaseInterpreter, String appellantInterpreter, String otherPartyInterpreter, boolean expected) {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(CcdValue.<OtherParty>builder()
             .value(OtherParty.builder()
@@ -253,7 +249,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
 
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
-                .interpreterRequired(YesNo.getYesNo(adjournCaseInterpreter))
+                .interpreterRequired(adjournCaseInterpreter)
                 .build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder()
