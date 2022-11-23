@@ -23,7 +23,6 @@ import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_UCB;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.HEARING_LOOP;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
-import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.LANGUAGE_INTERPRETER_FLAG;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
 
