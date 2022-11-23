@@ -17,12 +17,12 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsDetailsMapping.isCaseUrgent;
-import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.ADJOURN_CASE_INTERPRETER_LANGUAGE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_PHME;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_UCB;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.HEARING_LOOP;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.IS_CONFIDENTIAL_CASE;
+import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.LANGUAGE_INTERPRETER_FLAG;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
 
@@ -34,14 +34,14 @@ public final class PartyFlagsMapping {
 
     public static List<PartyFlags> getPartyFlags(SscsCaseData caseData) {
         return Stream.of(
-                signLanguage(caseData),
-                disabledAccess(caseData),
-                hearingLoop(caseData),
-                confidentialCase(caseData),
-                dwpUcb(caseData),
-                dwpPhme(caseData),
-                urgentCase(caseData),
-                adjournCaseInterpreterLanguage(caseData)
+            signLanguage(caseData),
+            disabledAccess(caseData),
+            hearingLoop(caseData),
+            confidentialCase(caseData),
+            dwpUcb(caseData),
+            dwpPhme(caseData),
+            urgentCase(caseData),
+            getLanguageInterpreterFlag(caseData)
         ).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
@@ -135,13 +135,13 @@ public final class PartyFlagsMapping {
         return urgentCasePartyFlag;
     }
 
-    public static PartyFlags adjournCaseInterpreterLanguage(SscsCaseData caseData) {
+    public static PartyFlags getLanguageInterpreterFlag(SscsCaseData caseData) {
         PartyFlags adjournCasePartyFlag = null;
-        if (isNotBlank(caseData.getAdjournment().getInterpreterLanguage())) {
+        if (HearingsCaseMapping.isInterpreterRequired(caseData)) {
             adjournCasePartyFlag = PartyFlags.builder()
-                .flagId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId())
-                .flagDescription(ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagDescription())
-                .flagParentId(ADJOURN_CASE_INTERPRETER_LANGUAGE.getParentId()).build();
+                .flagId(LANGUAGE_INTERPRETER_FLAG.getFlagId())
+                .flagDescription(LANGUAGE_INTERPRETER_FLAG.getFlagDescription())
+                .flagParentId(LANGUAGE_INTERPRETER_FLAG.getParentId()).build();
         }
         return adjournCasePartyFlag;
     }
