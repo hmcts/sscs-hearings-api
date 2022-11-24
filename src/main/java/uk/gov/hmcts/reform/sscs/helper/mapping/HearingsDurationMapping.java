@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -20,11 +21,9 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
-    public static final int DURATION_DEFAULT = 30;
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
     public static final String DURATION_TYPE_NON_STANDARD_TIME_SLOT = "nonStandardTimeSlot";
-    public static final String DURATION_TYPE_STANDARD_TIME_SLOT = "standardTimeSlot";
     public static final String DURATION_UNITS_MINUTES = "minutes";
     public static final String DURATION_UNITS_SESSIONS = "sessions";
 
@@ -32,7 +31,8 @@ public final class HearingsDurationMapping {
 
     }
 
-    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() >= MIN_HEARING_DURATION) {
@@ -44,11 +44,16 @@ public final class HearingsDurationMapping {
             duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
         }
 
-        return nonNull(duration) ? duration : DURATION_DEFAULT;
+        if (nonNull(duration)) {
+            return duration;
+        } else {
+            caseData.setState(State.LISTING_ERROR);
+
+            throw new InvalidMappingException("No hearing duration found");
+        }
     }
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
-
         if (DURATION_TYPE_NON_STANDARD_TIME_SLOT.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationType())
             && isNotBlank(caseData.getAdjournCaseNextHearingListingDuration())) {
             int duration = Integer.parseInt(caseData.getAdjournCaseNextHearingListingDuration());
@@ -58,7 +63,6 @@ public final class HearingsDurationMapping {
                 return duration * DURATION_SESSIONS_MULTIPLIER;
             } else if (DURATION_UNITS_MINUTES.equalsIgnoreCase(caseData.getAdjournCaseNextHearingListingDurationUnits())
                 && duration >= MIN_HEARING_DURATION) {
-
                 return duration;
             }
         }
@@ -80,8 +84,7 @@ public final class HearingsDurationMapping {
                 : hearingDuration.getDurationFaceToFace();
             return referenceDataServiceHolder.getHearingDurations()
                 .addExtraTimeIfNeeded(duration, hearingDuration.getBenefitCode(), hearingDuration.getIssue(),
-                                      getElementsDisputed(caseData)
-                );
+                                      getElementsDisputed(caseData));
         } else if (HearingsChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
         } else {

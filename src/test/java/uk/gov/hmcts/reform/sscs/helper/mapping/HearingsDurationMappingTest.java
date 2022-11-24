@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -27,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-public class HearingsDurationMappingTest  extends HearingsMappingBase {
+class HearingsDurationMappingTest  extends HearingsMappingBase {
     @Mock
     private HearingDurationsService hearingDurations;
 
@@ -65,7 +66,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "120,minutes,120",
         "1,sessions,165",
     }, nullValues = {"null"})
-    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected) {
+    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits, int expected)
+        throws InvalidMappingException {
 
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
@@ -82,7 +84,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "null,60",
         "1,test",
     }, nullValues = {"null"})
-    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits) {
+    void getHearingDuration(String adjournCaseDuration, String adjournCaseDurationUnits)
+        throws InvalidMappingException {
         // TODO Finish Test when method done
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -109,7 +112,7 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         SscsCaseData caseData = adjourningCaseBuilder(adjournCaseDuration, adjournCaseDurationUnits);
 
         assertThrows(NullPointerException.class, () -> {
-            Object result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+            HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
         });
 
     }
@@ -122,7 +125,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
         "0,75",
         "-1, 75"
     }, nullValues = {"null"})
-    void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
+    void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult)
+        throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                             60, 75, 30
@@ -158,7 +162,8 @@ public class HearingsDurationMappingTest  extends HearingsMappingBase {
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
-    void getHearingDurationWillReturnOverrideDurationWhenPresent() {
+    void getHearingDurationWillReturnOverrideDurationWhenPresent()
+        throws InvalidMappingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
