@@ -1,14 +1,13 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +30,6 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO
 @SuppressWarnings("PMD.CyclomaticComplexity")
 public final class HearingsChannelMapping {
 
-    @Value("${flags.adjournment.enabled}")
-    private static boolean adjournmentFlagEnabled;
-
     private HearingsChannelMapping() {
 
     }
@@ -42,16 +38,11 @@ public final class HearingsChannelMapping {
         return List.of(getHearingChannel(caseData));
     }
 
+    public static List<HearingChannel> getHearingChannels(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        return List.of(getHearingChannel(caseData, referenceDataServiceHolder));
+    }
+
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
-
-        if (adjournmentFlagEnabled && nonNull(caseData.getAdjournCaseTypeOfNextHearing())) {
-            return getNextHearingChannel(caseData);
-        }
-
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            return FACE_TO_FACE;
-        }
-
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
 
         if (hearingChannels.contains(FACE_TO_FACE)) {
@@ -65,19 +56,24 @@ public final class HearingsChannelMapping {
         }
     }
 
+    private static HearingChannel getHearingChannel(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && nonNull(caseData.getAdjournment().getTypeOfNextHearing())) {
+            return getNextHearingChannel(caseData);
+        }
+
+        return getHearingChannel(caseData);
+    }
 
     private static HearingChannel getNextHearingChannel(SscsCaseData caseData) {
-        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournCaseTypeOfNextHearing(),
+        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournment().getTypeOfNextHearing(),
                  caseData.getCaseCode()
         );
-
-        caseData.setAdjournCaseTypeOfNextHearing(StringUtils.trimAllWhitespace(caseData.getAdjournCaseTypeOfNextHearing()));
-
         return Arrays.stream(HearingChannel.values())
-            .filter(hearingChannel -> caseData.getAdjournCaseTypeOfNextHearing().equalsIgnoreCase(
-                hearingChannel.getValueTribunals()))
+            .filter(hearingChannel -> caseData.getAdjournment().getTypeOfNextHearing().getHearingChannel().getValueEn().equalsIgnoreCase(
+                hearingChannel.getValueEn()))
             .findFirst().orElse(PAPER);
     }
+
 
     public static List<HearingChannel> getAllHearingChannelPreferences(@Valid SscsCaseData caseData) {
 
