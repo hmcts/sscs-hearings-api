@@ -22,9 +22,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ReasonableAdjustmentDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
@@ -41,7 +43,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RelatedParty;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
@@ -78,9 +79,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     public static final String APPELLANT_PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb296292997e-14d4-4814-a163-e64018d2c441";
     public static final String REPRESENTATIVE_PARTY_ID = "a2b837d5-ee28-4bc9-a3d8-ce2d2de9fb29";
     public static final String OTHER_PARTY_ID = "4dd6b6fa-6562-4699-8e8b-6c70cf8a333e";
-
-    @Mock
-    public HearingDurationsService hearingDurations;
 
     @Mock
     public VerbalLanguagesService verbalLanguages;
@@ -169,6 +167,9 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .languagePreferenceWelsh("No")
             .otherParties(getOtherParties())
             .linkedCasesBoolean("No")
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .duration(30).build()).build())
             .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
                 .panelDoctorSpecialism("cardiologist")
                 .secondPanelDoctorSpecialism("eyeSurgeon")
@@ -190,10 +191,6 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
 
         given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
                 .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
