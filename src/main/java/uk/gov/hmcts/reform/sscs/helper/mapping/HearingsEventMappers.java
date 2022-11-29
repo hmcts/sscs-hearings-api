@@ -27,7 +27,7 @@ public final class HearingsEventMappers {
         if (shouldCaseBeDormant(response)) {
             return EventType.DORMANT;
         } else if (HearingsWindowMapping.isCasePostponed(caseData)) {
-            return caseData.getPostponement().getPostponementEvent();
+            return EventType.POSTPONED;
         } else {
             return EventType.UPDATE_CASE_ONLY;
         }
