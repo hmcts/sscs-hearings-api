@@ -127,7 +127,6 @@ public class HearingsService {
         }
 
         hearingResponseUpdate(wrapper, hmcUpdateResponse);
-        HearingsServiceHelper.clearTransientFields(wrapper);
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
