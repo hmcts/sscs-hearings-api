@@ -104,7 +104,7 @@ public final class HearingsLocationMapping {
             String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
 
             VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
-            String venueName = venueDetails.getVenName();
+            String venueName = venueDetails.getGapsVenName();
 
             RegionalProcessingCenter regionalProcessingCenter = referenceDataServiceHolder
                 .getRegionalProcessingCenterService()
