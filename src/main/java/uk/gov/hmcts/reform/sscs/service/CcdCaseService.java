@@ -76,7 +76,7 @@ public class CcdCaseService {
         IdamTokens idamTokens = idamService.getIdamTokens();
 
         try {
-            return ccdService.updateCase(caseData, caseId, event.getType(), summary, description, idamTokens);
+            return ccdService.updateCase(caseData, caseId, event.getCcdType(), summary, description, idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
                     String.format("The case with Case id: %s could not be updated with status %s, %s",
