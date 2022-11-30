@@ -80,25 +80,13 @@ class HearingsEventMappersTest {
         assertThat(result).isEqualTo(DORMANT);
     }
 
-    @DisplayName("When the case is postponed and listing option Ready to List, cancelledHandler returns the EventType"
-        + " should be Ready to List")
+    @DisplayName("When the case is postponed cancelledHandler returns the EventType Postponed")
     @Test
     void testCancelledHandlerRelisted() {
         caseData.getPostponement().setPostponementEvent(EventType.READY_TO_LIST);
 
         EventType result = HearingsEventMappers.cancelledHandler(response, caseData);
 
-        assertThat(result).isEqualTo(EventType.READY_TO_LIST);
-    }
-
-    @DisplayName("When the case is postponed and listing option Not Listable, cancelledHandler returns the EventType "
-        + "should be Not Listable")
-    @Test
-    void testCancelledHandlerNotListable() {
-        caseData.getPostponement().setPostponementEvent(EventType.NOT_LISTABLE);
-
-        EventType result = HearingsEventMappers.cancelledHandler(response, caseData);
-
-        assertThat(result).isEqualTo(EventType.NOT_LISTABLE);
+        assertThat(result).isEqualTo(EventType.POSTPONED);
     }
 }
