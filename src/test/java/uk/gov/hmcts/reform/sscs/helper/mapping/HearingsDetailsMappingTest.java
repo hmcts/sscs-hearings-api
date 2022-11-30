@@ -41,7 +41,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
-import uk.gov.hmcts.reform.sscs.service.RegionalProcessingCenterService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -77,9 +76,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Mock
-    private RegionalProcessingCenterService regionalProcessingCenterService;
-
-    @Mock
     private VenueService venueService;
 
     @Mock
@@ -88,8 +84,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     private static final String PROCESSING_VENUE_1 = "The Scarborough Justice Centre";
 
     private static final String REGIONAL_PROCESSING_CENTRE = "SSCS Leeds";
-
-    private static final String REGIONAL_PROCESSING_CENTRE_NAME = "LEEDS";
     private static final String PHONE_NUMBER = "07483871426";
 
     private static final String VENUE_ID = "10";
@@ -327,14 +321,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         throws InvalidMappingException {
         caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
-            .regionalProcessingCenter(RegionalProcessingCenter.builder()
-                                          .name(REGIONAL_PROCESSING_CENTRE)
-                                          .build())
+            .regionalProcessingCenter(RegionalProcessingCenter.builder().name(REGIONAL_PROCESSING_CENTRE).build())
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("N")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("N")
+                    .build())
+                .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
         given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
@@ -412,23 +404,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_1)).willReturn(venueDetails);
         given(venueService.getEpimsIdForVenueId(VENUE_ID)).willReturn(EPIMS_ID_1);
 
-        given(venueDetails.getVenueId()).willReturn(VENUE_ID);
-
-        RegionalProcessingCenter regionalProcessingCenter = RegionalProcessingCenter.builder()
-            .name(REGIONAL_PROCESSING_CENTRE_NAME).build();
-        given(referenceDataServiceHolder.getRegionalProcessingCenterService())
-            .willReturn(regionalProcessingCenterService);
-        given(regionalProcessingCenterService.getByVenueId(venueDetails.getVenueId()))
-            .willReturn(regionalProcessingCenter);
-
         setupAdjournedHearingVenue(SOMEWHERE_ELSE.getValue(), VENUE_ID);
 
         List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(
             caseData, referenceDataServiceHolder);
 
         checkHearingLocationResults(results, EPIMS_ID_1);
-
-        assertThat(results.get(0).getRegion()).isEqualTo(REGIONAL_PROCESSING_CENTRE_NAME);
     }
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
@@ -438,15 +419,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
-
-        given(venueDetails.getVenueId()).willReturn(VENUE_ID);
-
-        RegionalProcessingCenter regionalProcessingCenter = RegionalProcessingCenter.builder()
-            .name(REGIONAL_PROCESSING_CENTRE_NAME).build();
-        given(referenceDataServiceHolder.getRegionalProcessingCenterService())
-            .willReturn(regionalProcessingCenterService);
-        given(regionalProcessingCenterService.getByVenueId(venueDetails.getVenueId()))
-            .willReturn(regionalProcessingCenter);
 
         setupAdjournedHearingVenue(SAME_VENUE.getValue(), EPIMS_ID_1);
 
