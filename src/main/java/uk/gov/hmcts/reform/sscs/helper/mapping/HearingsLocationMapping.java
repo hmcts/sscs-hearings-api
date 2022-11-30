@@ -97,27 +97,19 @@ public final class HearingsLocationMapping {
         throws InvalidMappingException {
         String nextHearingVenueName = caseData.getAdjournCaseNextHearingVenue();
 
-        //TODO: remove flag
+        //TODO: SSCS-10951: remove adjournment flag
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isNotEmpty(nextHearingVenueName)) {
             VenueService venueService = referenceDataServiceHolder.getVenueService();
 
             String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
 
             VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
-            String venueName = venueDetails.getGapsVenName();
 
-            RegionalProcessingCenter regionalProcessingCenter = referenceDataServiceHolder
-                .getRegionalProcessingCenterService()
-                .getByVenueId(venueDetails.getVenueId());
-            String regionalProcessingCentreName = regionalProcessingCenter.getName();
+            log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
 
-            log.info("Getting hearing location {} with the epims ID of {} and regional processing centre of {}",
-                     venueName, epimsID, regionalProcessingCentreName);
-
-            return List.of(HearingLocation.builder().locationName(venueName)
+            return List.of(HearingLocation.builder()
                                .locationId(epimsID)
                                .locationType(COURT)
-                               .region(regionalProcessingCentreName)
                                .build());
         }
 
