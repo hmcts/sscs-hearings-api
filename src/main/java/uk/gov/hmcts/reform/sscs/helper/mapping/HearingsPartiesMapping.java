@@ -112,7 +112,8 @@ public final class HearingsPartiesMapping {
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId, ReferenceDataServiceHolder referenceData, String adjournLanguage) throws InvalidMappingException {
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId, ReferenceDataServiceHolder referenceData,
+                                                                     String adjournLanguage) throws InvalidMappingException {
         return buildHearingPartiesPartyDetails(party, null, null, null, null, referenceData, adjournLanguage);
     }
 

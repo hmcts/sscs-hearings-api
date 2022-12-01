@@ -17,6 +17,7 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DISABLED_ACCESS;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.DWP_PHME;
@@ -356,7 +357,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
 
     @DisplayName("adjournCaseInterpreterLanguage should return party flag mapping if interpreter required")
     @Test
-    void adjournCaseInterpreterLanguage() {
+    void partyFlagIfAdjournCaseInterpreterLanguageGiven() {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
                     .interpreterRequired(YES)
@@ -374,6 +375,24 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
             .flagParentId("2")
             .flagDescription("Language Interpreter")
             .build());
+    }
+
+    @DisplayName("adjournCaseInterpreterLanguage should return party flag as null if no interpreter required")
+    @Test
+    void partyFlagNullIfNoAdjournCaseInterpreterLanguageGiven() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournment(Adjournment.builder()
+                             .interpreterRequired(NO)
+                             .build())
+            .appeal(Appeal.builder().hearingOptions(
+                    HearingOptions.builder()
+                        .build())
+                        .build())
+            .build();
+
+        PartyFlags result = PartyFlagsMapping.getLanguageInterpreterFlag(caseData);
+
+        assertThat(result).isNull();
     }
 
     @DisplayName("noAdjournCaseInterpreterLanguage should not return party flag mapping")
