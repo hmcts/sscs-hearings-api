@@ -48,9 +48,9 @@ public final class HearingsDurationMapping {
             return duration;
         } else {
             caseData.setState(State.LISTING_ERROR);
-
-            throw new InvalidMappingException("No hearing duration found");
         }
+
+        return MIN_HEARING_DURATION;
     }
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {

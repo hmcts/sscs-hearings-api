@@ -10,6 +10,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
@@ -97,9 +99,7 @@ public class HearingsService {
         SscsCaseData caseData = wrapper.getCaseData();
         String caseId = caseData.getCcdCaseId();
 
-        HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
-
-        CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
+        CaseHearing hearing = null;
 
         HmcUpdateResponse hmcUpdateResponse;
 
@@ -107,6 +107,10 @@ public class HearingsService {
             OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
+
+            if (caseData.getState() == State.LISTING_ERROR) {
+                hmcUpdateResponse.setStatus(HmcStatus.EXCEPTION);
+            }
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 caseId,
@@ -167,8 +171,7 @@ public class HearingsService {
         value = UpdateCaseException.class,
         maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
         backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
-    public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response)
-        throws UpdateCaseException {
+    public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException {
 
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
