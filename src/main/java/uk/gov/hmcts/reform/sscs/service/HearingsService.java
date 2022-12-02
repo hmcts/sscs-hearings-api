@@ -99,7 +99,9 @@ public class HearingsService {
         SscsCaseData caseData = wrapper.getCaseData();
         String caseId = caseData.getCcdCaseId();
 
-        CaseHearing hearing = null;
+        HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
+
+        CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
 
         HmcUpdateResponse hmcUpdateResponse;
 
