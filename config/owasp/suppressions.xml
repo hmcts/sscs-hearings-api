@@ -8,4 +8,12 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*?@[1-5]\..*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
   </suppress>
+  <suppress until="2023-09-01">
+    <notes><![CDATA[
+   file name: qpid-jms-client-1.6.0.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.qpid/qpid\-jms\-client@.*$</packageUrl>
+    <cve>CVE-2016-4432</cve>
+    <cve>CVE-2016-3094</cve>
+  </suppress>
 </suppressions>
