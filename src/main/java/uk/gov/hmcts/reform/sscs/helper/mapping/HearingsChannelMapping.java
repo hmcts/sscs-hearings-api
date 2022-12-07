@@ -56,7 +56,8 @@ public final class HearingsChannelMapping {
         }
     }
 
-    private static HearingChannel getHearingChannel(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        log.info("Get the next hearing channel {}", referenceDataServiceHolder.isAdjournmentFlagEnabled());
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && nonNull(caseData.getAdjournment().getTypeOfNextHearing())) {
             return getNextHearingChannel(caseData);
         }
@@ -69,8 +70,8 @@ public final class HearingsChannelMapping {
                  caseData.getCaseCode()
         );
         return Arrays.stream(HearingChannel.values())
-            .filter(hearingChannel -> caseData.getAdjournment().getTypeOfNextHearing().getHearingChannel().getValueEn().equalsIgnoreCase(
-                hearingChannel.getValueEn()))
+            .filter(hearingChannel -> caseData.getAdjournment().getTypeOfNextHearing().getHearingChannel().getValueTribunals().equalsIgnoreCase(
+                hearingChannel.getValueTribunals()))
             .findFirst().orElse(PAPER);
     }
 
