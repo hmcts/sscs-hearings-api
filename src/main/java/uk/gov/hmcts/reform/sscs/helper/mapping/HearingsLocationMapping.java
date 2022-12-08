@@ -97,7 +97,7 @@ public final class HearingsLocationMapping {
         throws InvalidMappingException {
         //TODO: SSCS-10951: remove adjournment flag
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            && caseData.getAdjournment().getAdjournmentInProgress().toBoolean()) {
+            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
             AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
 
             if (nonNull(nextHearingVenueName)) {
