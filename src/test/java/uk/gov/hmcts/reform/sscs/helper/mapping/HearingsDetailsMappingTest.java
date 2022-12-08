@@ -107,7 +107,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @BeforeEach
     void setUp() {
         caseData = SscsCaseData.builder()
-            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingSubtype(HearingSubtype.builder()
@@ -134,7 +133,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         // TODO Finish Test when method done
         caseData = SscsCaseData.builder()
-            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
@@ -271,7 +269,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws InvalidMappingException {
         caseData = SscsCaseData.builder()
-            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
                     .wantsHearingTypeFaceToFace("Yes")
@@ -295,7 +292,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws InvalidMappingException {
         caseData = SscsCaseData.builder()
-            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
                     .wantsHearingTypeFaceToFace("Yes")
@@ -418,7 +414,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
     void getHearingLocationsAdjournmentNewVenue() throws InvalidMappingException {
-        enableAdjournmentFlag();
+        enableAdjournmentFlagAndSetAdjournmentToInProgress();
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -436,7 +432,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
     void getHearingLocationsAdjournmentSameVenue() throws InvalidMappingException {
-        enableAdjournmentFlag();
+        enableAdjournmentFlagAndSetAdjournmentToInProgress();
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
@@ -469,7 +465,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("Checks both the errors we can throw when trying to obtain the venue ID when getting the locations")
     @Test
     void getHearingLocationsFailOnGettingVenueId() {
-        enableAdjournmentFlag();
+        enableAdjournmentFlagAndSetAdjournmentToInProgress();
 
         caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
 
@@ -524,9 +520,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build());
     }
 
-    void enableAdjournmentFlag() {
+    void enableAdjournmentFlagAndSetAdjournmentToInProgress() {
         //TODO: SSCS-10951: remove adjournment flag
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
     }
 
