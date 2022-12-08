@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -37,31 +38,33 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     void shouldAddTheMappingsGivenTheValuesAreNotNull() {
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme("dwpPHME")
-                .dwpUcb("dwpUCB")
-                .urgentCase(YES.toString())
-                .adjournCaseInterpreterLanguage("adjournCaseInterpreterLanguage")
-                .isConfidentialCase(YES)
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType("signLanguageType")
-                                .arrangements(List.of("disabledAccess", "hearingLoop"))
-                                .build()).build())
-                .build();
+            .dwpPhme("dwpPHME")
+            .dwpUcb("dwpUCB")
+            .urgentCase(YES.toString())
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage("adjournCaseInterpreterLanguage")
+                .build())
+            .isConfidentialCase(YES)
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType("signLanguageType")
+                    .arrangements(List.of("disabledAccess", "hearingLoop"))
+                    .build()).build())
+            .build();
 
         List<PartyFlags> actual = PartyFlagsMapping.getPartyFlags(caseData);
 
         assertThat(actual)
-                .extracting("flagId")
-                .contains(
-                        DISABLED_ACCESS.getFlagId(),
-                        SIGN_LANGUAGE_TYPE.getFlagId(),
-                        HEARING_LOOP.getFlagId(),
-                        IS_CONFIDENTIAL_CASE.getFlagId(),
-                        DWP_UCB.getFlagId(),
-                        DWP_PHME.getFlagId(),
-                        URGENT_CASE.getFlagId(),
-                        ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId()
+            .extracting("flagId")
+            .contains(
+                DISABLED_ACCESS.getFlagId(),
+                SIGN_LANGUAGE_TYPE.getFlagId(),
+                HEARING_LOOP.getFlagId(),
+                IS_CONFIDENTIAL_CASE.getFlagId(),
+                DWP_UCB.getFlagId(),
+                DWP_PHME.getFlagId(),
+                URGENT_CASE.getFlagId(),
+                ADJOURN_CASE_INTERPRETER_LANGUAGE.getFlagId()
             );
     }
 
@@ -69,18 +72,20 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void shouldNotThrowNullPointerWhenChainedValuesInCaseDataIsNull() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme(null)
-                .dwpUcb(null)
-                .urgentCase(null)
-                .adjournCaseInterpreterLanguage(null)
-                .isConfidentialCase(null)
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType(null)
-                                .arrangements(
-                                        List.of("", ""))
-                                .build()).build())
-                .build();
+            .dwpPhme(null)
+            .dwpUcb(null)
+            .urgentCase(null)
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage(null)
+                .build())
+            .isConfidentialCase(null)
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType(null)
+                    .arrangements(
+                        List.of("", ""))
+                    .build()).build())
+            .build();
         NullPointerException npe = null;
         try {
             PartyFlagsMapping.getPartyFlags(caseData);
@@ -95,17 +100,17 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = { "British Sign Language (BSL)", "New Zealand Sign Language (NZSL)"})
     void mapSignLanguageType(String signLanguageType) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType(signLanguageType)
-                                .build()).build()).build();
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType(signLanguageType)
+                    .build()).build()).build();
         PartyFlags result = PartyFlagsMapping.signLanguage(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("44")
-                .flagParentId("10")
-                .flagDescription("Sign Language Interpreter")
-                .build());
+            .flagId("44")
+            .flagParentId("10")
+            .flagDescription("Sign Language Interpreter")
+            .build());
     }
 
     @DisplayName("mapSignLanguageType returns null Parameterised Tests")
@@ -113,10 +118,10 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void mapSignLanguageTypeNull(String signLanguageType) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder().hearingOptions(
-                        HearingOptions.builder()
-                                .signLanguageType(signLanguageType)
-                                .build()).build()).build();
+            .appeal(Appeal.builder().hearingOptions(
+                HearingOptions.builder()
+                    .signLanguageType(signLanguageType)
+                    .build()).build()).build();
         PartyFlags result = PartyFlagsMapping.signLanguage(caseData);
 
         assertThat(result).isNull();
@@ -127,22 +132,22 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"disabledAccess|hearingLoop", "disabledAccess"})
     void disabledAccessReturnsFlag(String arrangements) {
         HearingOptions hearingOptions = HearingOptions.builder()
-                .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
-                .build();
+            .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
+            .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(hearingOptions)
-                        .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(hearingOptions)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.disabledAccess(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("21")
-                .flagParentId("6")
-                .flagDescription("Step free / wheelchair access")
-                .build());
+            .flagId("21")
+            .flagParentId("6")
+            .flagDescription("Step free / wheelchair access")
+            .build());
     }
 
     @DisplayName("disabledAccess when Null is returned Parameterised Tests")
@@ -151,14 +156,14 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void disabledAccessReturnsNull(String arrangements) {
         HearingOptions hearingOptions = HearingOptions.builder()
-                .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
-                .build();
+            .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
+            .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(hearingOptions)
-                        .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(hearingOptions)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.disabledAccess(caseData);
 
@@ -169,10 +174,10 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void disabledAccessNoHearingOptions() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(null)
-                        .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(null)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.disabledAccess(caseData);
 
@@ -184,22 +189,22 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"hearingLoop|disabledAccess", "hearingLoop"})
     void hearingLoopReturnsFlag(String arrangements) {
         HearingOptions hearingOptions = HearingOptions.builder()
-                .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
-                .build();
+            .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
+            .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(hearingOptions)
-                        .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(hearingOptions)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.hearingLoop(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("45")
-                .flagParentId("11")
-                .flagDescription("Hearing loop (hearing enhancement system)")
-                .build());
+            .flagId("45")
+            .flagParentId("11")
+            .flagDescription("Hearing loop (hearing enhancement system)")
+            .build());
     }
 
     @DisplayName("hearingLoop when Null is returned Parameterised Tests")
@@ -208,14 +213,14 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void hearingLoopReturnsNull(String arrangements) {
         HearingOptions hearingOptions = HearingOptions.builder()
-                .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
-                .build();
+            .arrangements(nonNull(arrangements) ? splitCsvParamArray(arrangements) : null)
+            .build();
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(hearingOptions)
-                        .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(hearingOptions)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.hearingLoop(caseData);
 
@@ -226,10 +231,10 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void hearingLoopNoHearingOptions() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .appeal(Appeal.builder()
-                        .hearingOptions(null)
-                        .build())
-                .build();
+            .appeal(Appeal.builder()
+                .hearingOptions(null)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.hearingLoop(caseData);
 
@@ -240,16 +245,16 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void confidentialCase() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .isConfidentialCase(YES)
-                .build();
+            .isConfidentialCase(YES)
+            .build();
 
         PartyFlags result = PartyFlagsMapping.confidentialCase(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("53")
-                .flagParentId("2")
-                .flagDescription("Confidential address")
-                .build());
+            .flagId("53")
+            .flagParentId("2")
+            .flagDescription("Confidential address")
+            .build());
     }
 
     @DisplayName("confidentialCase returns null Parameterised Tests")
@@ -258,8 +263,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullSource
     void confidentialCase(YesNo isConfidentialCase) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .isConfidentialCase(isConfidentialCase)
-                .build();
+            .isConfidentialCase(isConfidentialCase)
+            .build();
 
         PartyFlags result = PartyFlagsMapping.confidentialCase(caseData);
 
@@ -270,16 +275,16 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void dwpUcb() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpUcb("dwpUcb")
-                .build();
+            .dwpUcb("dwpUcb")
+            .build();
 
         PartyFlags result = PartyFlagsMapping.dwpUcb(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("56")
-                .flagParentId("2")
-                .flagDescription("Unacceptable customer behaviour")
-                .build());
+            .flagId("56")
+            .flagParentId("2")
+            .flagDescription("Unacceptable customer behaviour")
+            .build());
     }
 
     @DisplayName("dwpUcb returns null Parameterised Tests")
@@ -287,8 +292,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void dwpUcb(String dwpUcb) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpUcb(dwpUcb)
-                .build();
+            .dwpUcb(dwpUcb)
+            .build();
 
         PartyFlags result = PartyFlagsMapping.dwpUcb(caseData);
 
@@ -299,16 +304,16 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void dwpPhme() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme("dwpPhme")
-                .build();
+            .dwpPhme("dwpPhme")
+            .build();
 
         PartyFlags result = PartyFlagsMapping.dwpPhme(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("63")
-                .flagParentId("1")
-                .flagDescription("Potentially harmful medical evidence")
-                .build());
+            .flagId("63")
+            .flagParentId("1")
+            .flagDescription("Potentially harmful medical evidence")
+            .build());
     }
 
     @DisplayName("dwpPhme return null Parameterised Tests")
@@ -316,8 +321,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void dwpPhme(String dwpPhme) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .dwpPhme(dwpPhme)
-                .build();
+            .dwpPhme(dwpPhme)
+            .build();
 
         PartyFlags result = PartyFlagsMapping.dwpPhme(caseData);
 
@@ -328,16 +333,16 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @Test
     void urgentCase() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .urgentCase("Yes")
-                .build();
+            .urgentCase("Yes")
+            .build();
 
         PartyFlags result = PartyFlagsMapping.urgentCase(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("67")
-                .flagParentId("1")
-                .flagDescription("Urgent flag")
-                .build());
+            .flagId("67")
+            .flagParentId("1")
+            .flagDescription("Urgent flag")
+            .build());
     }
 
     @DisplayName("urgentCase returns null Parameterised Tests")
@@ -346,8 +351,8 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void urgentCase(String urgentCase) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .urgentCase(urgentCase)
-                .build();
+            .urgentCase(urgentCase)
+            .build();
 
         PartyFlags result = PartyFlagsMapping.urgentCase(caseData);
 
@@ -360,16 +365,18 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @ValueSource(strings = {"spanish", "french"})
     void adjournCaseInterpreterLanguage(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterLanguage(interpreterLanguage)
-                .build();
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage(interpreterLanguage)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
 
         assertThat(result).isEqualTo(PartyFlags.builder()
-                .flagId("70")
-                .flagParentId("2")
-                .flagDescription("Language Interpreter")
-                .build());
+            .flagId("70")
+            .flagParentId("2")
+            .flagDescription("Language Interpreter")
+            .build());
     }
 
     @DisplayName("adjournCaseInterpreterLanguage Parameterised Tests")
@@ -377,8 +384,10 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     @NullAndEmptySource
     void adjournCaseInterpreterLanguageNull(String interpreterLanguage) {
         SscsCaseData caseData = SscsCaseData.builder()
-                .adjournCaseInterpreterLanguage(interpreterLanguage)
-                .build();
+            .adjournment(Adjournment.builder()
+                .interpreterLanguage(interpreterLanguage)
+                .build())
+            .build();
 
         PartyFlags result = PartyFlagsMapping.adjournCaseInterpreterLanguage(caseData);
 
@@ -396,6 +405,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
         Mockito.when(hearingOptions.getSignLanguageType()).thenReturn("British Sign Language (BSL)");
         Mockito.when(appeal.getHearingOptions()).thenReturn(hearingOptions);
         Mockito.when(sscsCaseData.getAppeal()).thenReturn(appeal);
+        Mockito.when(sscsCaseData.getAdjournment()).thenReturn(Adjournment.builder().build());
         // then
         CaseFlags caseFlags = PartyFlagsMapping.getCaseFlags(sscsCaseData);
         assertEquals("", caseFlags.getFlagAmendUrl());

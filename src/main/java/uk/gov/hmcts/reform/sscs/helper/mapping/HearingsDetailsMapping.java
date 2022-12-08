@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
@@ -79,7 +80,7 @@ public final class HearingsDetailsMapping {
         // If there's an adjournment - date shouldn't reset - should also go to top priority
 
         // TODO Adjournment - Check what should be used to check if there is adjournment
-        if (isCaseUrgent(caseData) || isYes(caseData.getAdjournCasePanelMembersExcluded())) {
+        if (isCaseUrgent(caseData) || caseData.getAdjournment().getPanelMembersExcluded() == AdjournCasePanelMembersExcluded.YES) {
             return URGENT.getHmcReference();
         }
         return STANDARD.getHmcReference();
