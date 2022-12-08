@@ -27,7 +27,6 @@
    incorrect tagging qpid-jms-client as qpid_java
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.qpid/qpid\-jms\-client@.*$</packageUrl>
->>>>>>> 6ff90cffad9386e9bc62592f134ee34d03ea0c6d
     <cve>CVE-2016-3094</cve>
   </suppress>
 </suppressions>
