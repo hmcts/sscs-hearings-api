@@ -53,7 +53,7 @@ public final class HearingsDetailsMapping {
             .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(HearingsDurationMapping.getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
+            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(getHearingLocations(caseData, referenceDataServiceHolder))
             .facilitiesRequired(getFacilitiesRequired())
