@@ -24,7 +24,7 @@
   </suppress>
   <suppress until = "2023-01-08">
     <notes><![CDATA[
-   file name: qpid-jms-client-1.6.0.jar
+   incorrect tagging qpid-jms-client as qpid_java
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.qpid/qpid\-jms\-client@.*$</packageUrl>
     <cve>CVE-2016-3094</cve>
