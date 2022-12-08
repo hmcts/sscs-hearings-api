@@ -2,10 +2,15 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTypeOfHearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
@@ -16,18 +21,27 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
+import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
+
+@ExtendWith(MockitoExtension.class)
 class HearingsChannelMappingTest {
+
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @DisplayName("When a override hearing channel is given getIndividualPreferredHearingChannel returns that hearing channel")
     @ParameterizedTest
@@ -234,4 +248,42 @@ class HearingsChannelMappingTest {
 
         assertThat(result).isFalse();
     }
+
+
+    private static Stream<Arguments> buildHearingChannelRequests() {
+        return Stream.of(
+            Arguments.of(FACE_TO_FACE),
+            Arguments.of(VIDEO),
+            Arguments.of(PAPER),
+            Arguments.of(TELEPHONE)
+        );
+    }
+
+    @DisplayName("When adjournment flag is enabled returns next hearing chanel")
+    @Test
+    void getHearingChannels_ifAdjourmentEnabled_getNextHearing() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                            .wantsToAttend(NO.getValue()).build())
+                        .appellant(Appellant.builder()
+                                       .name(Name.builder()
+                                                 .title("title")
+                                                 .firstName("first")
+                                                 .lastName("last")
+                                                 .build())
+                                       .build())
+                        .build())
+            .dwpIsOfficerAttending(NO.getValue())
+            .adjournment(Adjournment.builder().typeOfNextHearing(AdjournCaseTypeOfHearing.TELEPHONE).build())
+            .build();
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        assertThat(result)
+            .hasSize(1)
+            .containsOnly(TELEPHONE);
+    }
+
 }

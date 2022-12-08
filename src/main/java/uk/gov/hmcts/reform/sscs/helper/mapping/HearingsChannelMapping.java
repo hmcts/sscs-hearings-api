@@ -7,8 +7,10 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -35,6 +37,10 @@ public final class HearingsChannelMapping {
         return List.of(getHearingChannel(caseData));
     }
 
+    public static List<HearingChannel> getHearingChannels(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        return List.of(getHearingChannel(caseData, referenceDataServiceHolder));
+    }
+
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData) {
         List<HearingChannel> hearingChannels = getAllHearingChannelPreferences(caseData);
 
@@ -47,6 +53,25 @@ public final class HearingsChannelMapping {
         } else {
             return PAPER;
         }
+    }
+
+    public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+        log.info("Get the next hearing channel {}", referenceDataServiceHolder.isAdjournmentFlagEnabled());
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && nonNull(caseData.getAdjournment().getTypeOfNextHearing())) {
+            return getNextHearingChannel(caseData);
+        }
+
+        return getHearingChannel(caseData);
+    }
+
+    private static HearingChannel getNextHearingChannel(SscsCaseData caseData) {
+        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournment().getTypeOfNextHearing(),
+                 caseData.getCaseCode()
+        );
+        return Arrays.stream(HearingChannel.values())
+            .filter(hearingChannel -> caseData.getAdjournment().getTypeOfNextHearing().getHearingChannel().getValueTribunals().equalsIgnoreCase(
+                hearingChannel.getValueTribunals()))
+            .findFirst().orElse(PAPER);
     }
 
     public static List<HearingChannel> getAllHearingChannelPreferences(@Valid SscsCaseData caseData) {
