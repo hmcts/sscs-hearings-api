@@ -2,9 +2,12 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
@@ -13,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
 
@@ -20,8 +24,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
+@ExtendWith(MockitoExtension.class)
 class HearingsNumberAttendeesMappingTest {
 
+    @Mock
+    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @DisplayName("When hearing not face to face, getNumberOfPhysicalAttendees returns zero")
     @Test
@@ -231,5 +238,22 @@ class HearingsNumberAttendeesMappingTest {
         long result = HearingsNumberAttendeesMapping.getNumberOfOtherPartyAttendees(otherParties);
 
         assertThat(result).isEqualTo(2);
+    }
+
+    @DisplayName("When otherParties are given and other than face-to-face hearing, getNumberOfAppellantAttendees returns the count of those that want to attend")
+    @Test
+    void testGetNumberOfOtherPartyAttendeesWithReferenceData() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("No")
+                    .build())
+                .build())
+            .dwpIsOfficerAttending("No")
+            .build();
+
+        int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder);
+
+        assertThat(result).isZero();
     }
 }

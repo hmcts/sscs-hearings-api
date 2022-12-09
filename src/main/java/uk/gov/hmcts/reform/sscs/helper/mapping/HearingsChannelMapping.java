@@ -58,14 +58,14 @@ public final class HearingsChannelMapping {
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         log.info("Get the next hearing channel {}", referenceDataServiceHolder.isAdjournmentFlagEnabled());
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && nonNull(caseData.getAdjournment().getTypeOfNextHearing())) {
-            return getNextHearingChannel(caseData);
+            return getAdjournmentNextHearingChannel(caseData);
         }
 
         return getHearingChannel(caseData);
     }
 
-    private static HearingChannel getNextHearingChannel(SscsCaseData caseData) {
-        log.info("Resolved Adjourn Case Type {} for case {}", caseData.getAdjournment().getTypeOfNextHearing(),
+    private static HearingChannel getAdjournmentNextHearingChannel(SscsCaseData caseData) {
+        log.info("Adjournment Next hearing type {} for case {}", caseData.getAdjournment().getTypeOfNextHearing(),
                  caseData.getCaseCode()
         );
         return Arrays.stream(HearingChannel.values())

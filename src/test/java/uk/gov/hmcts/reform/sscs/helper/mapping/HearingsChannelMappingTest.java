@@ -34,7 +34,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.PAPER;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEPHONE;
-import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.VIDEO;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -249,17 +248,7 @@ class HearingsChannelMappingTest {
         assertThat(result).isFalse();
     }
 
-
-    private static Stream<Arguments> buildHearingChannelRequests() {
-        return Stream.of(
-            Arguments.of(FACE_TO_FACE),
-            Arguments.of(VIDEO),
-            Arguments.of(PAPER),
-            Arguments.of(TELEPHONE)
-        );
-    }
-
-    @DisplayName("When adjournment flag is enabled returns next hearing chanel")
+    @DisplayName("When adjournment flag is enabled returns next hearing channel")
     @Test
     void getHearingChannels_ifAdjourmentEnabled_getNextHearing() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -284,6 +273,85 @@ class HearingsChannelMappingTest {
         assertThat(result)
             .hasSize(1)
             .containsOnly(TELEPHONE);
+    }
+
+    @DisplayName("When adjournment flag is false, returns hearing chanel from the case")
+    @Test
+    void getHearingChannels_ifAdjournmentEnabledAndNextHearingIsNull_returnDefaultHearingChannel() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend(NO.getValue()).build())
+                        .appellant(Appellant.builder()
+                            .name(Name.builder()
+                                .title("title")
+                                .firstName("first")
+                                .lastName("last").build())
+                        .build())
+                    .build())
+            .dwpIsOfficerAttending(NO.getValue())
+            .adjournment(Adjournment.builder().typeOfNextHearing(null).build())
+            .build();
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        assertThat(result)
+            .hasSize(1)
+            .containsOnly(PAPER);
+    }
+
+    @DisplayName("When adjournment flag is false, returns hearing chanel from the case")
+    @Test
+    void getHearingChannels_ifAdjourmentDisabled_returnDefaultHearingChannel() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend(NO.getValue()).build())
+                    .appellant(Appellant.builder()
+                        .name(Name.builder()
+                            .title("title")
+                            .firstName("first")
+                            .lastName("last").build())
+                   .build())
+                .build())
+            .dwpIsOfficerAttending(NO.getValue())
+            .adjournment(Adjournment.builder().typeOfNextHearing(AdjournCaseTypeOfHearing.TELEPHONE).build())
+            .build();
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
+
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        assertThat(result)
+            .hasSize(1)
+            .containsOnly(PAPER);
+    }
+
+    @DisplayName("When adjournment flag is true and adjournment next hearing is null, returns hearing channel from the case")
+    @Test
+    void getHearingChannels_ifAdjournmentDisabledAndNextHearingIsNull_returnDefaultHearingChannel() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend(NO.getValue()).build())
+                .appellant(Appellant.builder()
+                    .name(Name.builder()
+                        .title("title")
+                        .firstName("first")
+                        .lastName("last")
+                        .build())
+                   .build())
+                .build())
+            .dwpIsOfficerAttending(NO.getValue())
+            .adjournment(Adjournment.builder().typeOfNextHearing(null).build())
+            .build();
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
+
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        assertThat(result)
+            .hasSize(1)
+            .containsOnly(PAPER);
     }
 
 }
