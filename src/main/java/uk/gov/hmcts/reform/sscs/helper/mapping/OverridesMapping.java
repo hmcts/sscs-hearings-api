@@ -56,7 +56,9 @@ public final class OverridesMapping {
             .orElse(Collections.emptyList());
     }
 
-    public static void setDefaultOverrideFields(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
+    public static void setDefaultOverrideFields(HearingWrapper wrapper,
+                                                ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         Appeal appeal = caseData.getAppeal();
@@ -64,7 +66,9 @@ public final class OverridesMapping {
         OverrideFields defaultOverrideFields = OverrideFields.builder()
             .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .appellantInterpreter(getAppellantInterpreter(appeal, referenceDataServiceHolder))
-            .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(), appeal.getHearingOptions(), null))
+            .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(),
+                                                                          appeal.getHearingOptions(),
+                                                                          null))
             .hearingWindow(getHearingDetailsHearingWindow(caseData))
             .autoList(getHearingDetailsAutoList(caseData, referenceDataServiceHolder))
             .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
@@ -83,7 +87,9 @@ public final class OverridesMapping {
             .build();
     }
 
-    public static HearingInterpreter getAppellantInterpreter(Appeal appeal, ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
+    public static HearingInterpreter getAppellantInterpreter(Appeal appeal,
+                                                             ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
         HearingOptions hearingOptions = appeal.getHearingOptions();
 
         Language language = getInterpreterLanguage(hearingOptions, referenceDataServiceHolder);
@@ -110,10 +116,13 @@ public final class OverridesMapping {
 
     @NotNull
     public static YesNo getInterpreterWanted(HearingOptions hearingOptions) {
-        return isYes(hearingOptions.getLanguageInterpreter()) || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YES : NO;
+        return isYes(hearingOptions.getLanguageInterpreter())
+            || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YES : NO;
     }
 
-    public static Language getInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+    public static Language getInterpreterLanguage(HearingOptions hearingOptions,
+                                                  ReferenceDataServiceHolder referenceData)
+        throws InvalidMappingException {
         if (isNull(hearingOptions)) {
             return null;
         }
@@ -153,12 +162,15 @@ public final class OverridesMapping {
             .build();
     }
 
-    public static YesNo getHearingDetailsAutoList(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static YesNo getHearingDetailsAutoList(@Valid SscsCaseData caseData,
+                                                  ReferenceDataServiceHolder referenceDataServiceHolder) {
         return HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder) ? YES : NO;
     }
 
-    public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return HearingsDetailsMapping.getHearingLocations(caseData, referenceDataServiceHolder).stream()
+    public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(
+        @Valid SscsCaseData caseData,
+        ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
+        return HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder).stream()
             .map(HearingLocation::getLocationId)
             .filter(Objects::nonNull)
             .map(CcdValue::new)

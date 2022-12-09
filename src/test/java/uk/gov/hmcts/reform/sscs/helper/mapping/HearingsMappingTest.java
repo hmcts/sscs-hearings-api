@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
@@ -44,7 +43,7 @@ class HearingsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingPayload returns the correct Hearing Request Payload")
     @Test
-    void buildHearingPayload() throws InvalidMappingException, Exception {
+    void buildHearingPayload() throws Exception {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
                 .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                 60,75,30));
@@ -57,36 +56,36 @@ class HearingsMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId(String.valueOf(CASE_ID))
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .caseCreated(CASE_CREATED)
-                .caseAccessManagementFields(CaseAccessManagementFields.builder()
-                        .caseNameHmctsInternal(CASE_NAME_INTERNAL)
-                        .caseNamePublic(CASE_NAME_PUBLIC)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .caseCreated(CASE_CREATED)
+            .caseAccessManagementFields(CaseAccessManagementFields.builder()
+                .caseNameHmctsInternal(CASE_NAME_INTERNAL)
+                .caseNamePublic(CASE_NAME_PUBLIC)
+                .build())
+            .appeal(Appeal.builder()
+                .rep(Representative.builder().hasRepresentative("no").build())
+                .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
+                .hearingType("test")
+                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .appellant(Appellant.builder()
+                    .name(Name.builder()
+                        .title("title")
+                        .firstName("first")
+                        .lastName("last")
                         .build())
-                .appeal(Appeal.builder()
-                        .rep(Representative.builder().hasRepresentative("no").build())
-                        .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
-                        .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
-                        .appellant(Appellant.builder()
-                                .name(Name.builder()
-                                        .title("title")
-                                        .firstName("first")
-                                        .lastName("last")
-                                        .build())
-                                .build())
-                        .build())
-                .caseManagementLocation(CaseManagementLocation.builder()
-                        .baseLocation(EPIMS_ID)
-                        .region(REGION)
-                        .build())
-                .build();
+                    .build())
+                .build())
+            .caseManagementLocation(CaseManagementLocation.builder()
+                .baseLocation(EPIMS_ID)
+                .region(REGION)
+                .build())
+            .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-                .caseData(caseData)
-                .caseData(caseData)
-                .build();
+            .caseData(caseData)
+            .caseData(caseData)
+            .build();
         HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
