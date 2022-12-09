@@ -414,7 +414,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
     void getHearingLocationsAdjournmentNewVenue() throws InvalidMappingException {
-        enableAdjournmentFlagAndSetAdjournmentToInProgress();
+        //TODO: SSCS-10951: remove adjournment flag
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -432,7 +434,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
     void getHearingLocationsAdjournmentSameVenue() throws InvalidMappingException {
-        enableAdjournmentFlagAndSetAdjournmentToInProgress();
+        //TODO: SSCS-10951: remove adjournment flag
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
@@ -465,7 +469,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("Checks both the errors we can throw when trying to obtain the venue ID when getting the locations")
     @Test
     void getHearingLocationsFailOnGettingVenueId() {
-        enableAdjournmentFlagAndSetAdjournmentToInProgress();
+        //TODO: SSCS-10951: remove adjournment flag
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
 
@@ -518,13 +524,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                             .build())
                     .build()))
                 .build());
-    }
-
-    void enableAdjournmentFlagAndSetAdjournmentToInProgress() {
-        //TODO: SSCS-10951: remove adjournment flag
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-
-        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
     }
 
     @DisplayName("getFacilitiesRequired returns an empty list")
