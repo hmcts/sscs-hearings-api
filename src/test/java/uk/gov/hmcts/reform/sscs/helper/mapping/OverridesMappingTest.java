@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -81,6 +82,7 @@ class OverridesMappingTest {
         caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
+            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
                 .appellant(Appellant.builder()
                     .name(Name.builder()
@@ -524,7 +526,7 @@ class OverridesMappingTest {
 
     @DisplayName("When valid case data is given, getHearingDetailsHearingWindow returns the default venue epims ids")
     @Test
-    void testGetHearingDetailsLocations() {
+    void testGetHearingDetailsLocations() throws InvalidMappingException {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
         given(referenceData.getVenueService()).willReturn(venueService);
