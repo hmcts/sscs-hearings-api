@@ -107,6 +107,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
             .adjournment(Adjournment.builder()
+                .adjournmentInProgress(YesNo.NO)
                 .canCaseBeListedRightAway(YesNo.YES)
                 .build())
             .caseManagementLocation(CaseManagementLocation.builder()

@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SignLanguagesService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
+import uk.gov.hmcts.reform.sscs.service.RegionalProcessingCenterService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.util.List;
@@ -38,6 +39,9 @@ public class ReferenceDataServiceHolder {
     private final SignLanguagesService signLanguages;
 
     @Autowired
+    private final RegionalProcessingCenterService regionalProcessingCenterService;
+
+    @Autowired
     private final VenueService venueService;
 
     @Value("${exui.url}")
@@ -54,7 +58,8 @@ public class ReferenceDataServiceHolder {
 
     @SneakyThrows
     private Map<String, List<String>> prepareMultipleHearingLocations() {
-        return ImmutableMap.copyOf(OBJECT_MAPPER.readValue(new ClassPathResource("multipleHearingLocations.json").getInputStream(), new TypeReference<Map<String, List<String>>>(){}));
+        return ImmutableMap.copyOf(OBJECT_MAPPER.readValue(new ClassPathResource("multipleHearingLocations.json")
+                                                               .getInputStream(),
+                                                           new TypeReference<Map<String, List<String>>>(){}));
     }
-
 }

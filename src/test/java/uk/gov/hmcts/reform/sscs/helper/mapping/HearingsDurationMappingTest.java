@@ -27,7 +27,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 class HearingsDurationMappingTest extends HearingsMappingBase {
-
     @Mock
     private HearingDurationsService hearingDurations;
 

@@ -89,6 +89,7 @@ class ServiceHearingsServiceTest {
             .issueCode(ISSUE_CODE)
             .urgentCase("Yes")
             .adjournment(Adjournment.builder()
+                .adjournmentInProgress(YesNo.NO)
                 .canCaseBeListedRightAway(YesNo.YES)
                 .build())
             .dwpResponseDate("2022-07-07")
