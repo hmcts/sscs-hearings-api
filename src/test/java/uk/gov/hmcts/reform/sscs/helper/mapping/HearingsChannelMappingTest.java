@@ -277,32 +277,6 @@ class HearingsChannelMappingTest {
 
     @DisplayName("When adjournment flag is false, returns hearing chanel from the case")
     @Test
-    void getHearingChannels_ifAdjournmentEnabledAndNextHearingIsNull_returnDefaultHearingChannel() {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder()
-                    .wantsToAttend(NO.getValue()).build())
-                        .appellant(Appellant.builder()
-                            .name(Name.builder()
-                                .title("title")
-                                .firstName("first")
-                                .lastName("last").build())
-                        .build())
-                    .build())
-            .dwpIsOfficerAttending(NO.getValue())
-            .adjournment(Adjournment.builder().typeOfNextHearing(null).build())
-            .build();
-
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
-        assertThat(result)
-            .hasSize(1)
-            .containsOnly(PAPER);
-    }
-
-    @DisplayName("When adjournment flag is false, returns hearing chanel from the case")
-    @Test
     void getHearingChannels_ifAdjourmentDisabled_returnDefaultHearingChannel() {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()

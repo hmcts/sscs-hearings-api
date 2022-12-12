@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
@@ -240,7 +241,7 @@ class HearingsNumberAttendeesMappingTest {
         assertThat(result).isEqualTo(2);
     }
 
-    @DisplayName("When otherParties are given and other than face-to-face hearing, getNumberOfAppellantAttendees returns the count of those that want to attend")
+    @DisplayName("When hearing not face to face and adjournment flag is enabled, getNumberOfPhysicalAttendees returns zero")
     @Test
     void testGetNumberOfOtherPartyAttendeesWithReferenceData() {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -251,7 +252,7 @@ class HearingsNumberAttendeesMappingTest {
                 .build())
             .dwpIsOfficerAttending("No")
             .build();
-
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder);
 
         assertThat(result).isZero();
