@@ -44,8 +44,7 @@ public final class HearingsNumberAttendeesMapping {
     }
 
     private static int getNumberOfFaceToFacePhysicalAttendees(SscsCaseData caseData) {
-        int numberOfAttendees = 0;
-        numberOfAttendees += getNumberOfAppellantAttendees(caseData.getAppeal(), caseData.getJointParty());
+        int numberOfAttendees = getNumberOfAppellantAttendees(caseData.getAppeal(), caseData.getJointParty());
         numberOfAttendees += getNumberOfOtherPartyAttendees(caseData.getOtherParties());
 
         if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
