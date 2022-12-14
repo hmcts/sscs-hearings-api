@@ -27,9 +27,9 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
+    public static final int DURATION_DEFAULT = 30;
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
-    public static final int DURATION_DEFAULT = 30;
 
     private HearingsDurationMapping() {
 
@@ -43,31 +43,29 @@ public final class HearingsDurationMapping {
         }
 
         Integer duration = getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
-
         if (nonNull(duration)) {
             return duration;
-        } else {
-            caseData.setState(State.LISTING_ERROR);
         }
 
-        return MIN_HEARING_DURATION;
+        duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
+        if (nonNull(duration)) {
+            return duration;
+        }
+
+        caseData.setState(State.LISTING_ERROR);
+        return DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationAdjournment(
-        SscsCaseData caseData,
-        ReferenceDataServiceHolder referenceDataServiceHolder
-    ) {
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData,
+                                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
         if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())
-        ) {
+            || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())) {
             return null;
         }
 
         Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
 
-        if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD
-            && duration != null
-        ) {
+        if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD && duration != null) {
             return handleNonStandardDuration(caseData, duration);
         }
 
