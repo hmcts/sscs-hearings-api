@@ -112,15 +112,6 @@ public class HearingsService {
 
             if (caseData.getState() == State.LISTING_ERROR) {
                 hmcUpdateResponse.setStatus(HmcStatus.EXCEPTION);
-
-                HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getState());
-                ccdCaseService.updateCaseData(
-                    caseData,
-                    event.getEventType(),
-                    event.getSummary(),
-                    event.getDescription());
-
-                throw new InvalidMappingException("Missing Listing Requirements");
             }
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
