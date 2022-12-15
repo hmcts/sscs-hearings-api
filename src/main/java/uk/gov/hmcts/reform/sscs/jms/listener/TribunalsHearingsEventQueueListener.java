@@ -13,8 +13,6 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
-import java.util.Locale;
-
 import static java.util.Objects.isNull;
 
 @Slf4j
@@ -44,8 +42,8 @@ public class TribunalsHearingsEventQueueListener {
         log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                  event, caseId);
         try {
-            log.info("Added delay the start the processing of message by 30s");
-            Thread.sleep( 30000l);
+            log.info("Pause the processing of message by 30 seconds");
+            Thread.sleep(Long.valueOf(30000));
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (InterruptedException | GetCaseException | UnhandleableHearingStateException | UpdateCaseException
