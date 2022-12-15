@@ -248,7 +248,7 @@ public class HearingsService {
                 caseData,
                 LISTING_ERROR,
                 ListingException.SUMMARY,
-                ex.getDescription());
+                ex.getMessage());
 
             log.debug("Missing listing requirements found! State is now {}.", State.LISTING_ERROR);
 
