@@ -43,7 +43,7 @@ public class TribunalsHearingsEventQueueListener {
                  event, caseId);
         try {
             log.info("Pause the processing of message by 30 seconds");
-            Thread.sleep(Long.valueOf(30000));
+            Thread.sleep(Long.valueOf(30_000));
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (InterruptedException | GetCaseException | UnhandleableHearingStateException | UpdateCaseException
