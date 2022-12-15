@@ -14,6 +14,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -54,8 +56,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     void getHearingDuration(
         Integer adjournCaseDuration,
         AdjournCaseNextHearingDurationUnits adjournCaseDurationUnits,
-        int expected
-    ) {
+        int expected) throws InvalidMappingException {
         setAdjournmentDurationAndUnits(adjournCaseDuration, adjournCaseDurationUnits);
 
         Integer result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
@@ -63,8 +64,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(expected);
     }
 
-    @DisplayName("When adjournment flag is enabled but getHearingDurationAdjournment returns null "
-        + "uses default hearing duration")
+    @DisplayName("When there isn't a hearing duration, or adjourned hearing duration throw a ListingException")
     @Test
     void getHearingDurationAdjournmentReturnsNullWithFeatureFlagEnabled() {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
@@ -85,18 +85,14 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
             caseData, referenceDataServiceHolder);
         assertThat(durationAdjourned).isNull();
 
-        Integer result = HearingsDurationMapping.getHearingDuration(
-            caseData,
-            referenceDataServiceHolder
-        );
-
-        assertThat(result).isEqualTo(HearingsDurationMapping.DURATION_DEFAULT);
+        assertThatThrownBy(() -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+            .isInstanceOf(ListingException.class);
     }
 
     @DisplayName("When a valid duration is given but adjournCaseDurationUnits is not provided "
         + "getHearingDuration returns the default adjournment duration")
     @Test
-    void getHearingDurationWithNullUnits() {
+    void getHearingDurationWithNullUnits() throws InvalidMappingException {
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,

@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -41,7 +42,8 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         "0,75",
         "-1, 75"
     }, nullValues = {"null"})
-    void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
+    void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult)
+        throws InvalidMappingException {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
@@ -219,7 +221,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
-    void getHearingDurationWillReturnOverrideDurationWhenPresent() {
+    void getHearingDurationWillReturnOverrideDurationWhenPresent() throws InvalidMappingException {
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
         caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(DURATION_FACE_TO_FACE);

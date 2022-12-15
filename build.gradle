@@ -230,6 +230,23 @@ pitest {
   mutationThreshold = 80
 }
 
+task installLocalGitHook(type: Copy) {
+  from new File(rootProject.rootDir, 'config/git/pre-commit')
+  into { new File(rootProject.rootDir, '.git/hooks')}
+  fileMode 0775
+}
+
+compileJava.dependsOn installLocalGitHook
+
+task runGitPreCommitTasks {
+  dependsOn 'test'
+  dependsOn 'pmdMain'
+  dependsOn 'pmdTest'
+  dependsOn 'dependencyCheckAggregate'
+  dependsOn 'checkstyleMain'
+  dependsOn 'checkstyleTest'
+}
+
 project.tasks['pitest'].group = "Verification"
 // before committing a change, make sure task still works
 dependencyUpdates {
@@ -299,7 +316,7 @@ dependencies {
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: '9.0.68'
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '9.0.68'
 
-  implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '1.6.0'
+  implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '1.7.0'
 
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.17.1'
 
@@ -321,7 +338,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '47217d8'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '115a8c3'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 

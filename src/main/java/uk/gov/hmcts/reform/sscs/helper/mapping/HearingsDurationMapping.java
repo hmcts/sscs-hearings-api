@@ -6,7 +6,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -27,7 +28,6 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
-    public static final int DURATION_DEFAULT = 30;
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
 
@@ -35,7 +35,8 @@ public final class HearingsDurationMapping {
 
     }
 
-    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws InvalidMappingException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() >= MIN_HEARING_DURATION) {
@@ -52,8 +53,7 @@ public final class HearingsDurationMapping {
             return duration;
         }
 
-        caseData.setState(State.LISTING_ERROR);
-        return DURATION_DEFAULT;
+        throw new ListingException("Missing hearing duration");
     }
 
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData,
