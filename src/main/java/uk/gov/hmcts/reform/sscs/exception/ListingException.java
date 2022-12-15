@@ -11,5 +11,7 @@ public class ListingException extends InvalidMappingException {
     private static final long serialVersionUID = -5687439455391806310L;
     public static final String SUMMARY = "Missing Listing Requirement";
 
-    public ListingException(String message) { super(message); }
+    public ListingException(String message) {
+        super(message);
+    }
 }
