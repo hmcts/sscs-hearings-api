@@ -66,7 +66,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
 
     @DisplayName("When there isn't a hearing duration, or adjourned hearing duration throw a ListingException")
     @Test
-    void getHearingDurationAdjournmentReturnsNullWithFeatureFlagEnabled() {
+    void getHearingDurationAdjournmentThrowsListingErrorWithFeatureFlagEnabled() {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(null);
