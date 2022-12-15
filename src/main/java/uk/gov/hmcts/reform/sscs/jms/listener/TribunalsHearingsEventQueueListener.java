@@ -43,12 +43,15 @@ public class TribunalsHearingsEventQueueListener {
                  event, caseId);
         try {
             log.info("Pause the processing of message by 30 seconds");
-            Thread.sleep(Long.valueOf(30_000));
+            Thread.sleep(30_000);
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
-        } catch (InterruptedException | GetCaseException | UnhandleableHearingStateException | UpdateCaseException
+        } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException
                  | InvalidMappingException ex) {
             throw new TribunalsEventProcessingException("An exception occurred whilst processing hearing event", ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new TribunalsEventProcessingException("An exception occurred whilst processing the thread", ex);
         }
     }
 }
