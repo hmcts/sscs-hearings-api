@@ -42,8 +42,8 @@ public class TribunalsHearingsEventQueueListener {
         log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                  event, caseId);
         try {
-            log.info("Pause the processing of message by 30 seconds");
-            Thread.sleep(30_000);
+            log.info("Pause the processing of message by 10 seconds");
+            Thread.sleep(10_000);
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException
