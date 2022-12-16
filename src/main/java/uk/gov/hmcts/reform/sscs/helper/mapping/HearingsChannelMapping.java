@@ -58,7 +58,8 @@ public final class HearingsChannelMapping {
     public static HearingChannel getHearingChannel(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         log.info("Get the next hearing channel {}", referenceDataServiceHolder.isAdjournmentFlagEnabled());
         log.info("Adjournment next hearing channel {}", caseData.getAdjournment().getTypeOfNextHearing());
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && nonNull(caseData.getAdjournment().getTypeOfNextHearing())) {
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress())
+            && nonNull(caseData.getAdjournment().getTypeOfNextHearing())) {
             return getAdjournmentNextHearingChannel(caseData);
         }
 
