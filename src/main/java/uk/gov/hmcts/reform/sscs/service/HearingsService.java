@@ -106,7 +106,20 @@ public class HearingsService {
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
-            setDefaultOverrideFields(caseData, wrapper, referenceDataServiceHolder);
+            try {
+                OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
+            } catch (ListingException ex) {
+                ccdCaseService.updateCaseData(
+                    caseData,
+                    LISTING_ERROR,
+                    ListingException.SUMMARY,
+                    ex.getMessage());
+
+                log.debug("Missing listing requirements found. State is now {}.", State.LISTING_ERROR);
+
+                return;
+            }
+
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
@@ -235,24 +248,5 @@ public class HearingsService {
                 .state(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)
                 .build();
-    }
-
-    private void setDefaultOverrideFields(SscsCaseData caseData,
-                                          HearingWrapper wrapper,
-                                          ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException, UpdateCaseException {
-        try {
-            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-        } catch (ListingException ex) {
-            ccdCaseService.updateCaseData(
-                caseData,
-                LISTING_ERROR,
-                ListingException.SUMMARY,
-                ex.getMessage());
-
-            log.debug("Missing listing requirements found! State is now {}.", State.LISTING_ERROR);
-
-            throw ex;
-        }
     }
 }
