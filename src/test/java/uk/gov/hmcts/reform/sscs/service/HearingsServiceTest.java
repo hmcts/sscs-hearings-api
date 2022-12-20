@@ -30,7 +30,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -51,14 +50,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
@@ -282,12 +279,12 @@ class HearingsServiceTest {
 
     @DisplayName("When a hearing duration can't be found, throw a listing error")
     @Test
-    void processHearingWrapperCreateThrowListingError() throws UpdateCaseException {
+    void processHearingWrapperCreateThrowListingError() {
         given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(null);
 
-        SscsCaseData sscsCaseData = SscsCaseData.builder()
+        wrapper.setCaseData(SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
@@ -295,17 +292,11 @@ class HearingsServiceTest {
                     .wantsToAttend("Yes")
                     .build())
                 .build())
-            .build();
-
-        wrapper.setCaseData(sscsCaseData);
+            .build());
 
         wrapper.setState(CREATE_HEARING);
 
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-        verify(ccdCaseService, times(1)).updateCaseData(
-            sscsCaseData,
-            LISTING_ERROR,
-            ListingException.SUMMARY,
-            "Missing hearing duration");
+        assertThatThrownBy(() -> hearingsService.processHearingWrapper(wrapper))
+            .isInstanceOf(ListingException.class);
     }
 }
