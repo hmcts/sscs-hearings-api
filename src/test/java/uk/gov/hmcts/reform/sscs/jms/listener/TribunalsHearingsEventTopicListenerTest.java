@@ -1,22 +1,22 @@
 package uk.gov.hmcts.reform.sscs.jms.listener;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
 
 import java.util.stream.Stream;
@@ -30,15 +30,14 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class TribunalsHearingsEventTopicListenerTest {
 
+    @InjectMocks
     private TribunalsHearingsEventQueueListener tribunalsHearingsEventQueueListener;
 
     @Mock
     private HearingsService hearingsService;
 
-    @BeforeEach
-    void setup() {
-        tribunalsHearingsEventQueueListener = new TribunalsHearingsEventQueueListener(hearingsService);
-    }
+    @Mock
+    private CcdCaseService ccdCaseService;
 
     @Test
     @DisplayName("When a valid request comes in make sure processHearingRequest is hit")
@@ -67,8 +66,7 @@ class TribunalsHearingsEventTopicListenerTest {
         return Stream.of(
             Arguments.of(GetCaseException.class),
             Arguments.of(UnhandleableHearingStateException.class),
-            Arguments.of(UpdateCaseException.class),
-            Arguments.of(InvalidMappingException.class)
+            Arguments.of(UpdateCaseException.class)
         );
     }
 

@@ -31,8 +31,7 @@ public final class HearingsLocationMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder)
-                                                            throws InvalidMappingException {
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
         List<HearingLocation> locations = getOverrideLocations(caseData);
 
         if (isNotEmpty(locations)) {

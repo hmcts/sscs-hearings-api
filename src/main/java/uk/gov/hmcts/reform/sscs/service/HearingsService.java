@@ -10,9 +10,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
@@ -33,7 +31,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static java.util.Objects.isNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
@@ -55,7 +52,8 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException, UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
+        UnhandleableHearingStateException, UpdateCaseException, ListingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
@@ -66,7 +64,7 @@ public class HearingsService {
     }
 
     public void processHearingWrapper(HearingWrapper wrapper)
-        throws UnhandleableHearingStateException, UpdateCaseException, InvalidMappingException {
+        throws UnhandleableHearingStateException, UpdateCaseException, ListingException {
 
         log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                 wrapper.getCaseData().getCcdCaseId(),
@@ -95,7 +93,7 @@ public class HearingsService {
         }
     }
 
-    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
         String caseId = caseData.getCcdCaseId();
 
@@ -106,7 +104,7 @@ public class HearingsService {
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
-            setDefaultOverrideFields(caseData, wrapper, referenceDataServiceHolder);
+            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
@@ -131,7 +129,7 @@ public class HearingsService {
         hearingResponseUpdate(wrapper, hmcUpdateResponse);
     }
 
-    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, InvalidMappingException {
+    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
@@ -235,24 +233,5 @@ public class HearingsService {
                 .state(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)
                 .build();
-    }
-
-    private void setDefaultOverrideFields(SscsCaseData caseData,
-                                          HearingWrapper wrapper,
-                                          ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException, UpdateCaseException {
-        try {
-            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-        } catch (ListingException ex) {
-            ccdCaseService.updateCaseData(
-                caseData,
-                LISTING_ERROR,
-                ListingException.SUMMARY,
-                ex.getMessage());
-
-            log.debug("Missing listing requirements found! State is now {}.", State.LISTING_ERROR);
-
-            throw ex;
-        }
     }
 }

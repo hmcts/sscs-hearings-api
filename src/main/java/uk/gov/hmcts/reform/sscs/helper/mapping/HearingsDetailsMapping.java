@@ -8,7 +8,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
@@ -39,7 +39,7 @@ public final class HearingsDetailsMapping {
 
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
                                                      ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException {
+        throws ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);

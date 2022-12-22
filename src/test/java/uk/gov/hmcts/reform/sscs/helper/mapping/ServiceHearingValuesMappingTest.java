@@ -33,7 +33,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
@@ -204,7 +204,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapServiceHearingValuesSuccessfully() throws InvalidMappingException {
+    void shouldMapServiceHearingValuesSuccessfully() throws ListingException {
         // given
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
@@ -245,7 +245,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldMapPartiesInServiceHearingValues() throws InvalidMappingException {
+    void shouldMapPartiesInServiceHearingValues() throws ListingException {
         // given
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
@@ -269,7 +269,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     }
 
     @Test
-    void shouldRepresentativeNotHaveOrganisation() throws InvalidMappingException {
+    void shouldRepresentativeNotHaveOrganisation() throws ListingException {
         // given
 
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
