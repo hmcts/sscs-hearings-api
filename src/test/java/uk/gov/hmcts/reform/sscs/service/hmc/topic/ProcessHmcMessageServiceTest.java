@@ -172,7 +172,7 @@ class ProcessHmcMessageServiceTest {
         processHmcMessageService.processEventMessage(hmcMessage);
 
         // then
-        assertThat(sscsCaseDetails.getData().getDwpState()).isEqualTo(DwpState.HEARING_DATE_ISSUED.getId());
+        assertThat(sscsCaseDetails.getData().getDwpState()).isEqualTo(DwpState.HEARING_DATE_ISSUED);
     }
 
     @Test
