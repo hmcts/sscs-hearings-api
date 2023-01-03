@@ -35,7 +35,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
 
     @BeforeEach
     void setUp() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true); // TODO SSCS-10951
 
         caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.NON_STANDARD);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
@@ -156,6 +156,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         assertThat(result).isNull();
     }
 
+    // TODO Remove with SSCS-10951
     @DisplayName("When adjournment flag is disabled getHearingDurationAdjournment returns null")
     @Test
     void getHearingDurationAdjournmentFeatureFlagDisabled() {

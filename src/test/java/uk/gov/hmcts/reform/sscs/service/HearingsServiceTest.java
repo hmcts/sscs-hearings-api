@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -25,6 +26,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -103,6 +105,7 @@ class HearingsServiceTest {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .caseManagementLocation(CaseManagementLocation.builder().build())
+            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
                 .rep(Representative.builder().hasRepresentative("No").build())
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
