@@ -137,6 +137,7 @@ public final class PartyFlagsMapping {
 
     public static PartyFlags getLanguageInterpreterFlag(SscsCaseData caseData) {
         PartyFlags adjournCasePartyFlag = null;
+
         if (HearingsCaseMapping.isInterpreterRequired(caseData)) {
             adjournCasePartyFlag = PartyFlags.builder()
                 .flagId(LANGUAGE_INTERPRETER_FLAG.getFlagId())
