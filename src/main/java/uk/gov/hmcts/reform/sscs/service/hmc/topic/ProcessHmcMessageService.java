@@ -70,7 +70,7 @@ public class ProcessHmcMessageService {
 
         DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcStatus);
         if (resolvedState != null) {
-            caseData.setDwpState(resolvedState.getId());
+            caseData.setDwpState(resolvedState);
         }
         if (isHearingUpdated(hmcStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
