@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.List;
@@ -65,7 +66,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When there are no conditions that affect autolisting, shouldBeAutoListed returns true")
     @Test
-    void testShouldBeAutoListed() {
+    void testShouldBeAutoListed() throws ListingException {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                         false,false,SessionCategory.CATEGORY_01,null));
@@ -79,7 +80,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When there are no conditions that affect autolisting, shouldBeAutoListed returns true")
     @Test
-    void testShouldBeAutoListedFalseWhenNullDwpResponseDate() {
+    void testShouldBeAutoListedFalseWhenNullDwpResponseDate() throws ListingException {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false,false,SessionCategory.CATEGORY_01,null));
@@ -92,7 +93,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When there is a condition that affects autolisting, shouldBeAutoListed returns false")
     @Test
-    void testShouldBeAutoListedFalse() {
+    void testShouldBeAutoListedFalse() throws ListingException {
         caseData.setLinkedCase(List.of(CaseLink.builder()
                 .value(CaseLinkDetails.builder()
                         .caseReference("123456")
@@ -106,7 +107,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override auto list is Yes, shouldBeAutoListed returns true")
     @Test
-    void testShouldBeAutoListedOverride() {
+    void testShouldBeAutoListedOverride() throws ListingException {
         caseData.getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder()
             .autoList(YES)
             .build());
@@ -118,7 +119,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override auto list is No, shouldBeAutoListed returns false")
     @Test
-    void testShouldBeAutoListedOverrideNo() {
+    void testShouldBeAutoListedOverrideNo() throws ListingException {
         caseData.getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder()
             .autoList(NO)
             .build());
@@ -314,7 +315,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When other in HearingOptions is not blank, isThereOtherComments return True")
     @Test
-    void testHasDqpmOrFqpm() {
+    void testHasDqpmOrFqpm() throws ListingException {
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -331,7 +332,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
     @DisplayName("When other in HearingOptions is blank, isThereOtherComments return False")
     @Test
-    void testHasDqpmOrFqpmNone() {
+    void testHasDqpmOrFqpmNone() throws ListingException {
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,

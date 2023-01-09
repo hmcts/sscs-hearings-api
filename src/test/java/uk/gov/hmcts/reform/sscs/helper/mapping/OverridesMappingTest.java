@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
@@ -198,7 +199,7 @@ class OverridesMappingTest {
 
     @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
     @Test
-    void testSetDefaultOverrideFields() throws InvalidMappingException {
+    void testSetDefaultOverrideFields() throws ListingException {
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
@@ -505,7 +506,7 @@ class OverridesMappingTest {
     @ParameterizedTest
     @ValueSource(strings = {"Comment"})
     @NullAndEmptySource
-    void testGetHearingDetailsAutoList(String value) {
+    void testGetHearingDetailsAutoList(String value) throws ListingException {
         caseData.setDwpResponseDate("2021-12-01");
         caseData.getAppeal().getHearingOptions().setOther(value);
 

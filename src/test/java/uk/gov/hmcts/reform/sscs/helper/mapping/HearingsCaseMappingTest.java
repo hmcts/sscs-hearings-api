@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
@@ -50,7 +51,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
-    void buildHearingCaseDetails() {
+    void buildHearingCaseDetails() throws ListingException {
         // TODO Finish Test when method done
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
@@ -333,7 +334,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
 
     @DisplayName("When give a valid benefit code and issue code, buildCaseCategories returns a valid case Category and  case subcategory")
     @Test
-    void buildCaseCategories() {
+    void buildCaseCategories() throws ListingException {
         String parentValue = "BBA3-002";
         String subTypeValue = "BBA3-002-DD";
 

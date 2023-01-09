@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseCategory;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
@@ -14,8 +16,8 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
@@ -23,16 +25,16 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE
 
 
 @RestController
+@Slf4j
 public final class HearingsCaseMapping {
 
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
-    public static final String EMPTY_STRING = "";
 
     private HearingsCaseMapping() {
 
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
                 .hmctsServiceCode(getServiceCode(referenceDataServiceHolder))
@@ -98,14 +100,19 @@ public final class HearingsCaseMapping {
     }
 
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
-                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                         ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
         // TODO Adjournment - Check this is the correct logic for Adjournment
-        List<CaseCategory> categories = new ArrayList<>();
-
         SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceDataServiceHolder);
-        Objects.requireNonNull(sessionCaseCode, "sessionCaseCode is null. The benefit/issue code is probably an incorrect combination and cannot be mapped"
-            + " to a session code. Refer to the session-category-map.json file for the correct combinations.");
 
+        if (isNull(sessionCaseCode)) {
+            log.error("sessionCaseCode is null. The benefit/issue code is probably an incorrect combination"
+                          + " and cannot be mapped to a session code. Refer to the session-category-map.json file"
+                          + " for the correct combinations.");
+
+            throw new ListingException("Incorrect benefit/issue code combination");
+        }
+
+        List<CaseCategory> categories = new ArrayList<>();
         categories.addAll(getCaseTypes(sessionCaseCode, referenceDataServiceHolder));
         categories.addAll(getCaseSubTypes(sessionCaseCode, referenceDataServiceHolder));
 

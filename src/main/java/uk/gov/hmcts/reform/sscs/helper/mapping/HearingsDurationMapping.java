@@ -22,8 +22,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 
-
-
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_DEFAULT = 30;
@@ -54,21 +52,16 @@ public final class HearingsDurationMapping {
         return DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationAdjournment(
-        SscsCaseData caseData,
-        ReferenceDataServiceHolder referenceDataServiceHolder
-    ) {
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData,
+                                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
         if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())
-        ) {
+            || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())) {
             return null;
         }
 
         Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
 
-        if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD
-            && duration != null
-        ) {
+        if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD && duration != null) {
             return handleNonStandardDuration(caseData, duration);
         }
 
