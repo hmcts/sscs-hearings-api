@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -54,8 +55,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     void getHearingDuration(
         Integer adjournCaseDuration,
         AdjournCaseNextHearingDurationUnits adjournCaseDurationUnits,
-        int expected
-    ) {
+        int expected) throws ListingException {
         setAdjournmentDurationAndUnits(adjournCaseDuration, adjournCaseDurationUnits);
 
         Integer result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);

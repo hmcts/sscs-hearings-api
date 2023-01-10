@@ -23,7 +23,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
@@ -33,7 +35,6 @@ import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
-import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -61,9 +62,6 @@ class ServiceHearingsServiceTest {
 
     @Mock
     private SessionCategoryMapService sessionCategoryMaps;
-
-    @Mock
-    private HearingDurationsService hearingDurations;
 
     @Mock
     private VenueService venueService;
@@ -125,6 +123,9 @@ class ServiceHearingsServiceTest {
                         .build())
                     .build())
                 .build())
+            .schedulingAndListingFields(SchedulingAndListingFields.builder()
+                .overrideFields(OverrideFields.builder()
+                    .duration(30).build()).build())
             .languagePreferenceWelsh("No")
             .linkedCasesBoolean("No")
             .sscsIndustrialInjuriesData(SscsIndustrialInjuriesData.builder()
@@ -150,10 +151,6 @@ class ServiceHearingsServiceTest {
                 false,false, SessionCategory.CATEGORY_03,null));
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
 
@@ -186,10 +183,6 @@ class ServiceHearingsServiceTest {
                 false,false, SessionCategory.CATEGORY_03,null));
 
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE)).willReturn(null);
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
 

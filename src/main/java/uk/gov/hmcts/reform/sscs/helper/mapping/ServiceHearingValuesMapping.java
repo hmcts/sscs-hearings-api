@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
@@ -24,7 +24,7 @@ public final class ServiceHearingValuesMapping {
 
 
     public static ServiceHearingValues mapServiceHearingValues(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException {
+        throws ListingException {
 
         boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
 

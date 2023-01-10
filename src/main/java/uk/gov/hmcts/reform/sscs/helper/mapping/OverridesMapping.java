@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
@@ -32,8 +33,6 @@ import javax.validation.Valid;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 
@@ -58,7 +57,7 @@ public final class OverridesMapping {
 
     public static void setDefaultOverrideFields(HearingWrapper wrapper,
                                                 ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws InvalidMappingException {
+        throws ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         Appeal appeal = caseData.getAppeal();
@@ -83,7 +82,7 @@ public final class OverridesMapping {
 
     public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
         return ReservedToMember.builder()
-            .isReservedToMember(isYes(caseData.getReservedToJudge()) ? YES : NO)
+            .isReservedToMember(isYes(caseData.getReservedToJudge()) ? YesNo.YES : YesNo.NO)
             .build();
     }
 
@@ -96,7 +95,7 @@ public final class OverridesMapping {
 
         if (isNull(language)) {
             return HearingInterpreter.builder()
-                .isInterpreterWanted(NO)
+                .isInterpreterWanted(YesNo.NO)
                 .build();
         }
 
@@ -117,7 +116,7 @@ public final class OverridesMapping {
     @NotNull
     public static YesNo getInterpreterWanted(HearingOptions hearingOptions) {
         return isYes(hearingOptions.getLanguageInterpreter())
-            || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YES : NO;
+            || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YesNo.YES : YesNo.NO;
     }
 
     public static Language getInterpreterLanguage(HearingOptions hearingOptions,
@@ -163,8 +162,9 @@ public final class OverridesMapping {
     }
 
     public static YesNo getHearingDetailsAutoList(@Valid SscsCaseData caseData,
-                                                  ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder) ? YES : NO;
+                                                  ReferenceDataServiceHolder referenceDataServiceHolder)
+        throws ListingException {
+        return HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder) ? YesNo.YES : YesNo.NO;
     }
 
     public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(
@@ -179,6 +179,6 @@ public final class OverridesMapping {
     }
 
     public static YesNo getPoToAttend(SscsCaseData caseData) {
-        return isYes(caseData.getDwpIsOfficerAttending()) ? YES : NO;
+        return isYes(caseData.getDwpIsOfficerAttending()) ? YesNo.YES : YesNo.NO;
     }
 }
