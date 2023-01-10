@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -67,7 +68,6 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         assertThat(result).isEqualTo(expectedResult);
     }
-
 
     @DisplayName("When wantsToAttend for the Appeal is no and the hearing type is paper "
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
@@ -221,7 +221,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is present then override the duration of hearing")
     @Test
-    void getHearingDurationWillReturnOverrideDurationWhenPresent() {
+    void getHearingDurationWillReturnOverrideDurationWhenPresent() throws ListingException {
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
         caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(DURATION_FACE_TO_FACE);

@@ -1,17 +1,18 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -24,13 +25,15 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.shouldBeAdditionalSecurityFlag;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
 
+@Slf4j
 public final class HearingsAutoListMapping {
 
     private HearingsAutoListMapping() {
 
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData)
+        throws ListingException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
         if (nonNull(overrideFields.getAutoList())) {
@@ -81,10 +84,17 @@ public final class HearingsAutoListMapping {
         return isBlank(caseData.getDwpResponseDate());
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) throws ListingException {
         SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
-        Objects.requireNonNull(sessionCategoryMap, "sessionCategoryMap is null. The benefit/issue code is probably an incorrect combination and cannot be mapped"
-            + " to a session code. Refer to the session-category-map.json file for the correct combinations.");
+
+        if (isNull(sessionCategoryMap)) {
+            log.error("sessionCaseCode is null. The benefit/issue code is probably an incorrect combination"
+                          + " and cannot be mapped to a session code. Refer to the session-category-map.json file"
+                          + " for the correct combinations.");
+
+            throw new ListingException("Incorrect benefit/issue code combination");
+        }
+
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);
     }
