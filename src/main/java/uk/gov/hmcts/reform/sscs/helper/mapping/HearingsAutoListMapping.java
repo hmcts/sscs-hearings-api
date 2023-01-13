@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
@@ -24,8 +23,8 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.shouldBeAdditionalSecurityFlag;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
+import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.checkBenefitIssueCode;
 
-@Slf4j
 public final class HearingsAutoListMapping {
 
     private HearingsAutoListMapping() {
@@ -87,13 +86,7 @@ public final class HearingsAutoListMapping {
     public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) throws ListingException {
         SessionCategoryMap sessionCategoryMap = getSessionCaseCode(caseData, referenceData);
 
-        if (isNull(sessionCategoryMap)) {
-            log.error("sessionCaseCode is null. The benefit/issue code is probably an incorrect combination"
-                          + " and cannot be mapped to a session code. Refer to the session-category-map.json file"
-                          + " for the correct combinations.");
-
-            throw new ListingException("Incorrect benefit/issue code combination");
-        }
+        checkBenefitIssueCode(sessionCategoryMap);
 
         return sessionCategoryMap.getCategory().getPanelMembers().stream()
                 .anyMatch(HearingsAutoListMapping::isMqpmOrFqpm);
