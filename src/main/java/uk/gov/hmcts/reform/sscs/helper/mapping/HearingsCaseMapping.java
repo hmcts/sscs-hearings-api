@@ -102,7 +102,7 @@ public final class HearingsCaseMapping {
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
                                                          ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
         // TODO Adjournment - Check this is the correct logic for Adjournment
-        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCode(caseData, referenceDataServiceHolder);
+        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCodeMap(caseData, referenceDataServiceHolder);
 
         checkBenefitIssueCode(sessionCategoryMap);
 
