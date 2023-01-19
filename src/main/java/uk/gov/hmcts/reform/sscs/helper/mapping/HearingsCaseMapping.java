@@ -17,9 +17,9 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
+import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.checkBenefitIssueCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
@@ -102,19 +102,13 @@ public final class HearingsCaseMapping {
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
                                                          ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
         // TODO Adjournment - Check this is the correct logic for Adjournment
-        SessionCategoryMap sessionCaseCode = HearingsMapping.getSessionCaseCode(caseData, referenceDataServiceHolder);
+        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCodeMap(caseData, referenceDataServiceHolder);
 
-        if (isNull(sessionCaseCode)) {
-            log.error("sessionCaseCode is null. The benefit/issue code is probably an incorrect combination"
-                          + " and cannot be mapped to a session code. Refer to the session-category-map.json file"
-                          + " for the correct combinations.");
-
-            throw new ListingException("Incorrect benefit/issue code combination");
-        }
+        checkBenefitIssueCode(sessionCategoryMap);
 
         List<CaseCategory> categories = new ArrayList<>();
-        categories.addAll(getCaseTypes(sessionCaseCode, referenceDataServiceHolder));
-        categories.addAll(getCaseSubTypes(sessionCaseCode, referenceDataServiceHolder));
+        categories.addAll(getCaseTypes(sessionCategoryMap, referenceDataServiceHolder));
+        categories.addAll(getCaseSubTypes(sessionCategoryMap, referenceDataServiceHolder));
 
         return categories;
     }

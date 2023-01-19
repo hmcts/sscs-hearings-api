@@ -48,8 +48,8 @@ public final class HearingsMapping {
             .build();
     }
 
-    public static SessionCategoryMap getSessionCaseCode(SscsCaseData caseData,
-                                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static SessionCategoryMap getSessionCaseCodeMap(SscsCaseData caseData,
+                                                           ReferenceDataServiceHolder referenceDataServiceHolder) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
         return referenceDataServiceHolder.getSessionCategoryMaps()
