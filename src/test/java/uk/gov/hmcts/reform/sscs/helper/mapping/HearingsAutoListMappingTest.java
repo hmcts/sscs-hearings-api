@@ -128,7 +128,6 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
 
         given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-
         boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertFalse(result);
