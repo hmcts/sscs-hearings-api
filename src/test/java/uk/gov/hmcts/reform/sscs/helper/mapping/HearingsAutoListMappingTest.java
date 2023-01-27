@@ -8,6 +8,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDateType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTime;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
@@ -30,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE;
 import static org.mockito.BDDMockito.given;
@@ -103,6 +107,31 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("When there is an additional adjournment hearing condition that affects autolisting, shouldBeAutoListed returns false")
+    @Test
+    void testShouldBeNotAutoListed() throws ListingException {
+        Adjournment adjournment = caseData.getAdjournment();
+        AdjournCaseTime adjournCaseTime = AdjournCaseTime
+            .builder()
+            .adjournCaseNextHearingSpecificTime("pm")
+            .adjournCaseNextHearingFirstOnSession(List.of("firstOnSession"))
+            .build();
+
+        adjournment.setNextHearingDateType(AdjournCaseNextHearingDateType.DATE_TO_BE_FIXED);
+        adjournment.setTime(adjournCaseTime);
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_01,null));
+
+        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
+
+        boolean result = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceData);
+
+        assertFalse(result);
     }
 
     @DisplayName("When override auto list is Yes, shouldBeAutoListed returns true")

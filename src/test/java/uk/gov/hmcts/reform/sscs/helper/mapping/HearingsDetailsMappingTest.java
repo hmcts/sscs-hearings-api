@@ -8,8 +8,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDateType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTime;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -57,12 +59,15 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SAME_VENUE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SOMEWHERE_ELSE;
@@ -737,5 +742,35 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("When adjournCaseNextHearingSpecificTime or adjournCaseNextHearingFirstOnSession should return it in getListingComments")
+    @Test
+    void testGetListingCommentsWithAdjournCaseTimeSettingsDefined() {
+        Adjournment adjournment = caseData.getAdjournment();
+        AdjournCaseTime adjournCaseTime = AdjournCaseTime
+            .builder()
+            .adjournCaseNextHearingSpecificTime("pm")
+            .adjournCaseNextHearingFirstOnSession(List.of("firstOnSession"))
+            .build();
+
+        adjournment.setNextHearingDateType(AdjournCaseNextHearingDateType.DATE_TO_BE_FIXED);
+        adjournment.setTime(adjournCaseTime);
+
+        var result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertTrue(isNotEmpty(result));
+        assertThat(result)
+            .contains("Provide time: PM")
+            .contains("List first on the session")
+            .doesNotContainPattern("AM");
+    }
+
+    @DisplayName("When no additional comment fields are empty should return empty string")
+    @Test
+    void testEmptyListingComments() {
+        var result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertTrue(isEmpty(result));
     }
 }
