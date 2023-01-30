@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -22,6 +25,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.CHILD_SUPPORT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
 public final class HearingsPanelMapping {
@@ -38,7 +42,7 @@ public final class HearingsPanelMapping {
             .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
-            .panelPreferences(getPanelPreferences())
+            .panelPreferences(getPanelPreferences(caseData, referenceDataServiceHolder))
             .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCodeMap(caseData, referenceDataServiceHolder)))
             .build();
     }
@@ -57,12 +61,40 @@ public final class HearingsPanelMapping {
         return Collections.emptyList();
     }
 
-    public static List<PanelPreference> getPanelPreferences() {
-        // TODO Adjournments - loop to go through Judicial members that are need to be included or excluded
-        // TODO Potentially used with Manual overrides
-        //      Will need Judicial Staff Reference Data
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
+        Adjournment adjournment = caseData.getAdjournment();
+        ArrayList<PanelPreference> panelPreferences = new ArrayList<>();
+        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
+            || isNoOrNull(adjournment.getAdjournmentInProgress())) {
+            return panelPreferences;
+        }
 
-        return new ArrayList<>();
+        PanelPreference medicallyQualifiedPanelMember =  PanelPreference.builder()
+            .memberID(adjournment.getMedicallyQualifiedPanelMemberName().getEmailId()) // TODO check which id to use
+            .memberType("medical") // TODO check memberType
+            .build();
+
+        PanelPreference disabilityQualifiedPanelMember =  PanelPreference.builder()
+            .memberID(adjournment.getDisabilityQualifiedPanelMemberName().getEmailId())
+            .memberType("disability")
+            .build();
+
+        PanelPreference otherPanelMember =  PanelPreference.builder()
+            .memberID(adjournment.getOtherPanelMemberName().getEmailId())
+            .memberType("other")
+            .build();
+
+        panelPreferences.addAll(List.of(medicallyQualifiedPanelMember, disabilityQualifiedPanelMember, otherPanelMember));
+
+        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
+        if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
+            panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE));
+        } else if (panelMembersExcluded == AdjournCasePanelMembersExcluded.RESERVED) {
+            panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE));
+        }
+
+        return  panelPreferences;
     }
 
     public static List<String> getPanelSpecialisms(@Valid SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {

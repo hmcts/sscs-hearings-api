@@ -94,7 +94,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @DisplayName("When overrideFields are null getPanelPreferences returns an empty list")
     @Test
     void testGetPanelPreferencesOverrideFieldsNull() {
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences();
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEmpty();
     }
