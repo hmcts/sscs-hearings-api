@@ -17,7 +17,7 @@ java:
     HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "stub-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_ACCESS_KEY: ""
-    HMC_HEARINGS_TOPIC_POLICY_NAME: ""
+    HMC_HEARINGS_TOPIC_POLICY_NAME: "default-user"
   extraEnvs:
     - name: 'RABBITMQ_PASSWORD'
       valueFrom:
@@ -29,10 +29,16 @@ rabbitmq:
   image:
     debug: true
   extraPlugins: "rabbitmq_jms_topic_exchange rabbitmq_amqp1_0"
-  extraConfiguration: |
-   amqp1_0.default_user  = guest
-   amqp1_0.default_vhost = /
-   amqp1_0.protocol_strict_mode = false
+  auth:
+    username: default-user
+  extraConfiguration: |-
+    default_vhost = default-vhost
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+    amqp1_0.default_user = default-user
+    amqp1_0.default_vhost = /
+    amqp1_0.protocol_strict_mode = false
 #  auth:
 #    tls:
 #      enabled: true
