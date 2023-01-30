@@ -16,8 +16,8 @@ java:
     HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ""
     HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "stub-to-sscs-subscription-{{ .Values.global.environment }}"
-    HMC_HEARINGS_TOPIC_ACCESS_KEY: "${RABBITMQ_PASSWORD}"
-    HMC_HEARINGS_TOPIC_POLICY_NAME:  "guest"
+    HMC_HEARINGS_TOPIC_ACCESS_KEY: ""
+    HMC_HEARINGS_TOPIC_POLICY_NAME: ""
   extraEnvs:
     - name: 'RABBITMQ_PASSWORD'
       valueFrom:
