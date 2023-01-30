@@ -25,7 +25,8 @@ gitProperties {
   dateFormatTimeZone = "GMT"
 }
 
-processResources.dependsOn(':generateGitProperties')
+processResources.dependsOn(generateGitProperties)
+generateGitProperties.dependsOn(compileJava)
 
 group = 'uk.gov.hmcts.reform'
 version = '0.0.1'
