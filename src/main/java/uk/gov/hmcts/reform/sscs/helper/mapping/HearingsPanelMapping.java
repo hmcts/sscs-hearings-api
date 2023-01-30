@@ -72,17 +72,17 @@ public final class HearingsPanelMapping {
 
         PanelPreference medicallyQualifiedPanelMember =  PanelPreference.builder()
             .memberID(adjournment.getMedicallyQualifiedPanelMemberName().getEmailId()) // TODO check which id to use
-            .memberType("medical") // TODO check memberType
+            .memberType("PANEL_MEMBER")
             .build();
 
         PanelPreference disabilityQualifiedPanelMember =  PanelPreference.builder()
             .memberID(adjournment.getDisabilityQualifiedPanelMemberName().getEmailId())
-            .memberType("disability")
+            .memberType("PANEL_MEMBER")
             .build();
 
         PanelPreference otherPanelMember =  PanelPreference.builder()
             .memberID(adjournment.getOtherPanelMemberName().getEmailId())
-            .memberType("other")
+            .memberType("JUDGE")
             .build();
 
         panelPreferences.addAll(List.of(medicallyQualifiedPanelMember, disabilityQualifiedPanelMember, otherPanelMember));

@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUser;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.MemberType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -57,17 +58,17 @@ class HearingsPanelMappingAdjournmentTest extends HearingsMappingBase {
 
         expectedPanelPrefJudge = PanelPreference.builder()
             .memberID(EMAIL_ID_JUDGE)
-            .memberType("other")
+            .memberType(MemberType.JUDGE.getValue())
             .build();
 
         expectedPanelPrefDisability = PanelPreference.builder()
             .memberID(EMAIL_ID_DISABILITY)
-            .memberType("disability")
+            .memberType(MemberType.PANEL_MEMBER.getValue())
             .build();
 
         expectedPanelPrefMedical = PanelPreference.builder()
             .memberID(EMAIL_ID_MEDICAL)
-            .memberType("medical")
+            .memberType(MemberType.PANEL_MEMBER.getValue())
             .build();
 
         Adjournment adjournment = Adjournment.builder()
