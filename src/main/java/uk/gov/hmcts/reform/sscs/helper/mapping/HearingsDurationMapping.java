@@ -35,8 +35,8 @@ public final class HearingsDurationMapping {
     public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
-        if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration().intValue() >= MIN_HEARING_DURATION) {
-            return overrideFields.getDuration().intValue();
+        if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration() >= MIN_HEARING_DURATION) {
+            return overrideFields.getDuration();
         }
 
         Integer duration = getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
