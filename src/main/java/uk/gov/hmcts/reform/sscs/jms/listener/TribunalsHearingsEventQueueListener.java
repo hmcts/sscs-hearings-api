@@ -45,8 +45,9 @@ public class TribunalsHearingsEventQueueListener {
 
         log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                  event, caseId);
-
         try {
+            log.info("Pause the processing of message by 10 seconds");
+            Thread.sleep(10_000);
             hearingsService.processHearingRequest(message);
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (ListingException ex) {
@@ -62,6 +63,9 @@ public class TribunalsHearingsEventQueueListener {
             log.info("Listing Error handled. State is now {}.", State.LISTING_ERROR);
         } catch (GetCaseException | UnhandleableHearingStateException | UpdateCaseException ex) {
             throw new TribunalsEventProcessingException("An exception occurred whilst processing hearing event", ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new TribunalsEventProcessingException("An exception occurred whilst processing the thread", ex);
         }
     }
 }

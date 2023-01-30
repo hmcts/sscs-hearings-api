@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,13 +27,24 @@ public final class HearingsNumberAttendeesMapping {
     }
 
     public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData) {
-        int numberOfAttendees = 0;
 
         if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData)) {
-            return numberOfAttendees;
+            return 0;
+        }
+        return getNumberOfFaceToFacePhysicalAttendees(caseData);
+    }
+
+    public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+
+        if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData, referenceDataServiceHolder)) {
+            return 0;
         }
 
-        numberOfAttendees += getNumberOfAppellantAttendees(caseData.getAppeal(), caseData.getJointParty());
+        return getNumberOfFaceToFacePhysicalAttendees(caseData);
+    }
+
+    private static int getNumberOfFaceToFacePhysicalAttendees(SscsCaseData caseData) {
+        int numberOfAttendees = getNumberOfAppellantAttendees(caseData.getAppeal(), caseData.getJointParty());
         numberOfAttendees += getNumberOfOtherPartyAttendees(caseData.getOtherParties());
 
         if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
