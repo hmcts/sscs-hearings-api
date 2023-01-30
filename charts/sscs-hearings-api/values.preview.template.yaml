@@ -9,3 +9,22 @@ java:
     JUDICIAL_REF_API_URL: "http://rd-judicial-api-aat.service.core-compute-aat.internal"
     IDAM_API_URL: https://idam-api.aat.platform.hmcts.net
     COMMON_REF_API_URL: "http://rd-commondata-api-aat.service.core-compute-aat.internal"
+    HMC_HEARINGS_LISTENING_ENABLED: true
+    AMQP_CONNECTION_STRING: "amqp://%1s?amqp.idleTimeout=%2d"
+    HMC_HEARINGS_TOPIC_NAMESPACE: ${SERVICE_NAME}-rabbitmq-headless
+    HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ""
+    HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "stub-to-sscs-subscription-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_ACCESS_KEY: "${RABBITMQ_PASSWORD}"
+    HMC_HEARINGS_TOPIC_POLICY_NAME:  "user"
+  extraEnvs:
+    - name: 'RABBITMQ_PASSWORD'
+      valueFrom:
+        secretKeyRef:
+          name: ${SERVICE_NAME}-rabbitmq
+          key: rabbitmq-password
+rabbitmq:
+  enabled: true
+  image:
+    debug: true
+  extraPlugins: "rabbitmq_jms_topic_exchange"

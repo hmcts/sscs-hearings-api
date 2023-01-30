@@ -3,10 +3,14 @@ appVersion: "1.0"
 description: A Helm chart for sscs-hearings-api App
 name: sscs-hearings-api
 home: https://github.com/hmcts/sscs-hearings-api
-version: 0.0.29
+version: 0.0.30
 maintainers:
   - name: HMCTS sscs team
 dependencies:
   - name: java
     version: 4.0.11
     repository: 'https://hmctspublic.azurecr.io/helm/v1/repo/'
+  - name: rabbitmq
+    version: 11.6.0
+    repository: 'https://charts.bitnami.com/bitnami'
+    condition: rabbitmq.enabled
