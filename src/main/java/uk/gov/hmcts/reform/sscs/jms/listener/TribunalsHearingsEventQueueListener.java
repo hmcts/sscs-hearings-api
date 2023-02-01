@@ -45,7 +45,6 @@ public class TribunalsHearingsEventQueueListener {
 
         log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                  event, caseId);
-
         try {
             log.info("Pause the processing of message by 10 seconds");
             Thread.sleep(10_000);
