@@ -44,14 +44,14 @@
     <cve>CVE-2022-3064</cve>
     <cve>CVE-2021-4235</cve>
   </suppress>
-  <suppress until = "2023-02-01">
+  <suppress until = "2023-02-08">
     <notes><![CDATA[
      LatencyUtils is being mistaken as utils_project:utils
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.latencyutils/LatencyUtils@.*$</packageUrl>
     <cve>CVE-2021-4277</cve>
   </suppress>
-  <suppress  until = "2023-02-01">
+  <suppress  until = "2023-02-08">
     <notes><![CDATA[
    file name: snakeyaml-1.33.jar
    ]]></notes>
