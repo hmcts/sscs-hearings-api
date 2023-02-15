@@ -332,8 +332,8 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.3'
   implementation group: 'com.github.hmcts', name: 'ccd-client', version: '4.8.6'
 
-  implementation group: 'org.projectlombok', name:'lombok', version: '1.18.22'
-  annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.22'
+  implementation group: 'org.projectlombok', name:'lombok', version: '1.18.26'
+  annotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.26'
 
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
@@ -364,8 +364,8 @@ dependencies {
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: '4.5.1'
   testImplementation group: 'io.rest-assured', name: 'json-path', version: '4.5.1'
 
-  testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.22'
-  testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.22'
+  testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.26'
+  testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.26'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
