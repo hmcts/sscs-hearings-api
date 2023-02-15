@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingInterpreter;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
@@ -78,12 +77,6 @@ public final class OverridesMapping {
         log.debug("Default Override Fields set to {} for Case ID {}",
                   defaultOverrideFields,
                   wrapper.getCaseData().getCcdCaseId());
-    }
-
-    public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
-        return ReservedToMember.builder()
-            .isReservedToMember(isYes(caseData.getReservedToJudge()) ? YesNo.YES : YesNo.NO)
-            .build();
     }
 
     public static HearingInterpreter getAppellantInterpreter(Appeal appeal,

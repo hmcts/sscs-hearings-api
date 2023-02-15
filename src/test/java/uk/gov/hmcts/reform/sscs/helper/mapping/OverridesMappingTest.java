@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -230,21 +229,6 @@ class OverridesMappingTest {
         assertThat(result.getAutoList()).isNotNull();
         assertThat(result.getHearingVenueEpimsIds()).isNotEmpty();
         assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
-    }
-
-    @DisplayName("When case data is given with reserved to judge, getReservedToJudge returns the correct Reserved To Member")
-    @ParameterizedTest
-    @ValueSource(strings = {"Yes", "No"})
-    @NullAndEmptySource
-    void testGetReservedToJudge(String value) {
-        caseData.setReservedToJudge(value);
-
-        ReservedToMember result = OverridesMapping.getReservedToJudge(caseData);
-
-        YesNo expected = isYes(value) ? YES : NO;
-
-        assertThat(result).isNotNull();
-        assertThat(result.getIsReservedToMember()).isEqualTo(expected);
     }
 
     @DisplayName("When the appellant wants a language interpreter, getAppellantInterpreter returns "
