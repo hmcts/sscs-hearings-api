@@ -46,9 +46,9 @@ public class ProcessHmcMessageService {
 
         HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
 
-        HmcStatus hmcStatus = hearingResponse.getRequestDetails().getStatus();
+        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
 
-        if (stateNotHandled(hmcStatus, hearingResponse)) {
+        if (stateNotHandled(hmcMessageStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
@@ -57,27 +57,27 @@ public class ProcessHmcMessageService {
 
         log.info("Processing message for HMC status {} with cancellation reasons {} for the Hearing ID {} and Case ID"
                 + " {}",
-            hmcStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
+                 hmcMessageStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
             hearingId, caseId
         );
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
-        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcStatus);
+        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcMessageStatus);
         if (resolvedState != null) {
             caseData.setDwpState(resolvedState);
         }
-        if (isHearingUpdated(hmcStatus, hearingResponse)) {
+        if (isHearingUpdated(hmcMessageStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
-        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcStatus);
+        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcMessageStatus);
 
-        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcStatus);
+        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcMessageStatus);
 
-        String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
+        String ccdUpdateDescription = String.format(hmcMessageStatus.getCcdUpdateDescription(), hearingId);
 
-        resolveEventAndUpdateCase(hearingResponse, hmcStatus, caseData, ccdUpdateDescription);
+        resolveEventAndUpdateCase(hearingResponse, hmcMessageStatus, caseData, ccdUpdateDescription);
 
         log.info(
             "Hearing message {} processed for case reference {}",
