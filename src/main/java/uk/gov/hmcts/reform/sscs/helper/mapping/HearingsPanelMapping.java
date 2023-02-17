@@ -85,7 +85,7 @@ public final class HearingsPanelMapping {
         if (nonNull(adjournment.getPanelMember3())) {
             PanelPreference otherPanelMember = PanelPreference.builder()
                 .memberID(adjournment.getPanelMember3().getIdamId())
-                .memberType("JUDGE")
+                .memberType("PANEL_MEMBER")
                 .requirementType(RequirementType.OPTIONAL_INCLUDE)
                 .build();
             panelPreferences.add(otherPanelMember);
