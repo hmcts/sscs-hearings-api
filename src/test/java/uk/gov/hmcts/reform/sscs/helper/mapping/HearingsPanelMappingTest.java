@@ -99,7 +99,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
 
     @DisplayName("When adjournment is enabled, adjournment is in progress, "
         + " all the 3 panel members are provided "
-        + " and panel member requirement type is provided" 
+        + " and panel member requirement type is provided"
         + " then return all the panel member with the requirement type.")
     @ParameterizedTest
     @MethodSource("getPanelMemberExcludeStates")
@@ -122,6 +122,39 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
         assertThat(result).isNotNull();
         assertThat(result.get(0).getRequirementType()).isEqualTo(requirementType);
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " No panel members details are provided "
+        + " then return empty panel members detail.")
+    @Test
+    void testGetPanelPreferencesWhenPanelMemberNotProvide() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+                                    .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
+                                    .build());
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment in progress is No, "
+        + " 1 panel member details provided "
+        + " and panel member requirement type is provided"
+        + " then return empty panel member.")
+    @Test
+    void testGetPanelPreferencesAdjournmentInProgressNo() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
+            .panelMember1(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        assertThat(result).isEmpty();
     }
 
     private static Stream<Arguments> getPanelMemberExcludeStates() {
