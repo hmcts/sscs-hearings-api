@@ -3,10 +3,8 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
@@ -19,7 +17,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -99,15 +96,13 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
 
     @DisplayName("When adjournment is enabled, adjournment is in progress, "
         + " all the 3 panel members are provided "
-        + " and panel member requirement type is provided"
-        + " then return all the panel member with the requirement type.")
-    @ParameterizedTest
-    @MethodSource("getPanelMemberExcludeStates")
-    void testGetPanelPreferencesOverrideFieldsNotNull(AdjournCasePanelMembersExcluded membersExcluded, RequirementType requirementType) {
+        + " and panel member requirement type is null"
+        + " then return the panel member with the requirement type as Optional Include.")
+    @Test
+    void testPanelMembersExcludedIsNull() {
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
-            .panelMembersExcluded(membersExcluded)
+            .panelMembersExcluded(null)
             .panelMember1(JudicialUserBase.builder()
                 .idamId("1")
                 .personalCode("TOM")
@@ -119,9 +114,50 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                 .idamId("3").personalCode("Tyke")
                 .build())
             .build());
+
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
         assertThat(result).isNotNull();
-        assertThat(result.get(0).getRequirementType()).isEqualTo(requirementType);
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.OPTIONAL_INCLUDE);
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " panel members are provided "
+        + " and panel member requirement type is RESERVED"
+        + " then return panel member requirement type as MUST_INCLUDE.")
+    @Test
+    void testPanelMembersExcludedIsReserved() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
+            .panelMember1(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.MUST_INCLUDE);
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " panel members are provided "
+        + " and panel member requirement type is YES"
+        + " then return panel member requirement type as EXCLUDE.")
+    @Test
+    void testPanelMembersExcludedIsYes() {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.YES)
+            .panelMember1(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.EXCLUDE);
     }
 
     @DisplayName("When adjournment is enabled, adjournment is in progress, "
@@ -131,9 +167,9 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     void testGetPanelPreferencesWhenPanelMemberNotProvide() {
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
-        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
-                                    .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
-                                    .build());
+        caseData.setAdjournment(Adjournment.builder()
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
+            .build());
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
         assertThat(result).isEmpty();
     }
@@ -155,14 +191,6 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
             .build());
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
         assertThat(result).isEmpty();
-    }
-
-    private static Stream<Arguments> getPanelMemberExcludeStates() {
-        return Stream.of(
-            Arguments.of(AdjournCasePanelMembersExcluded.RESERVED, RequirementType.MUST_INCLUDE),
-            Arguments.of(AdjournCasePanelMembersExcluded.YES, RequirementType.EXCLUDE),
-            Arguments.of(null, RequirementType.OPTIONAL_INCLUDE)
-        );
     }
 
     @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
