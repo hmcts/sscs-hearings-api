@@ -24,7 +24,8 @@ import static feign.Request.HttpMethod.GET;
 
 @Slf4j
 public class FeignClientErrorDecoder implements ErrorDecoder {
-    public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?/hearing/)(\\d+)");
+    public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?/hearing/|/hearings/)(\\d+)");
+    public static final int SUCCESS_RESPONSE = 200;
     private final AppInsightsService appInsightsService;
     private final ObjectMapper objectMapper;
 
@@ -50,8 +51,24 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                 appInsightsService.sendAppInsightsEvent(failMsg.toString());
             }
         }
+        logServiceFailureError(response);
+
         return new ResponseStatusException(HttpStatus.valueOf(response.status()),
             "Error in calling the client method:" + methodKey);
+    }
+
+    private void logServiceFailureError(Response response) {
+        if (response.status() != SUCCESS_RESPONSE) {
+            Request originalRequest = response.request();
+            HttpMethod httpMethod = originalRequest.httpMethod();
+            if (GET.equals(httpMethod)) {
+                log.error("Error occurred during call to HMC hearing service."
+                    + " Status code : " + response.status()
+                    + ". Reason : " + response.reason()
+                    + ". Message : " + getOriginalErrorMessage(response)
+                    + ". Case ID : " + getPathId(response));
+            }
+        }
     }
 
     private HmcFailureMessage extractFailMsg(String methodKey, Response response) {
