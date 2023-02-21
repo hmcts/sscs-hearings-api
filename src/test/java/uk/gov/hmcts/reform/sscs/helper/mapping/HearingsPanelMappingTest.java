@@ -129,7 +129,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
             .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
-            .panelMember1(JudicialUserBase.builder()
+            .panelMember2(JudicialUserBase.builder()
                 .idamId("1")
                 .personalCode("TOM")
                 .build())
@@ -149,7 +149,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
             .panelMembersExcluded(AdjournCasePanelMembersExcluded.YES)
-            .panelMember1(JudicialUserBase.builder()
+            .panelMember3(JudicialUserBase.builder()
                 .idamId("1")
                 .personalCode("TOM")
                 .build())
