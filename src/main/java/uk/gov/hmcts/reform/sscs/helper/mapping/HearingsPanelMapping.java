@@ -66,30 +66,7 @@ public final class HearingsPanelMapping {
             return panelPreferences;
         }
 
-        if (nonNull(adjournment.getPanelMember1())) {
-            PanelPreference medicallyQualifiedPanelMember =  PanelPreference.builder()
-                .memberID(adjournment.getPanelMember1().getIdamId())
-                .memberType("PANEL_MEMBER")
-                .requirementType(RequirementType.OPTIONAL_INCLUDE)
-                .build();
-            panelPreferences.add(medicallyQualifiedPanelMember);
-        }
-        if (nonNull(adjournment.getPanelMember2())) {
-            PanelPreference disabilityQualifiedPanelMember = PanelPreference.builder()
-                .memberID(adjournment.getPanelMember2().getIdamId())
-                .memberType("PANEL_MEMBER")
-                .requirementType(RequirementType.OPTIONAL_INCLUDE)
-                .build();
-            panelPreferences.add(disabilityQualifiedPanelMember);
-        }
-        if (nonNull(adjournment.getPanelMember3())) {
-            PanelPreference otherPanelMember = PanelPreference.builder()
-                .memberID(adjournment.getPanelMember3().getIdamId())
-                .memberType("PANEL_MEMBER")
-                .requirementType(RequirementType.OPTIONAL_INCLUDE)
-                .build();
-            panelPreferences.add(otherPanelMember);
-        }
+        panelPreferences.addAll(getAdjournmentPanelPreferences(adjournment));
 
         AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
         if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
@@ -99,6 +76,29 @@ public final class HearingsPanelMapping {
         }
 
         return  panelPreferences;
+    }
+
+    private static List<PanelPreference> getAdjournmentPanelPreferences(Adjournment adjournment) {
+        ArrayList<PanelPreference> panelPreferences = new ArrayList<>();
+
+        if (nonNull(adjournment.getPanelMember1())) {
+            panelPreferences.add(getPanelPreference(adjournment.getPanelMember1().getIdamId()));
+        }
+        if (nonNull(adjournment.getPanelMember2())) {
+            panelPreferences.add(getPanelPreference(adjournment.getPanelMember2().getIdamId()));
+        }
+        if (nonNull(adjournment.getPanelMember3())) {
+            panelPreferences.add(getPanelPreference(adjournment.getPanelMember3().getIdamId()));
+        }
+        return panelPreferences;
+    }
+
+    private static PanelPreference getPanelPreference(String memberID) {
+        return PanelPreference.builder()
+            .memberID(memberID)
+            .memberType("PANEL_MEMBER")
+            .requirementType(RequirementType.OPTIONAL_INCLUDE)
+            .build();
     }
 
     public static List<String> getPanelSpecialisms(@Valid SscsCaseData caseData, SessionCategoryMap sessionCategoryMap) {
