@@ -84,7 +84,7 @@ public class HearingUpdateService {
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setJudgeId(hearingDaySchedule.getHearingJudgeId());
-        hearingDetails.setPanelMemberId(hearingDaySchedule.getPanelMemberId());
+        hearingDetails.setPanelMemberIds(hearingDaySchedule.getPanelMemberIds());
         Venue venue = mapVenueDetailsToVenue(venueDetails);
         hearingDetails.setVenue(venue);
         LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
