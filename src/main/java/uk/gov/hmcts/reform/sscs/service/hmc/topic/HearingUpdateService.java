@@ -61,6 +61,7 @@ public class HearingUpdateService {
         }
 
         HearingDaySchedule hearingDaySchedule = hearingSessions.get(0);
+        log.info("hearingDaySchedule for case {}: {}", sscsCaseData.getCcdCaseId(), hearingDaySchedule);
 
         String hearingEpimsId = hearingDaySchedule.getHearingVenueEpimsId();
 
@@ -84,6 +85,7 @@ public class HearingUpdateService {
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setJudgeId(hearingDaySchedule.getHearingJudgeId());
+        log.info("panelMemberIds: {}", hearingDaySchedule.getPanelMemberIds());
         hearingDetails.setPanelMemberIds(hearingDaySchedule.getPanelMemberIds());
         Venue venue = mapVenueDetailsToVenue(venueDetails);
         hearingDetails.setVenue(venue);
