@@ -74,8 +74,6 @@ public class HearingUpdateService {
             ));
         }
 
-        Venue venue = mapVenueDetailsToVenue(venueDetails);
-
         Hearing hearing = HearingsServiceHelper.getHearingById(hearingId, sscsCaseData);
 
         if (isNull(hearing)) {
@@ -85,6 +83,9 @@ public class HearingUpdateService {
 
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
+        hearingDetails.setJudgeId(hearingDaySchedule.getHearingJudgeId());
+        hearingDetails.setPanelMemberId(hearingDaySchedule.getPanelMemberId());
+        Venue venue = mapVenueDetailsToVenue(venueDetails);
         hearingDetails.setVenue(venue);
         LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
         LocalDateTime hearingEndDateTime = hearingDaySchedule.getHearingEndDateTime();

@@ -365,7 +365,7 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     void partyFlagIfAdjournCaseInterpreterLanguageGiven() {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
-                    .interpreterRequired(YES)
+                .interpreterRequired(YES)
                 .build())
             .appeal(Appeal.builder().hearingOptions(
                 HearingOptions.builder()
@@ -387,12 +387,11 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     void partyFlagNullIfNoAdjournCaseInterpreterLanguageGiven() {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
-                             .interpreterRequired(NO)
-                             .build())
-            .appeal(Appeal.builder().hearingOptions(
-                    HearingOptions.builder()
-                        .build())
-                        .build())
+                .interpreterRequired(NO)
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .build();
 
         PartyFlags result = PartyFlagsMapping.getLanguageInterpreterFlag(caseData);
@@ -401,15 +400,15 @@ class PartyFlagsMappingTest extends HearingsMappingBase {
     }
 
     @DisplayName("noAdjournCaseInterpreterLanguage should not return party flag mapping")
+    @Test
     void adjournCaseInterpreterLanguageNull() {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
-                             .interpreterRequired(null)
-                             .build())
-            .appeal(Appeal.builder().hearingOptions(
-                    HearingOptions.builder()
-                        .build())
-                        .build())
+                .interpreterRequired(null)
+                .build())
+            .appeal(Appeal.builder()
+                .hearingOptions(HearingOptions.builder().build())
+                .build())
             .build();
 
         PartyFlags result = PartyFlagsMapping.getLanguageInterpreterFlag(caseData);
