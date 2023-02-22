@@ -15,7 +15,7 @@ java:
     HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ".servicebus.windows.net"
     HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "stub-to-sscs-subscription-{{ .Values.global.environment }}"
-    HMC_HEARINGS_TOPIC_ACCESS_KEY: ""
+    HMC_HEARINGS_TOPIC_ACCESS_KEY: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY}
     HMC_HEARINGS_TOPIC_POLICY_NAME: SendAndListenSharedAccessKey
   extraEnvs:
     - name: 'RABBITMQ_PASSWORD'
