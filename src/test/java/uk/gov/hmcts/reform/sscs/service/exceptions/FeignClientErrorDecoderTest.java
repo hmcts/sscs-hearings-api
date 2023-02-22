@@ -182,7 +182,7 @@ class FeignClientErrorDecoderTest {
     @Test
     void testHttpGetErrorHandling() {
         RequestTemplate requestTemplate = new RequestTemplate();
-        requestTemplate.uri("/hearing/1234");
+        requestTemplate.uri("/hearings/1234");
 
         Request request =
             Request.create(Request.HttpMethod.GET, "url/1234",
