@@ -11,7 +11,7 @@ java:
     COMMON_REF_API_URL: "http://rd-commondata-api-aat.service.core-compute-aat.internal"
     HMC_HEARINGS_LISTENING_ENABLED: true
     AMQP_CONNECTION_STRING: "amqps://%1s?amqp.idleTimeout=%2d"
-    HMC_HEARINGS_TOPIC_NAMESPACE: "hmc-servicebus-{{ .Values.global.environment }}-rabbitmq-headless"
+    HMC_HEARINGS_TOPIC_NAMESPACE: "sscs-servicebus-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ".servicebus.windows.net"
     HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "stub-to-sscs-subscription-{{ .Values.global.environment }}"
