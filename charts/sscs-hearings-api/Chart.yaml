@@ -10,7 +10,3 @@ dependencies:
   - name: java
     version: 4.0.13
     repository: 'https://hmctspublic.azurecr.io/helm/v1/repo/'
-  - name: rabbitmq
-    version: 11.6.0
-    repository: 'https://charts.bitnami.com/bitnami'
-    condition: rabbitmq.enabled
