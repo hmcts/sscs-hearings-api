@@ -10,8 +10,8 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 
 import java.util.function.BiFunction;
 
+import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.HANDLING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.HEARING_BOOKED;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public enum HmcStatus {
     UPDATE_REQUESTED("Update requested", null, null, "", ""),
     UPDATE_SUBMITTED("Update submitted", (response, caseData) -> UPDATE_CASE_ONLY, null, "Hearing Updated",
         "The hearing with id %s has been updated and has been updated on the case"),
-    EXCEPTION("Exception", (response, caseData) -> LISTING_ERROR, HearingStatus.EXCEPTION, "Hearing Exception",
+    EXCEPTION("Exception", (response, caseData) -> HANDLING_ERROR, HearingStatus.EXCEPTION, "Hearing Exception",
         "An error has occurred when trying to process the hearing with id %s"),
     CANCELLATION_REQUESTED("Cancellation requested", null, null, "", ""),
     CANCELLATION_SUBMITTED("Cancellation submitted", null, null, "", ""),

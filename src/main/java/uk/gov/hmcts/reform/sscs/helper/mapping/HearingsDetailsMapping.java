@@ -51,7 +51,7 @@ public final class HearingsDetailsMapping {
             .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(HearingsDurationMapping.getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
+            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
             .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
             .facilitiesRequired(getFacilitiesRequired())
@@ -62,7 +62,7 @@ public final class HearingsDetailsMapping {
             .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCodes(OverridesMapping.getAmendReasonCodes(caseData))
-            .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData))
+            .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder))
             .build();
     }
 

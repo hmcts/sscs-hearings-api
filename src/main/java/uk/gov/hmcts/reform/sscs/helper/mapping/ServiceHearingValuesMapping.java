@@ -12,7 +12,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCode;
+import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
 
 public final class ServiceHearingValuesMapping {
@@ -68,7 +68,7 @@ public final class ServiceHearingValuesMapping {
                 .roleType(HearingsPanelMapping.getRoleTypes(sscsCaseData.getBenefitCode()))
                 .authorisationTypes(HearingsPanelMapping.getAuthorisationTypes())
                 .authorisationSubType(HearingsPanelMapping.getAuthorisationSubTypes())
-                .judiciarySpecialisms(HearingsPanelMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCode(sscsCaseData, referenceDataServiceHolder)))
+                .judiciarySpecialisms(HearingsPanelMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCodeMap(sscsCaseData, referenceDataServiceHolder)))
                 .judiciaryPreferences(getPanelPreferences())
                 .build();
     }

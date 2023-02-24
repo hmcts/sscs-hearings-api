@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.sscs.helper.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -13,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
+import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +26,7 @@ import javax.validation.Valid;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 public final class HearingsServiceHelper {
 
     private HearingsServiceHelper() {
@@ -106,5 +110,15 @@ public final class HearingsServiceHelper {
             .orElse(Collections.emptyList()).stream()
             .findFirst()
             .orElse(null);
+    }
+
+    public static void checkBenefitIssueCode(SessionCategoryMap sessionCategoryMap) throws ListingException {
+        if (isNull(sessionCategoryMap)) {
+            log.error("sessionCaseCode is null. The benefit/issue code is probably an incorrect combination"
+                          + " and cannot be mapped to a session code. Refer to the session-category-map.json file"
+                          + " for the correct combinations.");
+
+            throw new ListingException("Incorrect benefit/issue code combination");
+        }
     }
 }
