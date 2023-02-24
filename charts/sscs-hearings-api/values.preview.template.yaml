@@ -10,7 +10,7 @@ java:
     IDAM_API_URL: https://idam-api.aat.platform.hmcts.net
     COMMON_REF_API_URL: "http://rd-commondata-api-aat.service.core-compute-aat.internal"
     HMC_HEARINGS_LISTENING_ENABLED: true
-    AMQP_CONNECTION_STRING: "amqp://%1s?amqps.idleTimeout=%2d"
+    AMQP_CONNECTION_STRING: "amqp://%1s?amqp.idleTimeout=%2d"
     HMC_HEARINGS_TOPIC_NAMESPACE: "sscs-servicebus-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ".servicebus.windows.net"
     HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
