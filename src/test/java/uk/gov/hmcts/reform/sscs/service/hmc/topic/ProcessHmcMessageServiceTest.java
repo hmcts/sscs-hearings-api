@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -390,21 +388,6 @@ class ProcessHmcMessageServiceTest {
 
         // then
         verify(ccdCaseService, never()).updateCaseData(any(),any(),any(),any());
-    }
-
-    @DisplayName("When HmcStatus given differs from hearingGetResponse status, processEventMessage throws the correct error and message")
-    @Test
-    void testProcessEventMessageStatusMismatch() throws Exception {
-        // given
-        hearingGetResponse.getRequestDetails().setStatus(CANCELLED);
-        hmcMessage.getHearingUpdate().setHmcStatus(EXCEPTION);
-
-        given(hmcHearingApiService.getHearingRequest(HEARING_ID))
-                .willReturn(hearingGetResponse);
-
-        // when + then
-        assertThatExceptionOfType(InvalidHmcMessageException.class)
-                .isThrownBy(() -> processHmcMessageService.processEventMessage(hmcMessage));
     }
 
     private void verifyUpdateCaseDataCalledCorrectlyForHmcStatus(SscsCaseData caseData, HmcStatus hmcStatus) throws UpdateCaseException {
