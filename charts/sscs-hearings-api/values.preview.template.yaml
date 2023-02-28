@@ -9,10 +9,14 @@ java:
     JUDICIAL_REF_API_URL: "http://rd-judicial-api-aat.service.core-compute-aat.internal"
     IDAM_API_URL: https://idam-api.aat.platform.hmcts.net
     COMMON_REF_API_URL: "http://rd-commondata-api-aat.service.core-compute-aat.internal"
+    AMQP_CONNECTION_STRING: "amqp://%1s?amqp:idleTimeout=%2d"
     HMC_HEARINGS_LISTENING_ENABLED: true
-    HMC_HEARINGS_TOPIC_NAMESPACE: "sscs-servicebus-{{ .Values.global.environment }}"
-    HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ".servicebus.windows.net"
-    HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-{{ .Values.global.environment }}"
+    HMC_HEARINGS_TOPIC_NAMESPACE: ${SERVICE_NAME}
+    HMC_HEARINGS_TOPIC_CONNECTION_POSTFIX: ""
+    HMC_HEARINGS_TOPIC_NAME: "stub-hmc-to-cft-preview"
     HMC_HEARINGS_TOPIC_SUBSCRIPTION_NAME: "stub-to-sscs-subscription-{{ .Values.global.environment }}"
     HMC_HEARINGS_TOPIC_ACCESS_KEY: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY}
     HMC_HEARINGS_TOPIC_POLICY_NAME: SendAndListenSharedAccessKey
+    TRIBUNALS_HEARINGS_LISTENING_ENABLED: false
+    TRIBUNALS_EVENT_QUEUE_NAMESPACE: ${SERVICE_NAME}
+    TRIBUNALS_EVENT_QUEUE_NAME: tribunals-to-hearings-queue
