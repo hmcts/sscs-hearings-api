@@ -66,4 +66,11 @@
     <cve>CVE-2021-4235</cve>
     <cve>CVE-2022-3064</cve>
   </suppress>
+  <suppress until = "2023-04-01">
+    <notes><![CDATA[
+   file name: jackson-core-2.14.2.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+    <cve>CVE-2022-45688</cve>
+  </suppress>
 </suppressions>
