@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
-import uk.gov.hmcts.reform.sscs.exception.InvalidHmcMessageException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
@@ -45,15 +44,11 @@ public class ProcessHmcMessageService {
         Long caseId = hmcMessage.getCaseId();
         String hearingId = hmcMessage.getHearingId();
 
-        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
-
         HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
 
-        HmcStatus hmcStatus = hearingResponse.getRequestDetails().getStatus();
+        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
 
-        checkStatuses(caseId, hearingId, hmcMessageStatus, hmcStatus);
-
-        if (stateNotHandled(hmcStatus, hearingResponse)) {
+        if (stateNotHandled(hmcMessageStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
@@ -62,27 +57,27 @@ public class ProcessHmcMessageService {
 
         log.info("Processing message for HMC status {} with cancellation reasons {} for the Hearing ID {} and Case ID"
                 + " {}",
-            hmcStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
+                 hmcMessageStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
             hearingId, caseId
         );
 
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
-        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcStatus);
+        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcMessageStatus);
         if (resolvedState != null) {
             caseData.setDwpState(resolvedState);
         }
-        if (isHearingUpdated(hmcStatus, hearingResponse)) {
+        if (isHearingUpdated(hmcMessageStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
-        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcStatus);
+        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcMessageStatus);
 
-        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcStatus);
+        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcMessageStatus);
 
-        String ccdUpdateDescription = String.format(hmcStatus.getCcdUpdateDescription(), hearingId);
+        String ccdUpdateDescription = String.format(hmcMessageStatus.getCcdUpdateDescription(), hearingId);
 
-        resolveEventAndUpdateCase(hearingResponse, hmcStatus, caseData, ccdUpdateDescription);
+        resolveEventAndUpdateCase(hearingResponse, hmcMessageStatus, caseData, ccdUpdateDescription);
 
         log.info(
             "Hearing message {} processed for case reference {}",
@@ -116,21 +111,6 @@ public class ProcessHmcMessageService {
             hmcStatus.getCcdUpdateSummary(),
             ccdUpdateDescription);
     }
-
-    private void checkStatuses(Long caseId, String hearingId, HmcStatus hmcMessageStatus, HmcStatus hmcStatus)
-        throws InvalidHmcMessageException {
-        if (hmcMessageStatus != hmcStatus) {
-            throw new InvalidHmcMessageException(String.format(
-                "HMC Message Status '%s' does not match the GET request status '%s' "
-                    + "for Case ID %s and Hearing ID %s",
-                hmcMessageStatus,
-                hmcStatus,
-                caseId,
-                hearingId
-            ));
-        }
-    }
-
 
     private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
