@@ -347,12 +347,12 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.2'
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
 
-  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.77'
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.78'
 
   implementation group: 'com.azure', name: 'azure-core', version: '1.36.0'
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.1'
 
-  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.77'
+  implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.78'
 
   implementation group: 'org.elasticsearch', name: 'elasticsearch', version: '7.17.9'
 
