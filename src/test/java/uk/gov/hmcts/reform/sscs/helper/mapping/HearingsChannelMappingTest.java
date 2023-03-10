@@ -176,6 +176,18 @@ class HearingsChannelMappingTest {
             .containsOnly(PAPER);
     }
 
+    @DisplayName("should return face to face if wants to attend but no options selected")
+    @Test
+    void getHearingChannels_wantsToAttendWithNoHearingsSelection() {
+        caseData.getAppeal().getHearingOptions().setWantsToAttend(YES.getValue());
+
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData);
+
+        assertThat(result)
+            .hasSize(1)
+            .containsOnly(FACE_TO_FACE);
+    }
+
     @DisplayName("When no one wants to attend, isPaperCase returns True")
     @Test
     void testIsPaperCaseNoOneAttend() {

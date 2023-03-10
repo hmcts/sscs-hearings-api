@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -104,6 +105,7 @@ class HearingsServiceTest {
             .ccdCaseId(String.valueOf(CASE_ID))
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
+            .state(State.READY_TO_LIST)
             .caseManagementLocation(CaseManagementLocation.builder().build())
             .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
@@ -120,7 +122,6 @@ class HearingsServiceTest {
 
         wrapper = HearingWrapper.builder()
             .state(CREATE_HEARING)
-            .caseData(caseData)
             .caseData(caseData)
             .build();
 
@@ -172,6 +173,22 @@ class HearingsServiceTest {
         });
 
         assertThat(thrown.getMessage()).isNotEmpty();
+    }
+
+    @DisplayName("When wrapper with a case in an invalid case state is given should run without error")
+    @Test
+    void processHearingWrapperInvalidState() {
+
+        for (State invalidState : HearingsService.INVALID_CASE_STATES) {
+            SscsCaseData invalidStateCaseData = SscsCaseData.builder()
+                          .ccdCaseId(String.valueOf(CASE_ID))
+                          .state(invalidState)
+                          .build();
+            wrapper.setState(CREATE_HEARING);
+            wrapper.setCaseData(invalidStateCaseData);
+            assertThatNoException()
+                .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        }
     }
 
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
