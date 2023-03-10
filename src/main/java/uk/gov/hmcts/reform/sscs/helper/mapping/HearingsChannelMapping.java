@@ -18,6 +18,7 @@ import javax.validation.Valid;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
@@ -125,6 +126,10 @@ public final class HearingsChannelMapping {
             }
         } else {
             return null;
+        }
+
+        if (isTrue(hearingOptions.isWantsToAttendHearing())) {
+            return FACE_TO_FACE;
         }
 
         throw new IllegalStateException("Failed to determine a preferred hearing channel");
