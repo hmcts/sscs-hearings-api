@@ -365,7 +365,6 @@ public final class HearingsPartiesMapping {
         return relatedParties;
     }
 
-
     public static RelatedParty getRelatedParty(@NonNull String id, String relationshipType) {
         String shortenId = id.length() > 15 ? id.substring(0, 15) : id;
         return RelatedParty.builder()
