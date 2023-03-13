@@ -134,6 +134,7 @@ class HearingsServiceTest {
         expectedCaseDetails = SscsCaseDetails.builder()
             .data(SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
+                .state(State.READY_TO_LIST)
                 .build())
             .build();
     }
