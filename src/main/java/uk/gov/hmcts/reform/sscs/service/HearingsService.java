@@ -71,9 +71,8 @@ public class HearingsService {
         throws UnhandleableHearingStateException, UpdateCaseException, ListingException {
 
         String caseId = wrapper.getCaseData().getCcdCaseId();
-        log.info("Processing Hearing Wrapper for Case ID {}, Case State {} and Hearing State {}",
+        log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
                  caseId,
-                 wrapper.getCaseData().getState().toString(),
                  wrapper.getState().getState());
 
         if (caseStatusInvalid(wrapper)) {
