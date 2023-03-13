@@ -10,6 +10,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
@@ -71,8 +72,9 @@ public class HearingsService {
         throws UnhandleableHearingStateException, UpdateCaseException, ListingException {
 
         String caseId = wrapper.getCaseData().getCcdCaseId();
-        log.info("Processing Hearing Wrapper for Case ID {} and Hearing State {}",
+        log.info("Processing Hearing Wrapper for Case ID {}, Case State {} and Hearing State {}",
                  caseId,
+                 wrapper.getCaseData().getState().toString(),
                  wrapper.getState().getState());
 
         if (caseStatusInvalid(wrapper)) {
@@ -242,8 +244,12 @@ public class HearingsService {
             cancellationReasons = List.of(hearingRequest.getCancellationReason());
         }
 
+        SscsCaseDetails sscsCaseDetails = ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId());
+        SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+        sscsCaseData.setState(State.getById(sscsCaseDetails.getState()));
+
         return HearingWrapper.builder()
-                .caseData(ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId()).getData())
+                .caseData(sscsCaseData)
                 .state(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)
                 .build();
