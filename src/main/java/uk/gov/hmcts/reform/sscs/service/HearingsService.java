@@ -74,17 +74,17 @@ public class HearingsService {
         String caseId = wrapper.getCaseData().getCcdCaseId();
         log.info("Processing Hearing Wrapper for Case ID {}, Case State {} and Hearing State {}",
                  caseId,
-                 wrapper.getCaseData().getState().toString(),
-                 wrapper.getState().getState());
+                 wrapper.getCaseState().toString(),
+                 wrapper.getHearingState().getState());
 
         if (caseStatusInvalid(wrapper)) {
             log.info("Case is in an invalid state for a hearing request. No requests sent to the HMC. Case ID {} and Case State {}",
                      caseId,
-                     wrapper.getCaseData().getState().toString());
+                     wrapper.getCaseState().toString());
             return;
         }
 
-        switch (wrapper.getState()) {
+        switch (wrapper.getHearingState()) {
             case CREATE_HEARING:
                 createHearing(wrapper);
                 break;
@@ -102,15 +102,14 @@ public class HearingsService {
                          caseId);
                 break;
             default:
-                UnhandleableHearingStateException err = new UnhandleableHearingStateException(wrapper.getState());
+                UnhandleableHearingStateException err = new UnhandleableHearingStateException(wrapper.getHearingState());
                 log.error(err.getMessage(),err);
                 throw err;
         }
     }
 
     private boolean caseStatusInvalid(HearingWrapper wrapper) {
-        SscsCaseData caseData = wrapper.getCaseData();
-        return INVALID_CASE_STATES.contains(caseData.getState());
+        return INVALID_CASE_STATES.contains(wrapper.getCaseState());
     }
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
@@ -130,7 +129,7 @@ public class HearingsService {
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 caseId,
-                wrapper.getState().getState(),
+                wrapper.getHearingState().getState(),
                 hmcUpdateResponse.toString());
         } else {
             hmcUpdateResponse = HmcUpdateResponse.builder()
@@ -157,7 +156,7 @@ public class HearingsService {
 
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
-                wrapper.getState().getState(),
+                wrapper.getHearingState().getState(),
                 response.toString());
 
         hearingResponseUpdate(wrapper, response);
@@ -174,7 +173,7 @@ public class HearingsService {
 
         log.debug("Received Cancel Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
-                wrapper.getState().getState(),
+                wrapper.getHearingState().getState(),
                 response.toString());
         // TODO process hearing response
     }
@@ -192,7 +191,7 @@ public class HearingsService {
         log.info("Updating Case with Hearing Response for Case ID {}, Hearing ID {} and Hearing State {}",
             caseId,
             hearingRequestId,
-            wrapper.getState().getState());
+            wrapper.getHearingState().getState());
 
         Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
 
@@ -204,7 +203,7 @@ public class HearingsService {
         HearingsServiceHelper.updateHearingId(hearing, response);
         HearingsServiceHelper.updateVersionNumber(hearing, response);
 
-        HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getState());
+        HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
         ccdCaseService.updateCaseData(
             caseData,
             event.getEventType(),
@@ -214,7 +213,7 @@ public class HearingsService {
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
             caseId,
             hearingRequestId,
-            wrapper.getState().getState(),
+            wrapper.getHearingState().getState(),
             event.getEventType().getCcdType());
     }
 
@@ -224,7 +223,7 @@ public class HearingsService {
             hearingResponseUpdateMaxRetries,
             wrapper.getCaseData().getCcdCaseId(),
             response.getHearingRequestId(),
-            wrapper.getState().getState(),
+            wrapper.getHearingState().getState(),
             exception);
 
         throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
@@ -245,12 +244,10 @@ public class HearingsService {
         }
 
         SscsCaseDetails sscsCaseDetails = ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId());
-        SscsCaseData sscsCaseData = sscsCaseDetails.getData();
-        sscsCaseData.setState(State.getById(sscsCaseDetails.getState()));
-
         return HearingWrapper.builder()
-                .caseData(sscsCaseData)
-                .state(hearingRequest.getHearingState())
+                .caseData(sscsCaseDetails.getData())
+                .caseState(State.getById(sscsCaseDetails.getState()))
+                .hearingState(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)
                 .build();
     }

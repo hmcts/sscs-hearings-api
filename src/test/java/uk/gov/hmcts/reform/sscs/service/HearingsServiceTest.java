@@ -105,7 +105,6 @@ class HearingsServiceTest {
             .ccdCaseId(String.valueOf(CASE_ID))
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
-            .state(State.READY_TO_LIST)
             .caseManagementLocation(CaseManagementLocation.builder().build())
             .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
@@ -121,8 +120,9 @@ class HearingsServiceTest {
             .build();
 
         wrapper = HearingWrapper.builder()
-            .state(CREATE_HEARING)
+            .hearingState(CREATE_HEARING)
             .caseData(caseData)
+            .caseState(State.READY_TO_LIST)
             .build();
 
         request = HearingRequest
@@ -134,7 +134,6 @@ class HearingsServiceTest {
         expectedCaseDetails = SscsCaseDetails.builder()
             .data(SscsCaseData.builder()
                 .ccdCaseId(String.valueOf(CASE_ID))
-                .state(State.READY_TO_LIST)
                 .build())
             .build();
     }
@@ -179,14 +178,13 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a case in an invalid case state is given should run without error")
     @Test
     void processHearingWrapperInvalidState() {
-
+        SscsCaseData caseData = SscsCaseData.builder()
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .build();
+        wrapper.setHearingState(CREATE_HEARING);
+        wrapper.setCaseData(caseData);
         for (State invalidState : HearingsService.INVALID_CASE_STATES) {
-            SscsCaseData invalidStateCaseData = SscsCaseData.builder()
-                          .ccdCaseId(String.valueOf(CASE_ID))
-                          .state(invalidState)
-                          .build();
-            wrapper.setState(CREATE_HEARING);
-            wrapper.setCaseData(invalidStateCaseData);
+            wrapper.setCaseState(invalidState);
             assertThatNoException()
                 .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
         }
@@ -215,7 +213,7 @@ class HearingsServiceTest {
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(HearingsGetResponse.builder().build());
 
-        wrapper.setState(CREATE_HEARING);
+        wrapper.setHearingState(CREATE_HEARING);
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -235,7 +233,7 @@ class HearingsServiceTest {
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(hearingsGetResponse);
 
-        wrapper.setState(CREATE_HEARING);
+        wrapper.setHearingState(CREATE_HEARING);
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -262,7 +260,7 @@ class HearingsServiceTest {
         given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());
 
-        wrapper.setState(UPDATE_HEARING);
+        wrapper.setHearingState(UPDATE_HEARING);
         wrapper.getCaseData()
             .setHearings(new ArrayList<>(Collections.singletonList(Hearing.builder()
                 .value(HearingDetails.builder()
@@ -281,7 +279,7 @@ class HearingsServiceTest {
         given(hmcHearingApiService.sendCancelHearingRequest(any(HearingCancelRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());
 
-        wrapper.setState(CANCEL_HEARING);
+        wrapper.setHearingState(CANCEL_HEARING);
         wrapper.getCaseData()
             .setHearings(Collections.singletonList(Hearing.builder()
                 .value(HearingDetails.builder()
