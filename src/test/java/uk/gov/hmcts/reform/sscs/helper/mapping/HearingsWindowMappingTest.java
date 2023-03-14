@@ -2,10 +2,14 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
@@ -15,17 +19,24 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsWindowMapping.DAYS_TO_ADD_HEARING_WINDOW_TODAY_POSTPONEMENT;
 
+@ExtendWith(MockitoExtension.class)
 class HearingsWindowMappingTest {
+
+    @Mock
+    ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @DisplayName("When a valid dwp Response Date is given, buildHearingWindow returns the date plus 28 days")
     @Test
@@ -34,7 +45,7 @@ class HearingsWindowMappingTest {
             .dwpResponseDate("2021-12-01")
             .build();
 
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
 
         assertThat(result)
             .isNotNull()
@@ -70,7 +81,7 @@ class HearingsWindowMappingTest {
                 .build())
             .build();
 
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
 
         assertThat(result.getFirstDateTimeMustBe()).isEqualTo(firstDateTimeMustBe);
         assertThat(result.getDateRangeStart()).isEqualTo(dateRangeStart);
@@ -93,7 +104,7 @@ class HearingsWindowMappingTest {
                 .build())
             .build();
 
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
@@ -122,7 +133,7 @@ class HearingsWindowMappingTest {
     void testBuildHearingWindowResponseBlank() {
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
 
@@ -141,7 +152,7 @@ class HearingsWindowMappingTest {
             .dwpResponseDate(LocalDate.now().toString())
             .appeal(new Appeal(null, null, null, new HearingOptions("yes", null, null, null, null, null, null, null, null, null), null, null, null, null, new HearingSubtype("yes", "07444123456", null, null, null), null))
             .build();
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
 
@@ -159,7 +170,7 @@ class HearingsWindowMappingTest {
             .dwpResponseDate("2021-12-01")
             .urgentCase("Yes")
             .build();
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
 
         assertThat(result).isNotNull();
 
@@ -178,17 +189,16 @@ class HearingsWindowMappingTest {
             .appeal(Appeal.builder().build())
             .build();
 
-        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData);
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
         assertThat(result).isNotNull();
         assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
-
     @DisplayName("When .. is given getFirstDateTimeMustBe returns the valid LocalDateTime")
     @Test
-    void testBetFirstDateTimeMustBe() {
+    void testGetFirstDateTimeMustBe() {
         // TODO Finish Test when method done
         LocalDateTime result = HearingsWindowMapping.getFirstDateTimeMustBe();
 
@@ -242,4 +252,37 @@ class HearingsWindowMappingTest {
 
         assertThat(result).isFalse();
     }
+
+    @DisplayName("When isAdjournmentFlagEnabled is true and case is being adjourned, "
+        + "AdjournCalculateDateHelper is used to calculate HearingWindowStart instead of HearingsWindowMapping "
+        + "so throws an exception due to missing data")
+    @Test
+    void testBuildHearingDetailsAdjourned() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournment(Adjournment.builder()
+                .adjournmentInProgress(YES)
+                .build())
+            .build();
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        assertThatThrownBy(() -> HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Unexpected nextHearingDateType for case id null: 'null'");
+    }
+
+    @DisplayName("When isAdjournmentFlagEnabled is true and case is not being adjourned, "
+        + "HearingsWindowMapping.getHearingWindowStart is used")
+    @Test
+    void testBuildHearingDetailsNotAdjourned() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournment(null)
+            .build();
+
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder);
+        assertThat(result).isNotNull();
+    }
+
 }
