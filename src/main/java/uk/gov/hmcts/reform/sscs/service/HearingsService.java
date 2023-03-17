@@ -54,8 +54,8 @@ public class HearingsService {
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder referenceDataServiceHolder;
-
-    public static final List<State> INVALID_CASE_STATES = Arrays.asList(State.DORMANT_APPEAL_STATE, State.LISTING_ERROR);
+    // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
+    public static final List<State> INVALID_CASE_STATES = Arrays.asList();
 
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
         UnhandleableHearingStateException, UpdateCaseException, ListingException {
