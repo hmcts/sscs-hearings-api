@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
@@ -57,40 +58,31 @@ public final class HearingsPanelMapping {
         return Collections.emptyList();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData,
+                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
         Adjournment adjournment = caseData.getAdjournment();
         ArrayList<PanelPreference> panelPreferences = new ArrayList<>();
 
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            || isNoOrNull(adjournment.getAdjournmentInProgress())) {
-            return panelPreferences;
-        }
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
+            && !isNoOrNull(adjournment.getAdjournmentInProgress())) {
+            panelPreferences.addAll(getAdjournmentPanelPreferences(adjournment.getPanelMembers()));
 
-        panelPreferences.addAll(getAdjournmentPanelPreferences(adjournment));
-
-        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
-        if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
-            panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE));
-        } else if (panelMembersExcluded == AdjournCasePanelMembersExcluded.RESERVED) {
-            panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE));
+            AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
+            if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
+                panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE));
+            } else if (panelMembersExcluded == AdjournCasePanelMembersExcluded.RESERVED) {
+                panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE));
+            }
         }
 
         return  panelPreferences;
     }
 
-    private static List<PanelPreference> getAdjournmentPanelPreferences(Adjournment adjournment) {
-        ArrayList<PanelPreference> panelPreferences = new ArrayList<>();
-
-        if (nonNull(adjournment.getPanelMember1())) {
-            panelPreferences.add(getPanelPreference(adjournment.getPanelMember1().getIdamId()));
-        }
-        if (nonNull(adjournment.getPanelMember2())) {
-            panelPreferences.add(getPanelPreference(adjournment.getPanelMember2().getIdamId()));
-        }
-        if (nonNull(adjournment.getPanelMember3())) {
-            panelPreferences.add(getPanelPreference(adjournment.getPanelMember3().getIdamId()));
-        }
-        return panelPreferences;
+    private static List<PanelPreference> getAdjournmentPanelPreferences(List<JudicialUserBase> panelMembers) {
+        return panelMembers.stream()
+            .filter(panelMember -> nonNull(panelMember.getPersonalCode()))
+            .map(paneMember -> getPanelPreference(paneMember.getPersonalCode()))
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static PanelPreference getPanelPreference(String memberID) {
