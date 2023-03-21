@@ -22,7 +22,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.CHILD_SUPPORT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
 public final class HearingsPanelMapping {
@@ -64,7 +64,7 @@ public final class HearingsPanelMapping {
         ArrayList<PanelPreference> panelPreferences = new ArrayList<>();
 
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            && !isNoOrNull(adjournment.getAdjournmentInProgress())) {
+            && isYes(adjournment.getAdjournmentInProgress())) {
             panelPreferences.addAll(getAdjournmentPanelPreferences(adjournment.getPanelMembers()));
 
             AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
