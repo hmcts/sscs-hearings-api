@@ -34,7 +34,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -269,7 +268,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
 
     @Test
-    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws InvalidMappingException {
+    void getHearingLocations_shouldReturnCorrespondingEpimsIdForVenue() throws ListingException {
         caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
@@ -292,7 +291,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("Multiple hearing location Test")
     @Test
-    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws InvalidMappingException {
+    void getMultipleHearingLocations_shouldReturnCorrespondingMultipleEpimsIdForVenue() throws ListingException {
         caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingSubtype(HearingSubtype.builder()
@@ -324,7 +323,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When hearing is paper case, return list of regional hearing locations based on RPC name")
     @Test
     void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc()
-        throws InvalidMappingException {
+        throws ListingException {
         caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
             .regionalProcessingCenter(RegionalProcessingCenter.builder().name(REGIONAL_PROCESSING_CENTRE).build())
@@ -382,7 +381,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() throws InvalidMappingException {
+    void getHearingLocations() throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
@@ -406,7 +405,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() throws InvalidMappingException {
+    void getHearingLocationsOverride() throws ListingException {
         buildOverrideHearingLocations();
 
         checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
@@ -415,7 +414,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
-    void getHearingLocationsAdjournmentNewVenue() throws InvalidMappingException {
+    void getHearingLocationsAdjournmentNewVenue() throws ListingException {
         //TODO: SSCS-10951: remove adjournment flag
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
@@ -435,7 +434,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
-    void getHearingLocationsAdjournmentSameVenue() throws InvalidMappingException {
+    void getHearingLocationsAdjournmentSameVenue() throws ListingException {
         //TODO: SSCS-10951: remove adjournment flag
         given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
@@ -472,7 +471,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build())
             .build()));
 
-        InvalidMappingException exception = assertThrows(InvalidMappingException.class, () -> {
+        ListingException exception = assertThrows(ListingException.class, () -> {
             HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder);
         });
 
@@ -481,7 +480,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
     @Test
-    void getHearingLocationsAdjournmentNewVenuePaperCase() throws InvalidMappingException {
+    void getHearingLocationsAdjournmentNewVenuePaperCase() throws ListingException {
         buildOverrideHearingLocations();
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE, EPIMS_ID_1);
@@ -502,14 +501,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
 
         assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
-            .isInstanceOf(InvalidMappingException.class)
+            .isInstanceOf(ListingException.class)
             .hasMessageContaining("Failed to determine next hearing location due to no latest hearing on case "
                                       + caseData.getCcdCaseId());
     }
 
     @DisplayName("Checks that the flag will make sure the code isn't run and returns the override values")
     @Test
-    void getHearingLocationsCheckFlag() throws InvalidMappingException {
+    void getHearingLocationsCheckFlag() throws ListingException {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_1);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
