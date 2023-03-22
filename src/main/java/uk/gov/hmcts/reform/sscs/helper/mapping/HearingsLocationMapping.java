@@ -126,10 +126,8 @@ public final class HearingsLocationMapping {
                                .build());
         }
 
-        throw new ListingException("Failed to determine next hearing location due to Invalid epimsId "
-                                              + epimsID
-                                              + " on case "
-                                              + caseData.getCcdCaseId());
+        throw new ListingException("Failed to determine next hearing location due to an invalid EpimsId \""
+                                              + epimsID + "\" on the latest hearing");
     }
 
     private static List<HearingLocation> getMultipleLocations(SscsCaseData caseData,
