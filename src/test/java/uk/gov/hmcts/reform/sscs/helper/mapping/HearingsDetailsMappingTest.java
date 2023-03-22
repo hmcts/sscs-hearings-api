@@ -471,9 +471,8 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build())
             .build()));
 
-        assertThrows(ListingException.class, () -> {
-            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder);
-        });
+        assertThrows(ListingException.class, () ->
+            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder));
     }
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
