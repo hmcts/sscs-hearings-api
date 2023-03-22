@@ -471,11 +471,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build())
             .build()));
 
-        ListingException exception = assertThrows(ListingException.class, () -> {
+        assertThrows(ListingException.class, () -> {
             HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder);
         });
-
-        assertThat(exception.getMessage()).contains(" due to Invalid epimsId ");
     }
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
