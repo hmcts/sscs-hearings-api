@@ -101,22 +101,35 @@ public final class HearingsLocationMapping {
             AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
 
             if (nonNull(nextHearingVenueName)) {
-                VenueService venueService = referenceDataServiceHolder.getVenueService();
-
-                String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
-
-                VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
-
-                log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
-
-                return List.of(HearingLocation.builder()
-                                   .locationId(epimsID)
-                                   .locationType(COURT)
-                                   .build());
+                return getNextHearingLocation(caseData, referenceDataServiceHolder.getVenueService(), nextHearingVenueName);
             }
         }
 
         return Collections.emptyList();
+    }
+
+    private static List<HearingLocation> getNextHearingLocation(SscsCaseData caseData,
+                                                                VenueService venueService,
+                                                                AdjournCaseNextHearingVenue nextHearingVenueName)
+        throws InvalidMappingException {
+
+        String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
+
+        VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
+
+        if (nonNull(venueDetails)) {
+            log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
+
+            return List.of(HearingLocation.builder()
+                               .locationId(epimsID)
+                               .locationType(COURT)
+                               .build());
+        }
+
+        throw new InvalidMappingException("Failed to determine next hearing location due to Invalid epimsId "
+                                              + epimsID
+                                              + " on case "
+                                              + caseData.getCcdCaseId());
     }
 
     private static List<HearingLocation> getMultipleLocations(SscsCaseData caseData,
