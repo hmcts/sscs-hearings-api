@@ -468,9 +468,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
 
         caseData.setHearings(Collections.singletonList(Hearing.builder()
-                                                        .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
-                                                            .build())
-                                                        .build()));
+            .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
+                .build())
+            .build()));
 
         InvalidMappingException exception = assertThrows(InvalidMappingException.class, () -> {
             HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder);
