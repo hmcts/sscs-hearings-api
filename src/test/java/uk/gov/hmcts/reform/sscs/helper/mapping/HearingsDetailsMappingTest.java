@@ -63,6 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SAME_VENUE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SOMEWHERE_ELSE;
@@ -452,6 +453,30 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         checkHearingLocationResults(
             HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
             EPIMS_ID_2);
+    }
+
+    @DisplayName("When a venue can't be found from the epimsId, throw an exception")
+    @Test
+    void getHearingLocationsAdjournmentSameVenueIncorrectEpimsId() {
+        //TODO: SSCS-10951: remove adjournment flag
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(null)).willReturn(null);
+
+        setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
+
+        caseData.setHearings(Collections.singletonList(Hearing.builder()
+                                                        .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
+                                                            .build())
+                                                        .build()));
+
+        InvalidMappingException exception = assertThrows(InvalidMappingException.class, () -> {
+            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder);
+        });
+
+        assertThat(exception.getMessage()).contains(" due to Invalid epimsId ");
     }
 
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
