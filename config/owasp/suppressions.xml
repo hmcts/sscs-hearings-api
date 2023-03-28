@@ -27,4 +27,10 @@
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
     <cve>CVE-2022-1471</cve>
   </suppress>
+  <suppress until="2023-04-08">
+    <notes><![CDATA[
+   file name: tomcat-embed-core-9.0.69.jar
+   ]]></notes>
+    <cve>CVE-2023-28708</cve>
+  </suppress>
 </suppressions>
