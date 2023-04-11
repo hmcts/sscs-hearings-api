@@ -64,6 +64,8 @@ public final class HearingsPartiesMapping {
     public static final String DWP_PO_FIRST_NAME = "Presenting";
     public static final String DWP_PO_LAST_NAME = "Officer";
 
+    public static final String ORGANISATION_NAME_REPLACEMENT = "-";
+
     private HearingsPartiesMapping() {
 
     }
@@ -225,11 +227,29 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualFirstName(Entity entity) {
-        return entity.getName().getFirstName();
+        String firstName = entity.getName().getFirstName();
+        String org = getIndividualOrganisation(entity);
+        if (StringUtils.isEmpty(firstName)
+            && !StringUtils.isEmpty(org)) {
+            return ORGANISATION_NAME_REPLACEMENT;
+        } else {
+            return firstName;
+        }
     }
 
     public static String getIndividualLastName(Entity entity) {
-        return entity.getName().getLastName();
+        String lastName = entity.getName().getLastName();
+        String org = getIndividualOrganisation(entity);
+        if (StringUtils.isEmpty(lastName)
+            && !StringUtils.isEmpty(org)) {
+            return ORGANISATION_NAME_REPLACEMENT;
+        } else {
+            return lastName;
+        }
+    }
+
+    public static String getIndividualOrganisation(Entity entity) {
+        return entity.getOrganisation();
     }
 
     public static String getIndividualFullName(Entity entity) {
