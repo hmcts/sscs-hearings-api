@@ -58,25 +58,29 @@ public final class HearingsPanelMapping {
         return Collections.emptyList();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
-        Adjournment adjournment = caseData.getAdjournment();
-        ArrayList<PanelPreference> panelPreferences = new ArrayList<>();
+public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    Adjournment adjournment = caseData.getAdjournment();
 
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            && isYes(adjournment.getAdjournmentInProgress())) {
-            panelPreferences.addAll(getAdjournmentPanelPreferences(adjournment.getPanelMembers()));
+    if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isYes(adjournment.getAdjournmentInProgress())) {
+        List<PanelPreference> panelPreferences = getAdjournmentPanelPreferences(adjournment.getPanelMembers());
+        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
 
-            AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
-            if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
-                panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE));
-            } else if (panelMembersExcluded == AdjournCasePanelMembersExcluded.RESERVED) {
-                panelPreferences.forEach(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE));
-            }
+        if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
+            return panelPreferences.stream()
+                .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE))
+                .collect(Collectors.toList());
+        } else if (panelMembersExcluded == AdjournCasePanelMembersExcluded.RESERVED) {
+            return panelPreferences.stream()
+                .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
+                .collect(Collectors.toList());
         }
 
-        return  panelPreferences;
+        return panelPreferences;
     }
+
+    return new ArrayList<>();
+}
+
 
     private static List<PanelPreference> getAdjournmentPanelPreferences(List<JudicialUserBase> panelMembers) {
         return panelMembers.stream()
