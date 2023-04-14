@@ -338,7 +338,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.25.10'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.25.16'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
@@ -350,7 +350,7 @@ dependencies {
   implementation group: 'com.networknt', name: 'json-schema-validator', version: '1.0.78'
 
   implementation group: 'com.azure', name: 'azure-core', version: '1.37.0'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.3'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.14.0-beta.1'
 
   implementation group: 'org.elasticsearch', name: 'elasticsearch', version: '7.17.9'
 
@@ -396,7 +396,7 @@ dependencyManagement {
   }
   dependencies {
     //CVE-2016-1000027
-    dependencySet(group: 'org.springframework', version: '5.3.22') {
+    dependencySet(group: 'org.springframework', version: '5.3.26') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
