@@ -25,6 +25,7 @@ import static feign.Request.HttpMethod.GET;
 @Slf4j
 public class FeignClientErrorDecoder implements ErrorDecoder {
     public static final Pattern HEARING_PATH_REGEX = Pattern.compile("(.*?/hearing/)(\\d+)");
+    public static final Pattern HEARINGS_PATH_REGEX = Pattern.compile("(.*?/hearings/)(\\d+)");
     private final AppInsightsService appInsightsService;
     private final ObjectMapper objectMapper;
 
@@ -50,8 +51,22 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
                 appInsightsService.sendAppInsightsEvent(failMsg.toString());
             }
         }
+        logServiceFailureError(response);
+
         return new ResponseStatusException(HttpStatus.valueOf(response.status()),
             "Error in calling the client method:" + methodKey);
+    }
+
+    private void logServiceFailureError(Response response) {
+        Request originalRequest = response.request();
+        HttpMethod httpMethod = originalRequest.httpMethod();
+        if (GET.equals(httpMethod)) {
+            log.error("Error occurred during call to HMC hearing service."
+                + " Status code : " + response.status()
+                + ". Reason : " + response.reason()
+                + ". Message : " + getOriginalErrorMessage(response)
+                + ". Case ID : " + getCaseIdFromPath(response, HEARINGS_PATH_REGEX));
+        }
     }
 
     private HmcFailureMessage extractFailMsg(String methodKey, Response response) {
@@ -99,6 +114,15 @@ public class FeignClientErrorDecoder implements ErrorDecoder {
     private Long getPathId(Response response) {
         String url = response.request().requestTemplate().url();
         Matcher matches = HEARING_PATH_REGEX.matcher(url);
+        if (matches.find()) {
+            return Long.parseLong(matches.group(2));
+        }
+        return null;
+    }
+
+    private Long getCaseIdFromPath(Response response, Pattern patter) {
+        String url = response.request().requestTemplate().url();
+        Matcher matches = patter.matcher(url);
         if (matches.find()) {
             return Long.parseLong(matches.group(2));
         }
