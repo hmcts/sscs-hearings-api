@@ -93,7 +93,7 @@ class HearingsServiceRetryTest {
                 .build();
 
         wrapper = HearingWrapper.builder()
-            .state(CREATE_HEARING)
+            .hearingState(CREATE_HEARING)
             .caseData(caseData)
             .caseData(caseData)
             .build();
@@ -116,7 +116,7 @@ class HearingsServiceRetryTest {
             anyString(), anyString()))
             .willReturn(caseDetails);
 
-        wrapper.setState(state);
+        wrapper.setHearingState(state);
 
         HmcUpdateResponse response = HmcUpdateResponse.builder()
             .versionNumber(VERSION)

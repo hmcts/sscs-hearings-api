@@ -415,12 +415,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("buildHearingPartiesPartyDetails when Rep is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,true",
-        "No,false",
-        "null,false",
-        ",false",
+        "Yes,true,true",
+        "Yes,true,false",
+        "No,false,true",
+        "No,false,false",
+        "null,false,true",
+        ",false,true",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected) throws InvalidMappingException {
+    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected, boolean named) throws InvalidMappingException {
         Representative rep = Representative.builder()
             .id(OTHER_PARTY_ID)
             .hasRepresentative(hasRepresentative)
@@ -433,10 +435,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         Party party = Appellant.builder()
             .id(PARTY_ID)
+            .organisation(named ? "" : "organisation")
             .name(Name.builder()
-                      .title("title")
-                      .firstName("first")
-                      .lastName("last")
+                      .title(named ? "title" : "")
+                      .firstName(named ? "first" : "")
+                      .lastName(named ? "last" : "")
                       .build())
             .build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
@@ -461,6 +464,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             assertThat(repDetails.getPartyType()).isNotNull();
             assertThat(repDetails.getPartyRole()).isNotNull();
             assertThat(repDetails.getIndividualDetails()).isNotNull();
+            assertThat(repDetails.getIndividualDetails().getFirstName()).isNotEmpty();
             assertThat(repDetails.getOrganisationDetails()).isNull();
             assertThat(repDetails.getUnavailabilityDayOfWeek()).isEmpty();
             assertThat(repDetails.getUnavailabilityRanges()).isEmpty();
@@ -868,18 +872,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result.getHmcReference()).isEqualTo(HearingChannel.TELEPHONE.getHmcReference());
     }
 
-    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set throw IllegalStateException")
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType telephone but hearingTelephoneNumber is not set then return LOV FACE TO FACE")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsTelephoneExample() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeTelephone("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-                                                        getIndividualPreferredHearingChannel(
-                                                            hearingSubtype,
-                                                            hearingOptions,
-                                                            null));
+        HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
+        assertThat(result).isEqualTo(FACE_TO_FACE);
     }
 
     @DisplayName("When hearing type oral and face to face then return LOV FACE TO FACE")
@@ -900,18 +899,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(FACE_TO_FACE);
     }
 
-    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set throw IllegalStateException")
+    @DisplayName("When wantsToAttend is yes, and wantsHearingType video but hearingVideoEmail is not set then return LOV FACE TO FACE")
     @Test
     void getIndividualPreferredHearingChannelNullWhenMissingPartialRequirementsVideoExample() {
         HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeVideo("Yes").build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-
-        assertThatExceptionOfType(
-            IllegalStateException.class).isThrownBy(() ->
-                                                        getIndividualPreferredHearingChannel(
-                                                            hearingSubtype,
-                                                            hearingOptions,
-                                                            null));
+        HearingChannel result = getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
+        assertThat(result).isEqualTo(FACE_TO_FACE);
     }
 
     @DisplayName("isIndividualVulnerableFlag Test")

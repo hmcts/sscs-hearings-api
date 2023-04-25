@@ -32,7 +32,8 @@ import javax.servlet.ServletContextListener;
         "uk.gov.hmcts.reform.authorisation",
         "uk.gov.hmcts.reform.sscs.idam",
         "uk.gov.hmcts.reform.sscs.service",
-        "uk.gov.hmcts.reform.idam"
+        "uk.gov.hmcts.reform.idam",
+        "uk.gov.hmcts.reform.sscs.client"
     })
 public class HearingsApiApplication {
 
