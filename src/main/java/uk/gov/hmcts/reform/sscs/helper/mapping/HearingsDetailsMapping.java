@@ -47,7 +47,7 @@ public final class HearingsDetailsMapping {
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
-            .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData))
+            .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder))
             .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
             .nonStandardHearingDurationReasons(HearingsDurationMapping.getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))

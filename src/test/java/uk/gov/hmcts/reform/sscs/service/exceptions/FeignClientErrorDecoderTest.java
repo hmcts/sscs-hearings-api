@@ -179,6 +179,27 @@ class FeignClientErrorDecoderTest {
         assertThat(throwable).isInstanceOf(ResponseStatusException.class);
     }
 
+    @Test
+    void testHttpGetErrorHandling() {
+        RequestTemplate requestTemplate = new RequestTemplate();
+        requestTemplate.uri("/hearings/1234");
+
+        Request request =
+            Request.create(Request.HttpMethod.GET, "url/1234",
+                           headers, Request.Body.create(toJsonString(hearingRequestPayload)), requestTemplate);
+        Response response = Response.builder()
+            .request(request)
+            .status(500)
+            .reason("Internal server error")
+            .body("Some body", StandardCharsets.UTF_8)
+            .build();
+
+        Throwable throwable = feignClientErrorDecoder.decode("someMethod", response);
+
+        assertThat(throwable).isInstanceOf(ResponseStatusException.class);
+        assertThat(throwable.getMessage()).contains("500 INTERNAL_SERVER_ERROR \"Error in calling the client method:someMethod\"");
+    }
+
     private String toJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
