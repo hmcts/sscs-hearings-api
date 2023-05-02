@@ -27,16 +27,4 @@
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
     <cve>CVE-2022-1471</cve>
   </suppress>
-  <suppress until = "2023-06-01">
-    <notes><![CDATA[
-   file name: spring-boot-2.7.1.jar
-   ]]></notes>
-    <cve>CVE-2023-20873</cve>
-  </suppress>
-  <suppress until = "2023-06-01">
-    <notes><![CDATA[
-   file name: spring-security-config-5.7.5.jar
-   ]]></notes>
-    <cve>CVE-2023-20862</cve>
-  </suppress>
 </suppressions>
