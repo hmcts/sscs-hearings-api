@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.12.RELEASE'
-  id 'org.springframework.boot' version '2.7.1'
+  id 'org.springframework.boot' version '2.7.11'
   id 'uk.gov.hmcts.java' version '0.12.27'
   id 'org.owasp.dependencycheck' version '8.1.2'
   id 'com.github.ben-manes.versions' version '0.42.0'
@@ -301,12 +301,12 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq'
 
-  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: '5.7.5'
-  implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.7.5'
-  implementation group: 'org.springframework.security', name: 'spring-security-web', version: '5.7.5'
-  implementation group: 'org.springframework.security', name: 'spring-security-config', version: '5.7.5'
-  implementation group: 'org.springframework.security', name: 'spring-security-core', version: '5.7.5'
-  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: '5.7.5'
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: '5.7.8'
+  implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.7.8'
+  implementation group: 'org.springframework.security', name: 'spring-security-web', version: '5.7.8'
+  implementation group: 'org.springframework.security', name: 'spring-security-config', version: '5.7.8'
+  implementation group: 'org.springframework.security', name: 'spring-security-core', version: '5.7.8'
+  implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: '5.7.8'
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter'
 
@@ -339,7 +339,6 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
 
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: '0f86653'
-
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2'
