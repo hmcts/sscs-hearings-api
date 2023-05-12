@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
+import uk.gov.hmcts.reform.sscs.helper.adjournment.AdjournmentCalculateDateHelper;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
@@ -67,7 +68,7 @@ public final class OverridesMapping {
             .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(),
                                                                           appeal.getHearingOptions(),
                                                                           null))
-            .hearingWindow(getHearingDetailsHearingWindow(caseData))
+            .hearingWindow(getHearingDetailsHearingWindow(caseData, referenceDataServiceHolder))
             .autoList(getHearingDetailsAutoList(caseData, referenceDataServiceHolder))
             .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
             .build();
@@ -144,8 +145,12 @@ public final class OverridesMapping {
 
     }
 
-    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData) {
-        LocalDate hearingWindowStart = HearingsWindowMapping.getHearingWindowStart(caseData);
+    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+
+        LocalDate hearingWindowStart =
+            referenceData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress())
+            ? AdjournmentCalculateDateHelper.getHearingWindowStart(caseData)
+            : HearingsWindowMapping.getHearingWindowStart(caseData);
 
         return HearingWindow.builder()
             .firstDateTimeMustBe(null)

@@ -107,7 +107,7 @@ public final class HearingsLocationMapping {
 
                 VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
 
-                log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
+                log.info("Getting hearing location with the epims ID of {}", epimsID);
 
                 return List.of(HearingLocation.builder()
                                    .locationId(epimsID)
