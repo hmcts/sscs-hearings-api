@@ -123,10 +123,12 @@ public class HearingsService {
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
+            log.info("Set Default Override Fields for Case ID {}", caseId);
             OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
+            log.info("Set Hearing Payload for Case ID {}", caseId);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+            log.info("Send Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
-
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 caseId,
                 wrapper.getHearingState().getState(),
