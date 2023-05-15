@@ -44,6 +44,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
+                .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
                 .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired())
