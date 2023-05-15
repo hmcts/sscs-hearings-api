@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
@@ -16,7 +17,6 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
