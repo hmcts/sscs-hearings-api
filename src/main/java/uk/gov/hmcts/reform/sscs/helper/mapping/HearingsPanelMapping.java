@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -25,6 +26,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
+@Slf4j
 public final class HearingsPanelMapping {
 
     public static final Pattern MEMBER_ID_ROLE_REFERENCE_REGEX = Pattern.compile("(\\w*)\\|(\\w*)");
@@ -62,6 +64,9 @@ public final class HearingsPanelMapping {
                                                             ReferenceDataServiceHolder referenceDataServiceHolder) {
         Adjournment adjournment = caseData.getAdjournment();
 
+        log.info("Flag {} progress {}", referenceDataServiceHolder.isAdjournmentFlagEnabled(), adjournment.getAdjournmentInProgress());
+        log.info("Panel memebers {}", adjournment.getPanelMembers());
+
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isYes(adjournment.getAdjournmentInProgress())) {
             List<PanelPreference> panelPreferences = getAdjournmentPanelPreferences(adjournment.getPanelMembers());
             AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
@@ -75,6 +80,8 @@ public final class HearingsPanelMapping {
                     .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
                     .collect(Collectors.toList());
             }
+
+            log.info("Panel preferences {}", panelPreferences);
 
             return panelPreferences;
         }
