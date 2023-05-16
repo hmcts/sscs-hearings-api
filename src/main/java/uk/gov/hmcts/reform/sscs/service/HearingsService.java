@@ -8,10 +8,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -34,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
@@ -204,6 +203,12 @@ public class HearingsService {
 
         HearingsServiceHelper.updateHearingId(hearing, response);
         HearingsServiceHelper.updateVersionNumber(hearing, response);
+
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
+            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
+            log.info("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
+            caseData.getAdjournment().setAdjournmentInProgress(NO);
+        }
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
         ccdCaseService.updateCaseData(
