@@ -54,6 +54,9 @@ public class ServiceHearingsController {
                     request.getCaseId());
 
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
+
+            log.info("serviceHearingValues {}", model);
+
             return status(HttpStatus.OK).body(model);
         } catch (Exception exc) {
             logException(exc, request.getCaseId());
