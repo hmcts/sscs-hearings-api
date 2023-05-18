@@ -28,9 +28,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTI
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
-@SuppressWarnings({"PMD.GodClass"})
 @Slf4j
-// TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
     private HearingsDetailsMapping() {
@@ -38,30 +36,30 @@ public final class HearingsDetailsMapping {
     }
 
     public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
-                                                     ReferenceDataServiceHolder referenceDataServiceHolder)
+                                                     ReferenceDataServiceHolder refData)
         throws ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
-        boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
-        boolean adjournmentInProgress = referenceDataServiceHolder.isAdjournmentFlagEnabled()
+        boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, refData);
+        boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled()
             && isYes(caseData.getAdjournment().getAdjournmentInProgress());
 
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
-            .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder))
-            .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+            .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData, refData))
+            .duration(HearingsDurationMapping.getHearingDuration(caseData, refData))
             .nonStandardHearingDurationReasons(HearingsDurationMapping.getNonStandardHearingDurationReasons())
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder))
+            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, refData))
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
-            .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+            .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, refData))
             .facilitiesRequired(getFacilitiesRequired())
             .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
             .leadJudgeContractType(getLeadJudgeContractType())
-            .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
+            .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, refData))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCodes(OverridesMapping.getAmendReasonCodes(caseData))
             .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData, adjournmentInProgress))

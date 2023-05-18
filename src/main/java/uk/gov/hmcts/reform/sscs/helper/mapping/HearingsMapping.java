@@ -38,21 +38,21 @@ public final class HearingsMapping {
     private HearingsMapping() {
     }
 
-    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static HearingRequestPayload buildHearingPayload(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
         throws ListingException {
         return HearingRequestPayload.builder()
             .requestDetails(buildHearingRequestDetails(wrapper))
-            .hearingDetails(buildHearingDetails(wrapper, referenceDataServiceHolder))
-            .caseDetails(buildHearingCaseDetails(wrapper, referenceDataServiceHolder))
-            .partiesDetails(buildHearingPartiesDetails(wrapper, referenceDataServiceHolder))
+            .hearingDetails(buildHearingDetails(wrapper, refData))
+            .caseDetails(buildHearingCaseDetails(wrapper, refData))
+            .partiesDetails(buildHearingPartiesDetails(wrapper, refData))
             .build();
     }
 
     public static SessionCategoryMap getSessionCaseCodeMap(SscsCaseData caseData,
-                                                           ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                           ReferenceDataServiceHolder refData) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
-        return referenceDataServiceHolder.getSessionCategoryMaps()
+        return refData.getSessionCategoryMaps()
                 .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
                         doctorSpecialistSecond, fqpmRequired);
     }
