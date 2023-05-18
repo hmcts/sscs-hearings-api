@@ -34,9 +34,10 @@ public final class HearingsNumberAttendeesMapping {
         return getNumberOfFaceToFacePhysicalAttendees(caseData);
     }
 
-    public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-
-        if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData, referenceDataServiceHolder)) {
+    public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled()
+            && isYes(caseData.getAdjournment().getAdjournmentInProgress());
+        if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData, adjournmentInProgress)) {
             return 0;
         }
 

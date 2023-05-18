@@ -43,6 +43,8 @@ public final class HearingsDetailsMapping {
         SscsCaseData caseData = wrapper.getCaseData();
 
         boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
+        boolean adjournmentInProgress = referenceDataServiceHolder.isAdjournmentFlagEnabled()
+            && isYes(caseData.getAdjournment().getAdjournmentInProgress());
 
         return HearingDetails.builder()
             .autolistFlag(autoListed)
@@ -62,7 +64,7 @@ public final class HearingsDetailsMapping {
             .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
             .hearingIsLinkedFlag(isCaseLinked(caseData))
             .amendReasonCodes(OverridesMapping.getAmendReasonCodes(caseData))
-            .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder))
+            .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData, adjournmentInProgress))
             .build();
     }
 

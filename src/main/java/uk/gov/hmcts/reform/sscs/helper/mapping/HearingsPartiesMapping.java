@@ -258,14 +258,15 @@ public final class HearingsPartiesMapping {
 
     public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, OverrideFields overrideFields, ReferenceDataServiceHolder referenceData, String adjournLanguage) throws InvalidMappingException {
 
+        // return the adjournment language value if set, this supersedes the override field
+        if (nonNull(adjournLanguage)) {
+            return adjournLanguage;
+        }
+
         if (nonNull(overrideFields)
             && nonNull(overrideFields.getAppellantInterpreter())
             && nonNull(overrideFields.getAppellantInterpreter().getIsInterpreterWanted())) {
             return getOverrideInterpreterLanguage(overrideFields);
-        }
-
-        if (nonNull(adjournLanguage)) {
-            return adjournLanguage;
         }
 
         if (isNull(hearingOptions)

@@ -2,23 +2,12 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingInterpreter;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -55,28 +44,32 @@ public final class OverridesMapping {
             .orElse(Collections.emptyList());
     }
 
-    public static void setDefaultOverrideFields(HearingWrapper wrapper,
-                                                ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws ListingException {
+    public static void setDefaultOverrideValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData) throws ListingException {
+        // get case data from hearing wrapper and required appeal fields
         SscsCaseData caseData = wrapper.getCaseData();
-
         Appeal appeal = caseData.getAppeal();
-
-        OverrideFields defaultOverrideFields = OverrideFields.builder()
-            .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
-            .appellantInterpreter(getAppellantInterpreter(appeal, referenceDataServiceHolder))
-            .appellantHearingChannel(getIndividualPreferredHearingChannel(appeal.getHearingSubtype(),
-                                                                          appeal.getHearingOptions(),
-                                                                          null))
-            .hearingWindow(getHearingDetailsHearingWindow(caseData))
-            .autoList(getHearingDetailsAutoList(caseData, referenceDataServiceHolder))
-            .hearingVenueEpimsIds(getHearingDetailsLocations(caseData, referenceDataServiceHolder))
+        HearingSubtype subtype = appeal.getHearingSubtype();
+        HearingOptions options = appeal.getHearingOptions();
+        // collect default listing values using case, ref and appeal data
+        int duration = HearingsDurationMapping.getHearingDuration(caseData, refData);
+        HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
+        HearingChannel channel = getIndividualPreferredHearingChannel(subtype, options, null);
+        HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData);
+        YesNo autoList = getHearingDetailsAutoList(caseData, refData);
+        List<CcdValue<CcdValue<String>>> venueEpimsIds = getHearingDetailsLocations(caseData, refData);
+        // build default override listing values and set on case data
+        OverrideFields defaultOverrideValues = OverrideFields.builder()
+            .duration(duration)
+            .appellantInterpreter(interpreter)
+            .appellantHearingChannel(channel)
+            .hearingWindow(hearingWindow)
+            .autoList(autoList)
+            .hearingVenueEpimsIds(venueEpimsIds)
             .build();
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideValues);
 
-        caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideFields);
-
-        log.debug("Default Override Fields set to {} for Case ID {}",
-                  defaultOverrideFields,
+        log.debug("Default Override Listing Values set to {} for Case ID {}",
+                  defaultOverrideValues,
                   wrapper.getCaseData().getCcdCaseId());
     }
 
@@ -86,12 +79,11 @@ public final class OverridesMapping {
             .build();
     }
 
-    public static HearingInterpreter getAppellantInterpreter(Appeal appeal,
-                                                             ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static HearingInterpreter getAppellantInterpreter(Appeal appeal, ReferenceDataServiceHolder refData)
         throws InvalidMappingException {
         HearingOptions hearingOptions = appeal.getHearingOptions();
 
-        Language language = getInterpreterLanguage(hearingOptions, referenceDataServiceHolder);
+        Language language = getInterpreterLanguage(hearingOptions, refData);
 
         if (isNull(language)) {
             return HearingInterpreter.builder()
@@ -119,8 +111,7 @@ public final class OverridesMapping {
             || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YesNo.YES : YesNo.NO;
     }
 
-    public static Language getInterpreterLanguage(HearingOptions hearingOptions,
-                                                  ReferenceDataServiceHolder referenceData)
+    public static Language getInterpreterLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder refData)
         throws InvalidMappingException {
         if (isNull(hearingOptions)) {
             return null;
@@ -128,7 +119,7 @@ public final class OverridesMapping {
 
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguage = hearingOptions.getSignLanguageType();
-            Language language = referenceData.getSignLanguages().getSignLanguage(signLanguage);
+            Language language = refData.getSignLanguages().getSignLanguage(signLanguage);
 
             if (isNull(language)) {
                 throw new InvalidMappingException(String.format("The language %s cannot be mapped", signLanguage));
@@ -138,7 +129,7 @@ public final class OverridesMapping {
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             String verbalLanguage = hearingOptions.getLanguages();
-            Language language = referenceData.getVerbalLanguages().getVerbalLanguage(verbalLanguage);
+            Language language = refData.getVerbalLanguages().getVerbalLanguage(verbalLanguage);
 
             if (isNull(language)) {
                 throw new InvalidMappingException(String.format("The language %s cannot be mapped", verbalLanguage));
@@ -161,16 +152,15 @@ public final class OverridesMapping {
             .build();
     }
 
-    public static YesNo getHearingDetailsAutoList(@Valid SscsCaseData caseData,
-                                                  ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static YesNo getHearingDetailsAutoList(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
-        return HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder) ? YesNo.YES : YesNo.NO;
+        return HearingsAutoListMapping.shouldBeAutoListed(caseData, refData) ? YesNo.YES : YesNo.NO;
     }
 
     public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(
         @Valid SscsCaseData caseData,
-        ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
-        return HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder).stream()
+        ReferenceDataServiceHolder refData) throws InvalidMappingException {
+        return HearingsLocationMapping.getHearingLocations(caseData, refData).stream()
             .map(HearingLocation::getLocationId)
             .filter(Objects::nonNull)
             .map(CcdValue::new)

@@ -123,7 +123,7 @@ public class HearingsService {
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
-            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
+            OverridesMapping.setDefaultOverrideValues(wrapper, referenceDataServiceHolder);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
@@ -149,7 +149,7 @@ public class HearingsService {
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-        OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
+        OverridesMapping.setDefaultOverrideValues(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);

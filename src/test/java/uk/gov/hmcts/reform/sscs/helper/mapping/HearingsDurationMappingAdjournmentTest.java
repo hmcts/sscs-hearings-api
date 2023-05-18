@@ -14,14 +14,12 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits.MINUTES;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits.SESSIONS;
 
 class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
@@ -36,8 +34,6 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
 
     @BeforeEach
     void setUp() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true); // TODO SSCS-10951
-
         caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.NON_STANDARD);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
     }
@@ -55,9 +51,10 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     void getHearingDuration(
         Integer adjournCaseDuration,
         AdjournCaseNextHearingDurationUnits adjournCaseDurationUnits,
-        int expected) throws ListingException {
-        setAdjournmentDurationAndUnits(adjournCaseDuration, adjournCaseDurationUnits);
+        int expected) {
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
+        setAdjournmentDurationAndUnits(adjournCaseDuration, adjournCaseDurationUnits);
         Integer result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
 
         assertThat(result).isEqualTo(expected);
@@ -81,8 +78,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
                 .build())
             .build();
 
-        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(
-            caseData, referenceDataServiceHolder);
+        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(caseData);
         assertThat(durationAdjourned).isNull();
 
         Integer result = HearingsDurationMapping.getHearingDuration(
@@ -139,7 +135,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
         setAdjournmentDurationAndUnits(null, SESSIONS);
 
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData);
 
         assertThat(result).isNull();
     }
@@ -151,21 +147,9 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         setAdjournmentDurationAndUnits(null, SESSIONS);
         caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.STANDARD);
 
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData);
 
         assertThat(result).isNull();
     }
 
-    // TODO Remove with SSCS-10951
-    @DisplayName("When adjournment flag is disabled getHearingDurationAdjournment returns null")
-    @Test
-    void getHearingDurationAdjournmentFeatureFlagDisabled() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
-
-        setAdjournmentDurationAndUnits(100, MINUTES);
-
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
-
-        assertThat(result).isNull();
-    }
 }
