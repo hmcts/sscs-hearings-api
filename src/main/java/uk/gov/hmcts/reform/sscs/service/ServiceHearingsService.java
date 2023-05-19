@@ -51,6 +51,7 @@ public class ServiceHearingsService {
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
 
         if (!originalCaseData.equals(updatedCaseData)) {
+            log.debug("Updating case data with Service Hearing Values for Case ID {}", caseData.getCcdCaseId());
             ccdCaseService.updateCaseData(
                 caseData,
                 EventType.UPDATE_CASE_ONLY,
