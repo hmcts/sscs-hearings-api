@@ -29,11 +29,9 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 
 @Slf4j
-@SuppressWarnings({"PMD.TooManyStaticImports","PMD.ExcessiveImports"})
 public final class HearingsMapping {
 
     public static final String DWP_ID = "DWP";
-    public static final String DWP_ORGANISATION_TYPE = "OGD";
 
     private HearingsMapping() {
     }
@@ -48,13 +46,14 @@ public final class HearingsMapping {
             .build();
     }
 
-    public static SessionCategoryMap getSessionCaseCodeMap(SscsCaseData caseData,
-                                                           ReferenceDataServiceHolder refData) {
+    public static SessionCategoryMap getSessionCaseCodeMap(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
         boolean doctorSpecialistSecond = isNotBlank(caseData.getSscsIndustrialInjuriesData().getSecondPanelDoctorSpecialism());
         boolean fqpmRequired = isYes(caseData.getIsFqpmRequired());
         return refData.getSessionCategoryMaps()
-                .getSessionCategory(caseData.getBenefitCode(), caseData.getIssueCode(),
-                        doctorSpecialistSecond, fqpmRequired);
+                .getSessionCategory(caseData.getBenefitCode(),
+                                    caseData.getIssueCode(),
+                                    doctorSpecialistSecond,
+                                    fqpmRequired);
     }
 
     public static EntityRoleCode getEntityRoleCode(Entity entity) {

@@ -8,10 +8,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -34,11 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter"})
-// TODO Unsuppress in future
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -92,7 +89,8 @@ public class HearingsService {
                 updateHearing(wrapper);
                 break;
             case UPDATED_CASE:
-                updatedCase(wrapper);
+                log.info("Updated case API not supported. Case ID {}",
+                         caseId);
                 break;
             case CANCEL_HEARING:
                 cancelHearing(wrapper);
@@ -125,6 +123,7 @@ public class HearingsService {
         if (isNull(hearing)) {
             OverridesMapping.setDefaultOverrideValues(wrapper, referenceDataServiceHolder);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+            log.debug("Sending Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -152,6 +151,7 @@ public class HearingsService {
         OverridesMapping.setDefaultOverrideValues(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
+        log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -160,10 +160,6 @@ public class HearingsService {
                 response.toString());
 
         hearingResponseUpdate(wrapper, response);
-    }
-
-    private void updatedCase(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when a case is updated
     }
 
     private void cancelHearing(HearingWrapper wrapper) {
@@ -202,6 +198,12 @@ public class HearingsService {
 
         HearingsServiceHelper.updateHearingId(hearing, response);
         HearingsServiceHelper.updateVersionNumber(hearing, response);
+
+        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
+            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
+            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
+            caseData.getAdjournment().setAdjournmentInProgress(NO);
+        }
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
         ccdCaseService.updateCaseData(
