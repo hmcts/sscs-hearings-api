@@ -5,34 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Address;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Contact;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Event;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ReasonableAdjustmentDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Subscription;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
@@ -133,7 +106,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                     .wantsToAttend("Yes")
                     .wantsSupport("Yes")
                     .languageInterpreter("Yes")
-                    .languages("Bulgarian")
+                    .languages(new DynamicList("Bulgarian"))
                     .signLanguageType("Makaton")
                     .arrangements(Arrays.asList(
                         "signLanguageInterpreter",
@@ -197,10 +170,10 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
 
         given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
-                .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
+            .willReturn(new Language("bul", "Test", null, null, null, List.of("Bulgarian")));
 
         given(referenceDataServiceHolder.getSignLanguages().getSignLanguage("Makaton"))
-                .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
+            .willReturn(new Language("sign-mkn", "Test", null, null, null, List.of("Makaton")));
     }
 
     @Test
@@ -320,7 +293,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
                                                        .wantsToAttend("Yes")
                                                        .wantsSupport("Yes")
                                                        .languageInterpreter("Yes")
-                                                       .languages("Bulgarian")
+                                                       .languages(new DynamicList("Bulgarian"))
                                                        .scheduleHearing("No")
                                                        .excludeDates(getExcludeDates())
                                                        .agreeLessNotice("No")

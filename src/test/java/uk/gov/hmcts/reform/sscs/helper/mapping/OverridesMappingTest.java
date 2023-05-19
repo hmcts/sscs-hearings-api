@@ -202,7 +202,7 @@ class OverridesMappingTest {
     void testSetDefaultOverrideFields() throws ListingException {
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
-        caseData.getAppeal().getHearingOptions().setLanguages("French");
+        caseData.getAppeal().getHearingOptions().setLanguages(new DynamicList("French"));
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
             .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -211,7 +211,7 @@ class OverridesMappingTest {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
         given(verbalLanguages.getVerbalLanguage("French"))
-            .willReturn(new Language("fre","Test",null,null, List.of()));
+            .willReturn(new Language("fre", "Test", null, null, null, List.of()));
 
 
         given(referenceData.getHearingDurations()).willReturn(hearingDurations);
@@ -254,11 +254,11 @@ class OverridesMappingTest {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
                 .languageInterpreter("Yes")
-                .languages("French")
+                .languages(new DynamicList("French"))
                 .build())
             .build();
 
-        Language language = new Language("fre", "Test", null, null, List.of());
+        Language language = new Language("fre", "Test", null, null, null, List.of());
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
@@ -285,11 +285,11 @@ class OverridesMappingTest {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
                 .languageInterpreter("Yes")
-                .languages("French")
+                .languages(new DynamicList("French"))
                 .build())
             .build();
 
-        Language language = new Language("fre", "Test", "test", "Test Dialect", List.of());
+        Language language = new Language("fre", "Test", "test", "Test Dialect", null, List.of());
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
@@ -316,7 +316,7 @@ class OverridesMappingTest {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
                 .languageInterpreter("Yes")
-                .languages("Bad Language")
+                .languages(new DynamicList("Bad Language"))
                 .build())
             .build();
 
@@ -339,7 +339,7 @@ class OverridesMappingTest {
                 .build())
             .build();
 
-        Language language = new Language("sign-mkn", "Makaton", null, null, List.of());
+        Language language = new Language("sign-mkn", "Makaton", null, null, null, List.of());
         given(signLanguages.getSignLanguage("Makaton"))
             .willReturn(language);
 
@@ -384,7 +384,7 @@ class OverridesMappingTest {
         Appeal appeal = Appeal.builder()
             .hearingOptions(HearingOptions.builder()
                 .languageInterpreter("No")
-                .languages("French")
+                .languages(new DynamicList("French"))
                 .build())
             .build();
 
@@ -452,10 +452,10 @@ class OverridesMappingTest {
     void testGetInterpreterLanguage() throws InvalidMappingException {
         HearingOptions hearingOptions = HearingOptions.builder()
             .languageInterpreter("Yes")
-            .languages("French")
+            .languages(new DynamicList("French"))
             .build();
 
-        Language language = new Language("fre", "Test", null, null, List.of());
+        Language language = new Language("fre", "Test", null, null, null, List.of());
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
@@ -473,7 +473,7 @@ class OverridesMappingTest {
     void testGetInterpreterLanguage(String value) throws InvalidMappingException {
         HearingOptions hearingOptions = HearingOptions.builder()
             .languageInterpreter(value)
-            .languages("French")
+            .languages(new DynamicList("French"))
             .build();
 
         Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, referenceData);

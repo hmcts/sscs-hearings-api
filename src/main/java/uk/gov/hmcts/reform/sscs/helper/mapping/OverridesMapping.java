@@ -137,11 +137,11 @@ public final class OverridesMapping {
             return language;
         }
         if (isYes(hearingOptions.getLanguageInterpreter())) {
-            String verbalLanguage = hearingOptions.getLanguages();
-            Language language = referenceData.getVerbalLanguages().getVerbalLanguage(verbalLanguage);
+            DynamicList verbalLanguage = hearingOptions.getLanguages();
+            Language language = referenceData.getVerbalLanguages().getVerbalLanguage(verbalLanguage.getValue().getLabel());
 
             if (isNull(language)) {
-                throw new InvalidMappingException(String.format("The language %s cannot be mapped", verbalLanguage));
+                throw new InvalidMappingException(String.format("The language %s cannot be mapped", verbalLanguage.getValue().getLabel()));
             }
 
             return language;
