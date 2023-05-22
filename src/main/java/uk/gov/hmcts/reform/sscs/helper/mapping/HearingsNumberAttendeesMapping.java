@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,9 +33,8 @@ public final class HearingsNumberAttendeesMapping {
         return getNumberOfFaceToFacePhysicalAttendees(caseData);
     }
 
-    public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-
-        if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData, referenceDataServiceHolder)) {
+    public static int getNumberOfPhysicalAttendees(@Valid SscsCaseData caseData, boolean adjournmentInProgress) {
+        if (FACE_TO_FACE != HearingsChannelMapping.getHearingChannel(caseData, adjournmentInProgress)) {
             return 0;
         }
 

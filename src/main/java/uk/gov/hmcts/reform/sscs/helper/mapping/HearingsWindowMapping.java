@@ -23,36 +23,30 @@ public final class HearingsWindowMapping {
     private HearingsWindowMapping() {
     }
 
-    public static HearingWindow buildHearingWindow(
-        @Valid SscsCaseData caseData,
-        ReferenceDataServiceHolder referenceDataServiceHolder
-    ) {
+    public static HearingWindow buildHearingWindow(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData) {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+        uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow overrideWindow = overrideFields.getHearingWindow();
 
-        if (nonNull(overrideFields.getHearingWindow())
-            && (nonNull(overrideFields.getHearingWindow().getFirstDateTimeMustBe())
-            || nonNull(overrideFields.getHearingWindow().getDateRangeStart())
-            || nonNull(overrideFields.getHearingWindow().getDateRangeEnd()))) {
+        if (nonNull(overrideWindow)
+            && (nonNull(overrideWindow.getFirstDateTimeMustBe())
+            || nonNull(overrideWindow.getDateRangeStart())
+            || nonNull(overrideWindow.getDateRangeEnd()))) {
             return HearingWindow.builder()
-                .firstDateTimeMustBe(overrideFields.getHearingWindow().getFirstDateTimeMustBe())
-                .dateRangeStart(overrideFields.getHearingWindow().getDateRangeStart())
-                .dateRangeEnd(overrideFields.getHearingWindow().getDateRangeEnd())
+                .firstDateTimeMustBe(overrideWindow.getFirstDateTimeMustBe())
+                .dateRangeStart(overrideWindow.getDateRangeStart())
+                .dateRangeEnd(overrideWindow.getDateRangeEnd())
                 .build();
         }
 
         return HearingWindow.builder()
             .firstDateTimeMustBe(getFirstDateTimeMustBe())
-            .dateRangeStart(getDateRangeStart(caseData, referenceDataServiceHolder))
+            .dateRangeStart(getDateRangeStart(caseData, refData))
             .dateRangeEnd(null)
             .build();
     }
 
-    public static LocalDate getDateRangeStart(
-        @Valid SscsCaseData caseData,
-        ReferenceDataServiceHolder referenceDataServiceHolder
-    ) {
-        return referenceDataServiceHolder.isAdjournmentFlagEnabled() // TODO SSCS-10951
-            && isYes(caseData.getAdjournment().getAdjournmentInProgress())
+    public static LocalDate getDateRangeStart(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        return refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress())
             ? AdjournmentCalculateDateHelper.getHearingWindowStart(caseData)
             : getHearingWindowStart(caseData);
     }

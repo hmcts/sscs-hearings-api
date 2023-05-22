@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
-import org.jetbrains.annotations.Nullable;
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputed;
 import uk.gov.hmcts.reform.sscs.ccd.domain.ElementDisputedDetails;
@@ -18,10 +18,10 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType.NON_STANDARD;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 
+@Slf4j
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
     public static final int DURATION_DEFAULT = 30;
@@ -29,60 +29,58 @@ public final class HearingsDurationMapping {
     public static final int MIN_HEARING_SESSION_DURATION = 1;
 
     private HearingsDurationMapping() {
-
     }
 
-    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+    public static int getHearingDuration(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
 
+        Integer duration;
+        String caseId = caseData.getCcdCaseId();
+        boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
+        // adjournment values take precedence over override fields if adjournment in progress
+        if (adjournmentInProgress) {
+            duration = getHearingDurationAdjournment(caseData);
+            if (nonNull(duration)) {
+                log.debug("Hearing Duration for Case ID {} set as Adjournment value {}", caseId, duration);
+                return duration;
+            }
+        }
+        OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
+        // if no adjournment in progress, we first try to set the override value if present
         if (nonNull(overrideFields.getDuration()) && overrideFields.getDuration() >= MIN_HEARING_DURATION) {
+            log.debug("Hearing Duration for Case ID {} set as existing Override Field value {}", caseId, overrideFields.getDuration());
             return overrideFields.getDuration();
         }
-
-        Integer duration = getHearingDurationAdjournment(caseData, referenceDataServiceHolder);
+        // otherwise we set duration based on existing duration values ref data json
+        duration = getHearingDurationBenefitIssueCodes(caseData, refData);
         if (nonNull(duration)) {
+            log.debug("Hearing Duration for Case ID {} set as Benefit Code value {}", caseId, duration);
             return duration;
         }
-
-        duration = getHearingDurationBenefitIssueCodes(caseData, referenceDataServiceHolder);
-        if (nonNull(duration)) {
-            return duration;
-        }
-
+        // else return default value (30)
+        log.debug("Hearing Duration for Case ID {} set as default value {}", caseId, DURATION_DEFAULT);
         return DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationAdjournment(SscsCaseData caseData,
-                                                        ReferenceDataServiceHolder referenceDataServiceHolder) {
-        if (!referenceDataServiceHolder.isAdjournmentFlagEnabled() // TODO SSCS-10951
-            || isNoOrNull(caseData.getAdjournment().getAdjournmentInProgress())) {
-            return null;
-        }
-
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
         Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
-
-        if (caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD && duration != null) {
+        if (duration != null && caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD) {
             return handleNonStandardDuration(caseData, duration);
         }
-
-        return null;
+        return duration;
     }
 
-    @Nullable
     private static Integer handleNonStandardDuration(SscsCaseData caseData, Integer duration) {
         AdjournCaseNextHearingDurationUnits units = caseData.getAdjournment().getNextHearingListingDurationUnits();
-        if (units == AdjournCaseNextHearingDurationUnits.SESSIONS
-            && duration >= MIN_HEARING_SESSION_DURATION) {
+        if (units == AdjournCaseNextHearingDurationUnits.SESSIONS && duration >= MIN_HEARING_SESSION_DURATION) {
             return duration * DURATION_SESSIONS_MULTIPLIER;
-        } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES
-            && duration >= MIN_HEARING_DURATION) {
+        } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES && duration >= MIN_HEARING_DURATION) {
             return duration;
         }
-        return null;
+        return DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        HearingDuration hearingDuration = referenceDataServiceHolder.getHearingDurations().getHearingDuration(
+    public static Integer getHearingDurationBenefitIssueCodes(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        HearingDuration hearingDuration = refData.getHearingDurations().getHearingDuration(
             caseData.getBenefitCode(), caseData.getIssueCode());
 
         if (isNull(hearingDuration)) {
@@ -93,7 +91,7 @@ public final class HearingsDurationMapping {
             Integer duration = isInterpreterRequired(caseData)
                 ? hearingDuration.getDurationInterpreter()
                 : hearingDuration.getDurationFaceToFace();
-            return referenceDataServiceHolder.getHearingDurations()
+            return refData.getHearingDurations()
                 .addExtraTimeIfNeeded(
                     duration,
                     hearingDuration.getBenefitCode(),
@@ -101,9 +99,8 @@ public final class HearingsDurationMapping {
                     getElementsDisputed(caseData));
         } else if (HearingsChannelMapping.isPaperCase(caseData)) {
             return hearingDuration.getDurationPaper();
-        } else {
-            return null;
         }
+        return DURATION_DEFAULT;
     }
 
     public static List<String> getNonStandardHearingDurationReasons() {

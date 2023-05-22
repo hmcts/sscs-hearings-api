@@ -36,8 +36,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter"})
-// TODO Unsuppress in future
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -91,7 +89,8 @@ public class HearingsService {
                 updateHearing(wrapper);
                 break;
             case UPDATED_CASE:
-                updatedCase(wrapper);
+                log.info("Updated case API not supported. Case ID {}",
+                         caseId);
                 break;
             case CANCEL_HEARING:
                 cancelHearing(wrapper);
@@ -122,11 +121,9 @@ public class HearingsService {
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
-            log.info("Set Default Override Fields for Case ID {}", caseId);
-            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-            log.info("Set Hearing Payload for Case ID {}", caseId);
+            OverridesMapping.setDefaultOverrideValues(wrapper, referenceDataServiceHolder);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
-            log.info("Send Create Hearing Request for Case ID {}", caseId);
+            log.debug("Sending Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 caseId,
@@ -150,9 +147,10 @@ public class HearingsService {
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-        OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
+        OverridesMapping.setDefaultOverrideValues(wrapper, referenceDataServiceHolder);
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
         String hearingId = getHearingId(wrapper);
+        log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -161,10 +159,6 @@ public class HearingsService {
                 response.toString());
 
         hearingResponseUpdate(wrapper, response);
-    }
-
-    private void updatedCase(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when a case is updated
     }
 
     private void cancelHearing(HearingWrapper wrapper) {
@@ -206,7 +200,7 @@ public class HearingsService {
 
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
             && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            log.info("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
+            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
             caseData.getAdjournment().setAdjournmentInProgress(NO);
         }
 

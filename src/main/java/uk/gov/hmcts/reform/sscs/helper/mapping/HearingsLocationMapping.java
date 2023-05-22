@@ -30,27 +30,36 @@ public final class HearingsLocationMapping {
     private HearingsLocationMapping() {
     }
 
-    public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
-        List<HearingLocation> locations = getOverrideLocations(caseData);
+    public static List<HearingLocation> getHearingLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData)
+        throws InvalidMappingException {
 
+        String caseId = caseData.getCcdCaseId();
+        boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
+
+        List<HearingLocation> locations;
+        // if adjournment in progress, we want to process these locations first, superseding the override fields
+        if (adjournmentInProgress) {
+            locations = getAdjournedLocations(caseData, refData);
+            if (isNotEmpty(locations)) {
+                log.debug("Hearing Locations for Case ID {} set as Adjournment values", caseId);
+                return locations;
+            }
+        }
+
+        locations = getOverrideLocations(caseData);
         if (isNotEmpty(locations)) {
+            log.debug("Hearing Locations for Case ID {} set as Override field values", caseId);
             return locations;
         }
 
-        locations = getPaperCaseLocations(caseData, referenceDataServiceHolder);
-
+        locations = getPaperCaseLocations(caseData, refData);
         if (isNotEmpty(locations)) {
+            log.debug("Hearing Locations for Case ID {} set as Paper Case values", caseId);
             return locations;
         }
 
-        locations = getAdjournedLocations(caseData, referenceDataServiceHolder);
-
-        if (isNotEmpty(locations)) {
-            return locations;
-        }
-
-        return getMultipleLocations(caseData, referenceDataServiceHolder);
+        log.debug("Hearing Locations for Case ID {} set as multiple locations values", caseId);
+        return getMultipleLocations(caseData, refData);
     }
 
     private static List<HearingLocation> getOverrideLocations(SscsCaseData caseData) {
@@ -70,10 +79,9 @@ public final class HearingsLocationMapping {
         return Collections.emptyList();
     }
 
-    private static List<HearingLocation> getPaperCaseLocations(SscsCaseData caseData,
-                                                               ReferenceDataServiceHolder referenceDataServiceHolder) {
+    private static List<HearingLocation> getPaperCaseLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
         if (HearingsChannelMapping.isPaperCase(caseData)) {
-            List<VenueDetails> venueDetailsList = referenceDataServiceHolder
+            List<VenueDetails> venueDetailsList = refData
                 .getVenueService()
                 .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
 
@@ -92,38 +100,32 @@ public final class HearingsLocationMapping {
         return Collections.emptyList();
     }
 
-    private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData,
-                                                               ReferenceDataServiceHolder referenceDataServiceHolder)
+    private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws InvalidMappingException {
-        //TODO: SSCS-10951: remove adjournment flag
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
-            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
 
-            if (nonNull(nextHearingVenueName)) {
-                VenueService venueService = referenceDataServiceHolder.getVenueService();
+        AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
 
-                String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
+        if (nonNull(nextHearingVenueName)) {
+            VenueService venueService = refData.getVenueService();
+            String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
+            VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
+            log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
 
-                log.info("Getting hearing location with the epims ID of {}", epimsID);
-
-                return List.of(HearingLocation.builder()
-                                   .locationId(epimsID)
-                                   .locationType(COURT)
-                                   .build());
-            }
+            return List.of(HearingLocation.builder()
+                               .locationId(epimsID)
+                               .locationType(COURT)
+                               .build());
         }
 
         return Collections.emptyList();
     }
 
-    private static List<HearingLocation> getMultipleLocations(SscsCaseData caseData,
-                                                              ReferenceDataServiceHolder referenceDataServiceHolder) {
-        String epimsId = referenceDataServiceHolder
+    private static List<HearingLocation> getMultipleLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        String epimsId = refData
             .getVenueService()
             .getEpimsIdForVenue(caseData.getProcessingVenue());
 
-        Map<String, List<String>> multipleHearingLocations = referenceDataServiceHolder.getMultipleHearingLocations();
+        Map<String, List<String>> multipleHearingLocations = refData.getMultipleHearingLocations();
 
         return multipleHearingLocations.values().stream()
             .filter(listValues ->  listValues.contains(epimsId))
@@ -133,8 +135,11 @@ public final class HearingsLocationMapping {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static String getEpimsID(SscsCaseData caseData, VenueService venueService,
-                                     AdjournCaseNextHearingVenue nextHearingVenue) throws InvalidMappingException {
+    private static String getEpimsID(SscsCaseData caseData,
+                                     VenueService venueService,
+                                     AdjournCaseNextHearingVenue nextHearingVenue)
+        throws InvalidMappingException {
+
         if (SOMEWHERE_ELSE.equals(nextHearingVenue)) {
             String venueId = caseData.getAdjournment().getNextHearingVenueSelected().getValue().getCode();
 

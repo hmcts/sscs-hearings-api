@@ -217,7 +217,7 @@ class OverridesMappingTest {
         given(referenceData.getVenueService()).willReturn(venueService);
         given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        OverridesMapping.setDefaultOverrideFields(wrapper, referenceData);
+        OverridesMapping.setDefaultOverrideValues(wrapper, referenceData);
         OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
 

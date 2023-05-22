@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
@@ -209,7 +208,6 @@ class HearingsChannelMappingTest {
     @DisplayName("When adjournment flag is enabled and adjournment is in progress returns next hearing channel")
     @Test
     void getHearingChannels_ifAdjournmentFlagEnabled_and_AdjournmentInProgress_getNextHearing() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
         caseData.setAdjournment(Adjournment.builder()
@@ -217,40 +215,22 @@ class HearingsChannelMappingTest {
             .adjournmentInProgress(YES)
             .build());
 
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, true);
         assertThat(result)
             .hasSize(1)
             .containsOnly(TELEPHONE);
     }
 
-    @DisplayName("When adjournment flag is enabled and adjournment is not in progress returns next hearing channel")
-    @Test
-    void getHearingChannels_ifAdjournmentEnabledAndNotProgress_getNextHearing() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-
-        caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
-        caseData.setAdjournment(Adjournment.builder()
-            .typeOfNextHearing(AdjournCaseTypeOfHearing.TELEPHONE)
-            .adjournmentInProgress(NO)
-            .build());
-
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
-        assertThat(result)
-            .hasSize(1)
-            .containsOnly(PAPER);
-    }
-
     @DisplayName("When adjournment flag is false, returns hearing channel from the case")
     @Test
     void getHearingChannels_ifAdjournmentDisabled_returnDefaultHearingChannel() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
         caseData.setAdjournment(Adjournment.builder()
             .typeOfNextHearing(AdjournCaseTypeOfHearing.TELEPHONE)
             .build());
 
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, false);
         assertThat(result)
             .hasSize(1)
             .containsOnly(PAPER);
@@ -260,7 +240,6 @@ class HearingsChannelMappingTest {
         + "returns hearing channel from the case")
     @Test
     void getHearingChannels_ifAdjournmentDisabledAndNextHearingIsNull_returnDefaultHearingChannel() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
         caseData.setAdjournment(Adjournment.builder()
@@ -268,7 +247,7 @@ class HearingsChannelMappingTest {
             .adjournmentInProgress(YES)
             .build());
 
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, true);
         assertThat(result)
             .hasSize(1)
             .containsOnly(PAPER);
