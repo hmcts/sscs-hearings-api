@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
-import uk.gov.hmcts.reform.sscs.helper.adjournment.AdjournmentCalculateDateHelper;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
@@ -73,7 +72,6 @@ public final class OverridesMapping {
                   defaultOverrideValues,
                   wrapper.getCaseData().getCcdCaseId());
     }
-
 
     public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
         return ReservedToMember.builder()

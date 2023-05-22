@@ -478,7 +478,7 @@ class OverridesMappingTest {
     void testGetHearingDetailsHearingWindow() {
         caseData.setDwpResponseDate("2021-12-01");
 
-        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData, referenceData);
+        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData);
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstDateTimeMustBe()).isNull();

@@ -23,7 +23,6 @@ public final class AdjournmentCalculateDateHelper {
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData) {
-
         log.debug("Get Adjournment Hearing Window Start Date for Case ID {}", caseData.getCcdCaseId());
         String dateType = String.valueOf(caseData.getAdjournment().getNextHearingDateType());
 

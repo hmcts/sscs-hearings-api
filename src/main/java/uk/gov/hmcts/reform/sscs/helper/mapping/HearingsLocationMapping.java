@@ -109,6 +109,7 @@ public final class HearingsLocationMapping {
             VenueService venueService = refData.getVenueService();
             String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
             VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
+
             log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
 
             return List.of(HearingLocation.builder()
