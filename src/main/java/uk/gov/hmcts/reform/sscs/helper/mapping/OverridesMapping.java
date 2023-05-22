@@ -144,7 +144,7 @@ public final class OverridesMapping {
 
     }
 
-    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData, ReferenceDataServiceHolder referenceData) {
+    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData) {
 
         LocalDate hearingWindowStart =
             referenceData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress())
