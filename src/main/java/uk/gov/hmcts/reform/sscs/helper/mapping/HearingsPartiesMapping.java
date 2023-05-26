@@ -412,19 +412,38 @@ public final class HearingsPartiesMapping {
         return getPartyUnavailabilityDayOfWeek();
     }
 
+    public static UnavailabilityRange buildUnavailabilityRange(ExcludeDate excludeDate) {
+        String startDate = excludeDate.getValue().getStart();
+        String endDate = excludeDate.getValue().getEnd();
+
+        LocalDate unavailableFromDate = null;
+        LocalDate unavailableToDate = null;
+        String unavailabilityType = ALL_DAY.getLabel();
+
+        if (!isBlank(startDate) && isBlank(endDate)) {
+            LocalDate localDate = LocalDate.parse(startDate);
+            unavailableFromDate = localDate;
+            unavailableToDate = localDate;
+        } else if (!isBlank(endDate) && isBlank(startDate)) {
+            LocalDate localDate = LocalDate.parse(endDate);
+            unavailableFromDate = localDate;
+            unavailableToDate = localDate;
+        } else if (!isBlank(startDate) && !isBlank(endDate)) {
+            unavailableFromDate = LocalDate.parse(startDate);
+            unavailableToDate = LocalDate.parse(endDate);
+        }
+
+        return new UnavailabilityRange(unavailableFromDate, unavailableToDate, unavailabilityType);
+    }
+
     public static List<UnavailabilityRange> getPartyUnavailabilityRange(HearingOptions hearingOptions) {
         if (isNull(hearingOptions) || isNull(hearingOptions.getExcludeDates())) {
             return Collections.emptyList();
         }
-
-        return hearingOptions.getExcludeDates().stream()
-                .map(ExcludeDate::getValue)
-                .map(dateRange -> UnavailabilityRange.builder()
-                        .unavailableFromDate(LocalDate.parse(dateRange.getStart()))
-                        .unavailableToDate(LocalDate.parse(dateRange.getEnd()))
-                        .unavailabilityType(ALL_DAY.getLabel())
-                        .build())
-                .collect(Collectors.toList());
+        return hearingOptions.getExcludeDates()
+            .stream()
+            .map(HearingsPartiesMapping::buildUnavailabilityRange)
+            .collect(Collectors.toList());
     }
 }
 

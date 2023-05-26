@@ -16,8 +16,10 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.ServiceHearingValuesMapping;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.Collections;
@@ -47,15 +49,27 @@ public class ServiceHearingsService {
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
         ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        Optional<UnavailabilityRange> unavailabilityRangeWithDateProblems = model.getParties().stream()
+            .map(PartyDetails::getUnavailabilityRanges)
+            .flatMap(o -> o.stream()
+                .filter(p -> p.getUnavailableFromDate() != null && p.getUnavailableToDate() != null && p.getUnavailableToDate().isBefore(p.getUnavailableFromDate()))
+            ).findFirst();
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
-
-        if (!originalCaseData.equals(updatedCaseData)) {
+        if (unavailabilityRangeWithDateProblems.isPresent()) {
+            ccdCaseService.updateCaseData(
+                caseData,
+                EventType.LISTING_ERROR,
+                "",
+                "One of the parties unavailability end date is before start date"
+            );
+        } else if (!originalCaseData.equals(updatedCaseData)) {
             ccdCaseService.updateCaseData(
                 caseData,
                 EventType.UPDATE_CASE_ONLY,
                 "Updating caseDetails IDs",
-                "IDs updated for caseDetails due to ServiceHearingValues request");
+                "IDs updated for caseDetails due to ServiceHearingValues request"
+            );
         }
 
         return model;

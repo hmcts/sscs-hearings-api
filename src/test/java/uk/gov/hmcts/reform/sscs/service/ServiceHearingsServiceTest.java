@@ -10,27 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
@@ -51,6 +31,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
@@ -278,7 +259,38 @@ class ServiceHearingsServiceTest {
         assertThat(result.get(0)).isEqualTo(expected);
     }
 
+    @Test
+    void testGetServiceHearingValues_PartiesUnavailabilityEndDateIsBeforeStartDate_ThenSentItToListingError() throws Exception {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
+        caseDetails.getData().getAppeal().setHearingOptions(
+            HearingOptions.builder()
+                .wantsToAttend("Yes")
+                .excludeDates(
+                    List.of(
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").end("2023-01-02").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-02-01").end("2023-02-02").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-03-01").end("2023-03-02").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-05-01").end("2023-04-02").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-07-01").end("2023-08-02").build()).build()
+                    )
+                )
+                .build()
+        );
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        serviceHearingsService.getServiceHearingValues(request);
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), anyString());
+    }
 
     private static Stream<Arguments> invalidCasesParameters() {
         return Stream.of(
