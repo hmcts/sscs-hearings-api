@@ -79,6 +79,29 @@ public final class HearingsPanelMapping {
             return panelPreferences;
         }
 
+        // when not updating via adjournment, ensure panel pref are set based on existing s&l fields if present
+        PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
+        if (nonNull(panelMembers)) {
+            List<CcdValue<JudicialUserBase>> panelMembersList = panelMembers.getExcludedPanelMembers();
+
+            if (nonNull(panelMembersList)) {
+                List<PanelPreference> panelPreferences = panelMembersList.stream()
+                    .filter(panelMember -> nonNull(panelMember.getValue().getPersonalCode()))
+                    .map(paneMember -> getPanelPreference(paneMember.getValue().getPersonalCode()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+                if (panelMembers.getArePanelMembersExcluded().equals(YesNo.YES)) {
+                    return panelPreferences.stream()
+                        .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE))
+                        .collect(Collectors.toList());
+                } else if (panelMembers.getArePanelMembersReserved().equals(YesNo.YES)) {
+                    return panelPreferences.stream()
+                        .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
+                        .collect(Collectors.toList());
+                }
+            }
+        }
+
         return new ArrayList<>();
     }
 
