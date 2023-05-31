@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -292,7 +291,7 @@ class ServiceHearingsServiceTest {
         serviceHearingValues.getParties().stream()
             .map(PartyDetails::getUnavailabilityRanges)
             .forEach(o -> o.forEach(p -> {
-                assertThat(p.getUnavailableToDate()).isEqualTo(LocalDate.parse("2023-01-01"));
+                assertThat(p.getUnavailableToDate()).isEqualTo(p.getUnavailableFromDate());
                 assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
             }));
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
@@ -328,7 +327,7 @@ class ServiceHearingsServiceTest {
         serviceHearingValues.getParties().stream()
             .map(PartyDetails::getUnavailabilityRanges)
             .forEach(o -> o.forEach(p -> {
-                assertThat(p.getUnavailableFromDate()).isEqualTo(LocalDate.parse("2023-01-01"));
+                assertThat(p.getUnavailableFromDate()).isEqualTo(p.getUnavailableToDate());
                 assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
             }));
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
