@@ -12,12 +12,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,6 +37,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
 
 @ExtendWith(MockitoExtension.class)
 class ServiceHearingsServiceTest {
@@ -260,6 +263,78 @@ class ServiceHearingsServiceTest {
     }
 
     @Test
+    void testGetServiceHearingValues_PartiesUnavailabilityEndDateIsNotProvided() throws Exception {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        caseDetails.getData().getAppeal().setHearingOptions(
+            HearingOptions.builder()
+                .wantsToAttend("Yes")
+                .excludeDates(
+                    List.of(
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").end("").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").end(null).build()).build()
+                    )
+                )
+                .build()
+        );
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        ServiceHearingValues serviceHearingValues = serviceHearingsService.getServiceHearingValues(request);
+        serviceHearingValues.getParties().stream()
+            .map(PartyDetails::getUnavailabilityRanges)
+            .forEach(o -> o.forEach(p -> {
+                assertThat(p.getUnavailableToDate()).isEqualTo(LocalDate.parse("2023-01-01"));
+                assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
+            }));
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
+    }
+
+    @Test
+    void testGetServiceHearingValues_PartiesUnavailabilityStartDateIsNotProvided() throws Exception {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        caseDetails.getData().getAppeal().setHearingOptions(
+            HearingOptions.builder()
+                .wantsToAttend("Yes")
+                .excludeDates(
+                    List.of(
+                        ExcludeDate.builder().value(DateRange.builder().end("2023-01-01").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("").end("2023-01-01").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(null).end("2023-01-01").build()).build()
+                    )
+                )
+                .build()
+        );
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        ServiceHearingValues serviceHearingValues = serviceHearingsService.getServiceHearingValues(request);
+        serviceHearingValues.getParties().stream()
+            .map(PartyDetails::getUnavailabilityRanges)
+            .forEach(o -> o.forEach(p -> {
+                assertThat(p.getUnavailableFromDate()).isEqualTo(LocalDate.parse("2023-01-01"));
+                assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
+            }));
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
+    }
+
+    @Test
     void testGetServiceHearingValues_PartiesUnavailabilityEndDateIsBeforeStartDate_ThenSentItToListingError() throws Exception {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
@@ -284,12 +359,47 @@ class ServiceHearingsServiceTest {
         );
 
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
-
         ServiceHearingRequest request = ServiceHearingRequest.builder()
             .caseId(String.valueOf(CASE_ID))
             .build();
         serviceHearingsService.getServiceHearingValues(request);
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), anyString());
+    }
+
+    @Test
+    void testGetServiceHearingValues_PartiesUnavailabilityStartDateAndEndDateIsNotProvided_ThenSendToUpdateCaseOnly() throws Exception {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        caseDetails.getData().getAppeal().setHearingOptions(
+            HearingOptions.builder()
+                .wantsToAttend("Yes")
+                .excludeDates(
+                    List.of(
+                        ExcludeDate.builder().value(DateRange.builder().build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("").end("").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(null).end(null).build()).build()
+                    )
+                )
+                .build()
+        );
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        ServiceHearingValues serviceHearingValues = serviceHearingsService.getServiceHearingValues(request);
+        serviceHearingValues.getParties().stream()
+            .map(PartyDetails::getUnavailabilityRanges)
+            .forEach(o -> o.forEach(p -> {
+                assertThat(p.getUnavailableFromDate()).isNull();
+                assertThat(p.getUnavailableToDate()).isNull();
+            }));
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
     }
 
     private static Stream<Arguments> invalidCasesParameters() {
