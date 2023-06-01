@@ -430,7 +430,7 @@ public final class HearingsPartiesMapping {
                     LocalDate localDate = LocalDate.parse(startDate);
                     unavailableFromDate = localDate;
                     unavailableToDate = localDate;
-                } else if (!isBlank(endDate) && isBlank(startDate)) {
+                } else if (isBlank(startDate) && !isBlank(endDate)) {
                     LocalDate localDate = LocalDate.parse(endDate);
                     unavailableFromDate = localDate;
                     unavailableToDate = localDate;
