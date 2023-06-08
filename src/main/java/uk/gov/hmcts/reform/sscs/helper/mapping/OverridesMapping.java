@@ -44,21 +44,47 @@ public final class OverridesMapping {
             .orElse(Collections.emptyList());
     }
 
-    public static void setDefaultOverrideValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData) throws ListingException {
+    public static void setDefaultListingValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+        throws ListingException {
+
+        OverrideFields defaultOverrideValues = getOverrideFieldValues(wrapper, refData);
+        SscsCaseData caseData = wrapper.getCaseData();
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideValues);
+
+        log.debug("Default Override Listing Values set to {} for Case ID {}",
+                  defaultOverrideValues,
+                  caseData.getCcdCaseId());
+    }
+
+    public static void setOverrideValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+        throws ListingException {
+
+        OverrideFields overrideFields = getOverrideFieldValues(wrapper, refData);
+        SscsCaseData caseData = wrapper.getCaseData();
+        caseData.getSchedulingAndListingFields().setOverrideFields(overrideFields);
+
+        log.debug("Override Field Values set to {} for Case ID {}",
+                  overrideFields,
+                  caseData.getCcdCaseId());
+    }
+
+    private static OverrideFields getOverrideFieldValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+        throws ListingException {
+
         // get case data from hearing wrapper and required appeal fields
         SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         HearingSubtype subtype = appeal.getHearingSubtype();
         HearingOptions options = appeal.getHearingOptions();
-        // collect default listing values using case, ref and appeal data
+        // collect override field values
         int duration = HearingsDurationMapping.getHearingDuration(caseData, refData);
         HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
         HearingChannel channel = getIndividualPreferredHearingChannel(subtype, options, null);
         HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData);
         YesNo autoList = getHearingDetailsAutoList(caseData, refData);
         List<CcdValue<CcdValue<String>>> venueEpimsIds = getHearingDetailsLocations(caseData, refData);
-        // build default override listing values and set on case data
-        OverrideFields defaultOverrideValues = OverrideFields.builder()
+
+        return OverrideFields.builder()
             .duration(duration)
             .appellantInterpreter(interpreter)
             .appellantHearingChannel(channel)
@@ -66,11 +92,6 @@ public final class OverridesMapping {
             .autoList(autoList)
             .hearingVenueEpimsIds(venueEpimsIds)
             .build();
-        caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideValues);
-
-        log.debug("Default Override Listing Values set to {} for Case ID {}",
-                  defaultOverrideValues,
-                  wrapper.getCaseData().getCcdCaseId());
     }
 
     public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
