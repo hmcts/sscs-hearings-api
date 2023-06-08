@@ -90,11 +90,11 @@ public final class HearingsPanelMapping {
                     .map(paneMember -> getPanelPreference(paneMember.getValue().getPersonalCode()))
                     .collect(Collectors.toCollection(ArrayList::new));
 
-                if (panelMembers.getArePanelMembersExcluded().equals(YesNo.YES)) {
+                if (isYes(panelMembers.getArePanelMembersExcluded())) {
                     return panelPreferences.stream()
                         .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE))
                         .collect(Collectors.toList());
-                } else if (panelMembers.getArePanelMembersReserved().equals(YesNo.YES)) {
+                } else if (isYes(panelMembers.getArePanelMembersReserved())) {
                     return panelPreferences.stream()
                         .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
                         .collect(Collectors.toList());
