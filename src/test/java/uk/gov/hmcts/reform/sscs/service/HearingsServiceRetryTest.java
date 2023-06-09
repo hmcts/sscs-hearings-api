@@ -29,6 +29,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -58,7 +59,13 @@ class HearingsServiceRetryTest {
     private HmcHearingApiService hmcHearingApiService;
 
     @MockBean
+    private HmcHearingsApiService hmcHearingsApiService;
+
+    @MockBean
     private CcdCaseService ccdCaseService;
+
+    @MockBean
+    private ReferenceDataServiceHolder refData;
 
     @Autowired
     private HearingsService hearingsService;
@@ -70,20 +77,20 @@ class HearingsServiceRetryTest {
     @BeforeEach
     void setup() {
         SscsCaseData caseData = SscsCaseData.builder()
-                .ccdCaseId(String.valueOf(CASE_ID))
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .caseManagementLocation(CaseManagementLocation.builder().build())
-                .appeal(Appeal.builder()
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .benefitCode(BENEFIT_CODE)
+            .issueCode(ISSUE_CODE)
+            .caseManagementLocation(CaseManagementLocation.builder().build())
+            .appeal(Appeal.builder()
                         .rep(Representative.builder().hasRepresentative("No").build())
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
                         .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
-                                .name(Name.builder().build())
-                                .build())
+                                       .name(Name.builder().build())
+                                       .build())
                         .build())
-                .build();
+            .build();
 
         wrapper = HearingWrapper.builder()
             .hearingState(CREATE_HEARING)
