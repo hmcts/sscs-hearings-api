@@ -67,7 +67,7 @@ class ServiceHearingsServiceTest {
     private VenueService venueService;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @Mock
     private CcdCaseService ccdCaseService;
@@ -150,11 +150,11 @@ class ServiceHearingsServiceTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false, SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
 
@@ -182,11 +182,11 @@ class ServiceHearingsServiceTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false, SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
 

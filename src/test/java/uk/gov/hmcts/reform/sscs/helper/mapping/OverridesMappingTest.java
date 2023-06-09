@@ -75,7 +75,7 @@ class OverridesMappingTest {
 
     private SessionCategoryMapService sessionCategoryMaps;
     @Mock
-    private ReferenceDataServiceHolder referenceData;
+    private ReferenceDataServiceHolder refData;
 
     @BeforeEach
     void setUp() {
@@ -213,11 +213,11 @@ class OverridesMappingTest {
             .willReturn(new Language("fre","Test",null,null, List.of()));
 
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getVenueService()).willReturn(venueService);
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        OverridesMapping.setDefaultListingValues(wrapper, referenceData);
+        OverridesMapping.setDefaultListingValues(wrapper, refData);
         OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
         assertThat(result).isNotNull();
@@ -247,11 +247,11 @@ class OverridesMappingTest {
             .willReturn(new Language("fre","Test",null,null, List.of()));
 
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getVenueService()).willReturn(venueService);
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        OverridesMapping.setOverrideValues(wrapper, referenceData);
+        OverridesMapping.setOverrideValues(wrapper, refData);
         OverrideFields result = caseData.getSchedulingAndListingFields().getOverrideFields();
 
         assertThat(result).isNotNull();
@@ -283,9 +283,9 @@ class OverridesMappingTest {
             .willReturn(new Language("fre","Test",null,null, List.of()));
 
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getVenueService()).willReturn(venueService);
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
         OverrideFields defaultListingValues = new OverrideFields().toBuilder()
             .autoList(NO)
@@ -293,7 +293,7 @@ class OverridesMappingTest {
             .duration(10)
             .build();
 
-        OverridesMapping.setOverrideValues(wrapper, referenceData);
+        OverridesMapping.setOverrideValues(wrapper, refData);
         OverrideFields overrideFields = caseData.getSchedulingAndListingFields().getOverrideFields();
 
         assertThat(defaultListingValues).isNotNull();
@@ -325,9 +325,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(YES);
@@ -356,9 +356,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(YES);
@@ -386,9 +386,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("Bad Language"))
             .willReturn(null);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, referenceData));
+        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, refData));
     }
 
     @DisplayName("When the appellant wants a language interpreter, getAppellantInterpreter returns "
@@ -406,9 +406,9 @@ class OverridesMappingTest {
         given(signLanguages.getSignLanguage("Makaton"))
             .willReturn(language);
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(refData.getSignLanguages()).willReturn(signLanguages);
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(YES);
@@ -436,9 +436,9 @@ class OverridesMappingTest {
         given(signLanguages.getSignLanguage("Bad Sign Language"))
             .willReturn(null);
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(refData.getSignLanguages()).willReturn(signLanguages);
 
-        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, referenceData));
+        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, refData));
     }
 
     @DisplayName("When the appellant doesn't want a language interpreter, getAppellantInterpreter returns the Hearing Interpreter with IsInterpreterWanted set to No")
@@ -451,7 +451,7 @@ class OverridesMappingTest {
                 .build())
             .build();
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(NO);
@@ -522,9 +522,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, referenceData);
+        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, refData);
 
         assertThat(result).isEqualTo(language);
     }
@@ -539,7 +539,7 @@ class OverridesMappingTest {
             .languages("French")
             .build();
 
-        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, referenceData);
+        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, refData);
 
         assertThat(result).isNull();
     }
@@ -547,7 +547,7 @@ class OverridesMappingTest {
     @DisplayName("When the appellant doesn't want a language interpreter, getInterpreterLanguage returns null")
     @Test
     void testGetInterpreterLanguageNullHearingOptions() throws InvalidMappingException {
-        Language result = OverridesMapping.getInterpreterLanguage(null, referenceData);
+        Language result = OverridesMapping.getInterpreterLanguage(null, refData);
 
         assertThat(result).isNull();
     }
@@ -557,7 +557,7 @@ class OverridesMappingTest {
     void testGetHearingDetailsHearingWindow() {
         caseData.setDwpResponseDate("2021-12-01");
 
-        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData);
+        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstDateTimeMustBe()).isNull();
@@ -577,9 +577,9 @@ class OverridesMappingTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_01, null));
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        YesNo result = OverridesMapping.getHearingDetailsAutoList(caseData, referenceData);
+        YesNo result = OverridesMapping.getHearingDetailsAutoList(caseData, refData);
 
         YesNo expected = isBlank(value) ? YES : NO;
 
@@ -593,9 +593,9 @@ class OverridesMappingTest {
     void testGetHearingDetailsLocations() throws InvalidMappingException {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
-        given(referenceData.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
-        List<CcdValue<CcdValue<String>>> result = OverridesMapping.getHearingDetailsLocations(caseData, referenceData);
+        List<CcdValue<CcdValue<String>>> result = OverridesMapping.getHearingDetailsLocations(caseData, refData);
 
         assertThat(result)
             .hasSize(1)

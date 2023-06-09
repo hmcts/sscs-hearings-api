@@ -50,7 +50,7 @@ public class HearingsService {
 
     private final CcdCaseService ccdCaseService;
 
-    private final ReferenceDataServiceHolder referenceDataServiceHolder;
+    private final ReferenceDataServiceHolder refData;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     public static final List<State> INVALID_CASE_STATES = Arrays.asList();
 
@@ -121,8 +121,8 @@ public class HearingsService {
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
-            OverridesMapping.setDefaultListingValues(wrapper, referenceDataServiceHolder);
-            HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+            OverridesMapping.setDefaultListingValues(wrapper, refData);
+            HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
             log.debug("Sending Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
@@ -148,8 +148,8 @@ public class HearingsService {
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-        OverridesMapping.setOverrideValues(wrapper, referenceDataServiceHolder);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+        OverridesMapping.setOverrideValues(wrapper, refData);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
         String hearingId = getHearingId(wrapper);
         log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
@@ -199,7 +199,7 @@ public class HearingsService {
         HearingsServiceHelper.updateHearingId(hearing, response);
         HearingsServiceHelper.updateVersionNumber(hearing, response);
 
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
+        if (refData.isAdjournmentFlagEnabled()
             && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
             log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
             caseData.getAdjournment().setAdjournmentInProgress(NO);

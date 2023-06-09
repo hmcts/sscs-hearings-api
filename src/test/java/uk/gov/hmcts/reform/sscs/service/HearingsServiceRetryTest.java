@@ -29,7 +29,6 @@ import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -59,13 +58,7 @@ class HearingsServiceRetryTest {
     private HmcHearingApiService hmcHearingApiService;
 
     @MockBean
-    private HmcHearingsApiService hmcHearingsApiService;
-
-    @MockBean
     private CcdCaseService ccdCaseService;
-
-    @MockBean
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @Autowired
     private HearingsService hearingsService;

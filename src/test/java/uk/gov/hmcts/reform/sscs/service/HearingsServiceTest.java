@@ -85,7 +85,7 @@ class HearingsServiceTest {
     private CcdCaseService ccdCaseService;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -201,9 +201,9 @@ class HearingsServiceTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
@@ -250,12 +250,12 @@ class HearingsServiceTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());

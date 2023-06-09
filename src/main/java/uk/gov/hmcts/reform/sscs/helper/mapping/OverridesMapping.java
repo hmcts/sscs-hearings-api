@@ -80,7 +80,7 @@ public final class OverridesMapping {
         int duration = HearingsDurationMapping.getHearingDuration(caseData, refData);
         HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
         HearingChannel channel = getIndividualPreferredHearingChannel(subtype, options, null);
-        HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData);
+        HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData, refData);
         YesNo autoList = getHearingDetailsAutoList(caseData, refData);
         List<CcdValue<CcdValue<String>>> venueEpimsIds = getHearingDetailsLocations(caseData, refData);
 
@@ -163,8 +163,8 @@ public final class OverridesMapping {
 
     }
 
-    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData) {
-        LocalDate hearingWindowStart = HearingsWindowMapping.getHearingWindowStart(caseData);
+    public static HearingWindow getHearingDetailsHearingWindow(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        LocalDate hearingWindowStart = HearingsWindowMapping.getDateRangeStart(caseData, refData);
 
         return HearingWindow.builder()
             .firstDateTimeMustBe(null)

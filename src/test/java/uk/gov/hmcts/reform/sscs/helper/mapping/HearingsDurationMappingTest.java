@@ -33,7 +33,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
     private HearingDurationsService hearingDurations;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @DisplayName("When an invalid adjournCaseDuration and adjournCaseDurationUnits is given and overrideDuration "
         + "is not present then override the duration of hearing")
@@ -44,7 +44,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         "-1, 75"
     }, nullValues = {"null"})
     void getHearingDurationWillNotReturnOverrideDurationWhenPresent(Integer overrideDuration, int expectedResult) {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
@@ -64,7 +64,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
         caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(overrideDuration);
 
-        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+        int result = HearingsDurationMapping.getHearingDuration(caseData, refData);
 
         assertThat(result).isEqualTo(expectedResult);
     }
@@ -73,7 +73,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesPaper() {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
@@ -87,7 +87,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isEqualTo(DURATION_PAPER);
@@ -97,7 +97,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "getHearingDurationBenefitIssueCodes returns null")
     @Test
     void getHearingDurationBenefitIssueCodesNotPaper() {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
@@ -124,7 +124,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isEqualTo(30);
@@ -134,7 +134,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "getHearingDurationBenefitIssueCodes return the correct face to face durations")
     @Test
     void getHearingDurationBenefitIssueCodesFaceToFace() {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
@@ -155,7 +155,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isEqualTo(DURATION_FACE_TO_FACE);
@@ -165,7 +165,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "getHearingDurationBenefitIssueCodes return the correct interpreter durations")
     @Test
     void getHearingDurationBenefitIssueCodesInterpreter() {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
@@ -187,7 +187,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isEqualTo(DURATION_INTERPRETER);
@@ -197,7 +197,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         + "getHearingDurationBenefitIssueCodes return the correct paper durations")
     @Test
     void getHearingDurationBenefitIssueCodesNotAttendNotPaper() {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
             .willReturn(new HearingDuration(
                 BenefitCode.PIP_NEW_CLAIM,
@@ -212,7 +212,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isEqualTo(DURATION_PAPER);
@@ -226,7 +226,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
         caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(DURATION_FACE_TO_FACE);
 
-        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+        int result = HearingsDurationMapping.getHearingDuration(caseData, refData);
 
         assertThat(result).isEqualTo(DURATION_FACE_TO_FACE);
     }
@@ -243,7 +243,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         given(hearingDurations.getHearingDuration(benefitCode, issueCode)).willReturn(null);
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
 
         SscsCaseData caseData = SscsCaseData.builder()
             .benefitCode(benefitCode)
@@ -256,7 +256,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDurationBenefitIssueCodes(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isNull();

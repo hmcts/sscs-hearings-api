@@ -35,7 +35,7 @@ public class ServiceHearingsService {
 
     private final CcdCaseService ccdCaseService;
 
-    private final ReferenceDataServiceHolder referenceDataServiceHolder;
+    private final ReferenceDataServiceHolder refData;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,7 +46,7 @@ public class ServiceHearingsService {
         SscsCaseData caseData = caseDetails.getData();
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
 

@@ -34,13 +34,13 @@ public final class HearingsPanelMapping {
     }
 
     public static PanelRequirements getPanelRequirements(SscsCaseData caseData,
-                                                         ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                         ReferenceDataServiceHolder refData) {
         return PanelRequirements.builder()
             .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
-            .panelPreferences(getPanelPreferences(caseData, referenceDataServiceHolder))
-            .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCodeMap(caseData, referenceDataServiceHolder)))
+            .panelPreferences(getPanelPreferences(caseData, refData))
+            .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCodeMap(caseData, refData)))
             .build();
     }
 
@@ -59,10 +59,10 @@ public final class HearingsPanelMapping {
     }
 
     public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                            ReferenceDataServiceHolder refData) {
         Adjournment adjournment = caseData.getAdjournment();
 
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled() && isYes(adjournment.getAdjournmentInProgress())) {
+        if (refData.isAdjournmentFlagEnabled() && isYes(adjournment.getAdjournmentInProgress())) {
             List<PanelPreference> panelPreferences = getAdjournmentPanelPreferences(adjournment.getPanelMembers());
             AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
 

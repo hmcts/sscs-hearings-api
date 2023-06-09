@@ -36,7 +36,7 @@ class HearingsMappingTest extends HearingsMappingBase {
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @Mock
     private VenueService venueService;
@@ -51,9 +51,9 @@ class HearingsMappingTest extends HearingsMappingBase {
                 .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                    false, false, SessionCategory.CATEGORY_03, null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
 
         SscsCaseData caseData = SscsCaseData.builder()
             .ccdCaseId(String.valueOf(CASE_ID))
@@ -86,7 +86,7 @@ class HearingsMappingTest extends HearingsMappingBase {
             .caseData(caseData)
             .caseData(caseData)
             .build();
-        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, referenceDataServiceHolder);
+        HearingRequestPayload result = HearingsMapping.buildHearingPayload(wrapper, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRequestDetails()).isNotNull();

@@ -30,16 +30,16 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @DisplayName("When no data is given getPanelRequirements returns the valid but empty PanelRequirements")
     @Test
     void testGetPanelRequirements() {
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        PanelRequirements result = HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder);
+        PanelRequirements result = HearingsPanelMapping.getPanelRequirements(caseData, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRoleTypes()).isEmpty();
@@ -89,7 +89,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @DisplayName("When overrideFields are null getPanelPreferences returns an empty list")
     @Test
     void testGetPanelPreferencesOverrideFieldsNull() {
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
 
         assertThat(result).isEmpty();
     }
@@ -100,7 +100,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         + " then return the panel member with the requirement type as Optional Include.")
     @Test
     void testPanelMembersExcludedIsNull() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
             .panelMembersExcluded(null)
             .panelMember1(JudicialUserBase.builder()
@@ -115,7 +115,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                 .build())
             .build());
 
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
         assertThat(result).isNotNull();
         assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.OPTIONAL_INCLUDE);
     }
@@ -126,7 +126,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         + " then return panel member requirement type as MUST_INCLUDE.")
     @Test
     void testPanelMembersExcludedIsReserved() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
             .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
             .panelMember2(JudicialUserBase.builder()
@@ -135,7 +135,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                 .build())
             .build());
 
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
         assertThat(result).isNotNull();
         assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.MUST_INCLUDE);
     }
@@ -146,7 +146,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         + " then return panel member requirement type as EXCLUDE.")
     @Test
     void testPanelMembersExcludedIsYes() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
             .panelMembersExcluded(AdjournCasePanelMembersExcluded.YES)
             .panelMember3(JudicialUserBase.builder()
@@ -155,7 +155,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                 .build())
             .build());
 
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
         assertThat(result).isNotNull();
         assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.EXCLUDE);
     }
@@ -165,12 +165,12 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         + " then return empty panel members detail.")
     @Test
     void testGetPanelPreferencesWhenPanelMemberNotProvide() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
 
         caseData.setAdjournment(Adjournment.builder()
             .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
             .build());
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
         assertThat(result).isEmpty();
     }
 
@@ -180,7 +180,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         + " then return empty panel member.")
     @Test
     void testGetPanelPreferencesAdjournmentInProgressNo() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
 
         caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO)
             .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
@@ -189,7 +189,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                 .personalCode("TOM")
                 .build())
             .build());
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, referenceDataServiceHolder);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
         assertThat(result).isEmpty();
     }
 

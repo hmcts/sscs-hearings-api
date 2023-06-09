@@ -27,9 +27,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 @ExtendWith(MockitoExtension.class)
 class HearingsNumberAttendeesMappingTest {
 
-    @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
-
     @DisplayName("When hearing not face to face, getNumberOfPhysicalAttendees returns zero")
     @Test
     void shouldGetNumberOfPhysicalAttendeesNotFaceToFace() {

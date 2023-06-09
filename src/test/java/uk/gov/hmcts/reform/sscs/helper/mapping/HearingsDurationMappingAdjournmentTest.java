@@ -25,7 +25,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDuration
 class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     private void setAdjournmentDurationAndUnits(Integer duration, AdjournCaseNextHearingDurationUnits units) {
         caseData.getAdjournment().setNextHearingListingDuration(duration);
@@ -52,10 +52,10 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         Integer adjournCaseDuration,
         AdjournCaseNextHearingDurationUnits adjournCaseDurationUnits,
         int expected) {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
 
         setAdjournmentDurationAndUnits(adjournCaseDuration, adjournCaseDurationUnits);
-        Integer result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+        Integer result = HearingsDurationMapping.getHearingDuration(caseData, refData);
 
         assertThat(result).isEqualTo(expected);
     }
@@ -64,7 +64,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         + "uses default hearing duration")
     @Test
     void getHearingDurationAdjournmentReturnsNullWithFeatureFlagEnabled() {
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
 
         given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(null);
 
@@ -83,7 +83,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
 
         Integer result = HearingsDurationMapping.getHearingDuration(
             caseData,
-            referenceDataServiceHolder
+            refData
         );
 
         assertThat(result).isEqualTo(HearingsDurationMapping.DURATION_DEFAULT);
@@ -102,10 +102,10 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
                 HearingsDurationMappingTest.DURATION_PAPER
             ));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
         setAdjournmentDurationAndUnits(2, null);
 
-        int result = HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder);
+        int result = HearingsDurationMapping.getHearingDuration(caseData, refData);
 
         assertThat(result).isEqualTo(HearingsDurationMappingTest.DURATION_PAPER);
     }
@@ -125,7 +125,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     ) {
         setAdjournmentDurationAndUnits(adjournCaseDuration, adjournCaseDurationUnits);
 
-        assertThatThrownBy(() -> HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+        assertThatThrownBy(() -> HearingsDurationMapping.getHearingDuration(caseData, refData))
             .isInstanceOf(NullPointerException.class);
     }
 

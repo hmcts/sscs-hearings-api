@@ -38,7 +38,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEP
 class HearingsChannelMappingTest {
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     private SscsCaseData caseData;
 
