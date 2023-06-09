@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
@@ -55,13 +57,14 @@ public class ServiceHearingsService {
                 .filter(p -> p.getUnavailableFromDate() != null && p.getUnavailableToDate() != null && p.getUnavailableToDate().isBefore(p.getUnavailableFromDate()))
             ).findFirst();
 
+        String partyNameMissing = getPartyNameMissing(model);
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
-        if (unavailabilityRangeWithDateProblems.isPresent()) {
+        if (unavailabilityRangeWithDateProblems.isPresent() || partyNameMissing != null) {
             ccdCaseService.updateCaseData(
                 caseData,
                 EventType.LISTING_ERROR,
                 "",
-                "One of the parties unavailability end date is before start date"
+                partyNameMissing != null ? partyNameMissing : "One of the parties unavailability end date is before start date"
             );
         } else if (!originalCaseData.equals(updatedCaseData)) {
             ccdCaseService.updateCaseData(
@@ -73,6 +76,27 @@ public class ServiceHearingsService {
         }
 
         return model;
+    }
+
+    @Nullable
+    private static String getPartyNameMissing(ServiceHearingValues model) {
+        return model.getParties().stream()
+            .map(PartyDetails::getIndividualDetails)
+            .filter(individualDetails -> StringUtils.isEmpty(individualDetails.getFirstName())
+                && StringUtils.isEmpty(individualDetails.getLastName()))
+            .findFirst()
+            .map(individualDetails -> "First name and Last name cannot be empty")
+            .orElseGet(() -> model.getParties().stream()
+                .map(PartyDetails::getIndividualDetails)
+                .filter(individualDetails -> StringUtils.isEmpty(individualDetails.getFirstName()))
+                .findFirst()
+                .map(individualDetails -> "First name cannot be empty")
+                .orElseGet(() -> model.getParties().stream()
+                    .map(PartyDetails::getIndividualDetails)
+                    .filter(individualDetails -> StringUtils.isEmpty(individualDetails.getLastName()))
+                    .findFirst()
+                    .map(individualDetails -> "Last name cannot be empty")
+                    .orElse(null)));
     }
 
     public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)

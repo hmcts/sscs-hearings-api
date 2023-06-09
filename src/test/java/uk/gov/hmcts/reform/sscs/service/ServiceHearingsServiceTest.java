@@ -294,7 +294,7 @@ class ServiceHearingsServiceTest {
                 assertThat(p.getUnavailableToDate()).isEqualTo(p.getUnavailableFromDate());
                 assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
             }));
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), eq("IDs updated for caseDetails due to ServiceHearingValues request"));
     }
 
     @Test
@@ -330,7 +330,7 @@ class ServiceHearingsServiceTest {
                 assertThat(p.getUnavailableFromDate()).isEqualTo(p.getUnavailableToDate());
                 assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
             }));
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), eq("IDs updated for caseDetails due to ServiceHearingValues request"));
     }
 
     @Test
@@ -362,7 +362,7 @@ class ServiceHearingsServiceTest {
             .caseId(String.valueOf(CASE_ID))
             .build();
         serviceHearingsService.getServiceHearingValues(request);
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), anyString());
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("One of the parties unavailability end date is before start date"));
     }
 
     @Test
@@ -398,7 +398,36 @@ class ServiceHearingsServiceTest {
                 assertThat(p.getUnavailableFromDate()).isNull();
                 assertThat(p.getUnavailableToDate()).isNull();
             }));
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), eq("IDs updated for caseDetails due to ServiceHearingValues request"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("partyMemberNamesParameters")
+    void testGetServiceHearingValues_WhenAnyOfThePartyMemberIsEmptyOrNull_ThenSendItToListingError(String appellantFirstName,
+                                                                                                   String appellantLastName,
+                                                                                                   String representativeFirstName,
+                                                                                                   String representativeLastName,
+                                                                                                   EventType eventType,
+                                                                                                   String description) throws Exception {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        caseDetails.getData().getAppeal().getAppellant().getName().setFirstName(appellantFirstName);
+        caseDetails.getData().getAppeal().getAppellant().getName().setLastName(appellantLastName);
+        caseDetails.getData().getAppeal().getRep().getName().setFirstName(representativeFirstName);
+        caseDetails.getData().getAppeal().getRep().getName().setLastName(representativeLastName);
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        serviceHearingsService.getServiceHearingValues(request);
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(eventType), anyString(), eq(description));
     }
 
     private static Stream<Arguments> invalidCasesParameters() {
@@ -416,6 +445,19 @@ class ServiceHearingsServiceTest {
                     .build())
                     .build()
             ))
+        );
+    }
+
+    private static Stream<Arguments> partyMemberNamesParameters() {
+        return Stream.of(
+            Arguments.of("appellant", "appellant", "representative", "representative", UPDATE_CASE_ONLY, "IDs updated for caseDetails due to ServiceHearingValues request"),
+            Arguments.of("appellant", "", "representative", "representative", LISTING_ERROR, "Last name cannot be empty"),
+            Arguments.of("appellant", "appellant", "", "representative", LISTING_ERROR, "First name cannot be empty"),
+            Arguments.of("appellant", "appellant", "representative", "", LISTING_ERROR, "Last name cannot be empty"),
+            Arguments.of("appellant", "appellant", "", "", LISTING_ERROR, "First name and Last name cannot be empty"),
+            Arguments.of("", "", "representative", "representative", LISTING_ERROR, "First name and Last name cannot be empty"),
+            Arguments.of("", "", "", "", LISTING_ERROR, "First name and Last name cannot be empty"),
+            Arguments.of(null, null, null, null, LISTING_ERROR, "First name and Last name cannot be empty")
         );
     }
 }
