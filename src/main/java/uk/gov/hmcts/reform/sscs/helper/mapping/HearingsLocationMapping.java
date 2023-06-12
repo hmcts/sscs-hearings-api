@@ -109,7 +109,6 @@ public final class HearingsLocationMapping {
             AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
 
             if (nonNull(nextHearingVenueName)) {
-                VenueService venueService = refData.getVenueService();
                 return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
             }
         }
