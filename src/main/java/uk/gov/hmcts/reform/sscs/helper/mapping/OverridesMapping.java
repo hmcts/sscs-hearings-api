@@ -180,7 +180,7 @@ public final class OverridesMapping {
 
     public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(
         @Valid SscsCaseData caseData,
-        ReferenceDataServiceHolder refData) throws InvalidMappingException {
+        ReferenceDataServiceHolder refData) throws ListingException {
         return HearingsLocationMapping.getHearingLocations(caseData, refData).stream()
             .map(HearingLocation::getLocationId)
             .filter(Objects::nonNull)

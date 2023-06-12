@@ -590,7 +590,7 @@ class OverridesMappingTest {
 
     @DisplayName("When valid case data is given, getHearingDetailsHearingWindow returns the default venue epims ids")
     @Test
-    void testGetHearingDetailsLocations() throws InvalidMappingException {
+    void testGetHearingDetailsLocations() throws ListingException {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
         given(refData.getVenueService()).willReturn(venueService);

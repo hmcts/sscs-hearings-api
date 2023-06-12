@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.checkBenefitIssueCode;
@@ -133,6 +134,10 @@ public final class HearingsCaseMapping {
     }
 
     public static String getCaseManagementLocationCode(SscsCaseData caseData) {
+        if (isNull(caseData.getCaseManagementLocation())) {
+            return null;
+        }
+
         return caseData.getCaseManagementLocation().getBaseLocation();
     }
 

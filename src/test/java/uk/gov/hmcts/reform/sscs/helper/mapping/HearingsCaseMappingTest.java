@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
@@ -376,6 +377,16 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         String result = HearingsCaseMapping.getCaseManagementLocationCode(caseData);
 
         assertEquals(EPIMS_ID, result);
+    }
+
+    @DisplayName("When a case without a CaseManagementLocation is given getCaseManagementLocationCode returns null")
+    @Test
+    void getCaseManagementLocationCodeWhenNull() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .build();
+        String result = HearingsCaseMapping.getCaseManagementLocationCode(caseData);
+
+        assertNull(result);
     }
 
     @DisplayName("shouldBeSensitiveFlag Test")
