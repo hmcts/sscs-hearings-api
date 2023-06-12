@@ -62,6 +62,7 @@ public final class OverridesMapping {
         OverrideFields overrideFields = getOverrideFieldValues(wrapper, refData);
         SscsCaseData caseData = wrapper.getCaseData();
         caseData.getSchedulingAndListingFields().setOverrideFields(overrideFields);
+        caseData.getSchedulingAndListingFields().getOverrideFields().setHearingWindow(overrideFields.getHearingWindow());
 
         log.debug("Override Field Values set to {} for Case ID {}",
                   overrideFields,
@@ -81,7 +82,6 @@ public final class OverridesMapping {
         HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
         HearingChannel channel = getIndividualPreferredHearingChannel(subtype, options, null);
         HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData, refData);
-        caseData.getSchedulingAndListingFields().getOverrideFields().setHearingWindow(hearingWindow);
         YesNo autoList = getHearingDetailsAutoList(caseData, refData);
         List<CcdValue<CcdValue<String>>> venueEpimsIds = getHearingDetailsLocations(caseData, refData);
 
