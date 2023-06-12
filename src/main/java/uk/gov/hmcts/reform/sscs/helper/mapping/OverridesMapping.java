@@ -81,6 +81,7 @@ public final class OverridesMapping {
         HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
         HearingChannel channel = getIndividualPreferredHearingChannel(subtype, options, null);
         HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData, refData);
+        caseData.getSchedulingAndListingFields().getOverrideFields().setHearingWindow(hearingWindow);
         YesNo autoList = getHearingDetailsAutoList(caseData, refData);
         List<CcdValue<CcdValue<String>>> venueEpimsIds = getHearingDetailsLocations(caseData, refData);
 
