@@ -169,7 +169,7 @@ public final class OverridesMapping {
 
     public static List<CcdValue<CcdValue<String>>> getHearingDetailsLocations(
         @Valid SscsCaseData caseData,
-        ReferenceDataServiceHolder referenceDataServiceHolder) throws InvalidMappingException {
+        ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
         return HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder).stream()
             .map(HearingLocation::getLocationId)
             .filter(Objects::nonNull)
