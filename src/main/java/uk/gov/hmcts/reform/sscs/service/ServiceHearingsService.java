@@ -53,8 +53,10 @@ public class ServiceHearingsService {
         ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         Optional<UnavailabilityRange> unavailabilityRangeWithDateProblems = model.getParties().stream()
             .map(PartyDetails::getUnavailabilityRanges)
-            .flatMap(o -> o.stream()
-                .filter(p -> p.getUnavailableFromDate() != null && p.getUnavailableToDate() != null && p.getUnavailableToDate().isBefore(p.getUnavailableFromDate()))
+            .flatMap(unavailabilityRangeList -> unavailabilityRangeList.stream()
+                .filter(unavailabilityRange -> unavailabilityRange.getUnavailableFromDate() != null
+                    && unavailabilityRange.getUnavailableToDate() != null
+                    && unavailabilityRange.getUnavailableToDate().isBefore(unavailabilityRange.getUnavailableFromDate()))
             ).findFirst();
 
         String partyNameMissing = getPartyNameMissing(model);
