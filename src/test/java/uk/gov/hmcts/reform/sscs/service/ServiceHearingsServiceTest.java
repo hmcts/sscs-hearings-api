@@ -270,14 +270,15 @@ class ServiceHearingsServiceTest {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
+        String startDate = "2023-01-01";
         caseDetails.getData().getAppeal().setHearingOptions(
             HearingOptions.builder()
                 .wantsToAttend("Yes")
                 .excludeDates(
                     List.of(
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").end("").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").end(null).build()).build()
+                        ExcludeDate.builder().value(DateRange.builder().start(startDate).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(startDate).end("").build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(startDate).end(null).build()).build()
                     )
                 )
                 .build()
@@ -290,9 +291,9 @@ class ServiceHearingsServiceTest {
         ServiceHearingValues serviceHearingValues = serviceHearingsService.getServiceHearingValues(request);
         serviceHearingValues.getParties().stream()
             .map(PartyDetails::getUnavailabilityRanges)
-            .forEach(o -> o.forEach(p -> {
-                assertThat(p.getUnavailableToDate()).isEqualTo(p.getUnavailableFromDate());
-                assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
+            .forEach(unavailabilityRangeList -> unavailabilityRangeList.forEach(unavailabilityRange -> {
+                assertThat(unavailabilityRange.getUnavailableToDate()).isEqualTo(unavailabilityRange.getUnavailableFromDate());
+                assertThat(unavailabilityRange.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
             }));
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), eq("IDs updated for caseDetails due to ServiceHearingValues request"));
     }
@@ -306,14 +307,15 @@ class ServiceHearingsServiceTest {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
+        String endDate = "2023-01-01";
         caseDetails.getData().getAppeal().setHearingOptions(
             HearingOptions.builder()
                 .wantsToAttend("Yes")
                 .excludeDates(
                     List.of(
-                        ExcludeDate.builder().value(DateRange.builder().end("2023-01-01").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("").end("2023-01-01").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start(null).end("2023-01-01").build()).build()
+                        ExcludeDate.builder().value(DateRange.builder().end(endDate).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start("").end(endDate).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(null).end(endDate).build()).build()
                     )
                 )
                 .build()
@@ -326,9 +328,9 @@ class ServiceHearingsServiceTest {
         ServiceHearingValues serviceHearingValues = serviceHearingsService.getServiceHearingValues(request);
         serviceHearingValues.getParties().stream()
             .map(PartyDetails::getUnavailabilityRanges)
-            .forEach(o -> o.forEach(p -> {
-                assertThat(p.getUnavailableFromDate()).isEqualTo(p.getUnavailableToDate());
-                assertThat(p.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
+            .forEach(unavailabilityRangeList -> unavailabilityRangeList.forEach(unavailabilityRange -> {
+                assertThat(unavailabilityRange.getUnavailableFromDate()).isEqualTo(unavailabilityRange.getUnavailableToDate());
+                assertThat(unavailabilityRange.getUnavailabilityType()).isEqualTo(ALL_DAY.getLabel());
             }));
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), eq("IDs updated for caseDetails due to ServiceHearingValues request"));
     }
@@ -342,16 +344,27 @@ class ServiceHearingsServiceTest {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
+        String date1Before = "2023-01-01";
+        String date1After = "2023-01-02";
+        String date2Before = "2023-02-01";
+        String date2After = "2023-02-02";
+        String date3Before = "2023-03-01";
+        String date3After = "2023-03-02";
+        String date4Before = "2023-04-02";
+        String date4After = "2023-05-01";
+        String date5Before = "2023-07-01";
+        String date5After = "2023-08-02";
+
         caseDetails.getData().getAppeal().setHearingOptions(
             HearingOptions.builder()
                 .wantsToAttend("Yes")
                 .excludeDates(
                     List.of(
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-01-01").end("2023-01-02").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-02-01").end("2023-02-02").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-03-01").end("2023-03-02").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-05-01").end("2023-04-02").build()).build(),
-                        ExcludeDate.builder().value(DateRange.builder().start("2023-07-01").end("2023-08-02").build()).build()
+                        ExcludeDate.builder().value(DateRange.builder().start(date1Before).end(date1After).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(date2Before).end(date2After).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(date3Before).end(date3After).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(date4After).end(date4Before).build()).build(),
+                        ExcludeDate.builder().value(DateRange.builder().start(date5Before).end(date5After).build()).build()
                     )
                 )
                 .build()
@@ -394,9 +407,9 @@ class ServiceHearingsServiceTest {
         ServiceHearingValues serviceHearingValues = serviceHearingsService.getServiceHearingValues(request);
         serviceHearingValues.getParties().stream()
             .map(PartyDetails::getUnavailabilityRanges)
-            .forEach(o -> o.forEach(p -> {
-                assertThat(p.getUnavailableFromDate()).isNull();
-                assertThat(p.getUnavailableToDate()).isNull();
+            .forEach(unavailabilityRangeList -> unavailabilityRangeList.forEach(unavailabilityRange -> {
+                assertThat(unavailabilityRange.getUnavailableFromDate()).isNull();
+                assertThat(unavailabilityRange.getUnavailableToDate()).isNull();
             }));
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), eq("IDs updated for caseDetails due to ServiceHearingValues request"));
     }
