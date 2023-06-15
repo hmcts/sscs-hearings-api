@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -415,7 +416,16 @@ class ServiceHearingsServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("partyMemberNamesParameters")
+    @CsvSource(value = {
+        "appellant,appellant,representative,representative,UPDATE_CASE_ONLY,IDs updated for caseDetails due to ServiceHearingValues request",
+        "appellant,,representative,representative,LISTING_ERROR,Last name cannot be empty",
+        "appellant,appellant,,representative,LISTING_ERROR,First name cannot be empty",
+        "appellant,appellant,representative,,LISTING_ERROR,Last name cannot be empty",
+        "appellant,appellant,,,LISTING_ERROR,First name and Last name cannot be empty",
+        ",,representative,representative,LISTING_ERROR,First name and Last name cannot be empty",
+        ",,,,LISTING_ERROR,First name and Last name cannot be empty",
+        "null,null,null,null,LISTING_ERROR,First name and Last name cannot be empty"
+    }, nullValues = {"null"})
     void testGetServiceHearingValues_WhenAnyOfThePartyMemberIsEmptyOrNull_ThenSendItToListingError(String appellantFirstName,
                                                                                                    String appellantLastName,
                                                                                                    String representativeFirstName,
@@ -458,19 +468,6 @@ class ServiceHearingsServiceTest {
                     .build())
                     .build()
             ))
-        );
-    }
-
-    private static Stream<Arguments> partyMemberNamesParameters() {
-        return Stream.of(
-            Arguments.of("appellant", "appellant", "representative", "representative", UPDATE_CASE_ONLY, "IDs updated for caseDetails due to ServiceHearingValues request"),
-            Arguments.of("appellant", "", "representative", "representative", LISTING_ERROR, "Last name cannot be empty"),
-            Arguments.of("appellant", "appellant", "", "representative", LISTING_ERROR, "First name cannot be empty"),
-            Arguments.of("appellant", "appellant", "representative", "", LISTING_ERROR, "Last name cannot be empty"),
-            Arguments.of("appellant", "appellant", "", "", LISTING_ERROR, "First name and Last name cannot be empty"),
-            Arguments.of("", "", "representative", "representative", LISTING_ERROR, "First name and Last name cannot be empty"),
-            Arguments.of("", "", "", "", LISTING_ERROR, "First name and Last name cannot be empty"),
-            Arguments.of(null, null, null, null, LISTING_ERROR, "First name and Last name cannot be empty")
         );
     }
 }
