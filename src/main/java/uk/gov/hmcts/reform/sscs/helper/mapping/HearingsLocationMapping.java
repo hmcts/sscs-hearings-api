@@ -38,6 +38,7 @@ public final class HearingsLocationMapping {
         boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
 
         List<HearingLocation> locations;
+        log.debug("Adjournment flag: {}, Adjournment in progress: {}", refData.isAdjournmentFlagEnabled(), isYes(caseData.getAdjournment().getAdjournmentInProgress()));
         // if adjournment in progress, we want to process these locations first, superseding the override fields
         if (adjournmentInProgress) {
             locations = getAdjournedLocations(caseData, refData);
@@ -104,13 +105,10 @@ public final class HearingsLocationMapping {
     private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
 
-        if (refData.isAdjournmentFlagEnabled()
-            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
+        AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
 
-            if (nonNull(nextHearingVenueName)) {
-                return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
-            }
+        if (nonNull(nextHearingVenueName)) {
+            return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
         }
 
         return Collections.emptyList();
