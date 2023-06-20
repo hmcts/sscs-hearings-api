@@ -48,11 +48,16 @@ public final class HearingsLocationMapping {
             }
         }
 
+
+        log.info("getHearingLocations::getOverrideLocations");
+
         locations = getOverrideLocations(caseData);
         if (isNotEmpty(locations)) {
             log.debug("Hearing Locations for Case ID {} set as Override field values", caseId);
             return locations;
         }
+
+        log.info("getHearingLocations::getPaperCaseLocations");
 
         locations = getPaperCaseLocations(caseData, refData);
         if (isNotEmpty(locations)) {
@@ -105,7 +110,11 @@ public final class HearingsLocationMapping {
     private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
 
+        log.info("getAdjournedLocations {}", caseData.getAdjournment());
+
         AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
+
+        log.info("getAdjournedLocations {}", nextHearingVenueName);
 
         if (nonNull(nextHearingVenueName)) {
             return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
