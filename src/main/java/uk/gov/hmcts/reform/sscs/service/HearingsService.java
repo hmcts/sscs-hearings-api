@@ -82,6 +82,11 @@ public class HearingsService {
         }
 
         switch (wrapper.getHearingState()) {
+            case ADJOURN_CREATE_HEARING:
+                wrapper.getCaseData().getAdjournment().setAdjournmentInProgress(YesNo.YES);
+                wrapper.setHearingState(HearingState.CREATE_HEARING);
+                createHearing(wrapper);
+                break;
             case CREATE_HEARING:
                 createHearing(wrapper);
                 break;

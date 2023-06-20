@@ -82,7 +82,7 @@ public final class HearingsPanelMapping {
         // when not updating via adjournment, ensure panel pref are set based on existing s&l fields if present
         PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
         if (nonNull(panelMembers)) {
-            List<CcdValue<JudicialUserBase>> panelMembersList = panelMembers.getExcludedPanelMembers();
+            List<CollectionItem<JudicialUserBase>> panelMembersList = panelMembers.getExcludedPanelMembers();
 
             if (nonNull(panelMembersList)) {
                 List<PanelPreference> panelPreferences = panelMembersList.stream()
