@@ -175,7 +175,7 @@ public final class HearingsLocationMapping {
         Hearing latestHearing = caseData.getLatestHearing();
 
         if (nonNull(latestHearing)) {
-            log.info("latestHearing is {}", latestHearing);
+            log.info("latestHearing is {} hearings {}", latestHearing, caseData.getHearings());
             return latestHearing.getValue().getEpimsId();
         }
 
