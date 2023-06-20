@@ -140,6 +140,8 @@ public final class HearingsLocationMapping {
                                .build());
         }
 
+        log.info("getNextHearingLocation no venues found");
+
         throw new ListingException("Failed to determine next hearing location due to an invalid EpimsId \""
                                        + epimsID + "\" on the latest hearing");
     }
@@ -175,6 +177,8 @@ public final class HearingsLocationMapping {
         if (nonNull(latestHearing)) {
             return latestHearing.getValue().getEpimsId();
         }
+
+        log.info("getEpimsID no hearing location found, throwing exception");
 
         throw new InvalidMappingException("Failed to determine next hearing location due to no latest hearing on case "
                                               + caseData.getCcdCaseId());
