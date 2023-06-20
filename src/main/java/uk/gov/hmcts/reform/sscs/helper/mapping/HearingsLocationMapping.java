@@ -140,7 +140,7 @@ public final class HearingsLocationMapping {
                                .build());
         }
 
-        log.info("getNextHearingLocation no venues found");
+        log.info("getNextHearingLocation no venues found for epimsid: {}", epimsID);
 
         throw new ListingException("Failed to determine next hearing location due to an invalid EpimsId \""
                                        + epimsID + "\" on the latest hearing");
