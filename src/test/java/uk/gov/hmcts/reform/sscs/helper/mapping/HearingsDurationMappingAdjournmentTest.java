@@ -17,6 +17,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -78,7 +81,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
                 .build())
             .build();
 
-        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(caseData);
+        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData);
         assertThat(durationAdjourned).isNull();
 
         Integer result = HearingsDurationMapping.getHearingDuration(
@@ -133,9 +136,18 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         + "nextHearingListingDuration is blank, getHearingDurationAdjournment returns null")
     @Test
     void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+
         setAdjournmentDurationAndUnits(null, SESSIONS);
 
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData);
+        HearingDuration duration = new HearingDuration();
+        duration.setBenefitCode(BenefitCode.PIP_NEW_CLAIM);
+        duration.setIssue(Issue.DD);
+        List<HearingDuration> durationsList = new ArrayList<>();
+        durationsList.add(duration);
+        refData.getHearingDurations().setHearingDurations(durationsList);
+
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData);
 
         assertThat(result).isNull();
     }
@@ -144,10 +156,19 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         + "getHearingDurationAdjournment returns null")
     @Test
     void getHearingDurationAdjournment_nextHearingListingDurationTypeIsStandard() {
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+
         setAdjournmentDurationAndUnits(null, SESSIONS);
         caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.STANDARD);
 
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData);
+        HearingDuration duration = new HearingDuration();
+        duration.setBenefitCode(BenefitCode.PIP_NEW_CLAIM);
+        duration.setIssue(Issue.DD);
+        List<HearingDuration> durationsList = new ArrayList<>();
+        durationsList.add(duration);
+        refData.getHearingDurations().setHearingDurations(durationsList);
+
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData);
 
         assertThat(result).isNull();
     }

@@ -127,7 +127,7 @@ class HearingsDurationMappingTest extends HearingsMappingBase {
             refData
         );
 
-        assertThat(result).isEqualTo(30);
+        assertThat(result).isEqualTo(60);
     }
 
     @DisplayName("When wantsToAttend for the Appeal is Yes and languageInterpreter is null "

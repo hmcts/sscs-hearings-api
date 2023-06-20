@@ -24,7 +24,7 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInte
 @Slf4j
 public final class HearingsDurationMapping {
     public static final int DURATION_SESSIONS_MULTIPLIER = 165;
-    public static final int DURATION_DEFAULT = 30;
+    public static final int DURATION_DEFAULT = 60;
     public static final int MIN_HEARING_DURATION = 30;
     public static final int MIN_HEARING_SESSION_DURATION = 1;
 
@@ -38,7 +38,7 @@ public final class HearingsDurationMapping {
         boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
         // adjournment values take precedence over override fields if adjournment in progress
         if (adjournmentInProgress) {
-            duration = getHearingDurationAdjournment(caseData);
+            duration = getHearingDurationAdjournment(caseData, refData);
             if (nonNull(duration)) {
                 log.debug("Hearing Duration for Case ID {} set as Adjournment value {}", caseId, duration);
                 return duration;
@@ -61,12 +61,12 @@ public final class HearingsDurationMapping {
         return DURATION_DEFAULT;
     }
 
-    public static Integer getHearingDurationAdjournment(SscsCaseData caseData) {
+    public static Integer getHearingDurationAdjournment(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
         Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
         if (duration != null && caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD) {
             return handleNonStandardDuration(caseData, duration);
         }
-        return duration;
+        return getHearingDurationBenefitIssueCodes(caseData, refData);
     }
 
     private static Integer handleNonStandardDuration(SscsCaseData caseData, Integer duration) {
