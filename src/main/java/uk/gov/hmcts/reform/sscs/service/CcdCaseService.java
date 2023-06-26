@@ -17,6 +17,8 @@ import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.HearingEvent;
+import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,8 +74,7 @@ public class CcdCaseService {
         return ccdService.getCaseForModification(caseId, idamTokens, eventType.getCcdType());
     }
 
-    public SscsCaseDetails updateCaseData(SscsCaseData caseData, String eventId, String eventToken, String eventType,
-                                            String summary, String description)
+    public SscsCaseDetails updateCaseData(SscsCaseData caseData, HearingWrapper wrapper, HearingEvent event)
         throws UpdateCaseException {
 
         long caseId = parseCaseId(caseData.getCcdCaseId());
@@ -83,7 +84,9 @@ public class CcdCaseService {
         IdamTokens idamTokens = idamService.getIdamTokens();
 
         try {
-            return ccdService.updateCase(caseData, caseId, eventId, eventToken, eventType, summary, description, idamTokens);
+            String ccdType = event.getEventType().getCcdType();
+            return ccdService.updateCase(caseData, caseId, wrapper.getEventId(), wrapper.getEventToken(), 
+                                            ccdType, event.getSummary(), event.getDescription(), idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
                     String.format("The case with Case id: %s could not be updated with status %s, %s",
