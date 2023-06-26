@@ -221,7 +221,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @DisplayName("When the Panel Member is type FQPM, then return null for specialism")
     @Test
     void testGivenFqpmPanelMemberThenReturnNullForSpecialism() {
-        // added FQPM to the exclude list because LA is not currently set up to handle specialism for this type.
+        // LA is not currently set up to handle specialism for FQPM panel members.
         String result = HearingsPanelMapping.getPanelMemberSpecialism(PanelMember.FQPM, null, null);
         assertThat(result).isNull();
     }
