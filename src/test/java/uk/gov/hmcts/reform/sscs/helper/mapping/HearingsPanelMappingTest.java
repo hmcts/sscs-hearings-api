@@ -209,12 +209,20 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @EnumSource(
         value = PanelMember.class,
         mode = EnumSource.Mode.EXCLUDE,
-        names = {"MQPM1", "MQPM2"}
+        names = {"FQPM", "MQPM1", "MQPM2"}
     )
     void testGetPanelMemberSpecialism(PanelMember value) {
+        // added FQPM to the exclude list because LA is not currently set up to handle specialism for this type.
         String result = HearingsPanelMapping.getPanelMemberSpecialism(value, null, null);
 
         assertThat(result).isEqualTo(value.getReference());
+    }
 
+    @DisplayName("When the Panel Member is type FQPM, then return null for specialism")
+    @Test
+    void testGivenFqpmPanelMemberThenReturnNullForSpecialism() {
+        // added FQPM to the exclude list because LA is not currently set up to handle specialism for this type.
+        String result = HearingsPanelMapping.getPanelMemberSpecialism(PanelMember.FQPM, null, null);
+        assertThat(result).isNull();
     }
 }

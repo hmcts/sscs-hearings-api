@@ -88,6 +88,8 @@ public final class HearingsPanelMapping {
     public static String getPanelMemberSpecialism(PanelMember panelMember,
                                                   String doctorSpecialism, String doctorSpecialismSecond) {
         switch (panelMember) {
+            case FQPM:
+                return null;
             case MQPM1:
                 return getReference(doctorSpecialism);
             case MQPM2:
