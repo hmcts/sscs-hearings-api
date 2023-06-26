@@ -145,7 +145,7 @@ class HearingsServiceTest {
         value = HearingState.class,
         names = {"UPDATED_CASE","PARTY_NOTIFIED"})
     void processHearingRequest(HearingState state) throws GetCaseException {
-        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+        given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
         assertThatNoException()
@@ -155,7 +155,7 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid Hearing State and Cancellation reason is given addHearingResponse should run without error")
     @Test
     void processHearingRequest() throws GetCaseException {
-        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+        given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(UPDATED_CASE);
         request.setCancellationReason(OTHER);

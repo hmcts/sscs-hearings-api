@@ -250,12 +250,24 @@ public class HearingsService {
             cancellationReasons = List.of(hearingRequest.getCancellationReason());
         }
 
-        SscsCaseDetails sscsCaseDetails = ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId());
+        EventType eventType = getCcdEvent(hearingRequest.getHearingState());
+        SscsCaseDetails sscsCaseDetails = ccdCaseService.getStartEventResponse(Long.valueOf(hearingRequest.getCcdCaseId()), eventType);
+
         return HearingWrapper.builder()
                 .caseData(sscsCaseDetails.getData())
+                .eventId(sscsCaseDetails.getEventId())
+                .eventToken(sscsCaseDetails.getEventToken())
                 .caseState(State.getById(sscsCaseDetails.getState()))
                 .hearingState(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)
                 .build();
+    }
+
+    private EventType getCcdEvent(HearingState hearingState) {
+        try {
+            return HearingsServiceHelper.getHearingEvent(hearingState).getEventType();
+        } catch (IllegalArgumentException ex) {
+            return EventType.CASE_UPDATED;
+        }
     }
 }

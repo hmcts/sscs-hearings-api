@@ -66,6 +66,33 @@ public class CcdCaseService {
         return caseDetails;
     }
 
+    public SscsCaseDetails getStartEventResponse(long caseId, EventType eventType) {
+        IdamTokens idamTokens = idamService.getIdamTokens();
+
+        return ccdService.getCaseForModification(caseId, idamTokens, eventType.getCcdType());
+    }
+
+    public SscsCaseDetails updateCaseData(SscsCaseData caseData, String eventId, String eventToken, String eventType,
+                                            String summary, String description)
+        throws UpdateCaseException {
+
+        long caseId = parseCaseId(caseData.getCcdCaseId());
+
+        log.info("Updating case data using Case id : {}", caseId);
+
+        IdamTokens idamTokens = idamService.getIdamTokens();
+
+        try {
+            return ccdService.updateCase(caseData, caseId, eventId, eventToken, eventType, summary, description, idamTokens);
+        } catch (FeignException e) {
+            UpdateCaseException exc = new UpdateCaseException(
+                    String.format("The case with Case id: %s could not be updated with status %s, %s",
+                            caseId, e.status(), e));
+            log.error(exc.getMessage(), exc);
+            throw exc;
+        }
+    }
+
     public SscsCaseDetails updateCaseData(SscsCaseData caseData, EventType event, String summary, String description)
         throws UpdateCaseException {
 
