@@ -55,7 +55,7 @@ public class ServiceHearingsController {
 
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
 
-            log.info("serviceHearingValues {}", model);
+            log.info("serviceHearingValues response {}", model);
 
             return status(HttpStatus.OK).body(model);
         } catch (Exception exc) {

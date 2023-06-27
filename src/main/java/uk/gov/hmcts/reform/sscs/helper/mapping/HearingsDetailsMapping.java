@@ -105,6 +105,8 @@ public final class HearingsDetailsMapping {
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
         List<String> listingComments = new ArrayList<>();
+        listingComments.addAll(addAdjournmentTimeSelectionComments(caseData));
+
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
             listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
         }
@@ -121,6 +123,29 @@ public final class HearingsDetailsMapping {
         }
 
         return String.join(String.format("%n%n"), listingComments);
+    }
+
+    private static List<String> addAdjournmentTimeSelectionComments(SscsCaseData caseData) {
+        List<String> listingComments = new ArrayList<>();
+
+        var adjournment = caseData.getAdjournment();
+        AdjournCaseTime adjournCaseTime = adjournment.getTime();
+
+        if (isNotEmpty(adjournment.getNextHearingDateType()) && isNotEmpty(adjournCaseTime)) {
+            if (isNotEmpty(adjournCaseTime.getAdjournCaseNextHearingFirstOnSession())) {
+                var firstOnSession = "List first on the session";
+                listingComments.add(firstOnSession);
+            }
+
+            String adjournCaseNextHearingSpecificTime = adjournCaseTime.getAdjournCaseNextHearingSpecificTime();
+            if (isNotEmpty(adjournCaseNextHearingSpecificTime)) {
+                var provideTime = String.format("Provide time: %S", adjournCaseNextHearingSpecificTime);
+                listingComments.add(provideTime);
+            }
+
+        }
+
+        return listingComments;
     }
 
     public static String getComment(Party party, String comment) {

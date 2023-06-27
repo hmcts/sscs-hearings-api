@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SAME_VENUE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SOMEWHERE_ELSE;
@@ -387,6 +390,48 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
+    @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
+    @Test
+    void getHearingLocationsAdjournmentNewVenue() throws ListingException {
+        //TODO: SSCS-10951: remove adjournment flag
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
+
+        given(refData.getVenueService()).willReturn(venueService);
+
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_1)).willReturn(venueDetails);
+        given(venueService.getEpimsIdForVenueId(VENUE_ID)).willReturn(EPIMS_ID_1);
+
+        setupAdjournedHearingVenue(SOMEWHERE_ELSE, VENUE_ID);
+
+        List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(
+            caseData, refData);
+
+        checkHearingLocationResults(results, EPIMS_ID_1);
+    }
+
+    @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
+    @Test
+    void getHearingLocationsAdjournmentSameVenue() throws ListingException {
+        //TODO: SSCS-10951: remove adjournment flag
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
+
+        given(refData.getVenueService()).willReturn(venueService);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
+
+        setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
+
+        caseData.setHearings(Collections.singletonList(Hearing.builder()
+                    .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
+                    .epimsId(EPIMS_ID_2).build())
+                .build()));
+
+        checkHearingLocationResults(
+            HearingsLocationMapping.getHearingLocations(caseData, refData),
+            EPIMS_ID_2);
+    }
+
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
     @Test
     void getHearingLocationsAdjournmentNewVenuePaperCase() throws ListingException {
@@ -691,5 +736,35 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("When adjournCaseNextHearingSpecificTime or adjournCaseNextHearingFirstOnSession should return it in getListingComments")
+    @Test
+    void testGetListingCommentsWithAdjournCaseTimeSettingsDefined() {
+        Adjournment adjournment = caseData.getAdjournment();
+        AdjournCaseTime adjournCaseTime = AdjournCaseTime
+            .builder()
+            .adjournCaseNextHearingSpecificTime("pm")
+            .adjournCaseNextHearingFirstOnSession(List.of("firstOnSession"))
+            .build();
+
+        adjournment.setNextHearingDateType(AdjournCaseNextHearingDateType.DATE_TO_BE_FIXED);
+        adjournment.setTime(adjournCaseTime);
+
+        var result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertTrue(isNotEmpty(result));
+        assertThat(result)
+            .contains("Provide time: PM")
+            .contains("List first on the session")
+            .doesNotContainPattern("AM");
+    }
+
+    @DisplayName("When no additional comment fields are empty should return empty string")
+    @Test
+    void testEmptyListingComments() {
+        var result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertTrue(isEmpty(result));
     }
 }
