@@ -54,6 +54,10 @@ public class HearingsService {
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     public static final List<State> INVALID_CASE_STATES = Arrays.asList();
 
+    @Retryable(
+        value = UpdateCaseException.class,
+        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
+        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
         UnhandleableHearingStateException, UpdateCaseException, ListingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
@@ -179,10 +183,6 @@ public class HearingsService {
         // TODO process hearing response
     }
 
-    @Retryable(
-        value = UpdateCaseException.class,
-        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
-        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException {
 
         SscsCaseData caseData = wrapper.getCaseData();
