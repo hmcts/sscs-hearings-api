@@ -211,12 +211,6 @@ public class HearingsService {
         }
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
-        ccdCaseService.updateCaseData(
-            caseData,
-            event.getEventType(),
-            event.getSummary(),
-            event.getDescription());
-
         ccdCaseService.updateCaseData(caseData, wrapper, event);
 
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
