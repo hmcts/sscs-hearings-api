@@ -179,7 +179,7 @@ public class HearingsService {
         log.debug("Received Cancel Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getHearingState().getState(),
-                response.toString());
+                response);
         // TODO process hearing response
     }
 
