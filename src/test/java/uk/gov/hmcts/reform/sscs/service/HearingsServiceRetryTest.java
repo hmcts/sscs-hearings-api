@@ -178,7 +178,7 @@ class HearingsServiceRetryTest {
         given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(sessionCategoryMaps.getSessionCategory(anyString(), anyString(), anyBoolean(), anyBoolean()))
-        .willReturn(sessionCategoryMap);
+            .willReturn(sessionCategoryMap);
 
         HmcUpdateResponse hmcUpdateResponse = HmcUpdateResponse.builder()
             .hearingRequestId(HEARING_REQUEST_ID)
