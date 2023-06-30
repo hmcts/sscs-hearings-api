@@ -212,6 +212,7 @@ public class HearingsService {
         }
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
+        log.info("Updating case with event {} description is {}", event, event.getDescription());
         var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
 
         if (nonNull(details)) {
@@ -257,6 +258,7 @@ public class HearingsService {
         }
 
         EventType eventType = getCcdEvent(hearingRequest.getHearingState());
+        log.info("Getting case details with event {} {]", eventType, eventType.getCcdType());
         SscsCaseDetails sscsCaseDetails = ccdCaseService.getStartEventResponse(Long.valueOf(hearingRequest.getCcdCaseId()), eventType);
 
         return HearingWrapper.builder()
