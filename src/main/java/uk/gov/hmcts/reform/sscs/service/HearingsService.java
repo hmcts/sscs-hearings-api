@@ -32,7 +32,6 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.ADJOURN_CREATE_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
@@ -258,7 +257,7 @@ public class HearingsService {
             cancellationReasons = List.of(hearingRequest.getCancellationReason());
         }
 
-        EventType eventType = getCcdEvent(hearingRequest.getHearingState());
+        EventType eventType = HearingsServiceHelper.getCcdEvent(hearingRequest.getHearingState());
         log.info("Getting case details with event {} {}", eventType, eventType.getCcdType());
         SscsCaseDetails sscsCaseDetails = ccdCaseService.getStartEventResponse(Long.valueOf(hearingRequest.getCcdCaseId()), eventType);
 
@@ -270,16 +269,5 @@ public class HearingsService {
                 .hearingState(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)
                 .build();
-    }
-
-    private EventType getCcdEvent(HearingState hearingState) {
-        if (ADJOURN_CREATE_HEARING.equals(hearingState)) {
-            return EventType.ADD_HEARING;
-        }
-        try {
-            return HearingsServiceHelper.getHearingEvent(hearingState).getEventType();
-        } catch (IllegalArgumentException ex) {
-            return EventType.CASE_UPDATED;
-        }
     }
 }
