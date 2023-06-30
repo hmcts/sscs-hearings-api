@@ -76,16 +76,13 @@ public class CcdCaseService {
 
     public SscsCaseDetails updateCaseData(SscsCaseData caseData, HearingWrapper wrapper, HearingEvent event)
         throws UpdateCaseException {
-
         long caseId = parseCaseId(caseData.getCcdCaseId());
-
-        log.info("Updating case data using Case id : {}", caseId);
-
         IdamTokens idamTokens = idamService.getIdamTokens();
 
         try {
             String ccdType = event.getEventType().getCcdType();
-            return ccdService.updateCase(caseData, caseId, wrapper.getEventId(), wrapper.getEventToken(), 
+            log.info("Updating case id {} with ccdType {}", caseId, ccdType);
+            return ccdService.updateCase(caseData, caseId, wrapper.getEventId(), wrapper.getEventToken(),
                                             ccdType, event.getSummary(), event.getDescription(), idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
