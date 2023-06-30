@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
@@ -213,10 +214,15 @@ public class HearingsService {
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
         var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
 
-        log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
-                 details.getState(), details.getEventId(),
-                 details.getEventToken(), details.getCallbackResponseStatus(), details.getCaseTypeId());
-
+        if (nonNull(details)) {
+            log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
+                     details.getState(),
+                     details.getEventId(),
+                     details.getEventToken(),
+                     details.getCallbackResponseStatus(),
+                     details.getCaseTypeId()
+            );
+        }
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
             caseId,
             hearingRequestId,
