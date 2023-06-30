@@ -32,6 +32,7 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.ADJOURN_CREATE_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
@@ -272,7 +273,7 @@ public class HearingsService {
     }
 
     private EventType getCcdEvent(HearingState hearingState) {
-        if (HearingState.ADJOURN_CREATE_HEARING.equals(hearingState)) {
+        if (ADJOURN_CREATE_HEARING.equals(hearingState)) {
             return EventType.ADD_HEARING;
         }
         try {
