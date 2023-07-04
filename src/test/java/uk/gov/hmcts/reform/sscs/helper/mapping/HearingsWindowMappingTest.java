@@ -277,8 +277,8 @@ class HearingsWindowMappingTest {
         assertThat(result).isNotNull();
     }
 
-    @DisplayName("When isAdjournmentFlagEnabled is true, adjournment is in progress, hearing date type is 'date to be fixed'" +
-        "and every other field is null, HearingWindow must be null ")
+    @DisplayName("When isAdjournmentFlagEnabled is true, adjournment is in progress, hearing date type is 'date to be fixed'"
+        + "and every other field is null, HearingWindow must be null ")
     @Test
     void givenAdjorunmentAndDateToBeFixed_hearingWindowMustBeNull() {
         Adjournment adjournment = Adjournment.builder()
