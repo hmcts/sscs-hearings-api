@@ -9,15 +9,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Postponement;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -283,6 +275,25 @@ class HearingsWindowMappingTest {
 
         HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, refData);
         assertThat(result).isNotNull();
+    }
+
+    @DisplayName("When isAdjournmentFlagEnabled is true, adjournment is in progress, hearing date type is 'date to be fixed'" +
+        "and every other field is null, HearingWindow must be null ")
+    @Test
+    void givenAdjorunmentAndDateToBeFixed_hearingWindowMustBeNull() {
+        Adjournment adjournment = Adjournment.builder()
+            .adjournmentInProgress(YES)
+            .nextHearingDateType(AdjournCaseNextHearingDateType.DATE_TO_BE_FIXED)
+            .build();
+
+        SscsCaseData caseData = SscsCaseData.builder()
+            .adjournment(adjournment)
+            .build();
+
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+
+        HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, refData);
+        assertThat(result).isNull();
     }
 
 }

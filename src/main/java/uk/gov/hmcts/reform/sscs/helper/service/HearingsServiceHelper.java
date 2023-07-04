@@ -45,9 +45,6 @@ public final class HearingsServiceHelper {
     }
 
     public static EventType getCcdEvent(HearingState hearingState) {
-        if (ADJOURN_CREATE_HEARING.equals(hearingState)) {
-            return EventType.ADD_HEARING;
-        }
         try {
             return getHearingEvent(hearingState).getEventType();
         } catch (IllegalArgumentException ex) {

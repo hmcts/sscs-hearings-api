@@ -167,7 +167,7 @@ public class HearingsService {
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getHearingState().getState(),
-                response.toString());
+                response);
 
         hearingResponseUpdate(wrapper, response);
     }
@@ -185,7 +185,6 @@ public class HearingsService {
     }
 
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException {
-
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
         String caseId = caseData.getCcdCaseId();
@@ -238,7 +237,7 @@ public class HearingsService {
             wrapper.getCaseData().getCcdCaseId(),
             response.getHearingRequestId(),
             wrapper.getHearingState().getState(),
-            exception);
+            exception.toString());
 
         throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
     }
