@@ -5,11 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
@@ -24,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,6 +29,8 @@ import java.util.stream.Collectors;
 public class ServiceHearingsService {
 
     public static final int NUM_CASES_EXPECTED = 1;
+
+    private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[a-zA-Z0-9_!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&amp;'*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", Pattern.CASE_INSENSITIVE);
 
     private final CcdCaseService ccdCaseService;
 
@@ -47,10 +46,13 @@ public class ServiceHearingsService {
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
         ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        boolean hasInValidHearingVideoEmail = getHasInValidHearingVideoEmail(caseData);
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
 
-        if (!originalCaseData.equals(updatedCaseData)) {
+        if (hasInValidHearingVideoEmail) {
+            updateCaseDataToListingError(caseData, "Hearing video email address must be valid email address");
+        } else if (!originalCaseData.equals(updatedCaseData)) {
             ccdCaseService.updateCaseData(
                 caseData,
                 EventType.UPDATE_CASE_ONLY,
@@ -59,6 +61,43 @@ public class ServiceHearingsService {
         }
 
         return model;
+    }
+
+    private void updateCaseDataToListingError(SscsCaseData caseData, String description) throws UpdateCaseException {
+        ccdCaseService.updateCaseData(caseData,EventType.LISTING_ERROR,"",description);
+    }
+
+    private static boolean isEmailValid(String email) {
+        String cleanEmail = Optional.ofNullable(email).orElse("");
+        return VALID_EMAIL_ADDRESS_REGEX.matcher(cleanEmail).matches();
+    }
+
+    private boolean getHasInValidHearingVideoEmail(SscsCaseData sscsCaseData) {
+        HearingSubtype hearingSubtype = sscsCaseData.getAppeal().getHearingSubtype();
+        if (hearingSubtype != null && YesNo.isYes(hearingSubtype.getWantsHearingTypeVideo())) {
+
+            String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
+            if (!isEmailValid(hearingVideoEmail)) {
+                return true;
+            }
+        }
+
+        List<CcdValue<OtherParty>> otherParties = Optional.ofNullable(sscsCaseData.getOtherParties()).orElse(Collections.emptyList());
+
+        for (CcdValue<OtherParty> otherParty : otherParties) {
+            hearingSubtype = otherParty.getValue().getHearingSubtype();
+
+            if (hearingSubtype != null
+                && YesNo.isYes(hearingSubtype.getWantsHearingTypeVideo())) {
+
+                String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
+                if (!isEmailValid(hearingVideoEmail)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)

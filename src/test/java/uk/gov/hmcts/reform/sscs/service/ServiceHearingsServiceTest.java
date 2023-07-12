@@ -1,36 +1,21 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
@@ -51,6 +36,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
@@ -276,6 +262,75 @@ class ServiceHearingsServiceTest {
             .build();
 
         assertThat(result.get(0)).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,1", ",1", "sample,1", "sample.com,1"
+    }, nullValues = {"null"})
+    void testWhenAppealHearingSubtypeWantsHearingTypeVideoButInvalidEmailIsGiven_ThenSendItToListingError(String email, int numberOfInvocations) throws GetCaseException, UpdateCaseException, ListingException, JsonProcessingException {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        HearingSubtype hearingSubtype = HearingSubtype.builder()
+            .wantsHearingTypeVideo("Yes")
+            .hearingVideoEmail(email)
+            .build();
+
+        caseDetails.getData().getAppeal().setHearingSubtype(hearingSubtype);
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        serviceHearingsService.getServiceHearingValues(request);
+        verify(ccdCaseService, times(numberOfInvocations)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Hearing video email address must be valid email address"));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+        "null,1", ",1", "sample,1", "sample.com,1"
+    }, nullValues = {"null"})
+    void testWhenAnyOneOfOtherPartyWantsHearingTypeVideoButInvalidEmailIsGiven_ThenSendItToListingError(String email, int numberOfInvocations) throws GetCaseException, UpdateCaseException, ListingException, JsonProcessingException {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
+                                               false, SessionCategory.CATEGORY_03, null));
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        HearingSubtype hearingSubtype1 = HearingSubtype.builder()
+            .wantsHearingTypeVideo("Yes")
+            .hearingVideoEmail("sample@example.com")
+            .build();
+        CcdValue<OtherParty> otherPartyCcdValue1 = buildOtherPartyWithHearingSubtype("sample@example.com");
+        CcdValue<OtherParty> otherPartyCcdValue2 = buildOtherPartyWithHearingSubtype(email);
+
+        caseDetails.getData().getAppeal().setHearingSubtype(hearingSubtype1);
+        caseDetails.getData().setOtherParties(List.of(otherPartyCcdValue1, otherPartyCcdValue2));
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+        serviceHearingsService.getServiceHearingValues(request);
+        verify(ccdCaseService, times(numberOfInvocations)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Hearing video email address must be valid email address"));
+    }
+
+    private CcdValue<OtherParty> buildOtherPartyWithHearingSubtype(String email) {
+        return CcdValue.<OtherParty>builder()
+            .value(OtherParty.builder()
+                       .unacceptableCustomerBehaviour(YesNo.YES)
+                       .name(Name.builder().title("Mr").firstName("Barry").lastName("Allen").build())
+                       .hearingOptions(HearingOptions.builder().build())
+                       .hearingSubtype(HearingSubtype.builder().wantsHearingTypeVideo("Yes").hearingVideoEmail(email).build())
+                       .role(Role.builder().name("PayingParent").build())
+                       .build())
+            .build();
     }
 
 
