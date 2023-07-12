@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
@@ -50,24 +51,19 @@ public class ServiceHearingsService {
         SscsCaseData caseData = caseDetails.getData();
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
-        Optional<UnavailabilityRange> unavailabilityRangeWithDateProblems = model.getParties().stream()
-            .map(PartyDetails::getUnavailabilityRanges)
-            .flatMap(unavailabilityRangeList -> unavailabilityRangeList.stream()
-                .filter(unavailabilityRange -> unavailabilityRange.getUnavailableFromDate() != null
-                    && unavailabilityRange.getUnavailableToDate() != null
-                    && unavailabilityRange.getUnavailableToDate().isBefore(unavailabilityRange.getUnavailableFromDate()))
-            ).findFirst();
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(
+            caseData,
+            referenceDataServiceHolder
+        );
+        Optional<UnavailabilityRange> unavailabilityRangeWithDateProblems = getInvalidUnavailabilityRange(model);
 
         String partyNameMissing = getPartyNameMissing(model);
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
-        if (unavailabilityRangeWithDateProblems.isPresent() || partyNameMissing != null) {
-            ccdCaseService.updateCaseData(
-                caseData,
-                EventType.LISTING_ERROR,
-                "",
-                partyNameMissing != null ? partyNameMissing : "One of the parties unavailability end date is before start date"
-            );
+
+        if (unavailabilityRangeWithDateProblems.isPresent()) {
+            updateCaseDataToListingError(caseData, "One of the parties unavailability end date is before start date");
+        } else if (partyNameMissing != null) {
+            updateCaseDataToListingError(caseData, partyNameMissing);
         } else if (!originalCaseData.equals(updatedCaseData)) {
             ccdCaseService.updateCaseData(
                 caseData,
@@ -78,6 +74,21 @@ public class ServiceHearingsService {
         }
 
         return model;
+    }
+
+    @NotNull
+    private static Optional<UnavailabilityRange> getInvalidUnavailabilityRange(ServiceHearingValues model) {
+        return model.getParties().stream()
+            .map(PartyDetails::getUnavailabilityRanges)
+            .flatMap(unavailabilityRangeList -> unavailabilityRangeList.stream()
+                .filter(unavailabilityRange -> unavailabilityRange.getUnavailableFromDate() != null
+                    && unavailabilityRange.getUnavailableToDate() != null
+                    && unavailabilityRange.getUnavailableToDate().isBefore(unavailabilityRange.getUnavailableFromDate()))
+            ).findFirst();
+    }
+
+    private void updateCaseDataToListingError(SscsCaseData caseData, String description) throws UpdateCaseException {
+        ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, "", description);
     }
 
     @Nullable
@@ -127,11 +138,11 @@ public class ServiceHearingsService {
         List<SscsCaseDetails> linkedCases = ccdCaseService.getCasesViaElastic(linkedReferences);
 
         return linkedCases.stream().map(linkedCase ->
-            ServiceLinkedCases.builder()
-                .caseReference(linkedCase.getId().toString())
-                .caseName(linkedCase.getData().getCaseAccessManagementFields().getCaseNamePublic())
-                .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
-                .build())
+                                            ServiceLinkedCases.builder()
+                                                .caseReference(linkedCase.getId().toString())
+                                                .caseName(linkedCase.getData().getCaseAccessManagementFields().getCaseNamePublic())
+                                                .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
+                                                .build())
             .collect(Collectors.toList());
     }
 }
