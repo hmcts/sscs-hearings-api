@@ -51,10 +51,7 @@ public class ServiceHearingsService {
         SscsCaseData caseData = caseDetails.getData();
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(
-            caseData,
-            referenceDataServiceHolder
-        );
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
         Optional<UnavailabilityRange> unavailabilityRangeWithDateProblems = getInvalidUnavailabilityRange(model);
 
         String partyNameMissing = getPartyNameMissing(model);
@@ -138,11 +135,11 @@ public class ServiceHearingsService {
         List<SscsCaseDetails> linkedCases = ccdCaseService.getCasesViaElastic(linkedReferences);
 
         return linkedCases.stream().map(linkedCase ->
-                                            ServiceLinkedCases.builder()
-                                                .caseReference(linkedCase.getId().toString())
-                                                .caseName(linkedCase.getData().getCaseAccessManagementFields().getCaseNamePublic())
-                                                .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
-                                                .build())
+            ServiceLinkedCases.builder()
+                .caseReference(linkedCase.getId().toString())
+                .caseName(linkedCase.getData().getCaseAccessManagementFields().getCaseNamePublic())
+                .reasonsForLink(HearingsCaseMapping.getReasonsForLink(caseData))
+                .build())
             .collect(Collectors.toList());
     }
 }
