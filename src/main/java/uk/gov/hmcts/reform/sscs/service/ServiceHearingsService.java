@@ -15,12 +15,12 @@ import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.EmailUtil;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 public class ServiceHearingsService {
 
     public static final int NUM_CASES_EXPECTED = 1;
-
-    private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[a-zA-Z0-9_!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&amp;'*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", Pattern.CASE_INSENSITIVE);
 
     private final CcdCaseService ccdCaseService;
 
@@ -67,17 +65,12 @@ public class ServiceHearingsService {
         ccdCaseService.updateCaseData(caseData,EventType.LISTING_ERROR,"",description);
     }
 
-    private static boolean isEmailValid(String email) {
-        String cleanEmail = Optional.ofNullable(email).orElse("");
-        return VALID_EMAIL_ADDRESS_REGEX.matcher(cleanEmail).matches();
-    }
-
     private boolean getHasInValidHearingVideoEmail(SscsCaseData sscsCaseData) {
         HearingSubtype hearingSubtype = sscsCaseData.getAppeal().getHearingSubtype();
         if (hearingSubtype != null && YesNo.isYes(hearingSubtype.getWantsHearingTypeVideo())) {
 
             String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
-            if (!isEmailValid(hearingVideoEmail)) {
+            if (!EmailUtil.isEmailValid(hearingVideoEmail)) {
                 return true;
             }
         }
@@ -91,7 +84,7 @@ public class ServiceHearingsService {
                 && YesNo.isYes(hearingSubtype.getWantsHearingTypeVideo())) {
 
                 String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
-                if (!isEmailValid(hearingVideoEmail)) {
+                if (!EmailUtil.isEmailValid(hearingVideoEmail)) {
                     return true;
                 }
             }
