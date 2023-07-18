@@ -10,26 +10,10 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -55,6 +39,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.GAPS;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
@@ -68,7 +55,7 @@ class HearingsServiceTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
-    public static final String PROCESSING_VENUE = "Processing Venue";
+    private static final String PROCESSING_VENUE = "Processing Venue";
 
 
     private HearingWrapper wrapper;
@@ -92,6 +79,9 @@ class HearingsServiceTest {
 
     @Mock
     public SessionCategoryMapService sessionCategoryMaps;
+
+    @Mock
+    public RegionalProcessingCenterService regionalProcessingCenterService;
 
     @Mock
     private VenueService venueService;
@@ -213,7 +203,12 @@ class HearingsServiceTest {
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(HearingsGetResponse.builder().build());
 
+        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
+
         wrapper.setHearingState(CREATE_HEARING);
+        SscsCaseData sscsCaseData = wrapper.getCaseData();
+        sscsCaseData.setRegionalProcessingCenter(getListAssistRegionalProcessingCenter());
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -233,7 +228,12 @@ class HearingsServiceTest {
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(hearingsGetResponse);
 
+        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
+
         wrapper.setHearingState(CREATE_HEARING);
+        SscsCaseData sscsCaseData = wrapper.getCaseData();
+        sscsCaseData.setRegionalProcessingCenter(getListAssistRegionalProcessingCenter());
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
@@ -289,5 +289,93 @@ class HearingsServiceTest {
         wrapper.setCancellationReasons(List.of(OTHER));
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @DisplayName("When wrapper with a valid create Hearing State is given but rpc is not Cardiff, should send to listing error")
+    @Test
+    void processHearingWrapperCreate_RpcNotInTheApprovedList_ThenSendToListingError() throws UpdateCaseException {
+        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getGapsRegionalProcessingCenter());
+
+        wrapper.setHearingState(CREATE_HEARING);
+        SscsCaseData sscsCaseData = wrapper.getCaseData();
+        sscsCaseData.setRegionalProcessingCenter(getGapsRegionalProcessingCenter());
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(EventType.LISTING_ERROR), anyString(), eq("RPC is invalid"));
+    }
+
+    @DisplayName("When wrapper with a valid create Hearing State is given and rpc is Cardiff, should run without error")
+    @Test
+    void processHearingWrapperCreate_RpcInTheApprovedList_ThenSendTheHearingRequestToListAssist() throws UpdateCaseException {
+        HearingDuration hearingDuration = new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(hearingDuration);
+
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(
+            BenefitCode.PIP_NEW_CLAIM,
+            Issue.DD,
+            false,
+            false,
+            SessionCategory.CATEGORY_03,
+            null
+        );
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false)).willReturn(
+            sessionCategoryMap);
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class))).willReturn(
+            HmcUpdateResponse.builder().build());
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),
+                                                       eq(null))).willReturn(HearingsGetResponse.builder().build());
+
+        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(
+            regionalProcessingCenterService);
+        given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
+
+        wrapper.setHearingState(CREATE_HEARING);
+        SscsCaseData sscsCaseData = wrapper.getCaseData();
+        sscsCaseData.setRegionalProcessingCenter(getListAssistRegionalProcessingCenter());
+
+        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        verify(ccdCaseService, times(0)).updateCaseData(
+            any(SscsCaseData.class),
+            eq(EventType.LISTING_ERROR),
+            anyString(),
+            eq("RPC is invalid")
+        );
+    }
+
+    private RegionalProcessingCenter getListAssistRegionalProcessingCenter() {
+        return RegionalProcessingCenter.builder()
+            .name("CARDIFF")
+            .address1("HM Courts & Tribunals Service")
+            .address2("Social Security & Child Support Appeals")
+            .address3("Eastgate House")
+            .address4("Newport Road")
+            .city("CARDIFF")
+            .postcode("CF24 0AB")
+            .phoneNumber("0300 123 1142")
+            .faxNumber("0870 739 4438")
+            .hearingRoute(LIST_ASSIST)
+            .build();
+    }
+
+    private RegionalProcessingCenter getGapsRegionalProcessingCenter() {
+        return RegionalProcessingCenter.builder()
+            .name("LIVERPOOL")
+            .address1("HM Courts & Tribunals Service")
+            .address2("Social Security & Child Support Appeals")
+            .address3("Prudential Buildings")
+            .address4("36 Dale Street")
+            .city("LIVERPOOL")
+            .postcode("L2 5UZ")
+            .phoneNumber("0300 123 1142")
+            .faxNumber("0870 324 0109")
+            .hearingRoute(GAPS)
+            .build();
     }
 }

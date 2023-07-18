@@ -8,10 +8,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -34,10 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter"})
+@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
 // TODO Unsuppress in future
 @Slf4j
 @Service
@@ -112,14 +110,28 @@ public class HearingsService {
         return INVALID_CASE_STATES.contains(wrapper.getCaseState());
     }
 
+    private boolean isRpcInTheApprovedList(SscsCaseData caseData) {
+        RegionalProcessingCenter regionalProcessingCenter = caseData.getRegionalProcessingCenter();
+        if (regionalProcessingCenter != null) {
+            String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
+            RegionalProcessingCenterService regionalProcessingCenterService = referenceDataServiceHolder.getRegionalProcessingCenterService();
+            RegionalProcessingCenter processingCenterByPostCode = regionalProcessingCenterService.getByPostcode(regionalProcessingCenterPostCode);
+            return LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute());
+        }
+        return false;
+    }
+
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
+
+        if (!isRpcInTheApprovedList(caseData)) {
+            ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, "", "RPC is invalid");
+            return;
+        }
+
         String caseId = caseData.getCcdCaseId();
-
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
-
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
-
         HmcUpdateResponse hmcUpdateResponse;
 
         if (isNull(hearing)) {
