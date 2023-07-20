@@ -287,7 +287,9 @@ class HearingsServiceTest {
         "34",
     })
     void testGetServiceHearingValueWithListingDurationNotMultipleOfFive(Integer hearingDuration) throws Exception {
+
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,false,SessionCategory.CATEGORY_03,null);
+
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false)).willReturn(sessionCategoryMap);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
@@ -310,7 +312,9 @@ class HearingsServiceTest {
         "45",
     })
     void testGetServiceHearingValueWithListingDurationMultipleOfFive(Integer hearingDuration) throws Exception {
+
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,false,SessionCategory.CATEGORY_03,null);
+
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false)).willReturn(sessionCategoryMap);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
