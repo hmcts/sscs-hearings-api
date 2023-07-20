@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
@@ -37,6 +38,9 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.*;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
@@ -270,24 +274,21 @@ class HearingsServiceTest {
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
-    @Test
-    void testGetServiceHearingValueWithListingDurationMultipleOfFive() throws Exception {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60,75,30));
-
+    @ParameterizedTest
+    @CsvSource(value = {
+        "31",
+        "32",
+        "33",
+        "34",
+    })
+    void testGetServiceHearingValueWithListingDurationMultipleOfFive(Integer hearingDuration) throws Exception {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false,false,SessionCategory.CATEGORY_03,null));
-
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
 
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
-
-        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
-            .willReturn(HmcUpdateResponse.builder().build());
 
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(HearingsGetResponse.builder().build());
@@ -295,14 +296,9 @@ class HearingsServiceTest {
         wrapper.setHearingState(CREATE_HEARING);
 
         wrapper.getCaseData()
-            .getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(1).build());
+            .getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
 
-        ListingException thrown = assertThrows(ListingException.class, () -> {
-            hearingsService.processHearingWrapper(wrapper);
-        });
-
-        assertEquals("Listing duration must be multiple of 5.0 minutes", thrown.getMessage());
-//
-        verify(hearingsService, times(1)).processHearingWrapper(wrapper), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
+        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
     }
 }
