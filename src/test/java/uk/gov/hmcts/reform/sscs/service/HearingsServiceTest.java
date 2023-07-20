@@ -10,25 +10,9 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
@@ -50,16 +34,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATED_CASE;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.*;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason.OTHER;
 
 @ExtendWith(MockitoExtension.class)
@@ -289,5 +268,41 @@ class HearingsServiceTest {
         wrapper.setCancellationReasons(List.of(OTHER));
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @Test
+    void testGetServiceHearingValueWithListingDurationMultipleOfFive() throws Exception {
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                            60,75,30));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+
+        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
+            .willReturn(HmcUpdateResponse.builder().build());
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
+            .willReturn(HearingsGetResponse.builder().build());
+
+        wrapper.setHearingState(CREATE_HEARING);
+
+        wrapper.getCaseData()
+            .getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(1).build());
+
+        ListingException thrown = assertThrows(ListingException.class, () -> {
+            hearingsService.processHearingWrapper(wrapper);
+        });
+
+        assertEquals("Listing duration must be multiple of 5.0 minutes", thrown.getMessage());
+//
+        verify(hearingsService, times(1)).processHearingWrapper(wrapper), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
     }
 }

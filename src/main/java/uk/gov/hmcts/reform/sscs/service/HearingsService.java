@@ -126,7 +126,7 @@ public class HearingsService {
             Integer duration = hearingPayload.getHearingDetails().getDuration();
             boolean isMultipleOfFive = duration % 5 == 0;
             if (!isMultipleOfFive) {
-                ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, "", "Listing duration must be multiple of  5.0 minutes");
+                ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, "", "Listing duration must be multiple of 5.0 minutes");
                 return;
             }
 
