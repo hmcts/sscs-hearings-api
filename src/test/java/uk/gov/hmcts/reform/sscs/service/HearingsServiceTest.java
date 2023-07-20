@@ -274,6 +274,7 @@ class HearingsServiceTest {
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
+    @DisplayName("When wrapper with a valid create Hearing State is given but hearing duration is not multiple of five then send to listing error")
     @ParameterizedTest
     @CsvSource(value = {
         "31",
@@ -281,24 +282,42 @@ class HearingsServiceTest {
         "33",
         "34",
     })
-    void testGetServiceHearingValueWithListingDurationMultipleOfFive(Integer hearingDuration) throws Exception {
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
-            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                               false,false,SessionCategory.CATEGORY_03,null));
+    void testGetServiceHearingValueWithListingDurationNotMultipleOfFive(Integer hearingDuration) throws Exception {
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,false,SessionCategory.CATEGORY_03,null);
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false)).willReturn(sessionCategoryMap);
         given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
-
-        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
-            .willReturn(HearingsGetResponse.builder().build());
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null))).willReturn(HearingsGetResponse.builder().build());
 
         wrapper.setHearingState(CREATE_HEARING);
-
-        wrapper.getCaseData()
-            .getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
+        wrapper.getCaseData().getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
         verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
+    }
+
+    @DisplayName("When wrapper with a valid create Hearing State is given and hearing duration is multiple of five then addHearingResponse should run without error")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "30",
+        "35",
+        "40",
+        "45",
+    })
+    void testGetServiceHearingValueWithListingDurationMultipleOfFive(Integer hearingDuration) throws Exception {
+        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,false,SessionCategory.CATEGORY_03,null);
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false)).willReturn(sessionCategoryMap);
+        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class))).willReturn(HmcUpdateResponse.builder().build());
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null))).willReturn(HearingsGetResponse.builder().build());
+
+        wrapper.setHearingState(CREATE_HEARING);
+        wrapper.getCaseData().getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
+
+        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        verify(ccdCaseService, times(0)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
     }
 }
