@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.MessageSource;
@@ -21,7 +22,7 @@ import uk.gov.hmcts.reform.sscs.ccd.config.CcdRequestDetails;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletContextListener;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @EnableScheduling
 @EnableJms
 @EnableRetry
