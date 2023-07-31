@@ -32,7 +32,7 @@ version = '0.0.1'
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 }
 
@@ -338,7 +338,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.26.3'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '4.26.4'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
@@ -379,6 +379,7 @@ dependencies {
 
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
   testImplementation group: 'commons-io', name: 'commons-io', version: '2.13.0'
+
 
   testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
   testImplementation group: 'org.mockito', name: 'mockito-inline', version: '5.1.1'
