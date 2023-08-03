@@ -42,3 +42,7 @@ pacts/
 .idea/
 *terraform.lock.hcl
 **/**/override.tf
+
+# Application insight
+lib/applicationinsights-agent-*.jar
+lib/applicationinsights.log
