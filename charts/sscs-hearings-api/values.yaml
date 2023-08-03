@@ -7,8 +7,8 @@ java:
   keyVaults:
     sscs:
       secrets:
-        - name: AppInsightsInstrumentationKey
-          alias: azure.application-insights.instrumentation-key
+        - name: app-insights-connection-string
+          alias: app-insights-connection-string
         - name: sscs-s2s-secret
           alias: IDAM_S2S_AUTH_TOTP_SECRET
         - name: idam-sscs-systemupdate-user
