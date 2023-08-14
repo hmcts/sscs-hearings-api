@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
@@ -25,6 +26,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
+@Slf4j
 public final class HearingsPanelMapping {
 
     public static final Pattern MEMBER_ID_ROLE_REFERENCE_REGEX = Pattern.compile("(\\w*)\\|(\\w*)");
@@ -62,9 +64,14 @@ public final class HearingsPanelMapping {
                                                             ReferenceDataServiceHolder refData) {
         Adjournment adjournment = caseData.getAdjournment();
 
+        log.debug("HearingsPanelMapping.getPanelPreferences isAdjournmentFlagEnabled {} isAdjournmentInProgress {}",
+                  refData.isAdjournmentFlagEnabled(), isYes(adjournment.getAdjournmentInProgress()));
+
         if (refData.isAdjournmentFlagEnabled() && isYes(adjournment.getAdjournmentInProgress())) {
             List<PanelPreference> panelPreferences = getAdjournmentPanelPreferences(adjournment.getPanelMembers());
             AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
+
+            log.debug("HearingsPanelMapping.getPanelPreferences panelMembersExcluded {}", panelMembersExcluded);
 
             if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
                 return panelPreferences.stream()
