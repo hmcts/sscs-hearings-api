@@ -120,6 +120,42 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.OPTIONAL_INCLUDE);
     }
 
+    @DisplayName("Panel member preferences should contain member preferences from both adjournment and schedule and listing fields")
+    @Test
+    void testPanelMembersShouldContainBothAdjournmentAndSlPreferences() {
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.NO)
+            .panelMember1(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+
+        String excludedCode = "EXCLUDED";
+        JudicialUserBase excluded = JudicialUserBase.builder()
+            .idamId("excluded")
+            .personalCode(excludedCode)
+            .build();
+
+        PanelMemberExclusions exclusions = PanelMemberExclusions.builder()
+            .arePanelMembersExcluded(YesNo.YES)
+            .excludedPanelMembers(List.of(new CollectionItem<>(excluded.getIdamId(), excluded)))
+            .build();
+
+        SchedulingAndListingFields fields = SchedulingAndListingFields.builder()
+            .panelMemberExclusions(exclusions)
+            .build();
+
+        caseData.setSchedulingAndListingFields(fields);
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result).filteredOn(m -> excludedCode.equals(m.getMemberID())).hasSize(1);
+    }
+
     @DisplayName("When adjournment is enabled, adjournment is in progress, "
         + " panel members are provided "
         + " and panel member requirement type is RESERVED"
