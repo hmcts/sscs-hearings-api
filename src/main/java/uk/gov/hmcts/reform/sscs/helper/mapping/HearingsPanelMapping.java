@@ -101,7 +101,11 @@ public final class HearingsPanelMapping {
     }
 
     private static List<PanelPreference> getAdjournmentPanelPreferences(Adjournment adjournment) {
+        List<JudicialUserBase> adjournedMembers = adjournment.getPanelMembers();
+        adjournedMembers.add(adjournment.getSignedInUser());
+
         List<PanelPreference> panelPreferences = getAdjournmentPanelPreferences(adjournment.getPanelMembers());
+
         AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
 
         if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
@@ -113,12 +117,13 @@ public final class HearingsPanelMapping {
                 .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
                 .toList();
         }
+
         return panelPreferences;
     }
 
     private static List<PanelPreference> getAdjournmentPanelPreferences(List<JudicialUserBase> panelMembers) {
         return panelMembers.stream()
-            .filter(panelMember -> nonNull(panelMember.getPersonalCode()))
+            .filter(panelMember -> nonNull(panelMember) && nonNull(panelMember.getPersonalCode()))
             .map(paneMember -> getPanelPreference(paneMember.getPersonalCode()))
             .collect(Collectors.toCollection(ArrayList::new));
     }
