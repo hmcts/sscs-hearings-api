@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 
@@ -29,8 +28,6 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSession
 @Slf4j
 public final class HearingsPanelMapping {
 
-    public static final Pattern MEMBER_ID_ROLE_REFERENCE_REGEX = Pattern.compile("(\\w*)\\|(\\w*)");
-
     private HearingsPanelMapping() {
 
     }
@@ -41,7 +38,7 @@ public final class HearingsPanelMapping {
             .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
-            .panelPreferences(getPanelPreferences(caseData, refData))
+            .panelPreferences(getPanelPreferences(caseData))
             .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCodeMap(caseData, refData)))
             .build();
     }
@@ -60,14 +57,8 @@ public final class HearingsPanelMapping {
         return Collections.emptyList();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder refData) {
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
         List<PanelPreference> panelMemberPreferences = new ArrayList<>();
-        Adjournment adjournment = caseData.getAdjournment();
-
-        if (refData.isAdjournmentFlagEnabled() && isYes(adjournment.getAdjournmentInProgress())) {
-            panelMemberPreferences.addAll(getAdjournmentPanelPreferences(adjournment));
-        }
 
         PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
         if (nonNull(panelMembers)) {
@@ -100,34 +91,6 @@ public final class HearingsPanelMapping {
         return List.of();
     }
 
-    private static List<PanelPreference> getAdjournmentPanelPreferences(Adjournment adjournment) {
-        List<JudicialUserBase> adjournedMembers = adjournment.getPanelMembers();
-        adjournedMembers.add(adjournment.getSignedInUser());
-
-        List<PanelPreference> panelPreferences = getAdjournmentPanelPreferences(adjournment.getPanelMembers());
-
-        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
-
-        if (panelMembersExcluded == AdjournCasePanelMembersExcluded.YES) {
-            return panelPreferences.stream()
-                .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE))
-                .toList();
-        } else if (panelMembersExcluded == AdjournCasePanelMembersExcluded.RESERVED) {
-            return panelPreferences.stream()
-                .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
-                .toList();
-        }
-
-        return panelPreferences;
-    }
-
-    private static List<PanelPreference> getAdjournmentPanelPreferences(List<JudicialUserBase> panelMembers) {
-        return panelMembers.stream()
-            .filter(panelMember -> nonNull(panelMember) && nonNull(panelMember.getPersonalCode()))
-            .map(paneMember -> getPanelPreference(paneMember.getPersonalCode()))
-            .collect(Collectors.toCollection(ArrayList::new));
-    }
-
     private static PanelPreference getPanelPreference(String memberID) {
         return PanelPreference.builder()
             .memberID(memberID)
@@ -156,22 +119,17 @@ public final class HearingsPanelMapping {
         return panelSpecialisms;
     }
 
-    public static String getPanelMemberSpecialism(PanelMember panelMember,
-                                                  String doctorSpecialism, String doctorSpecialismSecond) {
-        switch (panelMember) {
-            case MQPM1:
-                return getReference(doctorSpecialism);
-            case MQPM2:
-                return getReference(doctorSpecialismSecond);
-            default:
-                return panelMember.getReference();
-        }
+    public static String getPanelMemberSpecialism(PanelMember panelMember, String doctorSpecialism,
+                                                  String doctorSpecialismSecond) {
+        return switch (panelMember) {
+            case MQPM1 -> getReference(doctorSpecialism);
+            case MQPM2 -> getReference(doctorSpecialismSecond);
+            default -> panelMember.getReference();
+        };
     }
 
     public static String getReference(String panelMemberSubtypeCcdRef) {
         PanelMemberMedicallyQualified subType = getPanelMemberMedicallyQualified(panelMemberSubtypeCcdRef);
-        return nonNull(subType)
-            ? subType.getHmcReference()
-            : null;
+        return nonNull(subType) ? subType.getHmcReference() : null;
     }
 }
