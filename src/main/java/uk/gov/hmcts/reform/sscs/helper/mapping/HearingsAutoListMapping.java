@@ -31,7 +31,7 @@ public final class HearingsAutoListMapping {
 
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData)
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
@@ -45,7 +45,7 @@ public final class HearingsAutoListMapping {
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
                 || isPaperCaseAndPoNotAttending(caseData)
-                || hasMqpmOrFqpm(caseData, referenceData)
+                || hasMqpmOrFqpm(caseData, refData)
                 || isThereOtherComments(caseData)
                 || doesNotHaveDwpResponseDate(caseData)
             );
@@ -83,8 +83,8 @@ public final class HearingsAutoListMapping {
         return isBlank(caseData.getDwpResponseDate());
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) throws ListingException {
-        SessionCategoryMap sessionCategoryMap = getSessionCaseCodeMap(caseData, referenceData);
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData) throws ListingException {
+        SessionCategoryMap sessionCategoryMap = getSessionCaseCodeMap(caseData, refData);
 
         checkBenefitIssueCode(sessionCategoryMap);
 

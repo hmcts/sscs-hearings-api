@@ -23,14 +23,14 @@ public final class ServiceHearingValuesMapping {
     }
 
 
-    public static ServiceHearingValues mapServiceHearingValues(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static ServiceHearingValues mapServiceHearingValues(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
 
-        boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
+        boolean shouldBeAutoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, refData);
 
         return ServiceHearingValues.builder()
                 .publicCaseName(HearingsCaseMapping.getPublicCaseName(caseData))
-                .caseDeepLink(HearingsCaseMapping.getCaseDeepLink(caseData, referenceDataServiceHolder))
+                .caseDeepLink(HearingsCaseMapping.getCaseDeepLink(caseData, refData))
                 .caseManagementLocationCode(HearingsCaseMapping.getCaseManagementLocationCode(caseData))
                 .caseRestrictedFlag(HearingsCaseMapping.shouldBeSensitiveFlag())
                 .caseSlaStartDate(HearingsCaseMapping.getCaseCreated(caseData))
@@ -38,37 +38,38 @@ public final class ServiceHearingValuesMapping {
                 .autoListFlag(shouldBeAutoListed)
                 .hearingType(HearingsDetailsMapping.getHearingType())
                 .caseType(BENEFIT)
-                .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder))
-                .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder))
-                .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
+                .caseCategories(HearingsCaseMapping.buildCaseCategories(caseData, refData))
+                .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData, refData))
+                .duration(HearingsDurationMapping.getHearingDuration(caseData, refData))
                 .hearingPriorityType(HearingsDetailsMapping.getHearingPriority(caseData))
                 .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData))
                 .hearingInWelshFlag(HearingsDetailsMapping.shouldBeHearingsInWelshFlag())
-                .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+                .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, refData))
                 .caseAdditionalSecurityFlag(HearingsCaseMapping.shouldBeAdditionalSecurityFlag(caseData))
                 .facilitiesRequired(HearingsDetailsMapping.getFacilitiesRequired())
                 .listingComments(HearingsDetailsMapping.getListingComments(caseData))
                 .hearingRequester(HearingsDetailsMapping.getHearingRequester())
                 .privateHearingRequiredFlag(HearingsDetailsMapping.isPrivateHearingRequired())
                 .leadJudgeContractType(HearingsDetailsMapping.getLeadJudgeContractType())
-                .judiciary(getJudiciary(caseData, referenceDataServiceHolder))
+                .judiciary(getJudiciary(caseData, refData))
                 .hearingIsLinkedFlag(HearingsDetailsMapping.isCaseLinked(caseData))
-                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, referenceDataServiceHolder))
+                .parties(ServiceHearingPartiesMapping.buildServiceHearingPartiesDetails(caseData, refData))
                 .caseFlags(PartyFlagsMapping.getCaseFlags(caseData))
-                .hmctsServiceID(referenceDataServiceHolder.getSscsServiceCode())
+                .hmctsServiceID(refData.getSscsServiceCode())
                 .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
+                .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, refData))
             .build();
     }
 
-    public static Judiciary getJudiciary(@Valid SscsCaseData sscsCaseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static Judiciary getJudiciary(@Valid SscsCaseData sscsCaseData, ReferenceDataServiceHolder refData) {
         return Judiciary.builder()
                 .roleType(HearingsPanelMapping.getRoleTypes(sscsCaseData.getBenefitCode()))
                 .authorisationTypes(HearingsPanelMapping.getAuthorisationTypes())
                 .authorisationSubType(HearingsPanelMapping.getAuthorisationSubTypes())
-                .judiciarySpecialisms(HearingsPanelMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCodeMap(sscsCaseData, referenceDataServiceHolder)))
+                .judiciarySpecialisms(HearingsPanelMapping.getPanelSpecialisms(sscsCaseData, getSessionCaseCodeMap(sscsCaseData, refData)))
                 .judiciaryPreferences(getPanelPreferences())
                 .build();
     }

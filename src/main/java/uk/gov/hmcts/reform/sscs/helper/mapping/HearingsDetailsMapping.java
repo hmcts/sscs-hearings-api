@@ -1,17 +1,15 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
+import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
@@ -28,41 +26,48 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType.SUBSTANTI
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.STANDARD;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingPriority.URGENT;
 
-@SuppressWarnings({"PMD.GodClass"})
 @Slf4j
-// TODO Unsuppress in future
 public final class HearingsDetailsMapping {
 
     private HearingsDetailsMapping() {
 
     }
 
-    public static HearingDetails buildHearingDetails(HearingWrapper wrapper,
-                                                     ReferenceDataServiceHolder referenceDataServiceHolder)
-        throws ListingException {
+    public static HearingDetails buildHearingDetails(HearingWrapper wrapper, ReferenceDataServiceHolder refData) throws ListingException {
+        // get case data and set adjournmentInProgress flag for use in downstream method calls
         SscsCaseData caseData = wrapper.getCaseData();
-
-        boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, referenceDataServiceHolder);
-
+        boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled()
+            && isYes(caseData.getAdjournment().getAdjournmentInProgress());
+        // collect hearing details values from case and ref data
+        boolean autoListed = HearingsAutoListMapping.shouldBeAutoListed(caseData, refData);
+        HearingWindow window = HearingsWindowMapping.buildHearingWindow(caseData, refData);
+        int duration = HearingsDurationMapping.getHearingDuration(caseData, refData);
+        List<String> nonStandardDurationReasons = HearingsDurationMapping.getNonStandardHearingDurationReasons();
+        int physicalAttendees = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, adjournmentInProgress);
+        List<HearingLocation> locations = HearingsLocationMapping.getHearingLocations(caseData, refData);
+        PanelRequirements panelRequirements = HearingsPanelMapping.getPanelRequirements(caseData, refData);
+        List<AmendReason> amendReasons = OverridesMapping.getAmendReasonCodes(caseData);
+        List<HearingChannel> channels = HearingsChannelMapping.getHearingChannels(caseData, adjournmentInProgress);
+        // build hearing details to be used in payload for hmc create / update hearing requests
         return HearingDetails.builder()
             .autolistFlag(autoListed)
             .hearingType(getHearingType())
-            .hearingWindow(HearingsWindowMapping.buildHearingWindow(caseData, referenceDataServiceHolder))
-            .duration(HearingsDurationMapping.getHearingDuration(caseData, referenceDataServiceHolder))
-            .nonStandardHearingDurationReasons(HearingsDurationMapping.getNonStandardHearingDurationReasons())
+            .hearingWindow(window)
+            .duration(duration)
+            .nonStandardHearingDurationReasons(nonStandardDurationReasons)
             .hearingPriorityType(getHearingPriority(caseData))
-            .numberOfPhysicalAttendees(HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder))
+            .numberOfPhysicalAttendees(physicalAttendees)
             .hearingInWelshFlag(shouldBeHearingsInWelshFlag())
-            .hearingLocations(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+            .hearingLocations(locations)
             .facilitiesRequired(getFacilitiesRequired())
             .listingComments(getListingComments(caseData))
             .hearingRequester(getHearingRequester())
             .privateHearingRequiredFlag(isPrivateHearingRequired())
             .leadJudgeContractType(getLeadJudgeContractType())
-            .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder))
+            .panelRequirements(panelRequirements)
             .hearingIsLinkedFlag(isCaseLinked(caseData))
-            .amendReasonCodes(OverridesMapping.getAmendReasonCodes(caseData))
-            .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder))
+            .amendReasonCodes(amendReasons)
+            .hearingChannels(channels)
             .build();
     }
 
@@ -100,6 +105,8 @@ public final class HearingsDetailsMapping {
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
         List<String> listingComments = new ArrayList<>();
+        listingComments.addAll(addAdjournmentTimeSelectionComments(caseData));
+
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
             listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
         }
@@ -116,6 +123,29 @@ public final class HearingsDetailsMapping {
         }
 
         return String.join(String.format("%n%n"), listingComments);
+    }
+
+    private static List<String> addAdjournmentTimeSelectionComments(SscsCaseData caseData) {
+        List<String> listingComments = new ArrayList<>();
+
+        var adjournment = caseData.getAdjournment();
+        AdjournCaseTime adjournCaseTime = adjournment.getTime();
+
+        if (isNotEmpty(adjournment.getNextHearingDateType()) && isNotEmpty(adjournCaseTime)) {
+            if (isNotEmpty(adjournCaseTime.getAdjournCaseNextHearingFirstOnSession())) {
+                var firstOnSession = "List first on the session";
+                listingComments.add(firstOnSession);
+            }
+
+            String adjournCaseNextHearingSpecificTime = adjournCaseTime.getAdjournCaseNextHearingSpecificTime();
+            if (isNotEmpty(adjournCaseNextHearingSpecificTime)) {
+                var provideTime = String.format("Provide time: %S", adjournCaseNextHearingSpecificTime);
+                listingComments.add(provideTime);
+            }
+
+        }
+
+        return listingComments;
     }
 
     public static String getComment(Party party, String comment) {

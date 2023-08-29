@@ -1,19 +1,15 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Benefit;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
-import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -35,16 +31,16 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @DisplayName("When no data is given getPanelRequirements returns the valid but empty PanelRequirements")
     @Test
     void testGetPanelRequirements() {
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder().build();
 
-        PanelRequirements result = HearingsPanelMapping.getPanelRequirements(caseData, referenceDataServiceHolder);
+        PanelRequirements result = HearingsPanelMapping.getPanelRequirements(caseData, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRoleTypes()).isEmpty();
@@ -94,8 +90,126 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @DisplayName("When overrideFields are null getPanelPreferences returns an empty list")
     @Test
     void testGetPanelPreferencesOverrideFieldsNull() {
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences();
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
 
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " all the 3 panel members are provided "
+        + " and panel member requirement type is null"
+        + " then return the panel member with the requirement type as Optional Include.")
+    @Test
+    @Disabled
+    void testPanelMembersExcludedIsNull() {
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(null)
+            .panelMember1(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .panelMember2(JudicialUserBase.builder()
+                .idamId("2").personalCode("JERRY")
+                .build())
+            .panelMember3(JudicialUserBase.builder()
+                .idamId("3").personalCode("Tyke")
+                .build())
+            .build());
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.OPTIONAL_INCLUDE);
+    }
+
+    @DisplayName("Panel member preferences should contain member preferences from both adjournment and schedule and listing fields")
+    @Test
+    @Disabled
+    void testPanelMembersShouldContainBothAdjournmentAndSlPreferences() {
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.NO)
+            .panelMember1(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+
+        String excludedCode = "EXCLUDED";
+        JudicialUserBase excluded = JudicialUserBase.builder()
+            .idamId("excluded")
+            .personalCode(excludedCode)
+            .build();
+
+        PanelMemberExclusions exclusions = PanelMemberExclusions.builder()
+            .arePanelMembersExcluded(YesNo.YES)
+            .excludedPanelMembers(List.of(new CollectionItem<>(excluded.getIdamId(), excluded)))
+            .build();
+
+        SchedulingAndListingFields fields = SchedulingAndListingFields.builder()
+            .panelMemberExclusions(exclusions)
+            .build();
+
+        caseData.setSchedulingAndListingFields(fields);
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result).filteredOn(m -> excludedCode.equals(m.getMemberID())).hasSize(1);
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " panel members are provided "
+        + " and panel member requirement type is RESERVED"
+        + " then return panel member requirement type as MUST_INCLUDE.")
+    @Test
+    @Disabled
+    void testPanelMembersExcludedIsReserved() {
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
+            .panelMember2(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.MUST_INCLUDE);
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " panel members are provided "
+        + " and panel member requirement type is YES"
+        + " then return panel member requirement type as EXCLUDE.")
+    @Test
+    @Disabled
+    void testPanelMembersExcludedIsYes() {
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(YesNo.YES)
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.YES)
+            .panelMember3(JudicialUserBase.builder()
+                .idamId("1")
+                .personalCode("TOM")
+                .build())
+            .build());
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.EXCLUDE);
+    }
+
+    @DisplayName("When adjournment is enabled, adjournment is in progress, "
+        + " No panel members details are provided "
+        + " then return empty panel members detail.")
+    @Test
+    void testGetPanelPreferencesWhenPanelMemberNotProvide() {
+        caseData.setAdjournment(Adjournment.builder()
+            .panelMembersExcluded(AdjournCasePanelMembersExcluded.RESERVED)
+            .build());
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
         assertThat(result).isEmpty();
     }
 

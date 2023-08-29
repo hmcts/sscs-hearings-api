@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ReservedToMember;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -76,7 +75,7 @@ class OverridesMappingTest {
 
     private SessionCategoryMapService sessionCategoryMaps;
     @Mock
-    private ReferenceDataServiceHolder referenceData;
+    private ReferenceDataServiceHolder refData;
 
     @BeforeEach
     void setUp() {
@@ -197,7 +196,7 @@ class OverridesMappingTest {
         assertThat(result).isEmpty();
     }
 
-    @DisplayName("When an valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
+    @DisplayName("When a valid wrapper is given, getSchedulingAndListingFields returns a populated default listing values")
     @Test
     void testSetDefaultOverrideFields() throws ListingException {
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
@@ -214,13 +213,12 @@ class OverridesMappingTest {
             .willReturn(new Language("fre","Test",null,null, List.of()));
 
 
-        given(referenceData.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceData.getVenueService()).willReturn(venueService);
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        OverridesMapping.setDefaultOverrideFields(wrapper, referenceData);
+        OverridesMapping.setDefaultListingValues(wrapper, refData);
         OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultListingValues();
-
 
         assertThat(result).isNotNull();
         assertThat(result.getDuration()).isNotNull();
@@ -232,19 +230,84 @@ class OverridesMappingTest {
         assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
     }
 
-    @DisplayName("When case data is given with reserved to judge, getReservedToJudge returns the correct Reserved To Member")
-    @ParameterizedTest
-    @ValueSource(strings = {"Yes", "No"})
-    @NullAndEmptySource
-    void testGetReservedToJudge(String value) {
-        caseData.setReservedToJudge(value);
+    @DisplayName("When a valid wrapper is given, getSchedulingAndListingFields returns a populated override fields")
+    @Test
+    void testSetOverrideFields() throws ListingException {
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
+        caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
+        caseData.getAppeal().getHearingOptions().setLanguages("French");
 
-        ReservedToMember result = OverridesMapping.getReservedToJudge(caseData);
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                            60,75,30));
 
-        YesNo expected = isYes(value) ? YES : NO;
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
+
+        given(verbalLanguages.getVerbalLanguage("French"))
+            .willReturn(new Language("fre","Test",null,null, List.of()));
+
+
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        OverridesMapping.setOverrideValues(wrapper, refData);
+        OverrideFields result = caseData.getSchedulingAndListingFields().getOverrideFields();
 
         assertThat(result).isNotNull();
-        assertThat(result.getIsReservedToMember()).isEqualTo(expected);
+        assertThat(result.getDuration()).isNotNull();
+        assertThat(result.getAppellantInterpreter()).isNotNull();
+        assertThat(result.getAppellantHearingChannel()).isNotNull();
+        assertThat(result.getHearingWindow()).isNotNull();
+        assertThat(result.getAutoList()).isNotNull();
+        assertThat(result.getHearingVenueEpimsIds()).isNotEmpty();
+        assertThat(result.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
+    }
+
+    @DisplayName("When updating the override fields with populated default listing values present, "
+        + "getSchedulingAndListingFields returns a populated override fields and default listing values are unchanged.")
+    @Test
+    void testDefaultListingValuesNotUpdatedWhenOverrideFieldsUpdated() throws ListingException {
+
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
+        caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
+        caseData.getAppeal().getHearingOptions().setLanguages("French");
+
+        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
+            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                            60,75,30));
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
+
+        given(verbalLanguages.getVerbalLanguage("French"))
+            .willReturn(new Language("fre","Test",null,null, List.of()));
+
+
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
+
+        OverrideFields defaultListingValues = new OverrideFields().toBuilder()
+            .autoList(NO)
+            .appellantHearingChannel(HearingChannel.TELEPHONE)
+            .duration(10)
+            .build();
+
+        OverridesMapping.setOverrideValues(wrapper, refData);
+        OverrideFields overrideFields = caseData.getSchedulingAndListingFields().getOverrideFields();
+
+        assertThat(defaultListingValues).isNotNull();
+        assertThat(defaultListingValues.getDuration()).isEqualTo(10);
+        assertThat(defaultListingValues.getAppellantHearingChannel()).isEqualTo(HearingChannel.TELEPHONE);
+
+        assertThat(overrideFields).isNotNull();
+        assertThat(overrideFields.getDuration()).isNotNull();
+        assertThat(overrideFields.getAppellantInterpreter()).isNotNull();
+        assertThat(overrideFields.getAppellantHearingChannel()).isNotNull();
+        assertThat(overrideFields.getHearingWindow()).isNotNull();
+        assertThat(overrideFields.getAutoList()).isNotNull();
+        assertThat(overrideFields.getHearingVenueEpimsIds()).isNotEmpty();
+        assertThat(overrideFields.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
     }
 
     @DisplayName("When the appellant wants a language interpreter, getAppellantInterpreter returns "
@@ -262,9 +325,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(YES);
@@ -293,9 +356,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(YES);
@@ -323,9 +386,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("Bad Language"))
             .willReturn(null);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, referenceData));
+        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, refData));
     }
 
     @DisplayName("When the appellant wants a language interpreter, getAppellantInterpreter returns "
@@ -343,9 +406,9 @@ class OverridesMappingTest {
         given(signLanguages.getSignLanguage("Makaton"))
             .willReturn(language);
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(refData.getSignLanguages()).willReturn(signLanguages);
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(YES);
@@ -373,9 +436,9 @@ class OverridesMappingTest {
         given(signLanguages.getSignLanguage("Bad Sign Language"))
             .willReturn(null);
 
-        given(referenceData.getSignLanguages()).willReturn(signLanguages);
+        given(refData.getSignLanguages()).willReturn(signLanguages);
 
-        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, referenceData));
+        assertThatExceptionOfType(InvalidMappingException.class).isThrownBy(() -> OverridesMapping.getAppellantInterpreter(appeal, refData));
     }
 
     @DisplayName("When the appellant doesn't want a language interpreter, getAppellantInterpreter returns the Hearing Interpreter with IsInterpreterWanted set to No")
@@ -388,7 +451,7 @@ class OverridesMappingTest {
                 .build())
             .build();
 
-        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, referenceData);
+        HearingInterpreter result = OverridesMapping.getAppellantInterpreter(appeal, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getIsInterpreterWanted()).isEqualTo(NO);
@@ -459,9 +522,9 @@ class OverridesMappingTest {
         given(verbalLanguages.getVerbalLanguage("French"))
             .willReturn(language);
 
-        given(referenceData.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, referenceData);
+        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, refData);
 
         assertThat(result).isEqualTo(language);
     }
@@ -476,7 +539,7 @@ class OverridesMappingTest {
             .languages("French")
             .build();
 
-        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, referenceData);
+        Language result = OverridesMapping.getInterpreterLanguage(hearingOptions, refData);
 
         assertThat(result).isNull();
     }
@@ -484,7 +547,7 @@ class OverridesMappingTest {
     @DisplayName("When the appellant doesn't want a language interpreter, getInterpreterLanguage returns null")
     @Test
     void testGetInterpreterLanguageNullHearingOptions() throws InvalidMappingException {
-        Language result = OverridesMapping.getInterpreterLanguage(null, referenceData);
+        Language result = OverridesMapping.getInterpreterLanguage(null, refData);
 
         assertThat(result).isNull();
     }
@@ -494,7 +557,7 @@ class OverridesMappingTest {
     void testGetHearingDetailsHearingWindow() {
         caseData.setDwpResponseDate("2021-12-01");
 
-        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData);
+        HearingWindow result = OverridesMapping.getHearingDetailsHearingWindow(caseData, refData);
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstDateTimeMustBe()).isNull();
@@ -514,9 +577,9 @@ class OverridesMappingTest {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false, false, SessionCategory.CATEGORY_01, null));
 
-        given(referenceData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        YesNo result = OverridesMapping.getHearingDetailsAutoList(caseData, referenceData);
+        YesNo result = OverridesMapping.getHearingDetailsAutoList(caseData, refData);
 
         YesNo expected = isBlank(value) ? YES : NO;
 
@@ -530,9 +593,9 @@ class OverridesMappingTest {
     void testGetHearingDetailsLocations() throws ListingException {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
-        given(referenceData.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
-        List<CcdValue<CcdValue<String>>> result = OverridesMapping.getHearingDetailsLocations(caseData, referenceData);
+        List<CcdValue<CcdValue<String>>> result = OverridesMapping.getHearingDetailsLocations(caseData, refData);
 
         assertThat(result)
             .hasSize(1)

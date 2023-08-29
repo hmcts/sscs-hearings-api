@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
@@ -16,20 +15,15 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.JointParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsNumberAttendeesMappingTest {
-
-    @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
 
     @DisplayName("When hearing not face to face, getNumberOfPhysicalAttendees returns zero")
     @Test
@@ -252,8 +246,7 @@ class HearingsNumberAttendeesMappingTest {
                 .build())
             .dwpIsOfficerAttending("No")
             .build();
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-        int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, referenceDataServiceHolder);
+        int result = HearingsNumberAttendeesMapping.getNumberOfPhysicalAttendees(caseData, true);
 
         assertThat(result).isZero();
     }

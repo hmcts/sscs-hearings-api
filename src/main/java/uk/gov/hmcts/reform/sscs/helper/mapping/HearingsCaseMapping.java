@@ -24,7 +24,6 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.chec
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
 
-
 @RestController
 @Slf4j
 public final class HearingsCaseMapping {
@@ -32,36 +31,37 @@ public final class HearingsCaseMapping {
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
 
     private HearingsCaseMapping() {
-
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+        throws ListingException {
+
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
-                .hmctsServiceCode(getServiceCode(referenceDataServiceHolder))
+                .hmctsServiceCode(getServiceCode(refData))
                 .caseId(getCaseID(caseData))
-                .caseDeepLink(getCaseDeepLink(wrapper.getCaseData(), referenceDataServiceHolder))
+                .caseDeepLink(getCaseDeepLink(wrapper.getCaseData(), refData))
                 .hmctsInternalCaseName(getInternalCaseName(caseData))
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .caseCategories(buildCaseCategories(caseData, referenceDataServiceHolder))
+                .caseCategories(buildCaseCategories(caseData, refData))
                 .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
                 .caseRestrictedFlag(shouldBeSensitiveFlag())
                 .caseSlaStartDate(getCaseCreated(caseData))
                 .build();
     }
 
-    public static String getServiceCode(ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return referenceDataServiceHolder.getSscsServiceCode();
+    public static String getServiceCode(ReferenceDataServiceHolder refData) {
+        return refData.getSscsServiceCode();
     }
 
     public static String getCaseID(SscsCaseData caseData) {
         return caseData.getCcdCaseId();
     }
 
-    public static String getCaseDeepLink(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return String.format(CASE_DETAILS_URL, referenceDataServiceHolder.getExUiUrl(), getCaseID(caseData));
+    public static String getCaseDeepLink(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        return String.format(CASE_DETAILS_URL, refData.getExUiUrl(), getCaseID(caseData));
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
@@ -84,7 +84,6 @@ public final class HearingsCaseMapping {
     }
 
     public static boolean isInterpreterRequired(SscsCaseData caseData) {
-        // TODO Adjournment - Check this is the correct logic for Adjournment
         Appeal appeal = caseData.getAppeal();
         return isYes(caseData.getAdjournment().getInterpreterRequired())
                 || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
@@ -100,36 +99,36 @@ public final class HearingsCaseMapping {
         return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
-    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
-                                                         ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
-        // TODO Adjournment - Check this is the correct logic for Adjournment
-        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCodeMap(caseData, referenceDataServiceHolder);
+    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceDataServiceHolder refData)
+        throws ListingException {
+
+        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCodeMap(caseData, refData);
 
         checkBenefitIssueCode(sessionCategoryMap);
 
         List<CaseCategory> categories = new ArrayList<>();
-        categories.addAll(getCaseTypes(sessionCategoryMap, referenceDataServiceHolder));
-        categories.addAll(getCaseSubTypes(sessionCategoryMap, referenceDataServiceHolder));
+        categories.addAll(getCaseTypes(sessionCategoryMap, refData));
+        categories.addAll(getCaseSubTypes(sessionCategoryMap, refData));
 
         return categories;
     }
 
     public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode,
-                                                  ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                  ReferenceDataServiceHolder refData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
+                .categoryValue(refData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder refData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUBTYPE)
-                .categoryParent(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
-                .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
+                .categoryParent(refData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
+                .categoryValue(refData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }

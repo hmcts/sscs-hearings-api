@@ -8,32 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appointee;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
-import uk.gov.hmcts.reform.sscs.ccd.domain.RegionalProcessingCenter;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Role;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -56,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SAME_VENUE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SOMEWHERE_ELSE;
@@ -78,7 +56,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @Mock
     private VenueService venueService;
@@ -128,9 +106,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false, false, SessionCategory.CATEGORY_03, null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
 
         // TODO Finish Test when method done
         caseData = SscsCaseData.builder()
@@ -155,7 +133,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .caseData(caseData)
             .build();
 
-        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, referenceDataServiceHolder);
+        HearingDetails hearingDetails = HearingsDetailsMapping.buildHearingDetails(wrapper, refData);
 
         assertNotNull(hearingDetails.getHearingType());
         assertNotNull(hearingDetails.getHearingWindow());
@@ -283,9 +261,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_1);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
-        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
                                     EPIMS_ID_1);
     }
 
@@ -309,10 +287,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         multipleHearingLocations.put("Manchester",new ArrayList<>(Arrays.asList("512401","701411")));
         multipleHearingLocations.put("Plymouth",new ArrayList<>(Arrays.asList("764728","235590")));
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("443014");
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-        given(referenceDataServiceHolder.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getMultipleHearingLocations()).willReturn(multipleHearingLocations);
         List<HearingLocation> result = HearingsLocationMapping.getHearingLocations(
-            caseData, referenceDataServiceHolder);
+            caseData, refData);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getLocationId()).isEqualTo("226511");
@@ -336,11 +314,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .build();
         given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
             .willReturn(EPIMS_ID_LIST);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         List<HearingLocation> result = HearingsLocationMapping.getHearingLocations(
             caseData,
-            referenceDataServiceHolder);
+            refData);
 
         checkHearingLocationResults(result, EPIMS_ID_1, EPIMS_ID_2, EPIMS_ID_3, EPIMS_ID_4);
     }
@@ -397,9 +375,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .build();
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_1);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
-        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
                                     EPIMS_ID_1);
     }
 
@@ -408,7 +386,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsOverride() throws ListingException {
         buildOverrideHearingLocations();
 
-        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
@@ -416,10 +394,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getHearingLocationsAdjournmentNewVenue() throws ListingException {
         //TODO: SSCS-10951: remove adjournment flag
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_1)).willReturn(venueDetails);
         given(venueService.getEpimsIdForVenueId(VENUE_ID)).willReturn(EPIMS_ID_1);
@@ -427,7 +405,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         setupAdjournedHearingVenue(SOMEWHERE_ELSE, VENUE_ID);
 
         List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(
-            caseData, referenceDataServiceHolder);
+            caseData, refData);
 
         checkHearingLocationResults(results, EPIMS_ID_1);
     }
@@ -436,10 +414,10 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getHearingLocationsAdjournmentSameVenue() throws ListingException {
         //TODO: SSCS-10951: remove adjournment flag
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
 
         setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
@@ -450,7 +428,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .build()));
 
         checkHearingLocationResults(
-            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+            HearingsLocationMapping.getHearingLocations(caseData, refData),
             EPIMS_ID_2);
     }
 
@@ -484,7 +462,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         caseData.getSchedulingAndListingFields().getOverrideFields().setAppellantHearingChannel(HearingChannel.PAPER);
 
-        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
@@ -492,12 +470,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getHearingLocationsFailOnGettingVenueId() {
         //TODO: SSCS-10951: remove adjournment flag
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
 
-        assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder))
+        assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, refData))
             .isInstanceOf(ListingException.class)
             .hasMessageContaining("Failed to determine next hearing location due to no latest hearing on case "
                                       + caseData.getCcdCaseId());
@@ -507,12 +485,33 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @Test
     void getHearingLocationsCheckFlag() throws ListingException {
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_1);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false); //TODO: remove flag
+        given(refData.isAdjournmentFlagEnabled()).willReturn(false); //TODO: remove flag
 
-        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder),
+        checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
                                     EPIMS_ID_1);
+    }
+
+    @DisplayName("When a venue can't be found from the epimsId, throw an exception")
+    @Test
+    void getHearingLocationsAdjournmentSameVenueIncorrectEpimsId() {
+
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
+
+        given(refData.getVenueService()).willReturn(venueService);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(null)).willReturn(null);
+
+        setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
+
+        caseData.setHearings(Collections.singletonList(Hearing.builder()
+                                                           .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
+                                                                      .build())
+                                                           .build()));
+
+        assertThrows(ListingException.class, () ->
+            HearingsLocationMapping.getHearingLocations(caseData, refData));
     }
 
     void setupAdjournedHearingVenue(AdjournCaseNextHearingVenue nextHearingVenue, String adjournedId) {
@@ -758,5 +757,35 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         boolean result = HearingsDetailsMapping.isPoOfficerAttending(caseData);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("When adjournCaseNextHearingSpecificTime or adjournCaseNextHearingFirstOnSession should return it in getListingComments")
+    @Test
+    void testGetListingCommentsWithAdjournCaseTimeSettingsDefined() {
+        Adjournment adjournment = caseData.getAdjournment();
+        AdjournCaseTime adjournCaseTime = AdjournCaseTime
+            .builder()
+            .adjournCaseNextHearingSpecificTime("pm")
+            .adjournCaseNextHearingFirstOnSession(List.of("firstOnSession"))
+            .build();
+
+        adjournment.setNextHearingDateType(AdjournCaseNextHearingDateType.DATE_TO_BE_FIXED);
+        adjournment.setTime(adjournCaseTime);
+
+        var result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertTrue(isNotEmpty(result));
+        assertThat(result)
+            .contains("Provide time: PM")
+            .contains("List first on the session")
+            .doesNotContainPattern("AM");
+    }
+
+    @DisplayName("When no additional comment fields are empty should return empty string")
+    @Test
+    void testEmptyListingComments() {
+        var result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertTrue(isEmpty(result));
     }
 }

@@ -70,14 +70,13 @@ public final class HearingsPartiesMapping {
 
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper,
-                                                                ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
             throws InvalidMappingException {
-        return buildHearingPartiesDetails(wrapper.getCaseData(), referenceDataServiceHolder);
+
+        return buildHearingPartiesDetails(wrapper.getCaseData(), refData);
     }
 
-    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData,
-                                                                ReferenceDataServiceHolder referenceDataServiceHolder)
+    public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData, ReferenceDataServiceHolder refData)
             throws InvalidMappingException {
 
         Appeal appeal = caseData.getAppeal();
@@ -85,7 +84,7 @@ public final class HearingsPartiesMapping {
 
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) { // TODO SSCS-10243 - Might need to change
+        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
             partiesDetails.add(createDwpPartyDetails(caseData));
         }
 
@@ -93,8 +92,11 @@ public final class HearingsPartiesMapping {
             partiesDetails.addAll(
                 buildHearingPartiesPartyDetails(
                     caseData.getJointParty(),
-                    appellant.getId(),
-                    referenceDataServiceHolder,
+                    null,
+                    null,
+                    null,
+                    null,
+                    refData,
                     null
                 ));
         }
@@ -112,7 +114,7 @@ public final class HearingsPartiesMapping {
 
         partiesDetails.addAll(buildHearingPartiesPartyDetails(
                 appellant, appeal.getRep(), appeal.getHearingOptions(),
-                appeal.getHearingSubtype(), overrideFields, referenceDataServiceHolder, adjournLanguageRef));
+                appeal.getHearingSubtype(), overrideFields, refData, adjournLanguageRef));
 
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
@@ -121,43 +123,75 @@ public final class HearingsPartiesMapping {
                 OtherParty otherParty = ccdOtherParty.getValue();
                 partiesDetails.addAll(buildHearingPartiesPartyDetails(
                         otherParty, otherParty.getRep(), otherParty.getHearingOptions(),
-                        otherParty.getHearingSubtype(), null, referenceDataServiceHolder, null));
+                        otherParty.getHearingSubtype(), null, refData, null));
             }
         }
 
         return partiesDetails;
     }
 
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, String appellantId, ReferenceDataServiceHolder referenceData,
-                                                                     String adjournLanguage) throws InvalidMappingException {
-        return buildHearingPartiesPartyDetails(party, null, null, null, null, referenceData, adjournLanguage);
-    }
-
-    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party, Representative rep, HearingOptions hearingOptions,
+    public static List<PartyDetails> buildHearingPartiesPartyDetails(Party party,
+                                                                     Representative rep,
+                                                                     HearingOptions hearingOptions,
                                                                      HearingSubtype hearingSubtype,
-                                                                     OverrideFields overrideFields, ReferenceDataServiceHolder referenceData, String adjournLanguage)
+                                                                     OverrideFields overrideFields,
+                                                                     ReferenceDataServiceHolder refData,
+                                                                     String adjournLanguage)
             throws InvalidMappingException {
+
         List<PartyDetails> partyDetails = new ArrayList<>();
-        partyDetails.add(createHearingPartyDetails(party, hearingOptions, hearingSubtype, party.getId(), overrideFields, referenceData, adjournLanguage));
+        partyDetails.add(createHearingPartyDetails(party,
+                                                   hearingOptions,
+                                                   hearingSubtype,
+                                                   party.getId(),
+                                                   overrideFields,
+                                                   refData,
+                                                   adjournLanguage));
+
         if (nonNull(party.getAppointee()) && isYes(party.getIsAppointee())) {
-            partyDetails.add(createHearingPartyDetails(party.getAppointee(), hearingOptions, hearingSubtype, party.getId(), null, referenceData, null));
+            partyDetails.add(createHearingPartyDetails(party.getAppointee(),
+                                                       hearingOptions,
+                                                       hearingSubtype,
+                                                       party.getId(),
+                                                       null,
+                                                       refData,
+                                                       null));
         }
+
         if (nonNull(rep) && isYes(rep.getHasRepresentative())) {
-            partyDetails.add(createHearingPartyDetails(rep, hearingOptions, hearingSubtype, party.getId(), null, referenceData, null));
+            partyDetails.add(createHearingPartyDetails(rep,
+                                                       hearingOptions,
+                                                       hearingSubtype,
+                                                       party.getId(),
+                                                       null,
+                                                       refData,
+                                                       null));
         }
+
         return partyDetails;
     }
 
-    public static PartyDetails createHearingPartyDetails(Entity entity, HearingOptions hearingOptions,
+    public static PartyDetails createHearingPartyDetails(Entity entity,
+                                                         HearingOptions hearingOptions,
                                                          HearingSubtype hearingSubtype,
-                                                         String partyId, OverrideFields overrideFields, ReferenceDataServiceHolder referenceData, String adjournLanguage)
+                                                         String partyId,
+                                                         OverrideFields overrideFields,
+                                                         ReferenceDataServiceHolder refData,
+                                                         String adjournLanguage)
             throws InvalidMappingException {
+
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
         partyDetails.partyID(getPartyId(entity));
         partyDetails.partyType(getPartyType(entity));
         partyDetails.partyRole(getPartyRole(entity));
-        partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, overrideFields, referenceData, adjournLanguage));
+        partyDetails.individualDetails(getPartyIndividualDetails(entity,
+                                                                 hearingOptions,
+                                                                 hearingSubtype,
+                                                                 partyId,
+                                                                 overrideFields,
+                                                                 refData,
+                                                                 adjournLanguage));
         partyDetails.partyChannelSubType(getPartyChannelSubType());
         partyDetails.unavailabilityDayOfWeek(getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(getPartyUnavailabilityRange(hearingOptions));
@@ -206,7 +240,7 @@ public final class HearingsPartiesMapping {
                                                               HearingSubtype hearingSubtype,
                                                               String partyId,
                                                               OverrideFields overrideFields,
-                                                              ReferenceDataServiceHolder referenceData,
+                                                              ReferenceDataServiceHolder refData,
                                                               String adjournLanguage)
             throws InvalidMappingException {
 
@@ -214,7 +248,7 @@ public final class HearingsPartiesMapping {
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
                 .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, overrideFields))
-                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, overrideFields, referenceData, adjournLanguage))
+                .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, overrideFields, refData, adjournLanguage))
                 .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())
                 .vulnerabilityDetails(getIndividualVulnerabilityDetails())
@@ -256,16 +290,21 @@ public final class HearingsPartiesMapping {
         return entity.getName().getFullNameNoTitle();
     }
 
-    public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions, OverrideFields overrideFields, ReferenceDataServiceHolder referenceData, String adjournLanguage) throws InvalidMappingException {
+    public static String getIndividualInterpreterLanguage(HearingOptions hearingOptions,
+                                                          OverrideFields overrideFields,
+                                                          ReferenceDataServiceHolder refData,
+                                                          String adjournLanguage)
+        throws InvalidMappingException {
+
+        // return the adjournment language value if set, this supersedes the override field
+        if (nonNull(adjournLanguage)) {
+            return adjournLanguage;
+        }
 
         if (nonNull(overrideFields)
             && nonNull(overrideFields.getAppellantInterpreter())
             && nonNull(overrideFields.getAppellantInterpreter().getIsInterpreterWanted())) {
             return getOverrideInterpreterLanguage(overrideFields);
-        }
-
-        if (nonNull(adjournLanguage)) {
-            return adjournLanguage;
         }
 
         if (isNull(hearingOptions)
@@ -274,16 +313,18 @@ public final class HearingsPartiesMapping {
             return null;
         }
 
-        return getLanguageReference(getLanguage(hearingOptions, referenceData));
+        return getLanguageReference(getLanguage(hearingOptions, refData));
     }
 
     @Nullable
-    public static Language getLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder referenceData) throws InvalidMappingException {
+    public static Language getLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder refData)
+        throws InvalidMappingException {
+
         Language language = null;
 
         if (isTrue(hearingOptions.wantsSignLanguageInterpreter())) {
             String signLanguage = hearingOptions.getSignLanguageType();
-            language = referenceData.getSignLanguages().getSignLanguage(signLanguage);
+            language = refData.getSignLanguages().getSignLanguage(signLanguage);
             if (isNull(language)) {
                 throw new InvalidMappingException(String.format("The language %s cannot be mapped", signLanguage));
             }
@@ -291,7 +332,7 @@ public final class HearingsPartiesMapping {
 
         if (isYes(hearingOptions.getLanguageInterpreter())) {
             String verbalLanguage = hearingOptions.getLanguages();
-            language = referenceData.getVerbalLanguages().getVerbalLanguage(verbalLanguage);
+            language = refData.getVerbalLanguages().getVerbalLanguage(verbalLanguage);
             if (isNull(language)) {
                 throw new InvalidMappingException(String.format("The language %s cannot be mapped", verbalLanguage));
             }
