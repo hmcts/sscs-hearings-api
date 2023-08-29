@@ -33,7 +33,7 @@ public final class HearingsLocationMapping {
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
                                                             ReferenceDataServiceHolder refData)
-      throws ListingException {
+        throws ListingException {
         String caseId = caseData.getCcdCaseId();
         boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
 
