@@ -432,6 +432,27 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             EPIMS_ID_2);
     }
 
+    @DisplayName("When a venue can't be found from the epimsId, throw an exception")
+    @Test
+    void getHearingLocationsAdjournmentSameVenueIncorrectEpimsId() {
+        //TODO: SSCS-10951: remove adjournment flag
+        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
+
+        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(venueService.getVenueDetailsForActiveVenueByEpimsId(null)).willReturn(null);
+
+        setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
+
+        caseData.setHearings(Collections.singletonList(Hearing.builder()
+            .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
+                .build())
+            .build()));
+
+        assertThrows(ListingException.class, () ->
+            HearingsLocationMapping.getHearingLocations(caseData, referenceDataServiceHolder));
+    }
+
     @DisplayName("When a case has been adjourned but the next hearing is paper, return the override hearing locations")
     @Test
     void getHearingLocationsAdjournmentNewVenuePaperCase() throws ListingException {
