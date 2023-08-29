@@ -32,15 +32,13 @@ public final class HearingsLocationMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder referenceDataServiceHolder) 
+                                                            ReferenceDataServiceHolder refData)
       throws ListingException {
-        List<HearingLocation> locations = getOverrideLocations(caseData);
-
         String caseId = caseData.getCcdCaseId();
         boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
 
-        List<HearingLocation> locations;
         log.debug("Adjournment flag: {}, Adjournment in progress: {}", refData.isAdjournmentFlagEnabled(), isYes(caseData.getAdjournment().getAdjournmentInProgress()));
+        List<HearingLocation> locations;
         // if adjournment in progress, we want to process these locations first, superseding the override fields
         if (adjournmentInProgress) {
             locations = getAdjournedLocations(caseData, refData);
@@ -110,24 +108,24 @@ public final class HearingsLocationMapping {
     }
 
     private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData,
-                                                               ReferenceDataServiceHolder referenceDataServiceHolder)
+                                                               ReferenceDataServiceHolder refData)
         throws ListingException {
-     
-        if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
+
+        if (refData.isAdjournmentFlagEnabled()
             && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            
+
             log.info("getAdjournedLocations {}", caseData.getAdjournment());
-          
+
             AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
-          
+
             log.info("getAdjournedLocations {}", nextHearingVenueName);
 
             if (nonNull(nextHearingVenueName)) {
-                return getNextHearingLocation(caseData, referenceDataServiceHolder.getVenueService(), nextHearingVenueName);
+                return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
             }
         }
-        throw new ListingException("Failed to determine next hearing location due to an invalid EpimsId \""
-                                              + epimsID + "\" on the latest hearing");
+
+        return Collections.emptyList();
     }
 
     private static List<HearingLocation> getNextHearingLocation(SscsCaseData caseData,
