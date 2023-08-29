@@ -61,6 +61,8 @@ public final class HearingsPanelMapping {
         List<PanelPreference> panelMemberPreferences = new ArrayList<>();
 
         PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
+        log.debug("Scheduling and Listing Fields{}", caseData.getSchedulingAndListingFields());
+        log.debug("Panel member exclusions {}", panelMembers);
         if (nonNull(panelMembers)) {
             panelMemberPreferences.addAll(getSlPanelPreferences(panelMembers));
         }
