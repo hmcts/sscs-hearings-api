@@ -22,7 +22,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.Benefit.CHILD_SUPPORT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified.getPanelMemberMedicallyQualified;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
 @Slf4j
@@ -38,7 +37,7 @@ public final class HearingsPanelMapping {
             .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
-            .panelPreferences(getPanelPreferences(caseData))
+            .panelPreferences(getPanelPreferences(caseData, refData))
             .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCodeMap(caseData, refData)))
             .build();
     }
@@ -57,39 +56,87 @@ public final class HearingsPanelMapping {
         return Collections.emptyList();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
         List<PanelPreference> panelMemberPreferences = new ArrayList<>();
-
         PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
+
         log.debug("Scheduling and Listing Fields{}", caseData.getSchedulingAndListingFields());
         log.debug("Panel member exclusions {}", panelMembers);
+
         if (nonNull(panelMembers)) {
             panelMemberPreferences.addAll(getSlPanelPreferences(panelMembers));
         }
+
+        if (refData.isAdjournmentFlagEnabled()) {
+            Adjournment adjournment = caseData.getAdjournment();
+            List<PanelPreference> optionalPreferences = getOptionalPanelPreferences(adjournment, panelMemberPreferences);
+            panelMemberPreferences.addAll(optionalPreferences);
+        }
+
         log.debug("Panel member preferences for case {} are {}", caseData.getCcdCaseId(), panelMemberPreferences);
 
-        return panelMemberPreferences.stream().distinct().toList();
+        return panelMemberPreferences.stream().toList();
+    }
+
+    private static List<PanelPreference> getOptionalPanelPreferences(Adjournment adjournment,
+                                                                     List<PanelPreference> preferences) {
+        if (panelMembersNotOptional(adjournment)) {
+            return List.of();
+        }
+
+        List<JudicialUserBase> panelMembersList = adjournment.getPanelMembers();
+        List<PanelPreference> panelPreferences = List.of();
+        if (nonNull(panelMembersList)) {
+            panelPreferences = panelMembersList.stream()
+                .filter(panelMember -> nonNull(panelMember.getPersonalCode()))
+                .filter(panelMember -> isNotExcludedReserved(panelMember.getPersonalCode(), preferences))
+                .map(paneMember -> getPanelPreference(paneMember.getPersonalCode()))
+                .toList();
+        }
+        return panelPreferences;
+    }
+
+    private static boolean isNotExcludedReserved(String personalCode, List<PanelPreference> preferences) {
+        return preferences.stream().noneMatch(preference -> personalCode.equals(preference.getMemberID()));
+    }
+
+    private static boolean panelMembersNotOptional(Adjournment adjournment) {
+        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
+        return !isNull(panelMembersExcluded) && !panelMembersExcluded.equals(AdjournCasePanelMembersExcluded.NO);
     }
 
     private static List<PanelPreference> getSlPanelPreferences(PanelMemberExclusions panelMembers) {
-        List<CollectionItem<JudicialUserBase>> panelMembersList = panelMembers.getExcludedPanelMembers();
+        var excluded = getExcludedPanelMembers(panelMembers);
+        var reserved = getReservedPreferences(panelMembers);
+        var preferences = new ArrayList<>(excluded);
+        preferences.addAll(reserved);
 
-        if (nonNull(panelMembersList)) {
-            List<PanelPreference> panelPreferences = panelMembersList.stream()
+        return preferences;
+    }
+
+    private static List<PanelPreference> getReservedPreferences(PanelMemberExclusions panelMembers) {
+        List<CollectionItem<JudicialUserBase>> reservedPanelMembers = panelMembers.getReservedPanelMembers();
+        if (nonNull(reservedPanelMembers)) {
+            return reservedPanelMembers.stream()
                 .filter(panelMember -> nonNull(panelMember.getValue().getPersonalCode()))
                 .map(paneMember -> getPanelPreference(paneMember.getValue().getPersonalCode()))
+                .peek(preference -> preference.setRequirementType(RequirementType.MUST_INCLUDE))
                 .toList();
-
-            if (isYes(panelMembers.getArePanelMembersExcluded())) {
-                return panelPreferences.stream()
-                    .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.EXCLUDE))
-                    .toList();
-            } else if (isYes(panelMembers.getArePanelMembersReserved())) {
-                return panelPreferences.stream()
-                    .peek(panelPreference -> panelPreference.setRequirementType(RequirementType.MUST_INCLUDE))
-                    .toList();
-            }
         }
+
+        return List.of();
+    }
+
+    private static List<PanelPreference> getExcludedPanelMembers(PanelMemberExclusions panelMembers) {
+        List<CollectionItem<JudicialUserBase>> excludedPanelMembers = panelMembers.getExcludedPanelMembers();
+        if (nonNull(excludedPanelMembers)) {
+            return excludedPanelMembers.stream()
+                .filter(panelMember -> nonNull(panelMember.getValue().getPersonalCode()))
+                .map(panelMember -> getPanelPreference(panelMember.getValue().getPersonalCode()))
+                .peek(preference -> preference.setRequirementType(RequirementType.EXCLUDE))
+                .toList();
+        }
+
         return List.of();
     }
 
