@@ -96,10 +96,9 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @DisplayName("When adjournment is enabled, "
         + " all the 3 panel members are provided "
         + " and panel member requirement type is null"
-        + " then return the panel member with the requirement type as Optional Include.")
+        + " then panel preferences should be not provided.")
     @Test
     void testPanelMembersExcludedIsNull() {
-        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.setAdjournment(Adjournment.builder()
             .panelMembersExcluded(null)
             .panelMember1(JudicialUserBase.builder()
@@ -115,37 +114,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
             .build());
 
         List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
-        assertThat(result).isNotEmpty().size().isEqualTo(3);
-        assertThat(result).allMatch(r -> r.getRequirementType().equals(RequirementType.OPTIONAL_INCLUDE));
-    }
-
-    @DisplayName("When adjournment is enabled, "
-        + " and member is excluded "
-        + " and member is provided by adjournment again with AdjournCasePanelMembersExcluded is set to NO"
-        + " then member should stay excluded.")
-    @Test
-    void excludedMemberShouldStayExcludedWhenProvidedSecondTimeAsOptional() {
-        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
-        CollectionItem<JudicialUserBase> excludedMember = CollectionItem.<JudicialUserBase>builder()
-            .value(JudicialUserBase.builder().idamId("1").personalCode("TOM").build())
-            .build();
-        List<CollectionItem<JudicialUserBase>> excludedMembers = List.of(excludedMember);
-        PanelMemberExclusions panelMembers = PanelMemberExclusions.builder()
-            .arePanelMembersExcluded(YesNo.YES)
-            .excludedPanelMembers(excludedMembers)
-            .build();
-        caseData.setAdjournment(Adjournment.builder()
-            .panelMembersExcluded(AdjournCasePanelMembersExcluded.NO)
-            .panelMember1(JudicialUserBase.builder()
-                .idamId("1")
-                .personalCode("TOM")
-                .build())
-            .build());
-        caseData.getSchedulingAndListingFields().setPanelMemberExclusions(panelMembers);
-
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
-        assertThat(result).isNotEmpty().size().isEqualTo(1);
-        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.EXCLUDE);
+        assertThat(result).isNullOrEmpty();
     }
 
     @DisplayName("When panel members are provided"
@@ -196,21 +165,6 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         assertThat(result).isEmpty();
     }
 
-    @DisplayName("When adjournment panel member excluded flag is set to YES ignore panel members")
-    @Test
-    void testNull() {
-        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
-        caseData.setAdjournment(Adjournment.builder()
-            .panelMembersExcluded(AdjournCasePanelMembersExcluded.YES)
-            .panelMember1(JudicialUserBase.builder()
-                .idamId("1")
-                .personalCode("TOM")
-                .build())
-            .build());
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
-        assertThat(result).isEmpty();
-    }
-
     @DisplayName("When a case is given with a second doctor getPanelRequirements returns the valid PanelRequirements")
     @ParameterizedTest
     @CsvSource(value = {
@@ -218,7 +172,6 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
         "null,carer,2",
     }, nullValues = {"null"})
     void testGetPanelSpecialisms(String doctorSpecialism, String doctorSpecialismSecond, String expected) {
-
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
             true, false, SessionCategory.CATEGORY_06, null
         );

@@ -60,49 +60,13 @@ public final class HearingsPanelMapping {
         List<PanelPreference> panelMemberPreferences = new ArrayList<>();
         PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
 
-        log.debug("Scheduling and Listing Fields{}", caseData.getSchedulingAndListingFields());
-        log.debug("Panel member exclusions {}", panelMembers);
-
         if (nonNull(panelMembers)) {
             panelMemberPreferences.addAll(getSlPanelPreferences(panelMembers));
-        }
-
-        if (refData.isAdjournmentFlagEnabled()) {
-            Adjournment adjournment = caseData.getAdjournment();
-            List<PanelPreference> optionalPreferences = getOptionalPanelPreferences(adjournment, panelMemberPreferences);
-            panelMemberPreferences.addAll(optionalPreferences);
         }
 
         log.debug("Panel member preferences for case {} are {}", caseData.getCcdCaseId(), panelMemberPreferences);
 
         return panelMemberPreferences.stream().toList();
-    }
-
-    private static List<PanelPreference> getOptionalPanelPreferences(Adjournment adjournment,
-                                                                     List<PanelPreference> preferences) {
-        if (panelMembersNotOptional(adjournment)) {
-            return List.of();
-        }
-
-        List<JudicialUserBase> panelMembersList = adjournment.getPanelMembers();
-        List<PanelPreference> panelPreferences = List.of();
-        if (nonNull(panelMembersList)) {
-            panelPreferences = panelMembersList.stream()
-                .filter(panelMember -> nonNull(panelMember.getPersonalCode()))
-                .filter(panelMember -> isNotExcludedReserved(panelMember.getPersonalCode(), preferences))
-                .map(paneMember -> getPanelPreference(paneMember.getPersonalCode()))
-                .toList();
-        }
-        return panelPreferences;
-    }
-
-    private static boolean isNotExcludedReserved(String personalCode, List<PanelPreference> preferences) {
-        return preferences.stream().noneMatch(preference -> personalCode.equals(preference.getMemberID()));
-    }
-
-    private static boolean panelMembersNotOptional(Adjournment adjournment) {
-        AdjournCasePanelMembersExcluded panelMembersExcluded = adjournment.getPanelMembersExcluded();
-        return !isNull(panelMembersExcluded) && !panelMembersExcluded.equals(AdjournCasePanelMembersExcluded.NO);
     }
 
     private static List<PanelPreference> getSlPanelPreferences(PanelMemberExclusions panelMembers) {
