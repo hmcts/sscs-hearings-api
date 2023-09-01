@@ -5,6 +5,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.MemberType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -37,7 +38,7 @@ public final class HearingsPanelMapping {
             .roleTypes(getRoleTypes(caseData.getBenefitCode()))
             .authorisationTypes(getAuthorisationTypes())
             .authorisationSubTypes(getAuthorisationSubTypes())
-            .panelPreferences(getPanelPreferences(caseData, refData))
+            .panelPreferences(getPanelPreferences(caseData))
             .panelSpecialisms(getPanelSpecialisms(caseData, getSessionCaseCodeMap(caseData, refData)))
             .build();
     }
@@ -56,7 +57,7 @@ public final class HearingsPanelMapping {
         return Collections.emptyList();
     }
 
-    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+    public static List<PanelPreference> getPanelPreferences(SscsCaseData caseData) {
         List<PanelPreference> panelMemberPreferences = new ArrayList<>();
         PanelMemberExclusions panelMembers = caseData.getSchedulingAndListingFields().getPanelMemberExclusions();
 
@@ -80,35 +81,33 @@ public final class HearingsPanelMapping {
 
     private static List<PanelPreference> getReservedPreferences(PanelMemberExclusions panelMembers) {
         List<CollectionItem<JudicialUserBase>> reservedPanelMembers = panelMembers.getReservedPanelMembers();
-        if (nonNull(reservedPanelMembers)) {
-            return reservedPanelMembers.stream()
-                .filter(panelMember -> nonNull(panelMember.getValue().getPersonalCode()))
-                .map(paneMember -> getPanelPreference(paneMember.getValue().getPersonalCode()))
-                .peek(preference -> preference.setRequirementType(RequirementType.MUST_INCLUDE))
-                .toList();
-        }
-
-        return List.of();
+        return getMemberPreferences(reservedPanelMembers, RequirementType.MUST_INCLUDE);
     }
 
     private static List<PanelPreference> getExcludedPanelMembers(PanelMemberExclusions panelMembers) {
         List<CollectionItem<JudicialUserBase>> excludedPanelMembers = panelMembers.getExcludedPanelMembers();
-        if (nonNull(excludedPanelMembers)) {
-            return excludedPanelMembers.stream()
+        return getMemberPreferences(excludedPanelMembers, RequirementType.EXCLUDE);
+    }
+
+    private static List<PanelPreference> getMemberPreferences(List<CollectionItem<JudicialUserBase>> panelMembers,
+                                                              RequirementType requirementType) {
+        if (nonNull(panelMembers)) {
+            return panelMembers.stream()
                 .filter(panelMember -> nonNull(panelMember.getValue().getPersonalCode()))
-                .map(panelMember -> getPanelPreference(panelMember.getValue().getPersonalCode()))
-                .peek(preference -> preference.setRequirementType(RequirementType.EXCLUDE))
+                .map(paneMember -> getPanelPreference(
+                    paneMember.getValue().getPersonalCode(),
+                    requirementType
+                ))
                 .toList();
         }
-
         return List.of();
     }
 
-    private static PanelPreference getPanelPreference(String memberID) {
+    private static PanelPreference getPanelPreference(String memberID, RequirementType requirementType) {
         return PanelPreference.builder()
             .memberID(memberID)
-            .memberType("PANEL_MEMBER")
-            .requirementType(RequirementType.OPTIONAL_INCLUDE)
+            .memberType(MemberType.JOH)
+            .requirementType(requirementType)
             .build();
     }
 

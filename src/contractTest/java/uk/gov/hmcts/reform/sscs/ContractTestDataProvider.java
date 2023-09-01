@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.MemberType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
@@ -224,15 +225,15 @@ public class ContractTestDataProvider {
 
         final PanelPreference panelPreference1 = new PanelPreference();
         panelPreference1.setMemberID("Member 1");
-        panelPreference1.setMemberType("Member Type 1");
+        panelPreference1.setMemberType(MemberType.JOH);
         panelPreference1.setRequirementType(MUST_INCLUDE);
         final PanelPreference panelPreference2 = new PanelPreference();
         panelPreference2.setMemberID("Member 2");
-        panelPreference2.setMemberType("Member Type 2");
+        panelPreference2.setMemberType(MemberType.JOH);
         panelPreference2.setRequirementType(OPTIONAL_INCLUDE);
         final PanelPreference panelPreference3 = new PanelPreference();
         panelPreference3.setMemberID("Member 3");
-        panelPreference3.setMemberType("Member Type 3");
+        panelPreference3.setMemberType(MemberType.JOH);
         panelPreference3.setRequirementType(EXCLUDE);
         List<PanelPreference> panelPreferences = new ArrayList<>();
         panelPreferences.add(panelPreference1);

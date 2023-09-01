@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.MemberType;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -89,7 +90,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
     @DisplayName("When overrideFields are null getPanelPreferences returns an empty list")
     @Test
     void testGetPanelPreferencesOverrideFieldsNull() {
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
         assertThat(result).isEmpty();
     }
 
@@ -113,7 +114,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
                 .build())
             .build());
 
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
         assertThat(result).isNullOrEmpty();
     }
 
@@ -132,7 +133,7 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
             .build();
         caseData.getSchedulingAndListingFields().setPanelMemberExclusions(panelMembers);
 
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
         assertThat(result).isNotEmpty().size().isEqualTo(1);
         assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.MUST_INCLUDE);
     }
@@ -152,16 +153,36 @@ class HearingsPanelMappingTest extends HearingsMappingBase {
             .build();
         caseData.getSchedulingAndListingFields().setPanelMemberExclusions(panelMembers);
 
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
         assertThat(result).isNotEmpty().size().isEqualTo(1);
         assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.EXCLUDE);
+    }
+
+    @DisplayName("Member type for hmc should be JOH")
+    @Test
+    void testMemberTypeShouldBeJoh() {
+        JudicialUserBase judge = JudicialUserBase.builder().idamId("1").personalCode("TOM").build();
+        CollectionItem<JudicialUserBase> excludedMember = CollectionItem.<JudicialUserBase>builder()
+            .value(judge)
+            .build();
+        List<CollectionItem<JudicialUserBase>> excludedMembers = List.of(excludedMember);
+        PanelMemberExclusions panelMembers = PanelMemberExclusions.builder()
+            .arePanelMembersExcluded(YesNo.YES)
+            .excludedPanelMembers(excludedMembers)
+            .build();
+        caseData.getSchedulingAndListingFields().setPanelMemberExclusions(panelMembers);
+
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
+        assertThat(result).isNotEmpty().size().isEqualTo(1);
+        assertThat(result.get(0).getRequirementType()).isEqualTo(RequirementType.EXCLUDE);
+        assertThat(result.get(0).getMemberType()).isEqualTo(MemberType.JOH);
     }
 
     @DisplayName("When no panel members details are provided "
         + " then return empty panel members detail.")
     @Test
     void testGetPanelPreferencesWhenPanelMemberNotProvide() {
-        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData, refData);
+        List<PanelPreference> result = HearingsPanelMapping.getPanelPreferences(caseData);
         assertThat(result).isEmpty();
     }
 
