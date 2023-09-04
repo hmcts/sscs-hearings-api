@@ -411,7 +411,7 @@ public class ContractTestDataProvider {
             .closeArray()
             .minArrayLike("panelPreferences", 0, 1)
             .stringType("memberID", "memberID123")
-            .stringType("memberType", "memberType123")
+            .stringType("memberType", "JOH")
             .stringType("requirementType", "EXCLUDE")
             .closeObject().closeArray()
             .closeObject()
