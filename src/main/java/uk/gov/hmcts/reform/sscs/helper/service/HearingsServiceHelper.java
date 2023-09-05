@@ -2,7 +2,11 @@ package uk.gov.hmcts.reform.sscs.helper.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;

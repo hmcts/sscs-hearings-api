@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -260,7 +261,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build())
             .otherParties(otherParties)
             .build();
-        boolean result = HearingsCaseMapping.isInterpreterRequired(caseData);
+        boolean result = HearingChannelUtil.isInterpreterRequired(caseData);
 
         assertEquals(expected, result);
     }
@@ -284,7 +285,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build())
             .build());
 
-        boolean result = HearingsCaseMapping.isInterpreterRequiredOtherParties(otherParties);
+        boolean result = HearingChannelUtil.isInterpreterRequiredOtherParties(otherParties);
 
         assertEquals(expected, result);
     }
@@ -292,7 +293,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("isInterpreterRequiredOtherParties when otherParties are null Test")
     @Test
     void isInterpreterRequiredOtherParties() {
-        boolean result = HearingsCaseMapping.isInterpreterRequiredOtherParties(null);
+        boolean result = HearingChannelUtil.isInterpreterRequiredOtherParties(null);
 
         assertThat(result).isFalse();
     }
@@ -327,7 +328,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
             .languageInterpreter(interpreter)
             .arrangements(nonNull(arrangements) ?  splitCsvParamArray(arrangements) : null)
             .build();
-        boolean result = HearingsCaseMapping.isInterpreterRequiredHearingOptions(hearingOptions);
+        boolean result = HearingChannelUtil.isInterpreterRequiredHearingOptions(hearingOptions);
 
         assertEquals(expected, result);
     }

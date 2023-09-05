@@ -1,7 +1,15 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCasePanelMembersExcluded;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTime;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Entity;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -15,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import static java.util.Objects.nonNull;
@@ -104,8 +111,7 @@ public final class HearingsDetailsMapping {
         Appeal appeal = caseData.getAppeal();
         List<CcdValue<OtherParty>> otherParties = caseData.getOtherParties();
 
-        List<String> listingComments = new ArrayList<>();
-        listingComments.addAll(addAdjournmentTimeSelectionComments(caseData));
+        List<String> listingComments = new ArrayList<>(addAdjournmentTimeSelectionComments(caseData));
 
         if (nonNull(appeal.getHearingOptions()) && isNotBlank(appeal.getHearingOptions().getOther())) {
             listingComments.add(getComment(appeal.getAppellant(), appeal.getHearingOptions().getOther()));
@@ -115,7 +121,7 @@ public final class HearingsDetailsMapping {
                     .map(CcdValue::getValue)
                     .filter(o -> isNotBlank(o.getHearingOptions().getOther()))
                     .map(o -> getComment(o, o.getHearingOptions().getOther()))
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         if (listingComments.isEmpty()) {

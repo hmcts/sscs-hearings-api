@@ -2,9 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
@@ -23,6 +21,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.checkBenefitIssueCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
+import static uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil.isInterpreterRequired;
 
 @RestController
 @Slf4j
@@ -81,22 +80,6 @@ public final class HearingsCaseMapping {
         return nonNull(otherParties) && otherParties.stream()
                 .map(CcdValue::getValue)
                 .anyMatch(o -> isYes(o.getUnacceptableCustomerBehaviour()));
-    }
-
-    public static boolean isInterpreterRequired(SscsCaseData caseData) {
-        Appeal appeal = caseData.getAppeal();
-        return isYes(caseData.getAdjournment().getInterpreterRequired())
-                || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
-                || isInterpreterRequiredOtherParties(caseData.getOtherParties());
-    }
-
-    public static boolean isInterpreterRequiredOtherParties(List<CcdValue<OtherParty>> otherParties) {
-        return nonNull(otherParties) && otherParties.stream().map(CcdValue::getValue)
-            .anyMatch(o -> isInterpreterRequiredHearingOptions(o.getHearingOptions()));
-    }
-
-    public static boolean isInterpreterRequiredHearingOptions(HearingOptions hearingOptions) {
-        return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
     }
 
     public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceDataServiceHolder refData)

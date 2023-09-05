@@ -14,13 +14,13 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
@@ -92,7 +92,7 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, appellantId, refData));
-        partyDetails.partyChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null).getHmcReference());
+        partyDetails.partyChannel(HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null).getHmcReference());
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
@@ -126,7 +126,7 @@ public final class ServiceHearingPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null))
+                .preferredHearingChannel(HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null))
                 .interpreterLanguage(HearingsPartiesMapping.getIndividualInterpreterLanguage(hearingOptions, null, refData, null))
                 .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(HearingsPartiesMapping.isIndividualVulnerableFlag())

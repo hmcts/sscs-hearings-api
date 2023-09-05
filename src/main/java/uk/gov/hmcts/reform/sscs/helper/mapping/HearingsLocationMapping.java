@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +88,7 @@ public final class HearingsLocationMapping {
     }
 
     private static List<HearingLocation> getPaperCaseLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
-        if (HearingsChannelMapping.isPaperCase(caseData)) {
+        if (HearingChannelUtil.isPaperCase(caseData)) {
             List<VenueDetails> venueDetailsList = refData
                 .getVenueService()
                 .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());

@@ -2,7 +2,19 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AmendReason;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicList;
+import uk.gov.hmcts.reform.sscs.ccd.domain.DynamicListItem;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingInterpreter;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingWindow;
+import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
@@ -10,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -22,8 +35,6 @@ import javax.validation.Valid;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 
 @Slf4j
 public final class OverridesMapping {
@@ -80,7 +91,7 @@ public final class OverridesMapping {
         // collect override field values
         int duration = HearingsDurationMapping.getHearingDuration(caseData, refData);
         HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
-        HearingChannel channel = getIndividualPreferredHearingChannel(subtype, options, null);
+        HearingChannel channel = HearingChannelUtil.getIndividualPreferredHearingChannel(subtype, options, null);
         HearingWindow hearingWindow = getHearingDetailsHearingWindow(caseData, refData);
         YesNo autoList = getHearingDetailsAutoList(caseData, refData);
         List<CcdValue<CcdValue<String>>> venueEpimsIds = getHearingDetailsLocations(caseData, refData);
@@ -92,12 +103,6 @@ public final class OverridesMapping {
             .hearingWindow(hearingWindow)
             .autoList(autoList)
             .hearingVenueEpimsIds(venueEpimsIds)
-            .build();
-    }
-
-    public static ReservedToMember getReservedToJudge(SscsCaseData caseData) {
-        return ReservedToMember.builder()
-            .isReservedToMember(isYes(caseData.getReservedToJudge()) ? YesNo.YES : YesNo.NO)
             .build();
     }
 
@@ -129,7 +134,7 @@ public final class OverridesMapping {
 
     @NotNull
     public static YesNo getInterpreterWanted(HearingOptions hearingOptions) {
-        return isYes(hearingOptions.getLanguageInterpreter())
+        return YesNo.isYes(hearingOptions.getLanguageInterpreter())
             || isTrue(hearingOptions.wantsSignLanguageInterpreter()) ? YesNo.YES : YesNo.NO;
     }
 
@@ -149,7 +154,7 @@ public final class OverridesMapping {
 
             return language;
         }
-        if (isYes(hearingOptions.getLanguageInterpreter())) {
+        if (YesNo.isYes(hearingOptions.getLanguageInterpreter())) {
             String verbalLanguage = hearingOptions.getLanguages();
             Language language = refData.getVerbalLanguages().getVerbalLanguage(verbalLanguage);
 
@@ -191,6 +196,6 @@ public final class OverridesMapping {
     }
 
     public static YesNo getPoToAttend(SscsCaseData caseData) {
-        return isYes(caseData.getDwpIsOfficerAttending()) ? YesNo.YES : YesNo.NO;
+        return YesNo.isYes(caseData.getDwpIsOfficerAttending()) ? YesNo.YES : YesNo.NO;
     }
 }

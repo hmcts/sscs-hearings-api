@@ -67,11 +67,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         + "uses default hearing duration")
     @Test
     void getHearingDurationAdjournmentReturnsNullWithFeatureFlagEnabled() {
-        given(refData.getHearingDurations()).willReturn(hearingDurations);
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(null);
-
-        SscsCaseData caseData = SscsCaseData.builder()
+        caseData = SscsCaseData.builder()
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
@@ -81,7 +77,11 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
                 .build())
             .build();
 
-        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+
+        given(hearingDurations.getHearingDurationBenefitIssueCodes(caseData)).willReturn(null);
+
+        Integer durationAdjourned = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData.getHearingDurations());
         assertThat(durationAdjourned).isNull();
 
         Integer result = HearingsDurationMapping.getHearingDuration(
@@ -96,14 +96,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         + "getHearingDuration returns the default adjournment duration")
     @Test
     void getHearingDurationWithNullUnits() {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE))
-            .willReturn(new HearingDuration(
-                BenefitCode.PIP_NEW_CLAIM,
-                Issue.DD,
-                HearingsDurationMappingTest.DURATION_FACE_TO_FACE,
-                HearingsDurationMappingTest.DURATION_INTERPRETER,
-                HearingsDurationMappingTest.DURATION_PAPER
-            ));
+        given(hearingDurations.getHearingDurationBenefitIssueCodes(caseData)).willReturn(HearingsDurationMappingTest.DURATION_PAPER);
 
         given(refData.getHearingDurations()).willReturn(hearingDurations);
         setAdjournmentDurationAndUnits(2, null);
@@ -137,6 +130,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     @Test
     void getHearingDurationAdjournment_nextHearingListingDurationIsBlank() {
         given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDurationBenefitIssueCodes(caseData)).willReturn(null);
 
         setAdjournmentDurationAndUnits(null, SESSIONS);
 
@@ -147,7 +141,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         durationsList.add(duration);
         refData.getHearingDurations().setHearingDurations(durationsList);
 
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData);
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData.getHearingDurations());
 
         assertThat(result).isNull();
     }
@@ -157,6 +151,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
     @Test
     void getHearingDurationAdjournment_nextHearingListingDurationTypeIsStandard() {
         given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(hearingDurations.getHearingDurationBenefitIssueCodes(caseData)).willReturn(null);
 
         setAdjournmentDurationAndUnits(null, SESSIONS);
         caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.STANDARD);
@@ -168,7 +163,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         durationsList.add(duration);
         refData.getHearingDurations().setHearingDurations(durationsList);
 
-        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData);
+        Integer result = HearingsDurationMapping.getHearingDurationAdjournment(caseData, refData.getHearingDurations());
 
         assertThat(result).isNull();
     }

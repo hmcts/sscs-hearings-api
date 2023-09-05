@@ -33,7 +33,6 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
@@ -203,10 +202,6 @@ class OverridesMappingTest {
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
 
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                60,75,30));
-
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
         given(verbalLanguages.getVerbalLanguage("French"))
@@ -236,10 +231,6 @@ class OverridesMappingTest {
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60,75,30));
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 
@@ -272,10 +263,6 @@ class OverridesMappingTest {
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
         caseData.getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
         caseData.getAppeal().getHearingOptions().setLanguages("French");
-
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60,75,30));
 
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("219164");
 

@@ -6,12 +6,12 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PanelPreference;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 
 
@@ -59,7 +59,7 @@ public final class ServiceHearingValuesMapping {
                 .hearingChannels(HearingsChannelMapping.getHearingChannels(caseData))
                 .screenFlow(null)
                 .vocabulary(null)
-                .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
+                .caseInterpreterRequiredFlag(HearingChannelUtil.isInterpreterRequired(caseData))
                 .panelRequirements(HearingsPanelMapping.getPanelRequirements(caseData, refData))
             .build();
     }

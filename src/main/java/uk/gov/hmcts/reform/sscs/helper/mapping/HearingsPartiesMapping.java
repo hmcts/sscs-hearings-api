@@ -30,6 +30,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,8 +47,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getHearingChannel;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsChannelMapping.getIndividualPreferredHearingChannel;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getEntityRoleCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
@@ -232,7 +231,7 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
             .firstName(DWP_PO_FIRST_NAME)
             .lastName(DWP_PO_LAST_NAME)
-            .preferredHearingChannel(getHearingChannel(caseData))
+            .preferredHearingChannel(HearingChannelUtil.getHearingChannel(caseData))
             .build();
     }
 
@@ -247,7 +246,7 @@ public final class HearingsPartiesMapping {
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
                 .lastName(getIndividualLastName(entity))
-                .preferredHearingChannel(getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, overrideFields))
+                .preferredHearingChannel(HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, overrideFields))
                 .interpreterLanguage(getIndividualInterpreterLanguage(hearingOptions, overrideFields, refData, adjournLanguage))
                 .reasonableAdjustments(HearingsAdjustmentMapping.getIndividualsAdjustments(hearingOptions))
                 .vulnerableFlag(isIndividualVulnerableFlag())

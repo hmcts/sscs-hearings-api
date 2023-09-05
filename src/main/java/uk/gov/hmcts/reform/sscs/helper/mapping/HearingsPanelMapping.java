@@ -1,7 +1,11 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CollectionItem;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMember;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberExclusions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.PanelMemberMedicallyQualified;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.BenefitRoleRelationType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.RequirementType;
@@ -131,8 +135,8 @@ public final class HearingsPanelMapping {
         return panelSpecialisms;
     }
 
-    public static String getPanelMemberSpecialism(PanelMember panelMember, String doctorSpecialism,
-                                                  String doctorSpecialismSecond) {
+    public static String getPanelMemberSpecialism(PanelMember panelMember,
+                                                  String doctorSpecialism, String doctorSpecialismSecond) {
         return switch (panelMember) {
             case MQPM1 -> getReference(doctorSpecialism);
             case MQPM2 -> getReference(doctorSpecialismSecond);

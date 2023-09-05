@@ -38,7 +38,6 @@ import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -194,10 +193,6 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid adjourn create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperAdjournmentCreate() {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                            60,75,30));
-
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false,false,SessionCategory.CATEGORY_03,null));
@@ -223,10 +218,6 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCreate() {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                60,75,30));
-
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
@@ -272,10 +263,6 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperUpdate() {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                60,75,30));
-
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));

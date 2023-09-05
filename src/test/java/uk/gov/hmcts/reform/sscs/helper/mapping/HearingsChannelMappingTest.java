@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +94,7 @@ class HearingsChannelMappingTest {
         OverrideFields overrideFields = OverrideFields.builder()
             .appellantHearingChannel(value)
             .build();
-        HearingChannel result = HearingsChannelMapping.getIndividualPreferredHearingChannel(
+        HearingChannel result = HearingChannelUtil.getIndividualPreferredHearingChannel(
             hearingSubtype, hearingOptions, overrideFields);
 
         assertThat(result).isEqualTo(value);
@@ -112,7 +113,7 @@ class HearingsChannelMappingTest {
         OverrideFields overrideFields = OverrideFields.builder()
             .appellantHearingChannel(null)
             .build();
-        HearingChannel result = HearingsChannelMapping.getIndividualPreferredHearingChannel(
+        HearingChannel result = HearingChannelUtil.getIndividualPreferredHearingChannel(
             hearingSubtype, hearingOptions, overrideFields);
 
         assertThat(result).isEqualTo(FACE_TO_FACE);
@@ -192,7 +193,7 @@ class HearingsChannelMappingTest {
     void testIsPaperCaseNoOneAttend() {
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
 
-        boolean result = HearingsChannelMapping.isPaperCase(caseData);
+        boolean result = HearingChannelUtil.isPaperCase(caseData);
 
         assertThat(result).isTrue();
     }
@@ -200,7 +201,7 @@ class HearingsChannelMappingTest {
     @DisplayName("When someone wants to attend, isPaperCase returns False")
     @Test
     void testIsPaperCaseAttending() {
-        boolean result = HearingsChannelMapping.isPaperCase(caseData);
+        boolean result = HearingChannelUtil.isPaperCase(caseData);
 
         assertThat(result).isFalse();
     }

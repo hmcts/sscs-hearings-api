@@ -8,7 +8,13 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -32,14 +38,13 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"PMD.ExcessiveImports"})
 public class HearingsService {
 
     @Value("${retry.hearing-response-update.max-retries}")
@@ -87,32 +92,27 @@ public class HearingsService {
         }
 
         switch (wrapper.getHearingState()) {
-            case ADJOURN_CREATE_HEARING:
+            case ADJOURN_CREATE_HEARING -> {
                 wrapper.getCaseData().getAdjournment().setAdjournmentInProgress(YesNo.YES);
                 wrapper.setHearingState(HearingState.CREATE_HEARING);
                 createHearing(wrapper);
-                break;
-            case CREATE_HEARING:
-                createHearing(wrapper);
-                break;
-            case UPDATE_HEARING:
-                updateHearing(wrapper);
-                break;
-            case UPDATED_CASE:
-                log.info("Updated case API not supported. Case ID {}",
-                         caseId);
-                break;
-            case CANCEL_HEARING:
-                cancelHearing(wrapper);
-                break;
-            case PARTY_NOTIFIED:
-                log.info("Parties notified API not supported. Case ID {}",
-                         caseId);
-                break;
-            default:
+            }
+            case CREATE_HEARING -> createHearing(wrapper);
+            case UPDATE_HEARING -> updateHearing(wrapper);
+            case UPDATED_CASE -> log.info(
+                "Updated case API not supported. Case ID {}",
+                caseId
+            );
+            case CANCEL_HEARING -> cancelHearing(wrapper);
+            case PARTY_NOTIFIED -> log.info(
+                "Parties notified API not supported. Case ID {}",
+                caseId
+            );
+            default -> {
                 UnhandleableHearingStateException err = new UnhandleableHearingStateException(wrapper.getHearingState());
-                log.error(err.getMessage(),err);
+                log.error(err.getMessage(), err);
                 throw err;
+            }
         }
     }
 
@@ -205,9 +205,9 @@ public class HearingsService {
         HearingsServiceHelper.updateVersionNumber(hearing, response);
 
         if (refData.isAdjournmentFlagEnabled()
-            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
+            && YesNo.isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
             log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
-            caseData.getAdjournment().setAdjournmentInProgress(NO);
+            caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
         }
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
@@ -223,6 +223,7 @@ public class HearingsService {
                      details.getCaseTypeId()
             );
         }
+
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
             caseId,
             hearingRequestId,
