@@ -88,7 +88,7 @@ public final class OverridesMapping {
 
         OverrideFields currentDefaultListingValues = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
-        if (isNull(currentDefaultListingValues) || currentDefaultListingValues.isAllNull()) {
+        if (nonNull(currentDefaultListingValues) && !currentDefaultListingValues.isAllNull()) {
             log.info("Default listing values have already been set for case ID {}", caseData.getCcdCaseId());
             return currentDefaultListingValues;
         }
