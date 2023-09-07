@@ -57,6 +57,8 @@ public final class HearingsDurationMapping {
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData, HearingDurationsService hearingDurationsService) {
         Integer duration = caseData.getAdjournment().getNextHearingListingDuration();
 
+        log.info("Next hearing listing duration: {}", duration);
+
         if (nonNull(duration) && caseData.getAdjournment().getNextHearingListingDurationType() == NON_STANDARD) {
             return handleNonStandardDuration(caseData, duration);
         }
@@ -66,11 +68,14 @@ public final class HearingsDurationMapping {
 
     private static Integer handleNonStandardDuration(SscsCaseData caseData, Integer duration) {
         AdjournCaseNextHearingDurationUnits units = caseData.getAdjournment().getNextHearingListingDurationUnits();
-        if (units == AdjournCaseNextHearingDurationUnits.SESSIONS && duration >= MIN_HEARING_SESSION_DURATION) {
+        if (isYes(caseData.getAdjournment().getInterpreterRequired())) {
+            return DURATION_DEFAULT;
+        } else if (units == AdjournCaseNextHearingDurationUnits.SESSIONS && duration >= MIN_HEARING_SESSION_DURATION) {
             return duration * DURATION_SESSIONS_MULTIPLIER;
         } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES && duration >= MIN_HEARING_DURATION) {
             return duration;
         }
+
         return DURATION_DEFAULT;
     }
 
