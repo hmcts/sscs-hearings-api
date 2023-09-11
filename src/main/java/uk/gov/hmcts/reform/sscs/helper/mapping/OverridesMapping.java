@@ -58,13 +58,17 @@ public final class OverridesMapping {
     public static void setDefaultListingValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
         throws ListingException {
 
-        OverrideFields defaultOverrideValues = getOverrideFieldValues(wrapper, refData);
-        SscsCaseData caseData = wrapper.getCaseData();
-        caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideValues);
+        OverrideFields defaultListingValues = wrapper.getCaseData().getSchedulingAndListingFields().getDefaultListingValues();
 
-        log.debug("Default Override Listing Values set to {} for Case ID {}",
-                  defaultOverrideValues,
-                  caseData.getCcdCaseId());
+        if (isNull(defaultListingValues) || defaultListingValues.isAllNull()) {
+            OverrideFields defaultOverrideValues = getOverrideFieldValues(wrapper, refData);
+            SscsCaseData caseData = wrapper.getCaseData();
+            caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideValues);
+
+            log.debug("Default Override Listing Values set to {} for Case ID {}",
+                      defaultOverrideValues,
+                      caseData.getCcdCaseId());
+        }
     }
 
     public static void setOverrideValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
@@ -85,6 +89,13 @@ public final class OverridesMapping {
 
         // get case data from hearing wrapper and required appeal fields
         SscsCaseData caseData = wrapper.getCaseData();
+
+        OverrideFields currentDefaultListingValues = caseData.getSchedulingAndListingFields().getDefaultListingValues();
+
+        if (nonNull(currentDefaultListingValues) && !currentDefaultListingValues.isAllNull()) {
+            log.info("Default listing values have already been set for case ID {}", caseData.getCcdCaseId());
+            return currentDefaultListingValues;
+        }
 
         Appeal appeal = caseData.getAppeal();
         HearingSubtype subtype = appeal.getHearingSubtype();

@@ -130,8 +130,9 @@ public class HearingsService {
 
         HmcUpdateResponse hmcUpdateResponse;
 
+        OverridesMapping.setDefaultListingValues(wrapper, refData);
+
         if (isNull(hearing)) {
-            OverridesMapping.setDefaultListingValues(wrapper, refData);
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
             log.debug("Sending Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
