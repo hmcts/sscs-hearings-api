@@ -68,9 +68,7 @@ public final class HearingsDurationMapping {
 
     private static Integer handleNonStandardDuration(SscsCaseData caseData, Integer duration) {
         AdjournCaseNextHearingDurationUnits units = caseData.getAdjournment().getNextHearingListingDurationUnits();
-        if (isYes(caseData.getAdjournment().getInterpreterRequired())) {
-            return DURATION_DEFAULT;
-        } else if (units == AdjournCaseNextHearingDurationUnits.SESSIONS && duration >= MIN_HEARING_SESSION_DURATION) {
+        if (units == AdjournCaseNextHearingDurationUnits.SESSIONS && duration >= MIN_HEARING_SESSION_DURATION) {
             return duration * DURATION_SESSIONS_MULTIPLIER;
         } else if (units == AdjournCaseNextHearingDurationUnits.MINUTES && duration >= MIN_HEARING_DURATION) {
             return duration;

@@ -86,13 +86,6 @@ public final class OverridesMapping {
         // get case data from hearing wrapper and required appeal fields
         SscsCaseData caseData = wrapper.getCaseData();
 
-        OverrideFields currentDefaultListingValues = caseData.getSchedulingAndListingFields().getDefaultListingValues();
-
-        if (nonNull(currentDefaultListingValues) && !currentDefaultListingValues.isAllNull()) {
-            log.info("Default listing values have already been set for case ID {}", caseData.getCcdCaseId());
-            return currentDefaultListingValues;
-        }
-
         Appeal appeal = caseData.getAppeal();
         HearingSubtype subtype = appeal.getHearingSubtype();
         HearingOptions options = appeal.getHearingOptions();
