@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -243,8 +242,13 @@ class HearingsServiceTest {
 
     @DisplayName("When create Hearing is given and there is already a hearing requested/awaiting listing addHearingResponse should run without error")
     @Test
-    @Disabled
     void processHearingWrapperCreateExistingHearing() {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
             .caseHearings(List.of(CaseHearing.builder()
                 .hearingId(HEARING_REQUEST_ID)
