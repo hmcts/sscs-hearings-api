@@ -113,9 +113,6 @@ public class ProcessHmcMessageService {
     }
 
     private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        log.info("stateNotHandled isHearingUpdated {} isHearingCancelled {} isStatusException {}",
-            isHearingUpdated(hmcStatus, hearingResponse), isHearingCancelled(hmcStatus, hearingResponse), 
-            isStatusException(hmcStatus));
         return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
     }

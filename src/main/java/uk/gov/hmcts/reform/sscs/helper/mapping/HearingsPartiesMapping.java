@@ -295,7 +295,6 @@ public final class HearingsPartiesMapping {
                                                           String adjournLanguage)
         throws InvalidMappingException {
 
-        // return the adjournment language value if set, this supersedes the override field
         if (nonNull(adjournLanguage)) {
             return adjournLanguage;
         }

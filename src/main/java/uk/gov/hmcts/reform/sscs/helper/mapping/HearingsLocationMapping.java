@@ -49,9 +49,6 @@ public final class HearingsLocationMapping {
             }
         }
 
-
-        log.info("getHearingLocations::getOverrideLocations");
-
         locations = getOverrideLocations(caseData);
         if (isNotEmpty(locations)) {
             log.debug("Hearing Locations for Case ID {} set as Override field values", caseId);
@@ -115,11 +112,7 @@ public final class HearingsLocationMapping {
         if (refData.isAdjournmentFlagEnabled()
             && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
 
-            log.info("getAdjournedLocations {}", caseData.getAdjournment());
-
             AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
-
-            log.info("getAdjournedLocations {}", nextHearingVenueName);
 
             if (nonNull(nextHearingVenueName)) {
                 return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
@@ -181,7 +174,6 @@ public final class HearingsLocationMapping {
         Hearing latestHearing = caseData.getLatestHearing();
 
         if (nonNull(latestHearing)) {
-            log.info("latestHearing is {} hearings {}", latestHearing, caseData.getHearings());
             return latestHearing.getValue().getEpimsId();
         }
 

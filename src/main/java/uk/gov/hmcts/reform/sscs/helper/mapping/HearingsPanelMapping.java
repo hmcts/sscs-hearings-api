@@ -69,8 +69,6 @@ public final class HearingsPanelMapping {
             panelMemberPreferences.addAll(getSlPanelPreferences(panelMembers));
         }
 
-        log.debug("Panel member preferences for case {} are {}", caseData.getCcdCaseId(), panelMemberPreferences);
-
         return panelMemberPreferences.stream().toList();
     }
 

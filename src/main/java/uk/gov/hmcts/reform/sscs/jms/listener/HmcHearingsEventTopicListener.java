@@ -49,8 +49,6 @@ public class HmcHearingsEventTopicListener {
         String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
 
         try {
-            log.info("Received a message with body {}", convertedMessage);
-
             HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
 
             if (isMessageRelevantForService(hmcMessage)) {

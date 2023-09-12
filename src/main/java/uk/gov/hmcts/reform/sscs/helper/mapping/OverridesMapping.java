@@ -100,7 +100,6 @@ public final class OverridesMapping {
         Appeal appeal = caseData.getAppeal();
         HearingSubtype subtype = appeal.getHearingSubtype();
         HearingOptions options = appeal.getHearingOptions();
-        // collect override field values
         int duration = HearingsDurationMapping.getHearingDuration(caseData, refData);
         HearingInterpreter interpreter = getAppellantInterpreter(appeal, refData);
         HearingChannel channel = HearingChannelUtil.getIndividualPreferredHearingChannel(subtype, options, null);
