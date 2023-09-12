@@ -125,9 +125,7 @@ public class HearingsService {
         String caseId = caseData.getCcdCaseId();
 
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
-
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
-
         HmcUpdateResponse hmcUpdateResponse;
 
         OverridesMapping.setDefaultListingValues(wrapper, refData);
