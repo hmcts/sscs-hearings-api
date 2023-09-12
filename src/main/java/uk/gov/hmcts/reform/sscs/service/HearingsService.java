@@ -8,10 +8,13 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
+import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -34,14 +37,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
-@SuppressWarnings({"PMD.UnusedFormalParameter"})
-// TODO Unsuppress in future
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"PMD.ExcessiveImports"})
 public class HearingsService {
 
     @Value("${retry.hearing-response-update.max-retries}")
@@ -53,10 +56,14 @@ public class HearingsService {
 
     private final CcdCaseService ccdCaseService;
 
-    private final ReferenceDataServiceHolder referenceDataServiceHolder;
+    private final ReferenceDataServiceHolder refData;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     public static final List<State> INVALID_CASE_STATES = Arrays.asList();
 
+    @Retryable(
+        value = UpdateCaseException.class,
+        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
+        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
         UnhandleableHearingStateException, UpdateCaseException, ListingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
@@ -85,26 +92,27 @@ public class HearingsService {
         }
 
         switch (wrapper.getHearingState()) {
-            case CREATE_HEARING:
+            case ADJOURN_CREATE_HEARING -> {
+                wrapper.getCaseData().getAdjournment().setAdjournmentInProgress(YesNo.YES);
+                wrapper.setHearingState(HearingState.CREATE_HEARING);
                 createHearing(wrapper);
-                break;
-            case UPDATE_HEARING:
-                updateHearing(wrapper);
-                break;
-            case UPDATED_CASE:
-                updatedCase(wrapper);
-                break;
-            case CANCEL_HEARING:
-                cancelHearing(wrapper);
-                break;
-            case PARTY_NOTIFIED:
-                log.info("Parties notified API not supported. Case ID {}",
-                         caseId);
-                break;
-            default:
+            }
+            case CREATE_HEARING -> createHearing(wrapper);
+            case UPDATE_HEARING -> updateHearing(wrapper);
+            case UPDATED_CASE -> log.info(
+                "Updated case API not supported. Case ID {}",
+                caseId
+            );
+            case CANCEL_HEARING -> cancelHearing(wrapper);
+            case PARTY_NOTIFIED -> log.info(
+                "Parties notified API not supported. Case ID {}",
+                caseId
+            );
+            default -> {
                 UnhandleableHearingStateException err = new UnhandleableHearingStateException(wrapper.getHearingState());
-                log.error(err.getMessage(),err);
+                log.error(err.getMessage(), err);
                 throw err;
+            }
         }
     }
 
@@ -117,14 +125,14 @@ public class HearingsService {
         String caseId = caseData.getCcdCaseId();
 
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
-
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
-
         HmcUpdateResponse hmcUpdateResponse;
 
+        OverridesMapping.setDefaultListingValues(wrapper, refData);
+
         if (isNull(hearing)) {
-            OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-            HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+            HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
+            log.debug("Sending Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
             log.debug("Received Create Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
@@ -149,21 +157,18 @@ public class HearingsService {
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-        OverridesMapping.setDefaultOverrideFields(wrapper, referenceDataServiceHolder);
-        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, referenceDataServiceHolder);
+        OverridesMapping.setOverrideValues(wrapper, refData);
+        HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
         String hearingId = getHearingId(wrapper);
+        log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 
         log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getHearingState().getState(),
-                response.toString());
+                response);
 
         hearingResponseUpdate(wrapper, response);
-    }
-
-    private void updatedCase(HearingWrapper wrapper) {
-        // TODO implement mapping for the event when a case is updated
     }
 
     private void cancelHearing(HearingWrapper wrapper) {
@@ -174,16 +179,11 @@ public class HearingsService {
         log.debug("Received Cancel Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
                 wrapper.getCaseData().getCcdCaseId(),
                 wrapper.getHearingState().getState(),
-                response.toString());
+                response);
         // TODO process hearing response
     }
 
-    @Retryable(
-        value = UpdateCaseException.class,
-        maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
-        backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException {
-
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
         String caseId = caseData.getCcdCaseId();
@@ -203,12 +203,25 @@ public class HearingsService {
         HearingsServiceHelper.updateHearingId(hearing, response);
         HearingsServiceHelper.updateVersionNumber(hearing, response);
 
+        if (refData.isAdjournmentFlagEnabled()
+            && YesNo.isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
+            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
+            caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
+        }
+
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
-        ccdCaseService.updateCaseData(
-            caseData,
-            event.getEventType(),
-            event.getSummary(),
-            event.getDescription());
+        log.info("Updating case with event {} description is {}", event, event.getDescription());
+        var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
+
+        if (nonNull(details)) {
+            log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
+                     details.getState(),
+                     details.getEventId(),
+                     details.getEventToken(),
+                     details.getCallbackResponseStatus(),
+                     details.getCaseTypeId()
+            );
+        }
 
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
             caseId,
@@ -224,7 +237,7 @@ public class HearingsService {
             wrapper.getCaseData().getCcdCaseId(),
             response.getHearingRequestId(),
             wrapper.getHearingState().getState(),
-            exception);
+            exception.toString());
 
         throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
     }
@@ -243,9 +256,14 @@ public class HearingsService {
             cancellationReasons = List.of(hearingRequest.getCancellationReason());
         }
 
-        SscsCaseDetails sscsCaseDetails = ccdCaseService.getCaseDetails(hearingRequest.getCcdCaseId());
+        EventType eventType = HearingsServiceHelper.getCcdEvent(hearingRequest.getHearingState());
+        log.info("Getting case details with event {} {}", eventType, eventType.getCcdType());
+        SscsCaseDetails sscsCaseDetails = ccdCaseService.getStartEventResponse(Long.valueOf(hearingRequest.getCcdCaseId()), eventType);
+
         return HearingWrapper.builder()
                 .caseData(sscsCaseDetails.getData())
+                .eventId(sscsCaseDetails.getEventId())
+                .eventToken(sscsCaseDetails.getEventToken())
                 .caseState(State.getById(sscsCaseDetails.getState()))
                 .hearingState(hearingRequest.getHearingState())
                 .cancellationReasons(cancellationReasons)

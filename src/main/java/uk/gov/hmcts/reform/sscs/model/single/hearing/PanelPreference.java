@@ -16,7 +16,7 @@ public class PanelPreference {
 
     private String memberID;
 
-    private String memberType;
+    private MemberType memberType;
 
     private RequirementType requirementType;
 }

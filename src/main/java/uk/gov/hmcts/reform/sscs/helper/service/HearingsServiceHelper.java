@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
@@ -44,6 +45,14 @@ public final class HearingsServiceHelper {
 
     public static HearingEvent getHearingEvent(HearingState state) {
         return HearingEvent.valueOf(state.name());
+    }
+
+    public static EventType getCcdEvent(HearingState hearingState) {
+        try {
+            return getHearingEvent(hearingState).getEventType();
+        } catch (IllegalArgumentException ex) {
+            return EventType.CASE_UPDATED;
+        }
     }
 
     public static String getHearingId(HearingWrapper wrapper) {

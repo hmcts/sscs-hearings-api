@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,10 +21,10 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
-import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.isInterpreterRequired;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsCaseMapping.shouldBeAdditionalSecurityFlag;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.getSessionCaseCodeMap;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.checkBenefitIssueCode;
+import static uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil.isInterpreterRequired;
 
 public final class HearingsAutoListMapping {
 
@@ -31,7 +32,7 @@ public final class HearingsAutoListMapping {
 
     }
 
-    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData)
+    public static boolean shouldBeAutoListed(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
         OverrideFields overrideFields = OverridesMapping.getOverrideFields(caseData);
 
@@ -45,7 +46,7 @@ public final class HearingsAutoListMapping {
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
                 || isPaperCaseAndPoNotAttending(caseData)
-                || hasMqpmOrFqpm(caseData, referenceData)
+                || hasMqpmOrFqpm(caseData, refData)
                 || isThereOtherComments(caseData)
                 || doesNotHaveDwpResponseDate(caseData)
             );
@@ -71,7 +72,7 @@ public final class HearingsAutoListMapping {
     }
 
     public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
-        return HearingsChannelMapping.isPaperCase(caseData)
+        return HearingChannelUtil.isPaperCase(caseData)
                 && !HearingsDetailsMapping.isPoOfficerAttending(caseData);
     }
 
@@ -83,8 +84,8 @@ public final class HearingsAutoListMapping {
         return isBlank(caseData.getDwpResponseDate());
     }
 
-    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder referenceData) throws ListingException {
-        SessionCategoryMap sessionCategoryMap = getSessionCaseCodeMap(caseData, referenceData);
+    public static boolean hasMqpmOrFqpm(@Valid SscsCaseData caseData, ReferenceDataServiceHolder refData) throws ListingException {
+        SessionCategoryMap sessionCategoryMap = getSessionCaseCodeMap(caseData, refData);
 
         checkBenefitIssueCode(sessionCategoryMap);
 
@@ -96,13 +97,9 @@ public final class HearingsAutoListMapping {
         if (isNull(panelMember)) {
             return false;
         }
-        switch (panelMember) {
-            case MQPM1:
-            case MQPM2:
-            case FQPM:
-                return true;
-            default:
-                return false;
-        }
+        return switch (panelMember) {
+            case MQPM1, MQPM2, FQPM -> true;
+            default -> false;
+        };
     }
 }
