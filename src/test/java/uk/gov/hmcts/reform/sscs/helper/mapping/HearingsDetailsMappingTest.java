@@ -408,19 +408,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
     void getHearingLocationsAdjournmentSameVenue() throws ListingException {
-        //TODO: SSCS-10951: remove adjournment flag
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
-        given(refData.getVenueService()).willReturn(venueService);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_2);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
+        given(refData.getVenueService()).willReturn(venueService);
 
         setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
-
-        caseData.setHearings(Collections.singletonList(Hearing.builder()
-                    .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
-                    .epimsId(EPIMS_ID_2).build())
-                .build()));
 
         checkHearingLocationResults(
             HearingsLocationMapping.getHearingLocations(caseData, refData),
@@ -443,15 +438,15 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("Checks both the errors we can throw when trying to obtain the venue ID when getting the locations")
     @Test
     void getHearingLocationsFailOnGettingVenueId() {
-        //TODO: SSCS-10951: remove adjournment flag
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setProcessingVenue(null);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
 
         assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, refData))
             .isInstanceOf(ListingException.class)
-            .hasMessageContaining("Failed to determine next hearing location due to no latest hearing on case "
+            .hasMessageContaining("Failed to determine next hearing location due to no processing venue on case "
                                       + caseData.getCcdCaseId());
     }
 

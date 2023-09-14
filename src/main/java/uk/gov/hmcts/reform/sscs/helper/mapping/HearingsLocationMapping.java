@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
@@ -171,15 +170,13 @@ public final class HearingsLocationMapping {
             return venueService.getEpimsIdForVenueId(venueId);
         }
 
-        Hearing latestHearing = caseData.getLatestHearing();
+        String processingVenue = caseData.getProcessingVenue();
 
-        if (nonNull(latestHearing)) {
-            return latestHearing.getValue().getEpimsId();
+        if (nonNull(processingVenue)) {
+            return venueService.getEpimsIdForVenue(processingVenue);
         }
 
-        log.info("getEpimsID no hearing location found, throwing exception");
-
-        throw new InvalidMappingException("Failed to determine next hearing location due to no latest hearing on case "
+        throw new InvalidMappingException("Failed to determine next hearing location due to no processing venue on case "
                                               + caseData.getCcdCaseId());
     }
 }
