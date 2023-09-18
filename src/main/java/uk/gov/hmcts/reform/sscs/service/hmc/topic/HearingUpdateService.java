@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.sscs.ccd.domain.CollectionItem;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
@@ -107,8 +108,7 @@ public class HearingUpdateService {
             log.debug("panel members on the case are {} and judge is {}", panelMemberIds, hearingDaySchedule.getHearingJudgeId());
             JudicialUserPanel panel = JudicialUserPanel.builder()
                 .assignedTo(judicialRefDataService.getJudicialUserFromPersonalCode(hearingDaySchedule.getHearingJudgeId()))
-                .medicalMember(judicialRefDataService.getJudicialUserFromPersonalCode(panelMemberIds.get(0)))
-                .disabilityQualifiedMember(judicialRefDataService.getJudicialUserFromPersonalCode(panelMemberIds.get(1)))
+                .panelMembers(panelMemberIds.stream().map(id -> new CollectionItem<>(id, judicialRefDataService.getJudicialUserFromPersonalCode(id))).toList())
                 .build();
 
             hearingDetails.setPanel(panel);
