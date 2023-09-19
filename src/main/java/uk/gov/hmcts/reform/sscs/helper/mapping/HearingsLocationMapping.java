@@ -186,7 +186,7 @@ public final class HearingsLocationMapping {
             }
         }
 
-        throw new InvalidMappingException("Failed to determine next hearing location due to no processing venue on case "
+        throw new InvalidMappingException("Failed to determine next hearing location on case "
                                               + caseData.getCcdCaseId());
     }
 }
