@@ -446,7 +446,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, refData))
             .isInstanceOf(ListingException.class)
-            .hasMessageContaining("Failed to determine next hearing location due to no processing venue on case "
+            .hasMessageContaining("Failed to determine next hearing location on case "
                                       + caseData.getCcdCaseId());
     }
 

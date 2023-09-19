@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 import lombok.extern.slf4j.Slf4j;
 import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SOMEWHERE_ELSE;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTypeOfHearing.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -170,10 +172,18 @@ public final class HearingsLocationMapping {
             return venueService.getEpimsIdForVenueId(venueId);
         }
 
-        String processingVenue = caseData.getProcessingVenue();
+        if (PAPER.equals(caseData.getAdjournment().getTypeOfHearing())) {
+            Hearing latestHearing = caseData.getLatestHearing();
 
-        if (nonNull(processingVenue)) {
-            return venueService.getEpimsIdForVenue(processingVenue);
+            if (nonNull(latestHearing)) {
+                return latestHearing.getValue().getEpimsId();
+            }
+        } else {
+            String processingVenue = caseData.getProcessingVenue();
+
+            if (nonNull(processingVenue)) {
+                return venueService.getEpimsIdForVenue(processingVenue);
+            }
         }
 
         throw new InvalidMappingException("Failed to determine next hearing location due to no processing venue on case "
