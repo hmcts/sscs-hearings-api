@@ -145,7 +145,8 @@ flags:
     enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
   adjournment:
     enabled: ${ADJOURNMENT_ENABLED:false}
-
+  postHearings:
+    enabled: ${POST_HEARING_ENABLED:false}
 retry:
   hearing-response-update:
     max-retries: 3

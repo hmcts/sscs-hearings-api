@@ -48,7 +48,7 @@ public class HearingUpdateService {
     public static final int EXPECTED_SESSIONS = 1;
     private final VenueService venueService;
     private final JudicialRefDataService judicialRefDataService;
-    @Value("${feature.postHearings.enabled}")
+    @Value("${flags.postHearings.enabled}")
     private final boolean isPostHearingsEnabled;
 
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
