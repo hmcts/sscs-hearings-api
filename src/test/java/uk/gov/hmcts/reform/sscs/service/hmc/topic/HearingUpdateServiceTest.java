@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
@@ -25,6 +24,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
+import uk.gov.hmcts.reform.sscs.service.JudicialRefDataService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
@@ -65,11 +65,14 @@ class HearingUpdateServiceTest {
     @Mock
     private VenueService venueService;
 
-    @InjectMocks
+    @Mock
+    private JudicialRefDataService judicialRefDataService;
+
     private HearingUpdateService hearingUpdateService;
 
     @BeforeEach
     void setUp() {
+        hearingUpdateService = new HearingUpdateService(venueService, judicialRefDataService, true);
 
         hearingGetResponse = HearingGetResponse.builder()
                 .hearingResponse(HearingResponse.builder().build())

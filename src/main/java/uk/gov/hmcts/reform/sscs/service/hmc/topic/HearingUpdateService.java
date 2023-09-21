@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CollectionItem;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
@@ -44,10 +45,11 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 @RequiredArgsConstructor
 @SuppressWarnings("PMD.ExcessiveImports")
 public class HearingUpdateService {
-
     public static final int EXPECTED_SESSIONS = 1;
     private final VenueService venueService;
     private final JudicialRefDataService judicialRefDataService;
+    @Value("${feature.postHearings.enabled}")
+    private final boolean isPostHearingsEnabled;
 
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
         throws MessageProcessingException, InvalidMappingException {
@@ -104,7 +106,7 @@ public class HearingUpdateService {
 
         List<String> panelMemberIds = hearingDaySchedule.getPanelMemberIds();
 
-        if (nonNull(panelMemberIds) && panelMemberIds.size() > 1) {
+        if (isPostHearingsEnabled && nonNull(panelMemberIds) && panelMemberIds.size() > 1) {
             log.debug("panel members on the case are {} and judge is {}", panelMemberIds, hearingDaySchedule.getHearingJudgeId());
             JudicialUserPanel panel = JudicialUserPanel.builder()
                 .assignedTo(judicialRefDataService.getJudicialUserFromPersonalCode(hearingDaySchedule.getHearingJudgeId()))
