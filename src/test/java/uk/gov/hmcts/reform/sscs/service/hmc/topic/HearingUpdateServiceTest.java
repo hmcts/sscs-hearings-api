@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidHearingDataException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.model.client.JudicialUserBase;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
@@ -39,6 +40,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
@@ -54,6 +57,8 @@ class HearingUpdateServiceTest {
     private static final String NEW_EPIMS_ID = "456";
     private static final String CASE_ID = "777";
     private static final String VENUE_NAME = "VenueName";
+    private static final String JUDGE_ID = "1";
+    private static final List<String> PANEL_IDS = List.of("2", "3");
 
     private VenueDetails venueDetails;
     private SscsCaseData caseData;
@@ -109,10 +114,12 @@ class HearingUpdateServiceTest {
     void testUpdateHearing() throws Exception {
         hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
                         HearingDaySchedule.builder()
-                                .hearingStartDateTime(zoneUtcStartDateTime)
-                                .hearingEndDateTime(zoneUtcEndDateTime)
-                                .hearingVenueEpimsId(NEW_EPIMS_ID)
-                                .build()));
+                            .hearingStartDateTime(zoneUtcStartDateTime)
+                            .hearingEndDateTime(zoneUtcEndDateTime)
+                            .hearingVenueEpimsId(NEW_EPIMS_ID)
+                            .hearingJudgeId(JUDGE_ID)
+                            .panelMemberIds(PANEL_IDS)
+                            .build()));
 
         caseData.setHearings(Lists.newArrayList(
                 Hearing.builder()
@@ -128,7 +135,7 @@ class HearingUpdateServiceTest {
                                 .build())
                         .build()));
 
-
+        given(judicialRefDataService.getJudicialUserFromPersonalCode(any())).willReturn(new JudicialUserBase("idamId", "personalCode"));
         when(venueService.getVenueDetailsForActiveVenueByEpimsId(NEW_EPIMS_ID)).thenReturn(venueDetails);
 
         // when
@@ -150,6 +157,8 @@ class HearingUpdateServiceTest {
             .extracting(HearingDetails::getVenue)
             .extracting("name")
             .containsOnly(VENUE_NAME);
+
+        assertThat(hearings.get(0).getValue().getPanel().getAllPanelMembers().size()).isEqualTo(3);
     }
 
     @DisplayName("When caseData with no hearing that matches one from hearingGetResponse is given,"
