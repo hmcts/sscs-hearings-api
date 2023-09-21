@@ -49,7 +49,7 @@ public class HearingUpdateService {
     private final VenueService venueService;
     private final JudicialRefDataService judicialRefDataService;
     @Value("${flags.postHearings.enabled}")
-    private final boolean isPostHearingsEnabled;
+    private boolean isPostHearingsEnabled;
 
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
         throws MessageProcessingException, InvalidMappingException {

@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
@@ -72,7 +73,8 @@ class HearingUpdateServiceTest {
 
     @BeforeEach
     void setUp() {
-        hearingUpdateService = new HearingUpdateService(venueService, judicialRefDataService, true);
+        hearingUpdateService = new HearingUpdateService(venueService, judicialRefDataService);
+        ReflectionTestUtils.setField(hearingUpdateService, "isPostHearingsEnabled", true);
 
         hearingGetResponse = HearingGetResponse.builder()
                 .hearingResponse(HearingResponse.builder().build())
