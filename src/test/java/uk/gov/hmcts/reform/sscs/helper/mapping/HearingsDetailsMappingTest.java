@@ -427,8 +427,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
-        given(refData.getVenueService()).willReturn(venueService);
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_2);
         given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
+        given(refData.getVenueService()).willReturn(venueService);
 
         setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
 
@@ -460,13 +461,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     void getHearingLocationsFailOnGettingVenueId() {
         //TODO: SSCS-10951: remove adjournment flag
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        caseData.setProcessingVenue(null);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
 
         assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, refData))
             .isInstanceOf(ListingException.class)
-            .hasMessageContaining("Failed to determine next hearing location due to no latest hearing on case "
+            .hasMessageContaining("Failed to determine next hearing location on case "
                                       + caseData.getCcdCaseId());
     }
 
