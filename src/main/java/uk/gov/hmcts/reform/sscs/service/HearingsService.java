@@ -142,7 +142,7 @@ public class HearingsService {
         } else {
             hmcUpdateResponse = HmcUpdateResponse.builder()
                 .hearingRequestId(hearing.getHearingId())
-                .versionNumber(hearing.getRequestVersion())
+                .versionNumber(isNull(hearing.getRequestVersion()) ? 1 : hearing.getRequestVersion())
                 .status(hearing.getHmcStatus())
                 .build();
 
