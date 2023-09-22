@@ -106,7 +106,7 @@ public class HearingUpdateService {
 
         List<String> panelMemberIds = hearingDaySchedule.getPanelMemberIds();
 
-        if (isPostHearingsEnabled && nonNull(panelMemberIds) && panelMemberIds.size() > 1) {
+        if (isPostHearingsEnabled && nonNull(panelMemberIds)) {
             log.debug("panel members on the case are {} and judge is {}", panelMemberIds, hearingDaySchedule.getHearingJudgeId());
             JudicialUserPanel panel = JudicialUserPanel.builder()
                 .assignedTo(judicialRefDataService.getJudicialUserFromPersonalCode(hearingDaySchedule.getHearingJudgeId()))
