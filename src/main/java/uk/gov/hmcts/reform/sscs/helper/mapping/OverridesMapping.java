@@ -43,6 +43,13 @@ public final class OverridesMapping {
 
     }
 
+    public static OverrideFields getDefaultListingValues(@Valid SscsCaseData caseData) {
+        return Optional.ofNullable(caseData)
+            .map(SscsCaseData::getSchedulingAndListingFields)
+            .map(SchedulingAndListingFields::getDefaultListingValues)
+            .orElse(OverrideFields.builder().build());
+    }
+
     public static OverrideFields getOverrideFields(@Valid SscsCaseData caseData) {
         return Optional.ofNullable(caseData)
             .map(SscsCaseData::getSchedulingAndListingFields)
