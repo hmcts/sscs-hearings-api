@@ -1,2 +1,6 @@
 hmc:
   url: http://localhost:10010
+
+flags:
+  postHearings:
+    enabled: ${POST_HEARING_ENABLED:false}
