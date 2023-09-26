@@ -494,7 +494,7 @@ public class ContractTestDataProvider {
             .stringType("hearingVenueId", "hearingVenueId123")
             .stringType("hearingRoomId", "hearingRoomId123")
             .stringType("hearingJudgeId", "hearingJudgeId123")
-            .stringType("panelMemberId", "panelMemberId123")
+            .minArrayLike("panelMemberIds", 0, 1)
             .minArrayLike("attendees", 0, 1)
             .stringType("partyID", "partyID123")
             .stringType("hearingSubChannel", "hearingSubChannel123")
