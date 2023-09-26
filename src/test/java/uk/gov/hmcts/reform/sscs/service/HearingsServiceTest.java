@@ -30,7 +30,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
@@ -264,6 +266,32 @@ class HearingsServiceTest {
                 .hmcStatus(HmcStatus.HEARING_REQUESTED)
                 .requestVersion(1L)
                 .build()))
+            .build();
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
+            .willReturn(hearingsGetResponse);
+
+        wrapper.setHearingState(CREATE_HEARING);
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    @Test
+    void processHearingWrapperCreateExistingHearingWhenHearingDoesntExists() throws GetHearingException, UnhandleableHearingStateException, UpdateCaseException, ListingException {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(hmcHearingApiService.getHearingRequest(anyString())).willThrow(new GetHearingException(""));
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
+            .caseHearings(List.of(CaseHearing.builder()
+                                      .hearingId(HEARING_REQUEST_ID)
+                                      .hmcStatus(HmcStatus.HEARING_REQUESTED)
+                                      .requestVersion(1L)
+                                      .build()))
             .build();
 
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
