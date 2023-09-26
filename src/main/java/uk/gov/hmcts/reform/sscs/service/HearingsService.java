@@ -170,7 +170,9 @@ public class HearingsService {
     }
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-        OverridesMapping.setOverrideValues(wrapper, refData);
+        if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
+            OverridesMapping.setOverrideValues(wrapper, refData);
+        }
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
         String hearingId = getHearingId(wrapper);
         log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
