@@ -172,7 +172,7 @@ public final class HearingsLocationMapping {
             return venueService.getEpimsIdForVenueId(venueId);
         }
 
-        if (PAPER.equals(caseData.getAdjournment().getTypeOfHearing())) {
+        if (PAPER.equals(caseData.getAdjournment().getTypeOfNextHearing())) {
             Hearing latestHearing = caseData.getLatestHearing();
 
             if (nonNull(latestHearing)) {
