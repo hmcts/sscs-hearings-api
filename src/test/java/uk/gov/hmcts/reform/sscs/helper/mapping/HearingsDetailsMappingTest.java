@@ -33,12 +33,10 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SAME_VENUE;
@@ -59,9 +57,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @Mock
     private VenueService venueService;
-
-    @Mock
-    private VenueDetails venueDetails;
 
     private static final String PROCESSING_VENUE_1 = "The Scarborough Justice Centre";
 
@@ -369,7 +364,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() throws ListingException {
+    void getHearingLocations() {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
@@ -393,7 +388,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() throws ListingException {
+    void getHearingLocationsOverride() {
         buildOverrideHearingLocations();
 
         checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
@@ -402,14 +397,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
-    void getHearingLocationsAdjournmentNewVenue() throws ListingException {
-        //TODO: SSCS-10951: remove adjournment flag
+    void getHearingLocationsAdjournmentNewVenue() {
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
         given(refData.getVenueService()).willReturn(venueService);
 
-        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_1)).willReturn(venueDetails);
         given(venueService.getEpimsIdForVenueId(VENUE_ID)).willReturn(EPIMS_ID_1);
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE, VENUE_ID);
@@ -422,13 +415,11 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
-    void getHearingLocationsAdjournmentSameVenue() throws ListingException {
-        //TODO: SSCS-10951: remove adjournment flag
+    void getHearingLocationsAdjournmentSameVenue() {
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn(EPIMS_ID_2);
-        given(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID_2)).willReturn(venueDetails);
+        given(venueService.getEpimsIdForVenueId(EPIMS_ID_1)).willReturn(EPIMS_ID_2);
         given(refData.getVenueService()).willReturn(venueService);
 
         setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
@@ -456,22 +447,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                                     EPIMS_ID_1, EPIMS_ID_2);
     }
 
-    @DisplayName("Checks both the errors we can throw when trying to obtain the venue ID when getting the locations")
-    @Test
-    void getHearingLocationsFailOnGettingVenueId() {
-        //TODO: SSCS-10951: remove adjournment flag
-        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
-        caseData.setProcessingVenue(null);
-        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
-
-        caseData.getAdjournment().setNextHearingVenue(SAME_VENUE);
-
-        assertThatThrownBy(() -> HearingsLocationMapping.getHearingLocations(caseData, refData))
-            .isInstanceOf(ListingException.class)
-            .hasMessageContaining("Failed to determine next hearing location on case "
-                                      + caseData.getCcdCaseId());
-    }
-
     @DisplayName("Checks that the flag will make sure the code isn't run and returns the override values")
     @Test
     void getHearingLocationsCheckFlag() throws ListingException {
@@ -482,27 +457,6 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
                                     EPIMS_ID_1);
-    }
-
-    @DisplayName("When a venue can't be found from the epimsId, throw an exception")
-    @Test
-    void getHearingLocationsAdjournmentSameVenueIncorrectEpimsId() {
-
-        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
-        caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
-
-        given(refData.getVenueService()).willReturn(venueService);
-        given(venueService.getVenueDetailsForActiveVenueByEpimsId(null)).willReturn(null);
-
-        setupAdjournedHearingVenue(SAME_VENUE, EPIMS_ID_1);
-
-        caseData.setHearings(Collections.singletonList(Hearing.builder()
-                                                           .value(uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails.builder()
-                                                                      .build())
-                                                           .build()));
-
-        assertThrows(ListingException.class, () ->
-            HearingsLocationMapping.getHearingLocations(caseData, refData));
     }
 
     void setupAdjournedHearingVenue(AdjournCaseNextHearingVenue nextHearingVenue, String adjournedId) {

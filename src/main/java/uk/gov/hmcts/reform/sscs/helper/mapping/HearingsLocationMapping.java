@@ -1,13 +1,10 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
-import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
@@ -22,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SOMEWHERE_ELSE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTypeOfHearing.PAPER;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
@@ -34,20 +30,13 @@ public final class HearingsLocationMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder refData)
-        throws ListingException {
+                                                            ReferenceDataServiceHolder refData) {
         String caseId = caseData.getCcdCaseId();
-        boolean adjournmentInProgress = refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress());
 
-        log.debug("Adjournment flag: {}, Adjournment in progress: {}", refData.isAdjournmentFlagEnabled(), isYes(caseData.getAdjournment().getAdjournmentInProgress()));
-        List<HearingLocation> locations;
-        // if adjournment in progress, we want to process these locations first, superseding the override fields
-        if (adjournmentInProgress) {
-            locations = getAdjournedLocations(caseData, refData);
-            if (isNotEmpty(locations)) {
-                log.debug("Hearing Locations for Case ID {} set as Adjournment values", caseId);
-                return locations;
-            }
+        List<HearingLocation> locations = getAdjournedLocations(caseData, refData);
+        if (isNotEmpty(locations)) {
+            log.debug("Hearing Locations for Case ID {} set as Adjournment values", caseId);
+            return locations;
         }
 
         locations = getOverrideLocations(caseData);
@@ -107,43 +96,30 @@ public final class HearingsLocationMapping {
     }
 
     private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData,
-                                                               ReferenceDataServiceHolder refData)
-        throws ListingException {
+                                                               ReferenceDataServiceHolder refData) {
+        if (refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
+            List<String> epimsIds;
 
-        if (refData.isAdjournmentFlagEnabled()
-            && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
+            Adjournment adjournment = caseData.getAdjournment();
+            VenueService venueService = refData.getVenueService();
+            if (PAPER.equals(adjournment.getTypeOfNextHearing())) {
+                List<VenueDetails> paperVenues = venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
 
-            AdjournCaseNextHearingVenue nextHearingVenueName = caseData.getAdjournment().getNextHearingVenue();
+                epimsIds = paperVenues.stream().map(VenueDetails::getEpimsId).toList();
+            } else {
+                var nextHearingVenueSelected = adjournment.getNextHearingVenueSelected();
 
-            if (nonNull(nextHearingVenueName)) {
-                return getNextHearingLocation(caseData, refData.getVenueService(), nextHearingVenueName);
+                String epimsId = nonNull(nextHearingVenueSelected)
+                    ? venueService.getEpimsIdForVenueId(nextHearingVenueSelected.getValue().getCode())
+                    : venueService.getEpimsIdForVenue(caseData.getProcessingVenue());
+
+                epimsIds = List.of(epimsId);
             }
+
+            return epimsIds.stream().map(epimsId -> HearingLocation.builder().locationId(epimsId).locationType(COURT).build()).toList();
         }
 
         return Collections.emptyList();
-    }
-
-    private static List<HearingLocation> getNextHearingLocation(SscsCaseData caseData,
-                                                                VenueService venueService,
-                                                                AdjournCaseNextHearingVenue nextHearingVenueName)
-        throws ListingException {
-
-        String epimsID = getEpimsID(caseData, venueService, nextHearingVenueName);
-        VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(epimsID);
-
-        if (nonNull(venueDetails)) {
-            log.info("Getting hearing location {} with the epims ID of {}", venueDetails.getGapsVenName(), epimsID);
-
-            return List.of(HearingLocation.builder()
-                               .locationId(epimsID)
-                               .locationType(COURT)
-                               .build());
-        }
-
-        log.info("getNextHearingLocation no venues found for epimsid: {}", epimsID);
-
-        throw new ListingException("Failed to determine next hearing location due to an invalid EpimsId \""
-                                       + epimsID + "\" on the latest hearing");
     }
 
     private static List<HearingLocation> getMultipleLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
@@ -159,34 +135,5 @@ public final class HearingsLocationMapping {
             .orElseGet(() -> Collections.singletonList(epimsId))
             .stream().map(epims -> HearingLocation.builder().locationId(epims).locationType(COURT).build())
             .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    private static String getEpimsID(SscsCaseData caseData,
-                                     VenueService venueService,
-                                     AdjournCaseNextHearingVenue nextHearingVenue)
-        throws InvalidMappingException {
-
-        if (SOMEWHERE_ELSE.equals(nextHearingVenue)) {
-            String venueId = caseData.getAdjournment().getNextHearingVenueSelected().getValue().getCode();
-
-            return venueService.getEpimsIdForVenueId(venueId);
-        }
-
-        if (PAPER.equals(caseData.getAdjournment().getTypeOfNextHearing())) {
-            Hearing latestHearing = caseData.getLatestHearing();
-
-            if (nonNull(latestHearing)) {
-                return latestHearing.getValue().getEpimsId();
-            }
-        } else {
-            String processingVenue = caseData.getProcessingVenue();
-
-            if (nonNull(processingVenue)) {
-                return venueService.getEpimsIdForVenue(processingVenue);
-            }
-        }
-
-        throw new InvalidMappingException("Failed to determine next hearing location on case "
-                                              + caseData.getCcdCaseId());
     }
 }
