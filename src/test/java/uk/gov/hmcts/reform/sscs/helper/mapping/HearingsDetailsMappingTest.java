@@ -84,6 +84,12 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @BeforeEach
     void setUp() {
+        OverrideFields defaultListingValues = OverrideFields.builder()
+            .duration(60)
+            .build();
+        SchedulingAndListingFields slFields = SchedulingAndListingFields.builder()
+            .defaultListingValues(defaultListingValues)
+            .build();
         caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
@@ -91,6 +97,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                     .wantsHearingTypeTelephone("yes")
                     .hearingTelephoneNumber(PHONE_NUMBER).build()).build())
             .processingVenue(PROCESSING_VENUE_1)
+            .schedulingAndListingFields(slFields)
             .build();
     }
 
@@ -104,6 +111,13 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(refData.getVenueService()).willReturn(venueService);
+
+        OverrideFields defaultListingValues = OverrideFields.builder()
+            .duration(60)
+            .build();
+        SchedulingAndListingFields slFields = SchedulingAndListingFields.builder()
+            .defaultListingValues(defaultListingValues)
+            .build();
 
         // TODO Finish Test when method done
         caseData = SscsCaseData.builder()
@@ -122,6 +136,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                 .region(REGION)
                 .build())
             .dwpIsOfficerAttending("Yes")
+            .schedulingAndListingFields(slFields)
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
