@@ -29,7 +29,7 @@ public class HearingDaySchedule {
 
     private String hearingJudgeId;
 
-    private String panelMemberId;
+    private List<String> panelMemberIds;
 
     private List<Attendees> attendees;
 }

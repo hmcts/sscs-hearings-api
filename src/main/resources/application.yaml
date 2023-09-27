@@ -142,9 +142,11 @@ flags:
   hmc-to-hearings-api:
     enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
   tribunals-to-hearings-api:
-    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:true}
+    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
   adjournment:
-    enabled: ${ADJOURNMENT_ENABLED:true}
+    enabled: ${ADJOURNMENT_ENABLED:false}
+  postHearings:
+    enabled: ${POST_HEARING_ENABLED:false}
 
 retry:
   hearing-response-update:
