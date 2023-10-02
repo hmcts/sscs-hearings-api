@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
@@ -28,12 +29,12 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -58,7 +59,8 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder refData;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
-    public static final List<State> INVALID_CASE_STATES = Arrays.asList();
+    public static final List<State> INVALID_CASE_STATES = List.of();
+    private static final Long HEARING_VERSION_NUMBER = 1L;
 
     @Retryable(
         value = UpdateCaseException.class,
@@ -142,7 +144,7 @@ public class HearingsService {
         } else {
             hmcUpdateResponse = HmcUpdateResponse.builder()
                 .hearingRequestId(hearing.getHearingId())
-                .versionNumber(hearing.getRequestVersion())
+                .versionNumber(getHearingVersionNumber(hearing))
                 .status(hearing.getHmcStatus())
                 .build();
 
@@ -156,8 +158,21 @@ public class HearingsService {
         hearingResponseUpdate(wrapper, hmcUpdateResponse);
     }
 
+    private Long getHearingVersionNumber(CaseHearing hearing) {
+        try {
+            HearingGetResponse response = hmcHearingApiService.getHearingRequest(hearing.getHearingId().toString());
+            return response.getRequestDetails().getVersionNumber();
+        } catch (GetHearingException e) {
+            log.debug("Hearing with id {} doesn't exist", hearing.getHearingId());
+        }
+
+        return HEARING_VERSION_NUMBER;
+    }
+
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-        OverridesMapping.setOverrideValues(wrapper, refData);
+        if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
+            OverridesMapping.setOverrideValues(wrapper, refData);
+        }
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
         String hearingId = getHearingId(wrapper);
         log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
@@ -258,7 +273,7 @@ public class HearingsService {
 
         EventType eventType = HearingsServiceHelper.getCcdEvent(hearingRequest.getHearingState());
         log.info("Getting case details with event {} {}", eventType, eventType.getCcdType());
-        SscsCaseDetails sscsCaseDetails = ccdCaseService.getStartEventResponse(Long.valueOf(hearingRequest.getCcdCaseId()), eventType);
+        SscsCaseDetails sscsCaseDetails = ccdCaseService.getStartEventResponse(Long.parseLong(hearingRequest.getCcdCaseId()), eventType);
 
         return HearingWrapper.builder()
                 .caseData(sscsCaseDetails.getData())
