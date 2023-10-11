@@ -43,13 +43,13 @@ public final class HearingsDurationMapping {
         // if no adjournment in progress, we first try to set the override value if present
         if (nonNull(overrideDuration) && overrideDuration >= MIN_HEARING_DURATION) {
             log.debug("Hearing Duration for Case ID {} set as existing Override Field value {}", caseId, overrideDuration);
-            return overrideDuration;
+            return handleStandardDuration(caseData, overrideDuration);
         }
         Integer defaultListingDuration = OverridesMapping.getDefaultListingValues(caseData).getDuration();
         // or we set based on existing S&L default listing value for duration if present
         if (nonNull(defaultListingDuration) && defaultListingDuration >= MIN_HEARING_DURATION) {
             log.debug("Hearing Duration for Case ID {} set as existing Override Field value {}", caseId, defaultListingDuration);
-            return defaultListingDuration;
+            return handleStandardDuration(caseData, defaultListingDuration);
         }
         // otherwise we set duration based on existing duration values ref data json
         duration = hearingDurationsService.getHearingDurationBenefitIssueCodes(caseData);
