@@ -80,10 +80,10 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .appeal(Appeal.builder()
-                        .hearingOptions(HearingOptions.builder()
-                                            .wantsToAttend("Yes")
-                                            .build())
-                        .build())
+                .hearingOptions(HearingOptions.builder()
+                    .wantsToAttend("Yes")
+                    .build())
+                .build())
             .schedulingAndListingFields(slFields)
             .build();
 

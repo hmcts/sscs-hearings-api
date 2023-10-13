@@ -215,7 +215,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .build();
         //then
         assertFalse(serviceHearingValues.isAutoListFlag());
-        assertEquals(30, serviceHearingValues.getDuration());
+        assertEquals(60, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE, serviceHearingValues.getHearingType());
         assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
