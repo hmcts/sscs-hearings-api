@@ -50,6 +50,7 @@
       <property name="allowNonPrintableEscapes" value="true"/>
     </module>
     <module name="AvoidStarImport">
+      <property name="excludes" value="java.util"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.ccd.domain"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping"/>
       <property name="excludes" value="uk.gov.hmcts.reform.sscs.model.single.hearing"/>

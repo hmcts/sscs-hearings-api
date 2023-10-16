@@ -338,7 +338,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '5.0.10'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: 'a571baf'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
