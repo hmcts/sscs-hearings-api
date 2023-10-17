@@ -427,7 +427,11 @@ public final class HearingsPartiesMapping {
         List<UnavailabilityRange> unavailabilityRanges = new LinkedList<>();
 
         for (ExcludeDate excludeDate : hearingOptions.getExcludeDates()) {
-            unavailabilityRanges.add(getUnavailabilityRange(excludeDate.getValue()));
+            UnavailabilityRange unavailabilityRange = getUnavailabilityRange(excludeDate.getValue());
+
+            if (nonNull(unavailabilityRange)) {
+                unavailabilityRanges.add(unavailabilityRange);
+            }
         }
 
         return unavailabilityRanges;

@@ -656,7 +656,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @ValueSource(strings = {"Test"})
     @NullAndEmptySource
-    void testGetIndividualInterpreterLanguage(String value) throws InvalidMappingException {
+    void testGetIndividualInterpreterLanguage(String value) {
         given(verbalLanguages.getVerbalLanguage(value))
             .willReturn(null);
 
@@ -698,7 +698,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @ValueSource(strings = {"Test"})
     @NullAndEmptySource
-    void testGetIndividualInterpreterSignLanguage(String value) throws InvalidMappingException {
+    void testGetIndividualInterpreterSignLanguage(String value) {
         given(signLanguages.getSignLanguage(value))
             .willReturn(null);
 
@@ -1156,6 +1156,19 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(unavailabilityRange.getUnavailabilityType()).isEqualTo(DayOfWeekUnavailabilityType.ALL_DAY.getLabel());
         assertThat(unavailabilityRange.getUnavailableFromDate()).isEqualTo(start);
         assertThat(unavailabilityRange.getUnavailableToDate()).isEqualTo(end);
+    }
+
+    @DisplayName("When the start and end date ranges are both null, then return null")
+    @Test
+    void getPartyUnavailabilityRangeWhenBothDatesAreNull() throws ListingException {
+        List<ExcludeDate> excludeDates = new ArrayList<>();
+        excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
+                                                         .build())
+                             .build());
+        HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+
+        assertThat(result).isEmpty();
     }
 
     private static Stream<Arguments> getPartyReferenceArgements() {

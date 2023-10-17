@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,27 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseAccessManagementFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLink;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseLinkDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SchedulingAndListingFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsIndustrialInjuriesData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
@@ -39,12 +19,15 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -165,14 +148,48 @@ class ServiceHearingsServiceTest {
             .extracting("partyID")
             .doesNotContainNull();
 
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY),anyString(),anyString());
+        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), anyString());
+    }
+
+    @DisplayName("When a listing error is throw due to invalid excluded dates, then catch the error, send a listing error event and rethrow the error")
+    @Test
+    void testGetServiceHearingValuesInvalidDateRange() throws Exception {
+        caseData.getAppeal().getAppellant().setId("87399f1d-fcf9-416f-a3d0-f5ab0eb1109d");
+        caseData.getAppeal().getRep().setId("9f6fe72e-7e6e-4ad5-9a47-e70fc37e9de4");
+        caseData.getJointParty().setId("c11dc4a2-0447-4cd2-80fe-250df5c8d0a9");
+        caseData.getAppeal().getHearingOptions().setExcludeDates(List.of(ExcludeDate.builder()
+                                                                             .value(DateRange.builder().start(LocalDate.now().toString())
+                                                                                        .end(LocalDate.now().minus(1, ChronoUnit.DAYS).toString())
+                                                                                        .build())
+                                                                             .build()));
+
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,true,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false, SessionCategory.CATEGORY_03,null));
+
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
+        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
+
+        given(refData.getVenueService()).willReturn(venueService);
+
+        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
+
+        given(ccdCaseService.updateCaseData(eq(caseData), eq(EventType.LISTING_ERROR), anyString(), anyString())).willReturn(caseDetails);
+
+        ServiceHearingRequest request = ServiceHearingRequest.builder()
+            .caseId(String.valueOf(CASE_ID))
+            .build();
+
+        assertThrows(ListingException.class, () -> serviceHearingsService.getServiceHearingValues(request));
+
+        verify(ccdCaseService, times(1)).updateCaseData(eq(caseData), eq(EventType.LISTING_ERROR), anyString(), anyString());
+
+        verify(ccdCaseService, never()).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), anyString());
     }
 
     @DisplayName("When a case data is retrieved where all valid entities have a Id the method updateCaseData will never be called")
     @Test
-    @Disabled
-    //TODO disabled due to change in sscs-common for panel memebers excluded which causing case update
-    //TODO  enable back when sscs-common is updated
     void testGetServiceHearingValuesWithIds() throws Exception {
         ServiceHearingRequest request = ServiceHearingRequest.builder()
             .caseId(String.valueOf(CASE_ID))
@@ -200,7 +217,7 @@ class ServiceHearingsServiceTest {
             .extracting("partyID")
             .doesNotContainNull();
 
-        verify(ccdCaseService, never()).updateCaseData(any(SscsCaseData.class), any(EventType.class),anyString(),anyString());
+        verify(ccdCaseService, never()).updateCaseData(any(SscsCaseData.class), any(EventType.class), anyString(), anyString());
     }
 
     @ParameterizedTest
