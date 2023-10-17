@@ -47,7 +47,7 @@ public class ServiceHearingsService {
         SscsCaseData caseData = caseDetails.getData();
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
+        ServiceHearingValues model = getModel(caseData);
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
 
@@ -61,6 +61,15 @@ public class ServiceHearingsService {
         }
 
         return model;
+    }
+
+    private ServiceHearingValues getModel(SscsCaseData caseData) throws ListingException, UpdateCaseException {
+        try {
+            return ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
+        } catch (ListingException e) {
+            ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, e.getSummary(), e.getDescription());
+            throw e;
+        }
     }
 
     public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)
