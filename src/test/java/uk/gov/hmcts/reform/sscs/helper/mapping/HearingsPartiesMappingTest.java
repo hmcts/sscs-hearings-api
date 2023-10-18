@@ -59,6 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPELLANT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_PARTY;
@@ -1117,7 +1118,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
     @Test
     void buildHearingPartiesDetails_unavailabilityRanges() throws ListingException {
-
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(1);
         SscsCaseData caseData = SscsCaseData.builder()
@@ -1169,6 +1169,43 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
         assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When the start date is null and end date is valid, then return the unavailability range")
+    @Test
+    void getPartyUnavailabilityRangeWhenStartDateIsNull() throws ListingException {
+        List<ExcludeDate> excludeDates = new ArrayList<>();
+        excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
+                                                         .end(LocalDate.now().toString())
+                                                         .build())
+                             .build());
+        HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(UnavailabilityRange.builder()
+                                                .unavailableToDate(LocalDate.now())
+                                                .unavailableFromDate(LocalDate.now())
+                                                .unavailabilityType(ALL_DAY.getLabel()).build());
+    }
+
+    @DisplayName("When the start date is in a wrong format and the end date is correct, then return the unavailability range")
+    @Test
+    void getPartyUnavailabilityRangeWhenOneDateIsInvalidAndOtherIsCorrect() throws ListingException {
+        List<ExcludeDate> excludeDates = new ArrayList<>();
+        excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
+                                                         .start("234234")
+                                                         .end(LocalDate.now().toString())
+                                                         .build())
+                             .build());
+        HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(UnavailabilityRange.builder()
+                                                .unavailableToDate(LocalDate.now())
+                                                .unavailableFromDate(LocalDate.now())
+                                                .unavailabilityType(ALL_DAY.getLabel()).build());
     }
 
     private static Stream<Arguments> getPartyReferenceArgements() {

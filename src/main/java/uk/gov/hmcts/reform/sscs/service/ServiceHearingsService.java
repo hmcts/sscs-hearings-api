@@ -47,7 +47,7 @@ public class ServiceHearingsService {
         SscsCaseData caseData = caseDetails.getData();
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
-        ServiceHearingValues model = getModel(caseData);
+        ServiceHearingValues model = getServiceHearingValuesModel(caseData);
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
 
@@ -63,7 +63,7 @@ public class ServiceHearingsService {
         return model;
     }
 
-    private ServiceHearingValues getModel(SscsCaseData caseData) throws ListingException, UpdateCaseException {
+    private ServiceHearingValues getServiceHearingValuesModel(SscsCaseData caseData) throws ListingException, UpdateCaseException {
         try {
             return ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
         } catch (ListingException e) {
