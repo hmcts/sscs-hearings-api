@@ -148,10 +148,11 @@ public class HearingsService {
                 .status(hearing.getHmcStatus())
                 .build();
 
-            log.debug("Existing hearing found, skipping Create Hearing Request for Case ID {}, Hearing State {} and "
+            log.debug("Existing hearing found, skipping Create Hearing Request for Case ID {}, Hearing State {}, Hearing version {} and "
                     + "Hearing Id {}",
                 caseId,
                 hearing.getHmcStatus(),
+                hearing.getRequestVersion(),
                 hearing.getHearingId());
         }
 
