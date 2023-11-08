@@ -1,9 +1,7 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -67,6 +65,7 @@ public final class HearingsDurationMapping {
 
         Integer existingDuration = caseData.getSchedulingAndListingFields().getDefaultListingValues().getDuration();
         if (nonNull(existingDuration) && durationType == STANDARD) {
+            existingDuration = handleAdjournmentHearingType(caseData, hearingDurationsService, existingDuration);
             return handleStandardDuration(caseData, existingDuration);
         }
 
@@ -78,14 +77,22 @@ public final class HearingsDurationMapping {
         return hearingDurationsService.getHearingDurationBenefitIssueCodes(caseData);
     }
 
+    private static Integer handleAdjournmentHearingType(SscsCaseData caseData, HearingDurationsService durationsService, Integer duration) {
+        Adjournment adjournment = caseData.getAdjournment();
+        if (!adjournment.getTypeOfHearing().equals(adjournment.getTypeOfNextHearing())) {
+            duration = durationsService.getHearingDurationBenefitIssueCodes(caseData);
+            return duration;
+        }
+        return duration;
+    }
+
     private static Integer handleStandardDuration(SscsCaseData caseData, Integer duration) {
         if (isYes(caseData.getAppeal().getHearingOptions().getWantsToAttend())
             && isInterpreterRequired(caseData)) {
             // if interpreter, add 30 minutes to existing duration
             return duration + MIN_HEARING_DURATION;
-        } else {
-            return duration;
         }
+        return duration;
     }
 
     private static Integer handleNonStandardDuration(SscsCaseData caseData, Integer duration) {
