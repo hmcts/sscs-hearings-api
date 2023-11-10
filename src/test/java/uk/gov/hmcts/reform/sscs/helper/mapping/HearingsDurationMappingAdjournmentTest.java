@@ -167,6 +167,12 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         setAdjournmentDurationAndUnits(null, SESSIONS);
         caseData.getAdjournment().setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.STANDARD);
 
+        Adjournment adjournment = caseData.getAdjournment();
+
+        adjournment.setNextHearingListingDurationType(AdjournCaseNextHearingDurationType.STANDARD);
+        adjournment.setTypeOfHearing(AdjournCaseTypeOfHearing.PAPER);
+        adjournment.setTypeOfNextHearing(AdjournCaseTypeOfHearing.PAPER);
+
         HearingDuration duration = new HearingDuration();
         duration.setBenefitCode(BenefitCode.PIP_NEW_CLAIM);
         duration.setIssue(Issue.DD);
