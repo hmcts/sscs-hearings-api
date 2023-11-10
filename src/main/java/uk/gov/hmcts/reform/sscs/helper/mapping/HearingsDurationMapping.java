@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDurationUnits;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -80,8 +83,7 @@ public final class HearingsDurationMapping {
     private static Integer handleAdjournmentHearingType(SscsCaseData caseData, HearingDurationsService durationsService, Integer duration) {
         Adjournment adjournment = caseData.getAdjournment();
         if (!adjournment.getTypeOfHearing().equals(adjournment.getTypeOfNextHearing())) {
-            duration = durationsService.getHearingDurationBenefitIssueCodes(caseData);
-            return duration;
+            return durationsService.getHearingDurationBenefitIssueCodes(caseData);
         }
         return duration;
     }
