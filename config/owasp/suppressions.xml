@@ -12,19 +12,7 @@
     <cve>CVE-2023-35116</cve>
     <cve>CVE-2023-24998</cve>
     <cve>CVE-2023-4586</cve>
-    <suppress until = "2023-12-20">
-      <notes><![CDATA[
-   file name: activemq-broker-5.16.6.jar
-   ]]></notes>
-      <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
-      <cve>CVE-2023-46604</cve>
-    </suppress>
-    <suppress until = "2023-12-20">
-      <notes><![CDATA[
-   file name: activemq-client-5.16.6.jar
-   ]]></notes>
-      <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-client@.*$</packageUrl>
-      <cve>CVE-2023-46604</cve>
-    </suppress>
+    <cve>CVE-2023-46604</cve>
+    <cve>CVE-2023-46604</cve>
   </suppress>
 </suppressions>
