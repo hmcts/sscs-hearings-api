@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,9 +33,9 @@ public class ServiceHearingsService {
 
     private final CcdCaseService ccdCaseService;
 
-    private final ReferenceDataServiceHolder referenceDataServiceHolder;
+    private final ReferenceDataServiceHolder refData;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public ServiceHearingValues getServiceHearingValues(ServiceHearingRequest request)
         throws GetCaseException, UpdateCaseException, ListingException, JsonProcessingException {
@@ -43,7 +44,7 @@ public class ServiceHearingsService {
         SscsCaseData caseData = caseDetails.getData();
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
-        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
         boolean hasInValidHearingVideoEmail = getHasInValidHearingVideoEmail(caseData);
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
@@ -51,6 +52,7 @@ public class ServiceHearingsService {
         if (hasInValidHearingVideoEmail) {
             updateCaseDataToListingError(caseData, "Hearing video email address must be valid email address");
         } else if (!originalCaseData.equals(updatedCaseData)) {
+            log.debug("Updating case data with Service Hearing Values for Case ID {}", caseData.getCcdCaseId());
             ccdCaseService.updateCaseData(
                 caseData,
                 EventType.UPDATE_CASE_ONLY,

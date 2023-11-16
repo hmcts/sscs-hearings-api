@@ -2,9 +2,7 @@ package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
@@ -17,12 +15,13 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.checkBenefitIssueCode;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
-
+import static uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil.isInterpreterRequired;
 
 @RestController
 @Slf4j
@@ -31,36 +30,37 @@ public final class HearingsCaseMapping {
     public static final String CASE_DETAILS_URL = "%s/cases/case-details/%s";
 
     private HearingsCaseMapping() {
-
     }
 
-    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
+    public static CaseDetails buildHearingCaseDetails(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+        throws ListingException {
+
         SscsCaseData caseData = wrapper.getCaseData();
         return CaseDetails.builder()
-                .hmctsServiceCode(getServiceCode(referenceDataServiceHolder))
+                .hmctsServiceCode(getServiceCode(refData))
                 .caseId(getCaseID(caseData))
-                .caseDeepLink(getCaseDeepLink(wrapper.getCaseData(), referenceDataServiceHolder))
+                .caseDeepLink(getCaseDeepLink(wrapper.getCaseData(), refData))
                 .hmctsInternalCaseName(getInternalCaseName(caseData))
                 .publicCaseName(getPublicCaseName(caseData))
                 .caseAdditionalSecurityFlag(shouldBeAdditionalSecurityFlag(caseData))
                 .caseInterpreterRequiredFlag(isInterpreterRequired(caseData))
-                .caseCategories(buildCaseCategories(caseData, referenceDataServiceHolder))
+                .caseCategories(buildCaseCategories(caseData, refData))
                 .caseManagementLocationCode(getCaseManagementLocationCode(caseData))
                 .caseRestrictedFlag(shouldBeSensitiveFlag())
                 .caseSlaStartDate(getCaseCreated(caseData))
                 .build();
     }
 
-    public static String getServiceCode(ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return referenceDataServiceHolder.getSscsServiceCode();
+    public static String getServiceCode(ReferenceDataServiceHolder refData) {
+        return refData.getSscsServiceCode();
     }
 
     public static String getCaseID(SscsCaseData caseData) {
         return caseData.getCcdCaseId();
     }
 
-    public static String getCaseDeepLink(SscsCaseData caseData, ReferenceDataServiceHolder referenceDataServiceHolder) {
-        return String.format(CASE_DETAILS_URL, referenceDataServiceHolder.getExUiUrl(), getCaseID(caseData));
+    public static String getCaseDeepLink(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+        return String.format(CASE_DETAILS_URL, refData.getExUiUrl(), getCaseID(caseData));
     }
 
     public static String getInternalCaseName(SscsCaseData caseData) {
@@ -82,58 +82,45 @@ public final class HearingsCaseMapping {
                 .anyMatch(o -> isYes(o.getUnacceptableCustomerBehaviour()));
     }
 
-    public static boolean isInterpreterRequired(SscsCaseData caseData) {
-        // TODO Adjournment - Check this is the correct logic for Adjournment
-        Appeal appeal = caseData.getAppeal();
-        return isYes(caseData.getAdjournment().getInterpreterRequired())
-                || isInterpreterRequiredHearingOptions(appeal.getHearingOptions())
-                || isInterpreterRequiredOtherParties(caseData.getOtherParties());
-    }
+    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData, ReferenceDataServiceHolder refData)
+        throws ListingException {
 
-    public static boolean isInterpreterRequiredOtherParties(List<CcdValue<OtherParty>> otherParties) {
-        return nonNull(otherParties) && otherParties.stream().map(CcdValue::getValue)
-            .anyMatch(o -> isInterpreterRequiredHearingOptions(o.getHearingOptions()));
-    }
-
-    public static boolean isInterpreterRequiredHearingOptions(HearingOptions hearingOptions) {
-        return  isYes(hearingOptions.getLanguageInterpreter()) || hearingOptions.wantsSignLanguageInterpreter();
-    }
-
-    public static List<CaseCategory> buildCaseCategories(SscsCaseData caseData,
-                                                         ReferenceDataServiceHolder referenceDataServiceHolder) throws ListingException {
-        // TODO Adjournment - Check this is the correct logic for Adjournment
-        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCodeMap(caseData, referenceDataServiceHolder);
+        SessionCategoryMap sessionCategoryMap = HearingsMapping.getSessionCaseCodeMap(caseData, refData);
 
         checkBenefitIssueCode(sessionCategoryMap);
 
         List<CaseCategory> categories = new ArrayList<>();
-        categories.addAll(getCaseTypes(sessionCategoryMap, referenceDataServiceHolder));
-        categories.addAll(getCaseSubTypes(sessionCategoryMap, referenceDataServiceHolder));
+        categories.addAll(getCaseTypes(sessionCategoryMap, refData));
+        categories.addAll(getCaseSubTypes(sessionCategoryMap, refData));
 
         return categories;
     }
 
     public static List<CaseCategory> getCaseTypes(SessionCategoryMap sessionCaseCode,
-                                                  ReferenceDataServiceHolder referenceDataServiceHolder) {
+                                                  ReferenceDataServiceHolder refData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_TYPE)
-                .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
+                .categoryValue(refData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
 
-    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder referenceDataServiceHolder) {
+    public static List<CaseCategory> getCaseSubTypes(SessionCategoryMap sessionCaseCode, ReferenceDataServiceHolder refData) {
         List<CaseCategory> categories = new ArrayList<>();
         categories.add(CaseCategory.builder()
                 .categoryType(CASE_SUBTYPE)
-                .categoryParent(referenceDataServiceHolder.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
-                .categoryValue(referenceDataServiceHolder.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
+                .categoryParent(refData.getSessionCategoryMaps().getCategoryTypeValue(sessionCaseCode))
+                .categoryValue(refData.getSessionCategoryMaps().getCategorySubTypeValue(sessionCaseCode))
                 .build());
         return categories;
     }
 
     public static String getCaseManagementLocationCode(SscsCaseData caseData) {
+        if (isNull(caseData.getCaseManagementLocation())) {
+            return null;
+        }
+
         return caseData.getCaseManagementLocation().getBaseLocation();
     }
 
