@@ -186,6 +186,9 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid adjourn create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperAdjournmentCreate() {
+        wrapper.getCaseData().setRegionalProcessingCenter(getListAssistRegionalProcessingCenter());
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false,false,SessionCategory.CATEGORY_03,null));
@@ -281,6 +284,9 @@ class HearingsServiceTest {
 
     @Test
     void processHearingWrapperCreateExistingHearingWhenHearingDoesntExists() throws GetHearingException, UnhandleableHearingStateException, UpdateCaseException, ListingException {
+        wrapper.getCaseData().setRegionalProcessingCenter(getListAssistRegionalProcessingCenter());
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false,false,SessionCategory.CATEGORY_03,null));
@@ -372,7 +378,6 @@ class HearingsServiceTest {
     @Test
     void processHearingWrapperCreate_RpcInTheApprovedList_ThenSendTheHearingRequestToListAssist() throws UpdateCaseException {
         HearingDuration hearingDuration = new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD, 60, 75, 30);
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE, ISSUE_CODE)).willReturn(hearingDuration);
 
         SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(
             BenefitCode.PIP_NEW_CLAIM,

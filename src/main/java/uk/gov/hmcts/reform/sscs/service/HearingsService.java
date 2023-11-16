@@ -123,7 +123,10 @@ public class HearingsService {
             String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
             RegionalProcessingCenterService regionalProcessingCenterService = refData.getRegionalProcessingCenterService();
             RegionalProcessingCenter processingCenterByPostCode = regionalProcessingCenterService.getByPostcode(regionalProcessingCenterPostCode);
-            return LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute());
+
+            if (!isNull(processingCenterByPostCode)) {
+                return LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute());
+            }
         }
         return false;
     }
