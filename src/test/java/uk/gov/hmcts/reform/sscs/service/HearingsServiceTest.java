@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
@@ -22,6 +23,8 @@ import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -224,7 +227,7 @@ class HearingsServiceTest {
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(HearingsGetResponse.builder().build());
 
-        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
         given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
 
         wrapper.setHearingState(CREATE_HEARING);
@@ -265,7 +268,7 @@ class HearingsServiceTest {
         given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
             .willReturn(hearingsGetResponse);
 
-        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
         given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
 
         wrapper.setHearingState(CREATE_HEARING);
@@ -353,7 +356,7 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid create Hearing State is given but rpc is not Cardiff, should send to listing error")
     @Test
     void processHearingWrapperCreate_RpcNotInTheApprovedList_ThenSendToListingError() throws UpdateCaseException {
-        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
         given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getGapsRegionalProcessingCenter());
 
         wrapper.setHearingState(CREATE_HEARING);
@@ -382,16 +385,16 @@ class HearingsServiceTest {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false)).willReturn(
             sessionCategoryMap);
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class))).willReturn(
             HmcUpdateResponse.builder().build());
         given(hmcHearingsApiService.getHearingsRequest(anyString(),
                                                        eq(null))).willReturn(HearingsGetResponse.builder().build());
 
-        given(referenceDataServiceHolder.getRegionalProcessingCenterService()).willReturn(
+        given(refData.getRegionalProcessingCenterService()).willReturn(
             regionalProcessingCenterService);
         given(regionalProcessingCenterService.getByPostcode(any())).willReturn(getListAssistRegionalProcessingCenter());
 

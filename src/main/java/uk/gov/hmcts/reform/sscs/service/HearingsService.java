@@ -121,7 +121,7 @@ public class HearingsService {
         RegionalProcessingCenter regionalProcessingCenter = caseData.getRegionalProcessingCenter();
         if (regionalProcessingCenter != null) {
             String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
-            RegionalProcessingCenterService regionalProcessingCenterService = referenceDataServiceHolder.getRegionalProcessingCenterService();
+            RegionalProcessingCenterService regionalProcessingCenterService = refData.getRegionalProcessingCenterService();
             RegionalProcessingCenter processingCenterByPostCode = regionalProcessingCenterService.getByPostcode(regionalProcessingCenterPostCode);
             return LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute());
         }
