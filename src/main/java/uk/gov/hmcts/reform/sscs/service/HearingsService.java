@@ -135,8 +135,7 @@ public class HearingsService {
         SscsCaseData caseData = wrapper.getCaseData();
 
         if (!isRpcInTheApprovedList(caseData)) {
-            ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, "", "RPC is invalid");
-            return;
+            throw new ListingException("RPC is invalid");
         }
 
         String caseId = caseData.getCcdCaseId();

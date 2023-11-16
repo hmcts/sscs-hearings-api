@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -369,9 +370,7 @@ class HearingsServiceTest {
         SscsCaseData sscsCaseData = wrapper.getCaseData();
         sscsCaseData.setRegionalProcessingCenter(getGapsRegionalProcessingCenter());
 
-        assertThatNoException()
-            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(EventType.LISTING_ERROR), anyString(), eq("RPC is invalid"));
+        assertThatExceptionOfType(ListingException.class).isThrownBy(() -> hearingsService.processHearingWrapper(wrapper)).withMessage("RPC is invalid");
     }
 
     @DisplayName("When wrapper with a valid create Hearing State is given and rpc is Cardiff, should run without error")
