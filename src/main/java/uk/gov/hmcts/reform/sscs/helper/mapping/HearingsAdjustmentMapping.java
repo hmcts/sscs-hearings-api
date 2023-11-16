@@ -45,15 +45,14 @@ public final class HearingsAdjustmentMapping {
     }
 
     public static Adjustment getAdjustment(String ccdAdjustment) throws InvalidMappingException {
-        switch (ccdAdjustment) {
-            case CCD_SIGN_LANGUAGE_INTERPRETER:
-                return SIGN_LANGUAGE_INTERPRETER;
-            case CCD_HEARING_LOOP:
-                return HEARING_LOOP;
-            case CCD_DISABLED_ACCESS:
-                return STEP_FREE_WHEELCHAIR_ACCESS;
-            default:
-                throw new InvalidMappingException(String.format("The adjustment '%s' given cannot be mapped", ccdAdjustment));
-        }
+        return switch (ccdAdjustment) {
+            case CCD_SIGN_LANGUAGE_INTERPRETER -> SIGN_LANGUAGE_INTERPRETER;
+            case CCD_HEARING_LOOP -> HEARING_LOOP;
+            case CCD_DISABLED_ACCESS -> STEP_FREE_WHEELCHAIR_ACCESS;
+            default -> throw new InvalidMappingException(String.format(
+                "The adjustment '%s' given cannot be mapped",
+                ccdAdjustment
+            ));
+        };
     }
 }

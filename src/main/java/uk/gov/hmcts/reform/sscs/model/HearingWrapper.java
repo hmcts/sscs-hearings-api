@@ -18,6 +18,8 @@ import java.util.List;
 public class HearingWrapper {
     private SscsCaseData caseData;
     private State caseState;
+    private String eventId;
+    private String eventToken;
     private HearingState hearingState;
     private List<CancellationReason> cancellationReasons;
 }

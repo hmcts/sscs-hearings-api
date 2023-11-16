@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.sscs.model.HmcFailureMessage;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.verify;
 @AutoConfigureMockMvc(addFilters = false)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.sscs.service"})
 @ActiveProfiles("integration")
+@TestPropertySource(locations = "classpath:config/application_it.properties")
 public class FeignClientErrorDecoderIntegrationTest {
 
     private static final String PATH_HEARING = "/hearing";

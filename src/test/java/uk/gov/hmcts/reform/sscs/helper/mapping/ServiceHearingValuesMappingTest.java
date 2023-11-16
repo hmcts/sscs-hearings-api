@@ -88,7 +88,7 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     public SignLanguagesService signLanguages;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @Mock
     private SessionCategoryMapService sessionCategoryMaps;
@@ -190,32 +190,32 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
                 .willReturn("BBA3-002-DD");
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
-        given(referenceDataServiceHolder.getVerbalLanguages()).willReturn(verbalLanguages);
+        given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        given(referenceDataServiceHolder.getSignLanguages()).willReturn(signLanguages);
+        given(refData.getSignLanguages()).willReturn(signLanguages);
 
-        given(referenceDataServiceHolder.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
+        given(refData.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
                 .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
 
-        given(referenceDataServiceHolder.getSignLanguages().getSignLanguage("Makaton"))
+        given(refData.getSignLanguages().getSignLanguage("Makaton"))
                 .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
     }
 
     @Test
     void shouldMapServiceHearingValuesSuccessfully() throws ListingException {
         // given
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
         final HearingWindow expectedHearingWindow = HearingWindow.builder()
             .dateRangeStart(LocalDate.now().plusDays(DAYS_TO_ADD_HEARING_WINDOW_TODAY))
             .build();
         //then
         assertFalse(serviceHearingValues.isAutoListFlag());
-        assertEquals(30, serviceHearingValues.getDuration());
+        assertEquals(60, serviceHearingValues.getDuration());
         assertEquals(SUBSTANTIVE, serviceHearingValues.getHearingType());
         assertEquals(BENEFIT, serviceHearingValues.getCaseType());
         assertThat(serviceHearingValues.getCaseCategories())
@@ -248,9 +248,9 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     void shouldMapPartiesInServiceHearingValues() throws ListingException {
         // given
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
         //then
         assertThat(serviceHearingValues.getParties())
             .hasSize(3)
@@ -272,9 +272,9 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     void shouldRepresentativeNotHaveOrganisation() throws ListingException {
         // given
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
         // when
-        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, referenceDataServiceHolder);
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
         //then
         assertThat(serviceHearingValues.getParties())
             .filteredOn(partyDetails -> EntityRoleCode.REPRESENTATIVE.getHmcReference().equals(partyDetails.getPartyRole()))

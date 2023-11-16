@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_SUBTYPE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.CaseCategoryType.CASE_TYPE;
@@ -47,7 +49,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     private SessionCategoryMapService sessionCategoryMaps;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @DisplayName("When a valid hearing wrapper is given buildHearingCaseDetails returns the correct Hearing Case Details")
     @Test
@@ -58,7 +60,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                     false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
@@ -98,7 +100,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
             .caseData(caseData)
             .build();
 
-        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, referenceDataServiceHolder);
+        CaseDetails caseDetails = HearingsCaseMapping.buildHearingCaseDetails(wrapper, refData);
 
         assertNotNull(caseDetails.getCaseId());
         assertNotNull(caseDetails.getCaseDeepLink());
@@ -128,8 +130,8 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-        Mockito.when(referenceDataServiceHolder.getExUiUrl()).thenReturn(EX_UI_URL);
-        String result = HearingsCaseMapping.getCaseDeepLink(wrapper.getCaseData(), referenceDataServiceHolder);
+        Mockito.when(refData.getExUiUrl()).thenReturn(EX_UI_URL);
+        String result = HearingsCaseMapping.getCaseDeepLink(wrapper.getCaseData(), refData);
         String expected = String.format(HearingsCaseMapping.CASE_DETAILS_URL, EX_UI_URL, CASE_ID);
 
         assertEquals(expected, result);
@@ -259,7 +261,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build())
             .otherParties(otherParties)
             .build();
-        boolean result = HearingsCaseMapping.isInterpreterRequired(caseData);
+        boolean result = HearingChannelUtil.isInterpreterRequired(caseData);
 
         assertEquals(expected, result);
     }
@@ -283,7 +285,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
                 .build())
             .build());
 
-        boolean result = HearingsCaseMapping.isInterpreterRequiredOtherParties(otherParties);
+        boolean result = HearingChannelUtil.isInterpreterRequiredOtherParties(otherParties);
 
         assertEquals(expected, result);
     }
@@ -291,7 +293,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
     @DisplayName("isInterpreterRequiredOtherParties when otherParties are null Test")
     @Test
     void isInterpreterRequiredOtherParties() {
-        boolean result = HearingsCaseMapping.isInterpreterRequiredOtherParties(null);
+        boolean result = HearingChannelUtil.isInterpreterRequiredOtherParties(null);
 
         assertThat(result).isFalse();
     }
@@ -326,7 +328,7 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
             .languageInterpreter(interpreter)
             .arrangements(nonNull(arrangements) ?  splitCsvParamArray(arrangements) : null)
             .build();
-        boolean result = HearingsCaseMapping.isInterpreterRequiredHearingOptions(hearingOptions);
+        boolean result = HearingChannelUtil.isInterpreterRequiredHearingOptions(hearingOptions);
 
         assertEquals(expected, result);
     }
@@ -348,14 +350,14 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         given(sessionCategoryMaps.getCategorySubTypeValue(sessionCategoryMap))
                 .willReturn(subTypeValue);
 
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         SscsCaseData caseData = SscsCaseData.builder()
                 .benefitCode(BENEFIT_CODE)
                 .issueCode(ISSUE_CODE)
                 .build();
 
-        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, referenceDataServiceHolder);
+        List<CaseCategory> result = HearingsCaseMapping.buildCaseCategories(caseData, refData);
 
         assertThat(result)
                 .extracting("categoryType", "categoryValue", "categoryParent")
@@ -376,6 +378,16 @@ class HearingsCaseMappingTest extends HearingsMappingBase {
         String result = HearingsCaseMapping.getCaseManagementLocationCode(caseData);
 
         assertEquals(EPIMS_ID, result);
+    }
+
+    @DisplayName("When a case without a CaseManagementLocation is given getCaseManagementLocationCode returns null")
+    @Test
+    void getCaseManagementLocationCodeWhenNull() {
+        SscsCaseData caseData = SscsCaseData.builder()
+            .build();
+        String result = HearingsCaseMapping.getCaseManagementLocationCode(caseData);
+
+        assertNull(result);
     }
 
     @DisplayName("shouldBeSensitiveFlag Test")

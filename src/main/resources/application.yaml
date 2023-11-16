@@ -128,11 +128,15 @@ judicial-ref:
   api:
     url: ${JUDICIAL_REF_API_URL:http://localhost:8093}
 
+ccd-callback-orchestrator:
+  api:
+    url: ${CCD_CALLBACK_ORCHESTRATOR_API_URL:http://localhost:8070}
+
 exui:
   url: ${EXUI_API_URL:http://localhost:3455}
 
 hmc:
-  url: ${HMC_API_URL:http://localhost:10000}
+  url: ${HMC_API_URL:http://localhost:8084}
 
 flags:
   hmc-to-hearings-api:
@@ -141,6 +145,8 @@ flags:
     enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
   adjournment:
     enabled: ${ADJOURNMENT_ENABLED:false}
+  postHearings:
+    enabled: ${POST_HEARING_ENABLED:false}
 
 retry:
   hearing-response-update:

@@ -38,7 +38,7 @@ public class HearingsMappingBase {
     public SignLanguagesService signLanguages;
 
     @Mock
-    public ReferenceDataServiceHolder referenceData;
+    public ReferenceDataServiceHolder refData;
 
     public SscsCaseData caseData;
 
