@@ -22,12 +22,12 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
@@ -39,7 +39,7 @@ import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.TELEP
 class HearingsChannelMappingTest {
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     private SscsCaseData caseData;
 
@@ -94,7 +94,7 @@ class HearingsChannelMappingTest {
         OverrideFields overrideFields = OverrideFields.builder()
             .appellantHearingChannel(value)
             .build();
-        HearingChannel result = HearingsChannelMapping.getIndividualPreferredHearingChannel(
+        HearingChannel result = HearingChannelUtil.getIndividualPreferredHearingChannel(
             hearingSubtype, hearingOptions, overrideFields);
 
         assertThat(result).isEqualTo(value);
@@ -113,7 +113,7 @@ class HearingsChannelMappingTest {
         OverrideFields overrideFields = OverrideFields.builder()
             .appellantHearingChannel(null)
             .build();
-        HearingChannel result = HearingsChannelMapping.getIndividualPreferredHearingChannel(
+        HearingChannel result = HearingChannelUtil.getIndividualPreferredHearingChannel(
             hearingSubtype, hearingOptions, overrideFields);
 
         assertThat(result).isEqualTo(FACE_TO_FACE);
@@ -193,7 +193,7 @@ class HearingsChannelMappingTest {
     void testIsPaperCaseNoOneAttend() {
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
 
-        boolean result = HearingsChannelMapping.isPaperCase(caseData);
+        boolean result = HearingChannelUtil.isPaperCase(caseData);
 
         assertThat(result).isTrue();
     }
@@ -201,7 +201,7 @@ class HearingsChannelMappingTest {
     @DisplayName("When someone wants to attend, isPaperCase returns False")
     @Test
     void testIsPaperCaseAttending() {
-        boolean result = HearingsChannelMapping.isPaperCase(caseData);
+        boolean result = HearingChannelUtil.isPaperCase(caseData);
 
         assertThat(result).isFalse();
     }
@@ -209,7 +209,6 @@ class HearingsChannelMappingTest {
     @DisplayName("When adjournment flag is enabled and adjournment is in progress returns next hearing channel")
     @Test
     void getHearingChannels_ifAdjournmentFlagEnabled_and_AdjournmentInProgress_getNextHearing() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
         caseData.setAdjournment(Adjournment.builder()
@@ -217,40 +216,22 @@ class HearingsChannelMappingTest {
             .adjournmentInProgress(YES)
             .build());
 
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, true);
         assertThat(result)
             .hasSize(1)
             .containsOnly(TELEPHONE);
     }
 
-    @DisplayName("When adjournment flag is enabled and adjournment is not in progress returns next hearing channel")
-    @Test
-    void getHearingChannels_ifAdjournmentEnabledAndNotProgress_getNextHearing() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
-
-        caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
-        caseData.setAdjournment(Adjournment.builder()
-            .typeOfNextHearing(AdjournCaseTypeOfHearing.TELEPHONE)
-            .adjournmentInProgress(NO)
-            .build());
-
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
-        assertThat(result)
-            .hasSize(1)
-            .containsOnly(PAPER);
-    }
-
     @DisplayName("When adjournment flag is false, returns hearing channel from the case")
     @Test
     void getHearingChannels_ifAdjournmentDisabled_returnDefaultHearingChannel() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(false);
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
         caseData.setAdjournment(Adjournment.builder()
             .typeOfNextHearing(AdjournCaseTypeOfHearing.TELEPHONE)
             .build());
 
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, false);
         assertThat(result)
             .hasSize(1)
             .containsOnly(PAPER);
@@ -260,7 +241,6 @@ class HearingsChannelMappingTest {
         + "returns hearing channel from the case")
     @Test
     void getHearingChannels_ifAdjournmentDisabledAndNextHearingIsNull_returnDefaultHearingChannel() {
-        given(referenceDataServiceHolder.isAdjournmentFlagEnabled()).willReturn(true);
 
         caseData.getAppeal().getHearingOptions().setWantsToAttend(NO.getValue());
         caseData.setAdjournment(Adjournment.builder()
@@ -268,7 +248,7 @@ class HearingsChannelMappingTest {
             .adjournmentInProgress(YES)
             .build());
 
-        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, referenceDataServiceHolder);
+        List<HearingChannel> result = HearingsChannelMapping.getHearingChannels(caseData, true);
         assertThat(result)
             .hasSize(1)
             .containsOnly(PAPER);
