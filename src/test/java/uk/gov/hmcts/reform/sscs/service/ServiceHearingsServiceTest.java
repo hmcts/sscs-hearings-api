@@ -276,9 +276,9 @@ class ServiceHearingsServiceTest {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
                                                false, SessionCategory.CATEGORY_03, null));
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         HearingSubtype hearingSubtype = HearingSubtype.builder()
             .wantsHearingTypeVideo("Yes")
@@ -303,9 +303,9 @@ class ServiceHearingsServiceTest {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
                                                false, SessionCategory.CATEGORY_03, null));
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
         given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         HearingSubtype hearingSubtype1 = HearingSubtype.builder()
             .wantsHearingTypeVideo("Yes")
