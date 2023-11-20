@@ -63,7 +63,7 @@ public class HearingsService {
         backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
         UnhandleableHearingStateException, UpdateCaseException, ListingException {
-        log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
+        log.info("testProcessing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
                 hearingRequest.getHearingRoute(),
@@ -119,10 +119,13 @@ public class HearingsService {
 
     private boolean isRpcInTheApprovedList(SscsCaseData caseData) {
         RegionalProcessingCenter regionalProcessingCenter = caseData.getRegionalProcessingCenter();
+        log.info("rpc {}", regionalProcessingCenter);
         if (regionalProcessingCenter != null) {
             String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
             RegionalProcessingCenterService regionalProcessingCenterService = refData.getRegionalProcessingCenterService();
             RegionalProcessingCenter processingCenterByPostCode = regionalProcessingCenterService.getByPostcode(regionalProcessingCenterPostCode);
+
+            log.info("rpc by postcode{}", processingCenterByPostCode);
 
             if (!isNull(processingCenterByPostCode)) {
                 return LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute());
