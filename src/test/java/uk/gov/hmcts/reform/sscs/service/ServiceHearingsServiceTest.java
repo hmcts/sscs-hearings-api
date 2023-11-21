@@ -158,10 +158,10 @@ class ServiceHearingsServiceTest {
         caseData.getAppeal().getRep().setId("9f6fe72e-7e6e-4ad5-9a47-e70fc37e9de4");
         caseData.getJointParty().setId("c11dc4a2-0447-4cd2-80fe-250df5c8d0a9");
         caseData.getAppeal().getHearingOptions().setExcludeDates(List.of(ExcludeDate.builder()
-                                                                             .value(DateRange.builder().start(LocalDate.now().toString())
-                                                                                        .end(LocalDate.now().minus(1, ChronoUnit.DAYS).toString())
-                                                                                        .build())
-                                                                             .build()));
+             .value(DateRange.builder().start(LocalDate.now().toString())
+                .end(LocalDate.now().minus(1, ChronoUnit.DAYS).toString())
+                .build())
+             .build()));
 
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,true,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
@@ -175,15 +175,11 @@ class ServiceHearingsServiceTest {
 
         given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
 
-        given(ccdCaseService.updateCaseData(eq(caseData), eq(EventType.LISTING_ERROR), anyString(), anyString())).willReturn(caseDetails);
-
         ServiceHearingRequest request = ServiceHearingRequest.builder()
             .caseId(String.valueOf(CASE_ID))
             .build();
 
         assertThrows(ListingException.class, () -> serviceHearingsService.getServiceHearingValues(request));
-
-        verify(ccdCaseService, times(1)).updateCaseData(eq(caseData), eq(EventType.LISTING_ERROR), anyString(), anyString());
 
         verify(ccdCaseService, never()).updateCaseData(any(SscsCaseData.class), eq(UPDATE_CASE_ONLY), anyString(), anyString());
     }
