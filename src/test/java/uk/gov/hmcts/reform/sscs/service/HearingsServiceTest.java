@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -114,7 +113,7 @@ class HearingsServiceTest {
                 .hearingType("test")
                 .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
-                    .name(Name.builder().build())
+                    .name(Name.builder().firstName("first").lastName("surname").build())
                     .build())
                 .build())
             .processingVenue(PROCESSING_VENUE)
@@ -144,7 +143,7 @@ class HearingsServiceTest {
     @EnumSource(
         value = HearingState.class,
         names = {"UPDATED_CASE","PARTY_NOTIFIED"})
-    void processHearingRequest(HearingState state) throws GetCaseException {
+    void processHearingRequest(HearingState state) {
         given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
@@ -154,7 +153,7 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid Hearing State and Cancellation reason is given addHearingResponse should run without error")
     @Test
-    void processHearingRequest() throws GetCaseException {
+    void processHearingRequest() {
         given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(UPDATED_CASE);

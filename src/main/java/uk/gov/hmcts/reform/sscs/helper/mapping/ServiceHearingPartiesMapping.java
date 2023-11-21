@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
@@ -120,7 +119,7 @@ public final class ServiceHearingPartiesMapping {
     public static IndividualDetails getPartyIndividualDetails(Entity entity, HearingOptions hearingOptions,
                                                               HearingSubtype hearingSubtype,
                                                               String partyId, ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
         return IndividualDetails.builder()
                 .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))

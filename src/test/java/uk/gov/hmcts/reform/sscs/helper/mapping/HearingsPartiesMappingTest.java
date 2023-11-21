@@ -56,6 +56,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
@@ -417,14 +418,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("buildHearingPartiesPartyDetails when Rep is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,true,true",
-        "Yes,true,false",
-        "No,false,true",
-        "No,false,false",
-        "null,false,true",
-        ",false,true",
+        "Yes,true",
+        "Yes,true",
+        "No,false",
+        "No,false",
+        "null,false",
+        ",false",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected, boolean named) throws ListingException {
+    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected) throws ListingException {
         Representative rep = Representative.builder()
             .id(OTHER_PARTY_ID)
             .hasRepresentative(hasRepresentative)
@@ -437,11 +438,11 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         Party party = Appellant.builder()
             .id(PARTY_ID)
-            .organisation(named ? "" : "organisation")
+            .organisation("organisation")
             .name(Name.builder()
-                      .title(named ? "title" : "")
-                      .firstName(named ? "first" : "")
-                      .lastName(named ? "last" : "")
+                      .title("title")
+                      .firstName("first")
+                      .lastName("last")
                       .build())
             .build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
@@ -609,30 +610,39 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(reference);
     }
 
-    @DisplayName("getIndividualFirstName Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "test,test",
-        "null,null",
-    }, nullValues = {"null"})
-    void getIndividualFirstName(String value, String expected) {
-        Entity entity = Appellant.builder().name(Name.builder().firstName(value).build()).build();
-        String result = HearingsPartiesMapping.getIndividualFirstName(entity);
+    @DisplayName("getIndividualFirstName when null")
+    @Test
+    void getIndividualFirstNameWhenNull() {
+        Entity entity = Appellant.builder().name(Name.builder().build()).build();
 
-        assertEquals(expected, result);
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualFirstName(entity));
     }
 
-    @DisplayName("getIndividualLastName Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "test,test",
-        "null,null",
-    }, nullValues = {"null"})
-    void getIndividualLastName(String value, String expected) {
-        Entity entity = Appellant.builder().name(Name.builder().lastName(value).build()).build();
+    @DisplayName("getIndividualFirstName")
+    @Test
+    void getIndividualFirstName() throws ListingException {
+        String firstName = "firstname";
+        Entity entity = Appellant.builder().name(Name.builder().firstName(firstName).build()).build();
+        String result = HearingsPartiesMapping.getIndividualFirstName(entity);
+
+        assertEquals(firstName, result);
+    }
+
+    @DisplayName("getIndividualLastName")
+    @Test
+    void getIndividualLastName() throws ListingException {
+        String lastName = "lastname";
+        Entity entity = Appellant.builder().name(Name.builder().lastName(lastName).build()).build();
         String result = HearingsPartiesMapping.getIndividualLastName(entity);
 
-        assertEquals(expected, result);
+        assertEquals(lastName, result);
+    }
+
+    @DisplayName("getIndividualLastName when null")
+    @Test
+    void getIndividualLastNameWhenNull() {
+        Entity entity = Appellant.builder().name(Name.builder().build()).build();
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualFirstName(entity));
     }
 
     @DisplayName("When language passed in should return correct LOV format")

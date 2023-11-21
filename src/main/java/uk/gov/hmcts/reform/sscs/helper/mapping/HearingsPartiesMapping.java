@@ -27,7 +27,9 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isNoOrNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
@@ -39,7 +41,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPON
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.TooManyMethods", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
 public final class HearingsPartiesMapping {
 
@@ -220,7 +222,7 @@ public final class HearingsPartiesMapping {
                                                               OverrideFields overrideFields,
                                                               ReferenceDataServiceHolder refData,
                                                               String adjournLanguage)
-            throws InvalidMappingException {
+        throws ListingException {
 
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
@@ -238,26 +240,34 @@ public final class HearingsPartiesMapping {
                 .build();
     }
 
-    public static String getIndividualFirstName(Entity entity) {
+    public static String getIndividualFirstName(Entity entity) throws ListingException {
         String firstName = entity.getName().getFirstName();
-        String org = getIndividualOrganisation(entity);
-        if (StringUtils.isEmpty(firstName)
-            && !StringUtils.isEmpty(org)) {
-            return ORGANISATION_NAME_REPLACEMENT;
-        } else {
-            return firstName;
+
+        if (isEmpty(firstName)) {
+            throw new ListingException("Missing first name");
         }
+
+        String org = getIndividualOrganisation(entity);
+        if (isNotEmpty(org)) {
+            return ORGANISATION_NAME_REPLACEMENT;
+        }
+
+        return firstName;
     }
 
-    public static String getIndividualLastName(Entity entity) {
-        String lastName = entity.getName().getLastName();
-        String org = getIndividualOrganisation(entity);
-        if (StringUtils.isEmpty(lastName)
-            && !StringUtils.isEmpty(org)) {
-            return ORGANISATION_NAME_REPLACEMENT;
-        } else {
-            return lastName;
+    public static String getIndividualLastName(Entity entity) throws ListingException {
+        String firstName = entity.getName().getLastName();
+
+        if (isEmpty(firstName)) {
+            throw new ListingException("Missing last name");
         }
+
+        String org = getIndividualOrganisation(entity);
+        if (!isEmpty(org)) {
+            return ORGANISATION_NAME_REPLACEMENT;
+        }
+
+        return firstName;
     }
 
     public static String getIndividualOrganisation(Entity entity) {
