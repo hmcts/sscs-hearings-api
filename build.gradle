@@ -155,6 +155,7 @@ pmd {
   ruleSets = []
   ruleSetFiles = files("config/pmd/ruleset.xml")
   group = 'Verification'
+  consoleOutput = true
 }
 
 pmdMain {
@@ -338,7 +339,7 @@ dependencies {
 
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.10'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
-  
+
   implementation group: 'com.github.hmcts', name: 'sscs-common', version: '33f5c4e'
 
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
