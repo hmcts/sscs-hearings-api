@@ -59,6 +59,7 @@ public class HearingsService {
 
     @Retryable(
         value = UpdateCaseException.class,
+        exclude = ListingException.class,
         maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
         backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
     public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
