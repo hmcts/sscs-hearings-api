@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
-import uk.gov.hmcts.reform.sscs.utility.EmailUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,13 +44,10 @@ public class ServiceHearingsService {
         String originalCaseData = objectMapper.writeValueAsString(caseData);
 
         ServiceHearingValues model = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
-        boolean hasInValidHearingVideoEmail = getHasInValidHearingVideoEmail(caseData);
 
         String updatedCaseData = objectMapper.writeValueAsString(caseData);
 
-        if (hasInValidHearingVideoEmail) {
-            updateCaseDataToListingError(caseData, "Hearing video email address must be valid email address");
-        } else if (!originalCaseData.equals(updatedCaseData)) {
+        if (!originalCaseData.equals(updatedCaseData)) {
             log.debug("Updating case data with Service Hearing Values for Case ID {}", caseData.getCcdCaseId());
             ccdCaseService.updateCaseData(
                 caseData,
@@ -61,38 +57,6 @@ public class ServiceHearingsService {
         }
 
         return model;
-    }
-
-    private void updateCaseDataToListingError(SscsCaseData caseData, String description) throws UpdateCaseException {
-        ccdCaseService.updateCaseData(caseData,EventType.LISTING_ERROR,"",description);
-    }
-
-    private boolean getHasInValidHearingVideoEmail(SscsCaseData sscsCaseData) {
-        HearingSubtype hearingSubtype = sscsCaseData.getAppeal().getHearingSubtype();
-        if (hearingSubtype != null && YesNo.isYes(hearingSubtype.getWantsHearingTypeVideo())) {
-
-            String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
-            if (!EmailUtil.isEmailValid(hearingVideoEmail)) {
-                return true;
-            }
-        }
-
-        List<CcdValue<OtherParty>> otherParties = Optional.ofNullable(sscsCaseData.getOtherParties()).orElse(Collections.emptyList());
-
-        for (CcdValue<OtherParty> otherParty : otherParties) {
-            hearingSubtype = otherParty.getValue().getHearingSubtype();
-
-            if (hearingSubtype != null
-                && YesNo.isYes(hearingSubtype.getWantsHearingTypeVideo())) {
-
-                String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
-                if (!EmailUtil.isEmailValid(hearingVideoEmail)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public List<ServiceLinkedCases> getServiceLinkedCases(ServiceHearingRequest request)

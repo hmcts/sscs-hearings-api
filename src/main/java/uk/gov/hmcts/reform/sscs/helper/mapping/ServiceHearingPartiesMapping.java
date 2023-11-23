@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.OtherParty;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -33,7 +33,7 @@ public final class ServiceHearingPartiesMapping {
     }
 
     public static List<PartyDetails> buildServiceHearingPartiesDetails(SscsCaseData caseData, ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
 
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
@@ -68,7 +68,7 @@ public final class ServiceHearingPartiesMapping {
                                                                             HearingOptions hearingOptions,
                                                                             HearingSubtype hearingSubtype, String appellantId,
                                                                             ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
         List<PartyDetails> partyDetails = new ArrayList<>();
         partyDetails.add(createHearingPartyDetails(party, hearingOptions, hearingSubtype, party.getId(), appellantId, refData));
         if (nonNull(party.getAppointee()) && isYes(party.getIsAppointee())) {
@@ -85,7 +85,7 @@ public final class ServiceHearingPartiesMapping {
                                                          HearingSubtype hearingSubtype,
                                                          String partyId, String appellantId,
                                                          ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
         partyDetails.partyID(HearingsPartiesMapping.getPartyId(entity));
         partyDetails.partyType(HearingsPartiesMapping.getPartyType(entity));
@@ -122,7 +122,7 @@ public final class ServiceHearingPartiesMapping {
                                                               HearingSubtype hearingSubtype,
                                                               String partyId, String appellantId,
                                                               ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
         return IndividualDetails.builder()
                 .firstName(HearingsPartiesMapping.getIndividualFirstName(entity))
                 .lastName(HearingsPartiesMapping.getIndividualLastName(entity))

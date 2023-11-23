@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -8,15 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
-import uk.gov.hmcts.reform.sscs.exception.ListingException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
@@ -37,7 +32,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPDATE_CASE_ONLY;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.BENEFIT_CODE;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_CODE;
@@ -267,77 +261,6 @@ class ServiceHearingsServiceTest {
 
         assertThat(result.get(0)).isEqualTo(expected);
     }
-
-    @ParameterizedTest
-    @CsvSource(value = {
-        "null,1", ",1", "sample,1", "sample.com,1"
-    }, nullValues = {"null"})
-    void testWhenAppealHearingSubtypeWantsHearingTypeVideoButInvalidEmailIsGiven_ThenSendItToListingError(String email, int numberOfInvocations) throws GetCaseException, UpdateCaseException, ListingException, JsonProcessingException {
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
-            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
-                                               false, SessionCategory.CATEGORY_03, null));
-        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
-        given(refData.getVenueService()).willReturn(venueService);
-
-        HearingSubtype hearingSubtype = HearingSubtype.builder()
-            .wantsHearingTypeVideo("Yes")
-            .hearingVideoEmail(email)
-            .build();
-
-        caseDetails.getData().getAppeal().setHearingSubtype(hearingSubtype);
-
-        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
-        ServiceHearingRequest request = ServiceHearingRequest.builder()
-            .caseId(String.valueOf(CASE_ID))
-            .build();
-        serviceHearingsService.getServiceHearingValues(request);
-        verify(ccdCaseService, times(numberOfInvocations)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Hearing video email address must be valid email address"));
-    }
-
-    @ParameterizedTest
-    @CsvSource(value = {
-        "null,1", ",1", "sample,1", "sample.com,1"
-    }, nullValues = {"null"})
-    void testWhenAnyOneOfOtherPartyWantsHearingTypeVideoButInvalidEmailIsGiven_ThenSendItToListingError(String email, int numberOfInvocations) throws GetCaseException, UpdateCaseException, ListingException, JsonProcessingException {
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, true, false))
-            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,
-                                               false, SessionCategory.CATEGORY_03, null));
-        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(venueService.getEpimsIdForVenue(caseData.getProcessingVenue())).willReturn("9876");
-        given(refData.getVenueService()).willReturn(venueService);
-
-        HearingSubtype hearingSubtype1 = HearingSubtype.builder()
-            .wantsHearingTypeVideo("Yes")
-            .hearingVideoEmail("sample@example.com")
-            .build();
-        CcdValue<OtherParty> otherPartyCcdValue1 = buildOtherPartyWithHearingSubtype("sample@example.com");
-        CcdValue<OtherParty> otherPartyCcdValue2 = buildOtherPartyWithHearingSubtype(email);
-
-        caseDetails.getData().getAppeal().setHearingSubtype(hearingSubtype1);
-        caseDetails.getData().setOtherParties(List.of(otherPartyCcdValue1, otherPartyCcdValue2));
-
-        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(caseDetails);
-        ServiceHearingRequest request = ServiceHearingRequest.builder()
-            .caseId(String.valueOf(CASE_ID))
-            .build();
-        serviceHearingsService.getServiceHearingValues(request);
-        verify(ccdCaseService, times(numberOfInvocations)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Hearing video email address must be valid email address"));
-    }
-
-    private CcdValue<OtherParty> buildOtherPartyWithHearingSubtype(String email) {
-        return CcdValue.<OtherParty>builder()
-            .value(OtherParty.builder()
-                       .unacceptableCustomerBehaviour(YesNo.YES)
-                       .name(Name.builder().title("Mr").firstName("Barry").lastName("Allen").build())
-                       .hearingOptions(HearingOptions.builder().build())
-                       .hearingSubtype(HearingSubtype.builder().wantsHearingTypeVideo("Yes").hearingVideoEmail(email).build())
-                       .role(Role.builder().name("PayingParent").build())
-                       .build())
-            .build();
-    }
-
-
 
     private static Stream<Arguments> invalidCasesParameters() {
         return Stream.of(

@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Party;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
@@ -30,6 +31,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.EmailUtil;
 import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.time.LocalDate;
@@ -70,13 +72,13 @@ public final class HearingsPartiesMapping {
     }
 
     public static List<PartyDetails> buildHearingPartiesDetails(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
 
         return buildHearingPartiesDetails(wrapper.getCaseData(), refData);
     }
 
     public static List<PartyDetails> buildHearingPartiesDetails(SscsCaseData caseData, ReferenceDataServiceHolder refData)
-            throws InvalidMappingException {
+        throws ListingException {
 
         Appeal appeal = caseData.getAppeal();
         Appellant appellant = appeal.getAppellant();
@@ -136,7 +138,7 @@ public final class HearingsPartiesMapping {
                                                                      OverrideFields overrideFields,
                                                                      ReferenceDataServiceHolder refData,
                                                                      String adjournLanguage)
-            throws InvalidMappingException {
+        throws ListingException {
 
         List<PartyDetails> partyDetails = new ArrayList<>();
         partyDetails.add(createHearingPartyDetails(party,
@@ -177,7 +179,7 @@ public final class HearingsPartiesMapping {
                                                          OverrideFields overrideFields,
                                                          ReferenceDataServiceHolder refData,
                                                          String adjournLanguage)
-            throws InvalidMappingException {
+        throws ListingException {
 
         PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
 
@@ -241,7 +243,7 @@ public final class HearingsPartiesMapping {
                                                               OverrideFields overrideFields,
                                                               ReferenceDataServiceHolder refData,
                                                               String adjournLanguage)
-            throws InvalidMappingException {
+        throws ListingException {
 
         return IndividualDetails.builder()
                 .firstName(getIndividualFirstName(entity))
@@ -374,10 +376,18 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype) {
+    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype) throws ListingException {
         List<String> emails = new ArrayList<>();
-        if (nonNull(hearingSubtype) && isNotBlank(hearingSubtype.getHearingVideoEmail())) {
-            emails.add(hearingSubtype.getHearingVideoEmail());
+        if (nonNull(hearingSubtype)) {
+            String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
+
+            if (isYes(hearingSubtype.getWantsHearingTypeVideo()) && !EmailUtil.isEmailValid(hearingVideoEmail)) {
+                throw new ListingException("Hearing video email address must be valid email address");
+            }
+
+            if (isNotBlank(hearingVideoEmail)) {
+                emails.add(hearingVideoEmail);
+            }
         }
         return emails;
     }
