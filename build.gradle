@@ -155,7 +155,7 @@ pmd {
   ruleSets = []
   ruleSetFiles = files("config/pmd/ruleset.xml")
   group = 'Verification'
-  consoleOutput = false
+  consoleOutput = true
 }
 
 pmdMain {
