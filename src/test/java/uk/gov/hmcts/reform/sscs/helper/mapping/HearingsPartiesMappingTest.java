@@ -56,6 +56,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
@@ -947,15 +948,44 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         + "returns an empty list")
     @ParameterizedTest
     @NullAndEmptySource
-    void testGetIndividualHearingChannelEmail(String value) throws ListingException {
+    void testGetIndividualHearingChannelEmailBlank(String value) throws ListingException {
 
         HearingSubtype subtype = HearingSubtype.builder()
+            .wantsHearingTypeVideo(YES.getValue())
             .hearingVideoEmail(value)
             .build();
 
         List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype);
 
         assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When a hearingVideoEmail has an email, and wants video hearing getIndividualHearingChannelEmail "
+        + "returns a list with only that email ")
+    @Test
+    void testGetIndividualHearingChannelEmailWithWantsVideo() throws ListingException {
+        HearingSubtype subtype = HearingSubtype.builder()
+            .hearingVideoEmail(EMAIL_ADDRESS)
+            .wantsHearingTypeVideo(YES.getValue())
+            .build();
+
+        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype);
+
+        assertThat(result)
+            .hasSize(1)
+            .containsOnly(EMAIL_ADDRESS);
+    }
+
+    @DisplayName("When a hearingVideoEmail has an invalid email, and wants video hearing getIndividualHearingChannelEmail "
+        + "throws a listing error")
+    @Test
+    void testGetIndividualHearingChannelEmailWithInvalidEmail() {
+        HearingSubtype subtype = HearingSubtype.builder()
+            .hearingVideoEmail("invalidemailaddress")
+            .wantsHearingTypeVideo(YES.getValue())
+            .build();
+
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype));
     }
 
     @DisplayName("When a HearingSubtype is null, getIndividualHearingChannelEmail "
