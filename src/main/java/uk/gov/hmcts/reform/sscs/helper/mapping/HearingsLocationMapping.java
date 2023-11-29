@@ -1,12 +1,11 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CcdValue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.OverrideFields;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
+import uk.gov.hmcts.reform.sscs.service.RegionalProcessingCenterService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseTypeOfHearing.PAPER;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.LocationType.COURT;
 
@@ -30,7 +30,7 @@ public final class HearingsLocationMapping {
     }
 
     public static List<HearingLocation> getHearingLocations(SscsCaseData caseData,
-                                                            ReferenceDataServiceHolder refData) {
+                                                            ReferenceDataServiceHolder refData) throws ListingException {
         String caseId = caseData.getCcdCaseId();
 
         List<HearingLocation> locations = getAdjournedLocations(caseData, refData);
@@ -74,14 +74,17 @@ public final class HearingsLocationMapping {
         return Collections.emptyList();
     }
 
-    private static List<HearingLocation> getPaperCaseLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData) {
+    private static List<HearingLocation> getPaperCaseLocations(SscsCaseData caseData, ReferenceDataServiceHolder refData) throws ListingException {
         if (HearingChannelUtil.isPaperCase(caseData)) {
+            RegionalProcessingCenter rpc = caseData.getRegionalProcessingCenter();
+            validatedRpc(rpc, refData);
+
             List<VenueDetails> venueDetailsList = refData
                 .getVenueService()
-                .getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
+                .getActiveRegionalEpimsIdsForRpc(rpc.getEpimsId());
 
             log.info("Found {} venues under RPC {} for paper case {}", venueDetailsList.size(),
-                     caseData.getRegionalProcessingCenter().getName(), caseData.getCcdCaseId());
+                     rpc.getName(), caseData.getCcdCaseId());
 
             return venueDetailsList.stream()
                 .map(VenueDetails::getEpimsId)
@@ -95,15 +98,35 @@ public final class HearingsLocationMapping {
         return Collections.emptyList();
     }
 
+    private static void validatedRpc(RegionalProcessingCenter regionalProcessingCenter, ReferenceDataServiceHolder refData) throws ListingException {
+        log.info("rpc {}", regionalProcessingCenter);
+        if (nonNull(regionalProcessingCenter)) {
+            String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
+            RegionalProcessingCenterService regionalProcessingCenterService = refData.getRegionalProcessingCenterService();
+            RegionalProcessingCenter processingCenterByPostCode = regionalProcessingCenterService.getByPostcode(regionalProcessingCenterPostCode);
+
+            log.info("rpc by postcode {}", processingCenterByPostCode);
+
+            if (nonNull(processingCenterByPostCode) && LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute())) {
+                return;
+            }
+        }
+
+        throw new ListingException("Invalid RPC");
+    }
+
     private static List<HearingLocation> getAdjournedLocations(SscsCaseData caseData,
-                                                               ReferenceDataServiceHolder refData) {
+                                                               ReferenceDataServiceHolder refData) throws ListingException {
         if (refData.isAdjournmentFlagEnabled() && isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
             List<String> epimsIds;
 
             Adjournment adjournment = caseData.getAdjournment();
             VenueService venueService = refData.getVenueService();
             if (PAPER.equals(adjournment.getTypeOfNextHearing())) {
-                List<VenueDetails> paperVenues = venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId());
+                RegionalProcessingCenter rpc = caseData.getRegionalProcessingCenter();
+                validatedRpc(rpc, refData);
+
+                List<VenueDetails> paperVenues = venueService.getActiveRegionalEpimsIdsForRpc(rpc.getEpimsId());
 
                 epimsIds = paperVenues.stream().map(VenueDetails::getEpimsId).toList();
             } else {

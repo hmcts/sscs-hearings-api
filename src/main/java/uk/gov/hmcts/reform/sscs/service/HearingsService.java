@@ -33,7 +33,6 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
@@ -118,29 +117,8 @@ public class HearingsService {
         return INVALID_CASE_STATES.contains(wrapper.getCaseState());
     }
 
-    private boolean isRpcInTheApprovedList(SscsCaseData caseData) {
-        RegionalProcessingCenter regionalProcessingCenter = caseData.getRegionalProcessingCenter();
-        log.info("rpc {}", regionalProcessingCenter);
-        if (regionalProcessingCenter != null) {
-            String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
-            RegionalProcessingCenterService regionalProcessingCenterService = refData.getRegionalProcessingCenterService();
-            RegionalProcessingCenter processingCenterByPostCode = regionalProcessingCenterService.getByPostcode(regionalProcessingCenterPostCode);
-
-            log.info("rpc by postcode{}", processingCenterByPostCode);
-
-            if (!isNull(processingCenterByPostCode)) {
-                return LIST_ASSIST.equals(processingCenterByPostCode.getHearingRoute());
-            }
-        }
-        return false;
-    }
-
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
-
-        if (!isRpcInTheApprovedList(caseData)) {
-            throw new ListingException("RPC is invalid");
-        }
 
         String caseId = caseData.getCcdCaseId();
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
