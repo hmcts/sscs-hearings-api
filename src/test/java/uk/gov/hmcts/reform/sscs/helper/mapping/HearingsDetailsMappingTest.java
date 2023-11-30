@@ -336,9 +336,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         checkHearingLocationResults(result, EPIMS_ID_1, EPIMS_ID_2, EPIMS_ID_3, EPIMS_ID_4);
     }
 
-    @DisplayName("When hearing is paper case, return list of regional hearing locations based on RPC name")
+    @DisplayName("When hearing is paper case and rpc is invalid, throw listing exception")
     @Test
-    void getRegionalHearingLocationsWithInvalidRpc_thenThrowListingError() {
+    void getRegionalHearingLocationsWithInvalidRpc_thenThrowListingException() {
         caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
             .regionalProcessingCenter(RegionalProcessingCenter.builder().name(REGIONAL_PROCESSING_CENTRE).build())
@@ -350,6 +350,22 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
             .processingVenue(PROCESSING_VENUE_1)
             .build();
         given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+
+        assertThrows(ListingException.class, () -> HearingsLocationMapping.getHearingLocations(caseData, refData));
+    }
+
+    @DisplayName("When hearing is paper case and rpc is null, throw listing exception")
+    @Test
+    void getRegionalHearingLocationsWithNullRpc_thenThrowListingException() {
+        caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending("No")
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                            .wantsToAttend("N")
+                                            .build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
 
         assertThrows(ListingException.class, () -> HearingsLocationMapping.getHearingLocations(caseData, refData));
     }
@@ -433,8 +449,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE, VENUE_ID);
 
-        List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(
-            caseData, refData);
+        List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(caseData, refData);
 
         checkHearingLocationResults(results, EPIMS_ID_1);
     }
