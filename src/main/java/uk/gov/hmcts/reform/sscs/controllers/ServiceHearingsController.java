@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +19,12 @@ import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.ServiceHearingsService;
 
+import java.util.Collections;
 import java.util.List;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER;
@@ -54,8 +57,34 @@ public class ServiceHearingsController {
                     request.getCaseId());
 
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
+            ServiceHearingValues model2 = serviceHearingsService.getServiceHearingValues(request);
 
-            log.info("serviceHearingValues response {}", model);
+            for(PartyDetails list : model2.getParties()) {
+                if (list.getIndividualDetails().getHearingChannelEmail() != null) {
+                    for (String hearingEmailChannel : list.getIndividualDetails().getHearingChannelEmail()) {
+                        list.getIndividualDetails().setHearingChannelEmail(
+                            Collections.singletonList(StringUtils.left(
+                                hearingEmailChannel,
+                                3
+                            ) + "..." + hearingEmailChannel.substring(
+                                hearingEmailChannel.indexOf("@"),
+                                hearingEmailChannel.indexOf("@") + 3
+                            ) + "...")
+                        );
+                    }
+                }
+                if (list.getIndividualDetails().getHearingChannelPhone() != null) {
+                    for (String hearingPhoneChannel : list.getIndividualDetails().getHearingChannelPhone()) {
+                        list.getIndividualDetails().setHearingChannelPhone(
+                            Collections.singletonList(StringUtils.right(hearingPhoneChannel, 4))
+                        );
+                    }
+                }
+            }
+
+//                find place in list where hearingChannelEmail and hearingChannelPhone=
+
+            log.info("serviceHearingValues response {}", model2);
 
             return status(HttpStatus.OK).body(model);
         } catch (Exception exc) {
