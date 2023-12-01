@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.ServiceHearingsService;
 
-import java.util.Collections;
 import java.util.List;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER;
@@ -57,34 +55,38 @@ public class ServiceHearingsController {
                     request.getCaseId());
 
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
-            ServiceHearingValues model2 = serviceHearingsService.getServiceHearingValues(request);
 
-            for(PartyDetails list : model2.getParties()) {
-                if (list.getIndividualDetails().getHearingChannelEmail() != null) {
-                    for (String hearingEmailChannel : list.getIndividualDetails().getHearingChannelEmail()) {
-                        list.getIndividualDetails().setHearingChannelEmail(
-                            Collections.singletonList(StringUtils.left(
-                                hearingEmailChannel,
-                                3
-                            ) + "..." + hearingEmailChannel.substring(
-                                hearingEmailChannel.indexOf("@"),
-                                hearingEmailChannel.indexOf("@") + 3
-                            ) + "...")
-                        );
-                    }
-                }
-                if (list.getIndividualDetails().getHearingChannelPhone() != null) {
-                    for (String hearingPhoneChannel : list.getIndividualDetails().getHearingChannelPhone()) {
-                        list.getIndividualDetails().setHearingChannelPhone(
-                            Collections.singletonList(StringUtils.right(hearingPhoneChannel, 4))
-                        );
-                    }
-                }
-            }
+            var modelForLogging =  List.of(
+                model.getCaseDeepLink(),
+                model.getCaseManagementLocationCode(),
+                model.isCaseRestrictedFlag(),
+                model.getCaseSlaStartDate(),
+                model.getExternalCaseReference(),
+                model.getHearingChannels(),
+                model.isAutoListFlag(),
+                model.getHearingType(),
+                model.getCaseType(),
+                model.getCaseCategories(),
+                model.getHearingWindow(),
+                model.getDuration(),
+                model.getHearingPriorityType(),
+                model.getNumberOfPhysicalAttendees(),
+                model.isHearingInWelshFlag(),
+                model.getHearingLocations(),
+                model.getCaseAdditionalSecurityFlag(),
+                model.getFacilitiesRequired(),
+                model.getListingComments(),
+                model.getHearingRequester(),
+                model.isPrivateHearingRequiredFlag(),
+                model.getPanelRequirements(),
+                model.getLeadJudgeContractType(),
+                model.getJudiciary(),
+                model.isHearingIsLinkedFlag(),
+                getPartyDetailsForLog(model.getParties()),
+                model.getCaseFlags()
+            );
 
-//                find place in list where hearingChannelEmail and hearingChannelPhone=
-
-            log.info("serviceHearingValues response {}", model2);
+            log.info("serviceHearingValues response {}", modelForLogging);
 
             return status(HttpStatus.OK).body(model);
         } catch (Exception exc) {
@@ -93,6 +95,32 @@ public class ServiceHearingsController {
         }
     }
 
+    private List getPartyDetailsForLog(List<PartyDetails> partyDetails){
+        if (partyDetails!=null) {
+            List<PartyDetails> partyDetailsForLog=List.of();
+            for(PartyDetails party : partyDetails) {
+                partyDetailsForLog.add((PartyDetails)
+                                       List.of(
+                    party.getPartyID(),
+                    party.getPartyType(),
+                    party.getPartyChannel(),
+                    party.getPartyRole(),
+                    party.getIndividualDetails().getPreferredHearingChannel(),
+                    party.getIndividualDetails().getInterpreterLanguage(),
+                    party.getIndividualDetails().getReasonableAdjustments(),
+                    party.getIndividualDetails().isVulnerableFlag(),
+                    party.getIndividualDetails().getVulnerabilityDetails(),
+                    party.getIndividualDetails().getCustodyStatus(),
+                    party.getIndividualDetails().getOtherReasonableAdjustmentDetails(),
+                    party.getOrganisationDetails(),
+                    party.getUnavailabilityDow(),
+                    party.getUnavailabilityRanges()
+                ));
+            }
+        return partyDetailsForLog;
+        }
+        return null;
+    }
 
     @PostMapping("/serviceLinkedCases")
     @Operation(description = "Get linked cases for a Case and it's Hearing")
