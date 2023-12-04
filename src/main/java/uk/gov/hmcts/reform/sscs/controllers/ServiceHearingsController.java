@@ -133,10 +133,10 @@ public class ServiceHearingsController {
         }
     }
 
-    private List getPartyDetailsForLog(List<PartyDetails> partyDetails){
-        if (partyDetails!=null) {
-            List<PartyDetails> partyDetailsForLog=List.of();
-            for(PartyDetails party : partyDetails) {
+    private List getPartyDetailsForLog(List<PartyDetails> partyDetails) {
+        if (partyDetails != null) {
+            List<PartyDetails> partyDetailsForLog = List.of();
+            for (PartyDetails party : partyDetails) {
                 partyDetailsForLog.add((PartyDetails)
                     List.of(
                         party.getPartyID(),
