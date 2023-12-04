@@ -157,6 +157,6 @@ public class ServiceHearingsController {
             }
             return partyDetailsForLog;
         }
-        return null;
+        return List.of();
     }
 }
