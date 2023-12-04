@@ -95,33 +95,6 @@ public class ServiceHearingsController {
         }
     }
 
-    private List getPartyDetailsForLog(List<PartyDetails> partyDetails){
-        if (partyDetails!=null) {
-            List<PartyDetails> partyDetailsForLog=List.of();
-            for(PartyDetails party : partyDetails) {
-                partyDetailsForLog.add((PartyDetails)
-                                       List.of(
-                    party.getPartyID(),
-                    party.getPartyType(),
-                    party.getPartyChannel(),
-                    party.getPartyRole(),
-                    party.getIndividualDetails().getPreferredHearingChannel(),
-                    party.getIndividualDetails().getInterpreterLanguage(),
-                    party.getIndividualDetails().getReasonableAdjustments(),
-                    party.getIndividualDetails().isVulnerableFlag(),
-                    party.getIndividualDetails().getVulnerabilityDetails(),
-                    party.getIndividualDetails().getCustodyStatus(),
-                    party.getIndividualDetails().getOtherReasonableAdjustmentDetails(),
-                    party.getOrganisationDetails(),
-                    party.getUnavailabilityDow(),
-                    party.getUnavailabilityRanges()
-                ));
-            }
-        return partyDetailsForLog;
-        }
-        return null;
-    }
-
     @PostMapping("/serviceLinkedCases")
     @Operation(description = "Get linked cases for a Case and it's Hearing")
     @ApiResponses(value = {
@@ -158,5 +131,32 @@ public class ServiceHearingsController {
         if (exc instanceof UpdateCaseException) {
             log.error("Error updating case id {}, {}", caseId, exc);
         }
+    }
+
+    private List getPartyDetailsForLog(List<PartyDetails> partyDetails){
+        if (partyDetails!=null) {
+            List<PartyDetails> partyDetailsForLog=List.of();
+            for(PartyDetails party : partyDetails) {
+                partyDetailsForLog.add((PartyDetails)
+                    List.of(
+                        party.getPartyID(),
+                        party.getPartyType(),
+                        party.getPartyChannel(),
+                        party.getPartyRole(),
+                        party.getIndividualDetails().getPreferredHearingChannel(),
+                        party.getIndividualDetails().getInterpreterLanguage(),
+                        party.getIndividualDetails().getReasonableAdjustments(),
+                        party.getIndividualDetails().isVulnerableFlag(),
+                        party.getIndividualDetails().getVulnerabilityDetails(),
+                        party.getIndividualDetails().getCustodyStatus(),
+                        party.getIndividualDetails().getOtherReasonableAdjustmentDetails(),
+                        party.getOrganisationDetails(),
+                        party.getUnavailabilityDow(),
+                        party.getUnavailabilityRanges()
+                    ));
+            }
+            return partyDetailsForLog;
+        }
+        return null;
     }
 }

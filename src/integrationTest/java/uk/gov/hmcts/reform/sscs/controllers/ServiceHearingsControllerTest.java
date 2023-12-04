@@ -14,9 +14,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
 import uk.gov.hmcts.reform.sscs.service.ServiceHearingsService;
 
 import java.util.List;
@@ -66,6 +71,31 @@ class ServiceHearingsControllerTest {
 
         given(serviceHearingsService.getServiceHearingValues(request))
             .willReturn(ServiceHearingValues.builder()
+                .caseDeepLink("")
+                .caseManagementLocationCode("")
+                .caseRestrictedFlag(true)
+                .caseSlaStartDate("")
+                .externalCaseReference("")
+                .hearingChannels(List.of())
+                .hearingType(HearingType.SUBSTANTIVE)
+                .caseType("")
+                .caseCategories(List.of())
+                .hearingWindow(HearingWindow.builder().build())
+                .duration(2)
+                .hearingPriorityType("")
+                .numberOfPhysicalAttendees(2)
+                .hearingLocations(List.of())
+                .caseAdditionalSecurityFlag(true)
+                .facilitiesRequired(List.of())
+                .listingComments("")
+                .hearingRequester("")
+                .privateHearingRequiredFlag(false)
+                .panelRequirements(PanelRequirements.builder().build())
+                .leadJudgeContractType("")
+                .judiciary(Judiciary.builder().build())
+                .hearingIsLinkedFlag(true)
+                .parties(List.of())
+                .caseFlags(CaseFlags.builder().build())
                 .build());
 
         mockMvc.perform(post(SERVICE_HEARING_VALUES_URL)
