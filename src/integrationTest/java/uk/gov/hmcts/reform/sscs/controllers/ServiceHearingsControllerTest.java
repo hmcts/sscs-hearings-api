@@ -15,13 +15,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HearingType;
+import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.CaseFlags;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.Judiciary;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingWindow;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PanelRequirements;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.ServiceHearingsService;
 
 import java.util.List;
@@ -54,6 +59,27 @@ class ServiceHearingsControllerTest {
 
     public static final String BASE_LOCATION = "12345";
 
+    public List<PartyDetails> testParty = List.of(PartyDetails.builder()
+                                                      .partyID("12345")
+                                                      .partyType(PartyType.INDIVIDUAL)
+                                                      .partyChannel("aa")
+                                                      .partyRole("aa")
+                                                      .individualDetails(IndividualDetails.builder()
+                                                                             .hearingChannelEmail(List.of("patricia.smith@something.com"))
+                                                                             .hearingChannelPhone(List.of("+445673745823"))
+                                                                             .preferredHearingChannel(HearingChannel.FACE_TO_FACE)
+                                                                             .interpreterLanguage("French")
+                                                                             .reasonableAdjustments(List.of())
+                                                                             .vulnerableFlag(false)
+                                                                             .vulnerabilityDetails("none")
+                                                                             .custodyStatus("none")
+                                                                             .otherReasonableAdjustmentDetails("none")
+                                                                             .build())
+                                                      .organisationDetails(OrganisationDetails.builder().build())
+                                                      .unavailabilityDow(List.of())
+                                                      .unavailabilityRanges(List.of())
+                                                      .build());
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -71,12 +97,12 @@ class ServiceHearingsControllerTest {
 
         given(serviceHearingsService.getServiceHearingValues(request))
             .willReturn(ServiceHearingValues.builder()
-                .caseDeepLink("")
+                .caseDeepLink(null)
                 .caseManagementLocationCode("")
                 .caseRestrictedFlag(true)
                 .caseSlaStartDate("")
                 .externalCaseReference("")
-                .hearingChannels(List.of())
+                .hearingChannels(null)
                 .hearingType(HearingType.SUBSTANTIVE)
                 .caseType("")
                 .caseCategories(List.of())
@@ -94,7 +120,7 @@ class ServiceHearingsControllerTest {
                 .leadJudgeContractType("")
                 .judiciary(Judiciary.builder().build())
                 .hearingIsLinkedFlag(true)
-                .parties(List.of())
+                .parties(testParty)
                 .caseFlags(CaseFlags.builder().build())
                 .build());
 
@@ -103,6 +129,7 @@ class ServiceHearingsControllerTest {
                         .content(asJsonString(request)))
                 .andDo(print())
                 .andExpect(status().isOk());
+
     }
 
     @DisplayName("When Case Not Found should return a with 404 response code")

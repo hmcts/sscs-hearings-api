@@ -23,7 +23,9 @@ import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.ServiceHearingsService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER;
 import static org.springframework.http.ResponseEntity.status;
@@ -57,33 +59,33 @@ public class ServiceHearingsController {
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
 
             var modelForLogging =  List.of(
-                model.getCaseDeepLink(),
-                model.getCaseManagementLocationCode(),
-                model.isCaseRestrictedFlag(),
-                model.getCaseSlaStartDate(),
-                model.getExternalCaseReference(),
-                model.getHearingChannels(),
-                model.isAutoListFlag(),
-                model.getHearingType(),
-                model.getCaseType(),
-                model.getCaseCategories(),
-                model.getHearingWindow(),
-                model.getDuration(),
-                model.getHearingPriorityType(),
-                model.getNumberOfPhysicalAttendees(),
-                model.isHearingInWelshFlag(),
-                model.getHearingLocations(),
-                model.getCaseAdditionalSecurityFlag(),
-                model.getFacilitiesRequired(),
-                model.getListingComments(),
-                model.getHearingRequester(),
-                model.isPrivateHearingRequiredFlag(),
-                model.getPanelRequirements(),
-                model.getLeadJudgeContractType(),
-                model.getJudiciary(),
-                model.isHearingIsLinkedFlag(),
-                getPartyDetailsForLog(model.getParties()),
-                model.getCaseFlags()
+                Optional.ofNullable(model.getCaseDeepLink()),
+                Optional.ofNullable(model.getCaseManagementLocationCode()),
+                Optional.ofNullable(model.isCaseRestrictedFlag()),
+                Optional.ofNullable(model.getCaseSlaStartDate()),
+                Optional.ofNullable(model.getExternalCaseReference()),
+                Optional.ofNullable(model.getHearingChannels()),
+                Optional.ofNullable(model.isAutoListFlag()),
+                Optional.ofNullable(model.getHearingType()),
+                Optional.ofNullable(model.getCaseType()),
+                Optional.ofNullable(model.getCaseCategories()),
+                Optional.ofNullable(model.getHearingWindow()),
+                Optional.ofNullable(model.getDuration()),
+                Optional.ofNullable(model.getHearingPriorityType()),
+                Optional.ofNullable(model.getNumberOfPhysicalAttendees()),
+                Optional.ofNullable(model.isHearingInWelshFlag()),
+                Optional.ofNullable(model.getHearingLocations()),
+                Optional.ofNullable(model.getCaseAdditionalSecurityFlag()),
+                Optional.ofNullable(model.getFacilitiesRequired()),
+                Optional.ofNullable(model.getListingComments()),
+                Optional.ofNullable(model.getHearingRequester()),
+                Optional.ofNullable(model.isPrivateHearingRequiredFlag()),
+                Optional.ofNullable(model.getPanelRequirements()),
+                Optional.ofNullable(model.getLeadJudgeContractType()),
+                Optional.ofNullable(model.getJudiciary()),
+                Optional.ofNullable(model.isHearingIsLinkedFlag()),
+                Optional.ofNullable(getPartyDetailsForLog(model.getParties())),
+                Optional.ofNullable(model.getCaseFlags())
             );
 
             log.info("serviceHearingValues response {}", modelForLogging);
@@ -135,24 +137,24 @@ public class ServiceHearingsController {
 
     private List getPartyDetailsForLog(List<PartyDetails> partyDetails) {
         if (partyDetails != null) {
-            List<PartyDetails> partyDetailsForLog = List.of();
+            List<List<?>> partyDetailsForLog = new ArrayList<>();
             for (PartyDetails party : partyDetails) {
-                partyDetailsForLog.add((PartyDetails)
+                partyDetailsForLog.add(
                     List.of(
-                        party.getPartyID(),
-                        party.getPartyType(),
-                        party.getPartyChannel(),
-                        party.getPartyRole(),
-                        party.getIndividualDetails().getPreferredHearingChannel(),
-                        party.getIndividualDetails().getInterpreterLanguage(),
-                        party.getIndividualDetails().getReasonableAdjustments(),
-                        party.getIndividualDetails().isVulnerableFlag(),
-                        party.getIndividualDetails().getVulnerabilityDetails(),
-                        party.getIndividualDetails().getCustodyStatus(),
-                        party.getIndividualDetails().getOtherReasonableAdjustmentDetails(),
-                        party.getOrganisationDetails(),
-                        party.getUnavailabilityDow(),
-                        party.getUnavailabilityRanges()
+                        Optional.ofNullable(party.getPartyID()),
+                        Optional.ofNullable(party.getPartyType()),
+                        Optional.ofNullable(party.getPartyChannel()),
+                        Optional.ofNullable(party.getPartyRole()),
+                        Optional.ofNullable(party.getIndividualDetails().getPreferredHearingChannel()),
+                        Optional.ofNullable(party.getIndividualDetails().getInterpreterLanguage()),
+                        Optional.ofNullable(party.getIndividualDetails().getReasonableAdjustments()),
+                        Optional.ofNullable(party.getIndividualDetails().isVulnerableFlag()),
+                        Optional.ofNullable(party.getIndividualDetails().getVulnerabilityDetails()),
+                        Optional.ofNullable(party.getIndividualDetails().getCustodyStatus()),
+                        Optional.ofNullable(party.getIndividualDetails().getOtherReasonableAdjustmentDetails()),
+                        Optional.ofNullable(party.getOrganisationDetails()),
+                        Optional.ofNullable(party.getUnavailabilityDow()),
+                        Optional.ofNullable(party.getUnavailabilityRanges())
                     ));
             }
             return partyDetailsForLog;
