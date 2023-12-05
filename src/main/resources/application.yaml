@@ -137,6 +137,7 @@ exui:
 
 hmc:
   url: ${HMC_API_URL:http://localhost:8084}
+  deployment-id: ${HMC_DEPLOYMENT_ID:}
 
 flags:
   hmc-to-hearings-api:

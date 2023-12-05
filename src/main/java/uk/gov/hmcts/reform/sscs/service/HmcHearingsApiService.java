@@ -16,7 +16,7 @@ public class HmcHearingsApiService {
 
     private final HmcHearingsApi hmcHearingsApi;
     private final IdamService idamService;
-    @Value("${hmc.deployment.id}")
+    @Value("${hmc.deployment-id}")
     private  String hmctsDeploymentId;
 
     public HearingsGetResponse getHearingsRequest(String caseId, HmcStatus hmcStatus) {
