@@ -116,7 +116,7 @@ class HmcHearingApiServiceTest {
                 .versionNumber(VERSION)
                 .build();
 
-        given(hmcHearingApi.updateHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, String.valueOf(HEARING_REQUEST_ID), null, payload)).willReturn(response);
+        given(hmcHearingApi.updateHearingRequest(IDAM_OAUTH2_TOKEN, SERVICE_AUTHORIZATION, null, String.valueOf(HEARING_REQUEST_ID), payload)).willReturn(response);
 
         HmcUpdateResponse result = hmcHearingsService.sendUpdateHearingRequest(payload, String.valueOf(HEARING_REQUEST_ID));
 
