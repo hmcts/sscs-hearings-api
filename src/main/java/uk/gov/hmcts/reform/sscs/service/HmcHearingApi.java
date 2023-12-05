@@ -29,6 +29,7 @@ public interface HmcHearingApi {
     HmcUpdateResponse createHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = "hmcts-deployment-id", required = false) String hmctsDeploymentId,
         @RequestBody HearingRequestPayload hearingPayload
     );
 
@@ -36,6 +37,7 @@ public interface HmcHearingApi {
     HmcUpdateResponse updateHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = "hmcts-deployment-id", required = false) String hmctsDeploymentId,
         @PathVariable String id,
         @RequestBody HearingRequestPayload hearingPayload
     );
@@ -44,6 +46,7 @@ public interface HmcHearingApi {
     HmcUpdateResponse cancelHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = "hmcts-deployment-id", required = false) String hmctsDeploymentId,
         @PathVariable String id,
         @RequestBody HearingCancelRequestPayload hearingDeletePayload
     );
@@ -52,6 +55,7 @@ public interface HmcHearingApi {
     HearingGetResponse getHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = "hmcts-deployment-id", required = false) String hmctsDeploymentId,
         @PathVariable String id,
         @RequestParam(name = "isValid", required = false) Boolean isValid
     );

@@ -22,6 +22,7 @@ public interface HmcHearingsApi {
     HearingsGetResponse getHearingsRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = "hmcts-deployment-id", required = false) String hmctsDeploymentId,
         @PathVariable String caseId,
         @RequestParam(name = "status", required = false) HmcStatus hmcStatus
     );
