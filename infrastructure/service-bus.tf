@@ -19,6 +19,13 @@ resource "azurerm_servicebus_subscription_rule" "topic_filter_rule_sscs" {
   }
 }
 
+resource "azurerm_servicebus_subscription_rule" "hmctsDeploymentId" {
+   name            = "hmc_to_sscs_subscription_rule"
+   subscription_id = module.servicebus-subscription.id
+   filter_type     = "SqlFilter"
+   sql_filter      = "${var.deploymentId} ='' OR ${var.deploymentId} = hmctsDeploymentId"
+ }
+
 data "azurerm_key_vault" "hmc-key-vault" {
   name                = "hmc-${var.env}"
   resource_group_name = "hmc-shared-${var.env}"
@@ -49,7 +56,7 @@ resource "azurerm_key_vault_secret" "sscs-hmc-servicebus-shared-access-key-tf" {
   name         = "hmc-servicebus-shared-access-key-tf"
   value        = data.azurerm_key_vault_secret.hmc-servicebus-shared-access-key.value
   key_vault_id = data.azurerm_key_vault.sscs_key_vault.id
-  
+
   content_type = "secret"
   tags = merge(var.common_tags, {
     "source" : "Vault ${data.azurerm_key_vault.sscs_key_vault.name}"
