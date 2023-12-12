@@ -65,7 +65,7 @@ public final class HearingsDurationMapping {
     public static Integer getHearingDurationAdjournment(SscsCaseData caseData, HearingDurationsService hearingDurationsService) {
         AdjournCaseNextHearingDurationType durationType = caseData.getAdjournment().getNextHearingListingDurationType();
 
-        Integer existingDuration = caseData.getSchedulingAndListingFields().getDefaultListingValues().getDuration();
+        Integer existingDuration = OverridesMapping.getDefaultListingValues(caseData).getDuration();
         if (nonNull(existingDuration) && durationType == STANDARD) {
             return handleStandardDuration(caseData, existingDuration);
         }

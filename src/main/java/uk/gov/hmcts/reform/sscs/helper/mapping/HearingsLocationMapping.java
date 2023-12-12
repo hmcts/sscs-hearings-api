@@ -49,8 +49,6 @@ public final class HearingsLocationMapping {
             return locations;
         }
 
-        log.info("getHearingLocations::getPaperCaseLocations");
-
         locations = getPaperCaseLocations(caseData, refData);
         if (isNotEmpty(locations)) {
             log.debug("Hearing Locations for Case ID {} set as Paper Case values", caseId);
@@ -103,7 +101,6 @@ public final class HearingsLocationMapping {
     }
 
     private static void validatedRpc(RegionalProcessingCenter regionalProcessingCenter, ReferenceDataServiceHolder refData) throws ListingException {
-        log.info("rpc {}", regionalProcessingCenter);
         if (nonNull(regionalProcessingCenter)) {
             String regionalProcessingCenterPostCode = regionalProcessingCenter.getPostcode();
             RegionalProcessingCenterService regionalProcessingCenterService = refData.getRegionalProcessingCenterService();

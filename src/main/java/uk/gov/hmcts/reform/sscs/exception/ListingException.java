@@ -9,7 +9,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @ResponseStatus(BAD_REQUEST)
 public class ListingException extends CaseException {
     private static final long serialVersionUID = -5687439455391806310L;
-    protected String summary = "Missing Listing Requirement";
+    protected String summary = "Listing Exception";
     protected String description;
 
     public ListingException(String message) {

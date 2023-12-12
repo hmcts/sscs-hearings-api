@@ -91,7 +91,7 @@ azure:
       password: ${TRIBUNALS_EVENT_QUEUE_ACCESS_KEY:}
 idam:
   api:
-    url: ${IDAM_API_URL:http://localhost:5000}
+    url: ${IDAM_API_URL:http://localhost:5062}
   s2s-auth:
     url: ${IDAM_S2S_URL:http://localhost:4502}
     name: ${S2S_NAME_SSCS_HEARINGS_API:sscs-hearings-api}
@@ -142,11 +142,11 @@ flags:
   hmc-to-hearings-api:
     enabled: ${HMC_HEARINGS_LISTENING_ENABLED:false}
   tribunals-to-hearings-api:
-    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
+    enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:true}
   adjournment:
-    enabled: ${ADJOURNMENT_ENABLED:false}
+    enabled: ${ADJOURNMENT_ENABLED:true}
   postHearings:
-    enabled: ${POST_HEARING_ENABLED:false}
+    enabled: ${POST_HEARING_ENABLED:true}
 
 retry:
   hearing-response-update:
