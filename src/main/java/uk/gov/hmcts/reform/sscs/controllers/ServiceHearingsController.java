@@ -84,7 +84,7 @@ public class ServiceHearingsController {
                 Optional.ofNullable(model.getLeadJudgeContractType()),
                 Optional.ofNullable(model.getJudiciary()),
                 Optional.ofNullable(model.isHearingIsLinkedFlag()),
-                Optional.ofNullable(getPartyDetailsForLog(model.getParties())),
+                Optional.ofNullable(getListOfPartyDetailsForLog(model.getParties())),
                 Optional.ofNullable(model.getCaseFlags())
             );
 
@@ -135,7 +135,7 @@ public class ServiceHearingsController {
         }
     }
 
-    private List getPartyDetailsForLog(List<PartyDetails> partyDetails) {
+    private List getListOfPartyDetailsForLog(List<PartyDetails> partyDetails) {
         if (partyDetails != null) {
             List<List<?>> partyDetailsForLog = new ArrayList<>();
             for (PartyDetails party : partyDetails) {
