@@ -62,6 +62,13 @@ public class HearingsService {
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
 
+    @Value("${idam.oauth2.user.email}")
+    private String idamOauth2UserEmail;
+
+    @Value("${idam.oauth2.user.password}")
+    private String idamOauth2UserPassword;
+
+
     @Retryable(
         value = UpdateCaseException.class,
         maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
@@ -73,7 +80,7 @@ public class HearingsService {
                 hearingRequest.getHearingState(),
                 hearingRequest.getHearingRoute(),
                 hearingRequest.getCancellationReason());
-
+        log.info("idam user email {} and password {}", idamOauth2UserEmail, idamOauth2UserPassword);
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
