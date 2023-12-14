@@ -66,7 +66,6 @@ class ServiceHearingsControllerTest {
                                                                              .interpreterLanguage("French")
                                                                              .reasonableAdjustments(List.of())
                                                                              .vulnerableFlag(false)
-                                                                             .vulnerabilityDetails("none")
                                                                              .custodyStatus("none")
                                                                              .otherReasonableAdjustmentDetails("none")
                                                                              .build())
