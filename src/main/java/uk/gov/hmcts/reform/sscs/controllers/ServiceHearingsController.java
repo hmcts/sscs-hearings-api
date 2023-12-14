@@ -149,7 +149,6 @@ public class ServiceHearingsController {
                         Optional.ofNullable(party.getIndividualDetails().getInterpreterLanguage()),
                         Optional.ofNullable(party.getIndividualDetails().getReasonableAdjustments()),
                         Optional.ofNullable(party.getIndividualDetails().isVulnerableFlag()),
-                        Optional.ofNullable(party.getIndividualDetails().getVulnerabilityDetails()),
                         Optional.ofNullable(party.getIndividualDetails().getCustodyStatus()),
                         Optional.ofNullable(party.getIndividualDetails().getOtherReasonableAdjustmentDetails()),
                         Optional.ofNullable(party.getOrganisationDetails()),
