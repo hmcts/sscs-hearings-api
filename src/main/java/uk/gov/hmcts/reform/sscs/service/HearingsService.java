@@ -68,6 +68,10 @@ public class HearingsService {
     @Value("${idam.oauth2.user.password}")
     private String idamOauth2UserPassword;
 
+    @Value("${idam.client.id}")
+    private String idamClientId;
+
+
 
     @Retryable(
         value = UpdateCaseException.class,
@@ -81,6 +85,8 @@ public class HearingsService {
                 hearingRequest.getHearingRoute(),
                 hearingRequest.getCancellationReason());
         log.info("idam user email {} and password {}", idamOauth2UserEmail, idamOauth2UserPassword);
+        log.info("idam client id {}", idamClientId);
+
         processHearingWrapper(createWrapper(hearingRequest));
     }
 
