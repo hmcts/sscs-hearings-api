@@ -194,7 +194,10 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 PartyDetails::getOrganisationDetails,
                 PartyDetails::getUnavailabilityDayOfWeek,
                 PartyDetails::getUnavailabilityRanges)
-            .contains(tuple(INDIVIDUAL, "RESP", null, List.of(), List.of()));
+            .contains(tuple(INDIVIDUAL, "RESP", OrganisationDetails.builder()
+                .name("DWP")
+                .organisationType("ORG")
+                .build(), List.of(), List.of()));
 
         assertThat(partiesDetails)
             .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))

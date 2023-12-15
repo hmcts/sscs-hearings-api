@@ -204,6 +204,7 @@ public final class HearingsPartiesMapping {
             .partyType(INDIVIDUAL)
             .partyRole(RESPONDENT.getHmcReference())
             .individualDetails(getDwpIndividualDetails(caseData))
+            .organisationDetails(getDwpOrganisationDetails())
             .unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek())
             .unavailabilityRanges(getPartyUnavailabilityRange(null))
             .build();
@@ -433,12 +434,11 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static OrganisationDetails getOrganisationDetails(String name, String type, String id) {
-        OrganisationDetails.OrganisationDetailsBuilder organisationDetails = OrganisationDetails.builder();
-        organisationDetails.name(name);
-        organisationDetails.organisationType(type);
-        organisationDetails.cftOrganisationID(id);
-        return organisationDetails.build();
+    public static OrganisationDetails getDwpOrganisationDetails() {
+        return OrganisationDetails.builder()
+            .name("DWP")
+            .organisationType("ORG")
+            .build();
     }
 
     public static List<UnavailabilityDayOfWeek> getPartyUnavailabilityDayOfWeek() {
