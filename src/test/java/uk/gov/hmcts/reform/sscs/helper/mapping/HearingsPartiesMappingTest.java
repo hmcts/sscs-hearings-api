@@ -162,6 +162,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void buildHearingPartiesDetailsPoAttending() throws InvalidMappingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("Yes")
+            .benefitCode("001")
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")

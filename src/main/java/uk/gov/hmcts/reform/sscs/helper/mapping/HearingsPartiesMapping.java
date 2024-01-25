@@ -204,7 +204,7 @@ public final class HearingsPartiesMapping {
             .partyType(INDIVIDUAL)
             .partyRole(RESPONDENT.getHmcReference())
             .individualDetails(getDwpIndividualDetails(caseData))
-            .organisationDetails(getDwpOrganisationDetails())
+            .organisationDetails(getDwpOrganisationDetails(caseData))
             .unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek())
             .unavailabilityRanges(getPartyUnavailabilityRange(null))
             .build();
@@ -434,11 +434,15 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static OrganisationDetails getDwpOrganisationDetails() {
+    public static OrganisationDetails getDwpOrganisationDetails(SscsCaseData caseData) {
         return OrganisationDetails.builder()
-            .name("DWP")
+            .name(getOrganisationName(caseData.getBenefitCode()))
             .organisationType("ORG")
             .build();
+    }
+
+    private static String getOrganisationName(String benefitCode) {
+        return List.of("015", "016", "030", "034", "050", "053", "054", "055", "057", "058").contains(benefitCode) ? "HMRC" : "DWP";
     }
 
     public static List<UnavailabilityDayOfWeek> getPartyUnavailabilityDayOfWeek() {

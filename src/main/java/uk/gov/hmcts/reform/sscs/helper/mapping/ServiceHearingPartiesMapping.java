@@ -106,7 +106,7 @@ public final class ServiceHearingPartiesMapping {
             .partyType(INDIVIDUAL)
             .partyRole(RESPONDENT.getHmcReference())
             .individualDetails(HearingsPartiesMapping.getDwpIndividualDetails(caseData))
-            .organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails())
+            .organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails(caseData))
             .unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek())
             .unavailabilityRanges(null)
             .build();
