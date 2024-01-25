@@ -604,7 +604,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     }
 
     @ParameterizedTest
-    @MethodSource("getPartyReferenceArgements")
+    @MethodSource("getPartyReferenceArguments")
     void testGetPartyRole(Entity entity, String reference) {
         String result = HearingsPartiesMapping.getPartyRole(entity);
 
@@ -1161,7 +1161,27 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(unavailabilityRange.getUnavailableToDate()).isEqualTo(end);
     }
 
-    private static Stream<Arguments> getPartyReferenceArgements() {
+    @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
+    @ParameterizedTest
+    @ValueSource(strings = {"015", "016", "030", "034", "050", "053", "054", "055", "057", "058"})
+    void buildDwpOrgDetailsForHmrc(String benefitCode) {
+        SscsCaseData caseData = SscsCaseData.builder().benefitCode(benefitCode).build();
+        OrganisationDetails orgDetails = HearingsPartiesMapping.getDwpOrganisationDetails(caseData);
+        assertThat(orgDetails.getOrganisationType()).isEqualTo("ORG");
+        assertThat(orgDetails.getName()).isEqualTo("HMRC");
+    }
+
+    @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
+    @ParameterizedTest
+    @ValueSource(strings = {"001", "002", "003", "011", "012", "067", "073", "079"})
+    void buildDwpOrgDetailsForDwp(String benefitCode) {
+        SscsCaseData caseData = SscsCaseData.builder().benefitCode(benefitCode).build();
+        OrganisationDetails orgDetails = HearingsPartiesMapping.getDwpOrganisationDetails(caseData);
+        assertThat(orgDetails.getOrganisationType()).isEqualTo("ORG");
+        assertThat(orgDetails.getName()).isEqualTo("DWP");
+    }
+
+    private static Stream<Arguments> getPartyReferenceArguments() {
         return Stream.of(
             Arguments.of(Representative.builder().build(), REPRESENTATIVE.getHmcReference()),
             Arguments.of(Appellant.builder().build(), APPELLANT.getHmcReference()),
