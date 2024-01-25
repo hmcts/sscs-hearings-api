@@ -19,12 +19,6 @@ resource "azurerm_servicebus_subscription_rule" "topic_filter_rule_sscs" {
   }
 }
 
-resource "azurerm_servicebus_subscription_rule" "hmctsDeploymentId" {
-  name            = "hmc_to_sscs_subscription_rule"
-  subscription_id = module.servicebus-subscription.id
-  filter_type     = "SqlFilter"
-  sql_filter      = "user.hmctsDeploymentId = ''"
-}
 
 data "azurerm_key_vault" "hmc-key-vault" {
   name                = "hmc-${var.env}"

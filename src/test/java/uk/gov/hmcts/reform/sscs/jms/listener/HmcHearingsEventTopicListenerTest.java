@@ -48,10 +48,13 @@ class HmcHearingsEventTopicListenerTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @BeforeEach
-    void setup() {
+    void setup() throws JMSException {
         hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "sscsServiceCode", SERVICE_CODE);
+        given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn("test");
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test");
+
     }
 
     @Test

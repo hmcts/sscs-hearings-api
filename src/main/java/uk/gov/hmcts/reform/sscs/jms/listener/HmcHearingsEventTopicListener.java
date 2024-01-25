@@ -29,6 +29,10 @@ public class HmcHearingsEventTopicListener {
 
     private final ProcessHmcMessageService processHmcMessageService;
 
+    @Value("${hmc.deployment-id}")
+    private String hmctsDeploymentId;
+
+
     public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
                                          ProcessHmcMessageService processHmcMessageService) {
         this.sscsServiceCode = sscsServiceCode;
@@ -43,26 +47,33 @@ public class HmcHearingsEventTopicListener {
         containerFactory = "hmcHearingsEventTopicContainerFactory"
     )
     public void onMessage(JmsBytesMessage message) throws JMSException, HmcEventProcessingException {
+        if (isMessageReleventForDeployment(message)) {
+            byte[] messageBytes = new byte[(int) message.getBodyLength()];
+            message.readBytes(messageBytes);
+            String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
 
-        byte[] messageBytes = new byte[(int) message.getBodyLength()];
-        message.readBytes(messageBytes);
-        String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
+            try {
+                HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
 
-        try {
-            HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
+                if (isMessageRelevantForService(hmcMessage)) {
+                    Long caseId = hmcMessage.getCaseId();
+                    String hearingId = hmcMessage.getHearingId();
 
-            if (isMessageRelevantForService(hmcMessage)) {
-                Long caseId = hmcMessage.getCaseId();
-                String hearingId = hmcMessage.getHearingId();
+                    log.info("Attempting to process message from HMC hearings topic for event {}, Case ID {}, and Hearing ID {}.",
+                             hmcMessage.getHearingUpdate().getHmcStatus(),
+                             caseId,
+                             hearingId
+                    );
 
-                log.info("Attempting to process message from HMC hearings topic for event {}, Case ID {}, and Hearing ID {}.",
-                    hmcMessage.getHearingUpdate().getHmcStatus(), caseId, hearingId);
-
-                processHmcMessageService.processEventMessage(hmcMessage);
+                    processHmcMessageService.processEventMessage(hmcMessage);
+                }
+            } catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
+                throw new HmcEventProcessingException(String.format(
+                    "Unable to successfully deliver HMC message: %s",
+                    convertedMessage
+                ), ex);
             }
-        }  catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
-            throw new HmcEventProcessingException(String.format("Unable to successfully deliver HMC message: %s",
-                convertedMessage), ex);
+
         }
     }
 
@@ -70,4 +81,10 @@ public class HmcHearingsEventTopicListener {
         return sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }
 
+    private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
+
+        return hmctsDeploymentId != null && hmctsDeploymentId.isEmpty()
+            || message.getStringProperty("hmctsDeploymentId") != null
+            && message.getStringProperty("hmctsDeploymentId").equals(hmctsDeploymentId);
+    }
 }
