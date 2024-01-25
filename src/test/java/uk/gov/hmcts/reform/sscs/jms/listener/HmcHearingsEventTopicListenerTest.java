@@ -74,6 +74,20 @@ class HmcHearingsEventTopicListenerTest {
     }
 
     @Test
+    @DisplayName("Messages should not be processed if their deployment ID does not match ours.")
+    void testOnMessage_deploymentNotApplicable() throws Exception {
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test2");
+        HmcMessage hmcMessage = createHmcMessage("BBA3");
+
+        byte[] messageBytes = OBJECT_MAPPER.writeValueAsString(hmcMessage).getBytes(StandardCharsets.UTF_8);
+
+        hmcHearingsEventTopicListener.onMessage(bytesMessage);
+
+        verify(processHmcMessageService, never()).processEventMessage((any(HmcMessage.class)));
+    }
+
+
+    @Test
     @DisplayName("Messages should be processed if their service code matches the service.")
     void testOnMessage_serviceCodeApplicable() throws Exception {
 
