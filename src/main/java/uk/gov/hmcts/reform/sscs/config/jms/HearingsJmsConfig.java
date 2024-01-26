@@ -11,6 +11,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import uk.gov.hmcts.reform.sscs.jms.listener.TribunalsJmsListenerContainerFactory;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -38,6 +39,10 @@ public class HearingsJmsConfig {
     @Value("${azure.service-bus.hmc-to-hearings-api.idleTimeout}")
     private Long idleTimeout;
 
+    @Value("${hmc.deployment-id}")
+    private  String hmctsDeploymentId;
+
+
     @Bean
     @ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
     public ConnectionFactory hmcHearingJmsConnectionFactory(@Value("${spring.application.name}") final String clientId) {
@@ -55,7 +60,8 @@ public class HearingsJmsConfig {
     public JmsListenerContainerFactory<DefaultMessageListenerContainer> hmcHearingsEventTopicContainerFactory(
         ConnectionFactory hmcHearingJmsConnectionFactory,
         DefaultJmsListenerContainerFactoryConfigurer configurer) {
-        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        DefaultJmsListenerContainerFactory factory =
+            new TribunalsJmsListenerContainerFactory("NOT EXISTS(user.hmctsDeploymentId) OR user.hmctsDeploymentId = '" + hmctsDeploymentId + "'");
         factory.setConnectionFactory(hmcHearingJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
         factory.setSubscriptionDurable(Boolean.TRUE);
