@@ -214,6 +214,8 @@ class HearingsServiceTest {
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+
+        assertThat(wrapper.getCaseData().getPoAttendanceConfirmed()).isEqualTo(YesNo.NO);
     }
 
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
@@ -239,6 +241,7 @@ class HearingsServiceTest {
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+        assertThat(wrapper.getCaseData().getPoAttendanceConfirmed()).isEqualTo(YesNo.NO);
     }
 
     @DisplayName("When create Hearing is given and there is already a hearing requested/awaiting listing addHearingResponse should run without error")

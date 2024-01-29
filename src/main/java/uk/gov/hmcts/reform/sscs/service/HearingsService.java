@@ -41,6 +41,8 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
+import static uk.gov.hmcts.reform.sscs.model.HearingEvent.ADJOURN_CREATE_HEARING;
+import static uk.gov.hmcts.reform.sscs.model.HearingEvent.CREATE_HEARING;
 
 @Slf4j
 @Service
@@ -226,6 +228,13 @@ public class HearingsService {
         }
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
+
+        if (event.equals(CREATE_HEARING)
+            || event.equals(ADJOURN_CREATE_HEARING)) {
+            log.info("Clearing PO details");
+            caseData.clearPoDetails();
+        }
+
         log.info("Updating case with event {} description is {}", event, event.getDescription());
         var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
 
