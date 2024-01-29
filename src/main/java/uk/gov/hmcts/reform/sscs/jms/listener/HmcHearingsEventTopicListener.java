@@ -83,8 +83,8 @@ public class HmcHearingsEventTopicListener {
 
     private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
         return hmctsDeploymentId == null
-            &&  message.getStringProperty("hmctsDeploymentId") == null
-            || message.getStringProperty("hmctsDeploymentId") != null
-            && message.getStringProperty("hmctsDeploymentId").equals(hmctsDeploymentId);
+            &&  message.getStringProperty("hmcts-deployment-id") == null
+            || message.getStringProperty("hmcts-deployment-id") != null
+            && message.getStringProperty("hmcts-deployment-id").equals(hmctsDeploymentId);
     }
 }
