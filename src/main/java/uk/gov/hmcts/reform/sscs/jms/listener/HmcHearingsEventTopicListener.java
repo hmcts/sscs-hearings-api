@@ -29,6 +29,13 @@ public class HmcHearingsEventTopicListener {
 
     private final ProcessHmcMessageService processHmcMessageService;
 
+    @Value("${hmc.deployment-id}")
+    private String hmctsDeploymentId;
+
+    @Value("${flags.deployment-filter.enabled}")
+    private boolean isDeploymentFilterEnabled;
+
+
     public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
                                          ProcessHmcMessageService processHmcMessageService) {
         this.sscsServiceCode = sscsServiceCode;
@@ -43,7 +50,9 @@ public class HmcHearingsEventTopicListener {
         containerFactory = "hmcHearingsEventTopicContainerFactory"
     )
     public void onMessage(JmsBytesMessage message) throws JMSException, HmcEventProcessingException {
-
+        if (isDeploymentFilterEnabled && !isMessageReleventForDeployment(message)) {
+            return;
+        }
         byte[] messageBytes = new byte[(int) message.getBodyLength()];
         message.readBytes(messageBytes);
         String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
@@ -70,4 +79,10 @@ public class HmcHearingsEventTopicListener {
         return sscsServiceCode.equals(hmcMessage.getHmctsServiceCode());
     }
 
+    private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
+        return hmctsDeploymentId == null
+            && message.getStringProperty("hmcts-deployment-id") == null
+            || message.getStringProperty("hmcts-deployment-id") != null
+            && message.getStringProperty("hmcts-deployment-id").equals(hmctsDeploymentId);
+    }
 }
