@@ -32,6 +32,9 @@ public class HmcHearingsEventTopicListener {
     @Value("${hmc.deployment-id}")
     private String hmctsDeploymentId;
 
+    @Value("${flags.deployment-filter.enabled}")
+    private boolean isDeploymentFilterEnabled;
+
 
     public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
                                          ProcessHmcMessageService processHmcMessageService) {
@@ -47,13 +50,15 @@ public class HmcHearingsEventTopicListener {
         containerFactory = "hmcHearingsEventTopicContainerFactory"
     )
     public void onMessage(JmsBytesMessage message) throws JMSException, HmcEventProcessingException {
-        if (isMessageReleventForDeployment(message)) {
-            byte[] messageBytes = new byte[(int) message.getBodyLength()];
-            message.readBytes(messageBytes);
-            String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
+        if (isDeploymentFilterEnabled && !isMessageReleventForDeployment(message)) {
+            return;
+        }
+        byte[] messageBytes = new byte[(int) message.getBodyLength()];
+        message.readBytes(messageBytes);
+        String convertedMessage = new String(messageBytes, StandardCharsets.UTF_8);
 
-            try {
-                HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
+        try {
+            HmcMessage hmcMessage = objectMapper.readValue(convertedMessage, HmcMessage.class);
 
                 if (isMessageRelevantForService(hmcMessage)) {
                     Long caseId = hmcMessage.getCaseId();
@@ -73,8 +78,7 @@ public class HmcHearingsEventTopicListener {
                     convertedMessage
                 ), ex);
             }
-
-        }
+      
     }
 
     private boolean isMessageRelevantForService(HmcMessage hmcMessage) {
@@ -83,7 +87,7 @@ public class HmcHearingsEventTopicListener {
 
     private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
         return hmctsDeploymentId == null
-            &&  message.getStringProperty("hmcts-deployment-id") == null
+            && message.getStringProperty("hmcts-deployment-id") == null
             || message.getStringProperty("hmcts-deployment-id") != null
             && message.getStringProperty("hmcts-deployment-id").equals(hmctsDeploymentId);
     }

@@ -55,6 +55,8 @@ class HmcHearingsEventTopicListenerTest {
         given(bytesMessage.getStringProperty("hmcts-deployment-id")).willReturn("test");
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test");
 
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "isDeploymentFilterEnabled", true);
+
     }
 
     @Test
