@@ -25,10 +25,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.JudicialRefDataService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -153,10 +150,14 @@ public class HearingUpdateService {
         if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
+            String hearingDateTime = getHearingDateIssuedTime(hearingId, sscsCaseData);
+            LocalDateTime hearingDateIssued = getLocalDateTime(String.valueOf(hearingDate), hearingDateTime);
+            workBasketFields.setHearingDateIssued(hearingDateIssued);
             String epimsId = getHearingEpimsId(hearingId, sscsCaseData);
             workBasketFields.setHearingEpimsId(epimsId);
         } else {
             workBasketFields.setHearingDate(null);
+            workBasketFields.setHearingDateIssued(null);
             workBasketFields.setHearingEpimsId(null);
         }
     }
@@ -167,6 +168,19 @@ public class HearingUpdateService {
             .map(HearingDetails::getStart)
             .map(LocalDateTime::toLocalDate)
             .orElse(null);
+    }
+
+    public String getHearingDateIssuedTime(String hearingId, @Valid SscsCaseData sscsCaseData) {
+        return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
+            .map(Hearing::getValue)
+            .map(HearingDetails::getTime)
+            .orElse(null);
+    }
+
+    public static LocalDateTime getLocalDateTime(String localDateStr, String localTimeStr) {
+        LocalDate localDate = LocalDate.parse(localDateStr);
+        LocalTime localTime = LocalTime.parse(localTimeStr);
+        return LocalDateTime.of(localDate, localTime);
     }
 
     public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
