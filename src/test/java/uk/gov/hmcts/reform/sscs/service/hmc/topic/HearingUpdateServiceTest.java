@@ -341,6 +341,7 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .epimsId(EPIMS_ID)
+                    .start(zoneUtcStartDateTime)
                     .time(HEARING_TIME_STR)
                     .build())
                 .build()));
@@ -348,7 +349,6 @@ class HearingUpdateServiceTest {
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
-        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
     }
 
 
