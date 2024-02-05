@@ -59,6 +59,7 @@ class HearingUpdateServiceTest {
     private static final String VENUE_NAME = "VenueName";
     private static final String JUDGE_ID = "1";
     private static final List<String> PANEL_IDS = List.of("2", "3");
+    private static final String HEARING_TIME_STR = "10:00:00";
 
     private VenueDetails venueDetails;
     private SscsCaseData caseData;
@@ -321,6 +322,7 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .start(zoneUtcStartDateTime)
+                    .time(HEARING_TIME_STR)
                     .epimsId(EPIMS_ID)
                     .build())
                 .build()));
@@ -339,6 +341,7 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .epimsId(EPIMS_ID)
+                    .time(HEARING_TIME_STR)
                     .build())
                 .build()));
 
@@ -357,6 +360,7 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .start(zoneUtcStartDateTime)
+                    .time(HEARING_TIME_STR)
                     .build())
                 .build()));
 
