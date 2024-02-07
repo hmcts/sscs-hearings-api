@@ -50,7 +50,16 @@ public class HmcHearingsEventTopicListener {
         containerFactory = "hmcHearingsEventTopicContainerFactory"
     )
     public void onMessage(JmsBytesMessage message) throws JMSException, HmcEventProcessingException {
+        log.info(
+            "Attempting to process message {} from HMC hearings topic",
+            message.getJMSMessageID()
+        );
+
         if (isDeploymentFilterEnabled && !isMessageReleventForDeployment(message)) {
+            log.info(
+                "Could not process message {}",
+                message.getJMSMessageID()
+            );
             return;
         }
         byte[] messageBytes = new byte[(int) message.getBodyLength()];
