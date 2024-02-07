@@ -25,7 +25,7 @@ public interface HmcHearingApi {
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     String HEARING_ENDPOINT = "/hearing";
     String ID = "id";
-    String HMCTS_DEPLOYMENT_ID = "hmcts-deployment-id";
+    String HMCTS_DEPLOYMENT_ID = "hmctsDeploymentId";
 
     @PostMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     HmcUpdateResponse createHearingRequest(

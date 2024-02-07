@@ -52,7 +52,7 @@ class HmcHearingsEventTopicListenerTest {
         hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "sscsServiceCode", SERVICE_CODE);
-        given(bytesMessage.getStringProperty("hmcts-deployment-id")).willReturn("test");
+        given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn("test");
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test");
 
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "isDeploymentFilterEnabled", true);
@@ -92,7 +92,7 @@ class HmcHearingsEventTopicListenerTest {
     @DisplayName("Messages should be processed if no deployment id is provided.")
     void testOnMessage_noDeployment() throws Exception {
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", null);
-        given(bytesMessage.getStringProperty("hmcts-deployment-id")).willReturn(null);
+        given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn(null);
         HmcMessage hmcMessage = createHmcMessage("BBA3");
 
         byte[] messageBytes = OBJECT_MAPPER.writeValueAsString(hmcMessage).getBytes(StandardCharsets.UTF_8);
