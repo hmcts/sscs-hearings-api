@@ -52,6 +52,10 @@ class HmcHearingsEventTopicListenerTest {
         hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "sscsServiceCode", SERVICE_CODE);
+        given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn("test");
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test");
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "isDeploymentFilterEnabled", true);
+
     }
 
     @Test
@@ -69,6 +73,36 @@ class HmcHearingsEventTopicListenerTest {
 
         verify(processHmcMessageService, never()).processEventMessage((any(HmcMessage.class)));
     }
+
+
+    @Test
+    @DisplayName("Messages should not be processed if their deployment ID does not match ours.")
+    void testOnMessage_deploymentNotApplicable() throws Exception {
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test2");
+        HmcMessage hmcMessage = createHmcMessage("BBA3");
+
+        byte[] messageBytes = OBJECT_MAPPER.writeValueAsString(hmcMessage).getBytes(StandardCharsets.UTF_8);
+
+        hmcHearingsEventTopicListener.onMessage(bytesMessage);
+
+        verify(processHmcMessageService, never()).processEventMessage((any(HmcMessage.class)));
+    }
+
+    @Test
+    @DisplayName("Messages should be processed if no deployment id is provided.")
+    void testOnMessage_noDeployment() throws Exception {
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", null);
+        given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn(null);
+        HmcMessage hmcMessage = createHmcMessage("BBA3");
+
+        byte[] messageBytes = OBJECT_MAPPER.writeValueAsString(hmcMessage).getBytes(StandardCharsets.UTF_8);
+        given(mockObjectMapper.readValue(any(String.class), eq(HmcMessage.class))).willReturn(hmcMessage);
+
+        hmcHearingsEventTopicListener.onMessage(bytesMessage);
+
+        verify(processHmcMessageService).processEventMessage((any(HmcMessage.class)));
+    }
+
 
 
     @Test
