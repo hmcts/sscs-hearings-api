@@ -137,6 +137,7 @@ exui:
 
 hmc:
   url: ${HMC_API_URL:http://localhost:8084}
+  deployment-id: ${HMC_DEPLOYMENT_ID:}
 
 flags:
   hmc-to-hearings-api:
@@ -147,6 +148,8 @@ flags:
     enabled: ${ADJOURNMENT_ENABLED:false}
   postHearings:
     enabled: ${POST_HEARING_ENABLED:false}
+  deployment-filter:
+    enabled: ${HMC_DEPLOYMENT_FILTER_ENABLED:false}
 
 retry:
   hearing-response-update:
