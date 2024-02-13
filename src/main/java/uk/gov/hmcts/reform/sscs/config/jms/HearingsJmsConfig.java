@@ -61,7 +61,7 @@ public class HearingsJmsConfig {
         ConnectionFactory hmcHearingJmsConnectionFactory,
         DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory =
-            new TribunalsJmsListenerContainerFactory("NOT EXISTS(user.hmctsDeploymentId) OR user.hmctsDeploymentId = '" + hmctsDeploymentId + "'");
+            new TribunalsJmsListenerContainerFactory("hmctsDeploymentId IS NULL OR hmctsDeploymentId = '" + hmctsDeploymentId + "'");
         factory.setConnectionFactory(hmcHearingJmsConnectionFactory);
         factory.setReceiveTimeout(receiveTimeout);
         factory.setSubscriptionDurable(Boolean.TRUE);
