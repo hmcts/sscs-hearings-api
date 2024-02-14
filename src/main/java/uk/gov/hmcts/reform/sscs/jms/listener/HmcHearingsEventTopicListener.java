@@ -35,6 +35,7 @@ public class HmcHearingsEventTopicListener {
     @Value("${flags.deployment-filter.enabled}")
     private boolean isDeploymentFilterEnabled;
 
+    private static final String HMCTS_DEPLOYMENT_ID = "hmctsDeploymentId";
 
     public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
                                          ProcessHmcMessageService processHmcMessageService) {
@@ -97,8 +98,8 @@ public class HmcHearingsEventTopicListener {
 
     private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
         return hmctsDeploymentId == null
-            && message.getStringProperty("hmctsDeploymentId") == null
-            || message.getStringProperty("hmctsDeploymentId") != null
-            && message.getStringProperty("hmctsDeploymentId").equals(hmctsDeploymentId);
+            && message.getStringProperty(HMCTS_DEPLOYMENT_ID) == null
+            || message.getStringProperty(HMCTS_DEPLOYMENT_ID) != null
+            && message.getStringProperty(HMCTS_DEPLOYMENT_ID).equals(hmctsDeploymentId);
     }
 }
