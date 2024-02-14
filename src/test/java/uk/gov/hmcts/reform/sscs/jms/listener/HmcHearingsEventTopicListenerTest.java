@@ -91,7 +91,7 @@ class HmcHearingsEventTopicListenerTest {
     @Test
     @DisplayName("Messages should be processed if no deployment id is provided.")
     void testOnMessage_noDeployment() throws Exception {
-        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", null);
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "");
         given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn(null);
         HmcMessage hmcMessage = createHmcMessage("BBA3");
 

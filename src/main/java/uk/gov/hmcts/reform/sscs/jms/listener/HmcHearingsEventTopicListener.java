@@ -98,7 +98,7 @@ public class HmcHearingsEventTopicListener {
 
     private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
         log.info("Service deployment: {} message Deployment: {}", hmctsDeploymentId, message.getStringProperty("hmctsDeploymentId"));
-        return hmctsDeploymentId == null
+        return hmctsDeploymentId.isEmpty()
             && message.getStringProperty(HMCTS_DEPLOYMENT_ID) == null
             || message.getStringProperty(HMCTS_DEPLOYMENT_ID) != null
             && message.getStringProperty(HMCTS_DEPLOYMENT_ID).equals(hmctsDeploymentId);
