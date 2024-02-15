@@ -63,7 +63,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.REPRESENTATIVE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.INTERPRETER;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyRelationshipType.SOLICITOR;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.FACE_TO_FACE;
 import static uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel.NOT_ATTENDING;
 import static uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil.getIndividualPreferredHearingChannel;
@@ -196,7 +196,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 PartyDetails::getOrganisationDetails,
                 PartyDetails::getUnavailabilityDayOfWeek,
                 PartyDetails::getUnavailabilityRanges)
-            .contains(tuple(INDIVIDUAL, "RESP", OrganisationDetails.builder()
+            .contains(tuple(ORGANISATION, "RESP", OrganisationDetails.builder()
                 .name("DWP")
                 .organisationType("ORG")
                 .build(), List.of(), List.of()));

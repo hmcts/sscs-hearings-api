@@ -199,7 +199,7 @@ public final class HearingsPartiesMapping {
     public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) {
         return PartyDetails.builder()
             .partyID(DWP_ID)
-            .partyType(INDIVIDUAL)
+            .partyType(ORGANISATION)
             .partyRole(RESPONDENT.getHmcReference())
             .organisationDetails(getDwpOrganisationDetails(caseData))
             .unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek())
