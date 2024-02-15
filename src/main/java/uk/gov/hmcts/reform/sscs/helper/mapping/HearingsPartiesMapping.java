@@ -203,7 +203,6 @@ public final class HearingsPartiesMapping {
             .partyID(DWP_ID)
             .partyType(INDIVIDUAL)
             .partyRole(RESPONDENT.getHmcReference())
-            .individualDetails(getDwpIndividualDetails(caseData))
             .organisationDetails(getDwpOrganisationDetails(caseData))
             .unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek())
             .unavailabilityRanges(getPartyUnavailabilityRange(null))

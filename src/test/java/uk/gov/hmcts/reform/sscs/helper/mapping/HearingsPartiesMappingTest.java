@@ -36,7 +36,6 @@ import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.OrganisationDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
@@ -199,15 +198,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                 .name("DWP")
                 .organisationType("ORG")
                 .build(), List.of(), List.of()));
-
-        assertThat(partiesDetails)
-            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
-            .extracting(PartyDetails::getIndividualDetails)
-            .extracting(
-                IndividualDetails::getFirstName,
-                IndividualDetails::getLastName,
-                IndividualDetails::getPreferredHearingChannel)
-            .contains(tuple("Presenting", "Officer", FACE_TO_FACE));
     }
 
     @DisplayName("When a valid hearing wrapper when PO attending is not Yes given buildHearingPartiesDetails returns the correct Hearing Parties Details")
