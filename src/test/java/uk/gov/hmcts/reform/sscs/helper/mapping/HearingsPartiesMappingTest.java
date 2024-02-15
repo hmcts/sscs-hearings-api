@@ -97,6 +97,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                            .build())
                      .build())
                 .build())
+            .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
             .caseData(caseData)
@@ -115,7 +116,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
 
-        assertThat(hearingPartiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(hearingPartiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
     }
 
     @DisplayName("When a valid hearing wrapper without OtherParties or joint party is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -135,6 +136,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                        .build())
                    .build())
                 .build())
+            .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
             .caseData(caseData)
@@ -153,7 +155,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
 
-        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
     }
 
     @DisplayName("When a valid hearing wrapper when PO attending is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -220,6 +222,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                         .build())
                    .build())
                 .build())
+            .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
             .caseData(caseData)
@@ -230,7 +233,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
-        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
     }
 
     @DisplayName("When a valid hearing wrapper is given with OtherParties buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -263,6 +266,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                  .build())
                                        .build())
                         .build())
+            .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
             .caseData(caseData)
@@ -282,9 +286,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partyDetails.getOrganisationDetails()).isNull();
         assertThat(partyDetails.getUnavailabilityDayOfWeek()).isEmpty();
         assertThat(partyDetails.getUnavailabilityRanges()).isEmpty();
-
-        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
-
     }
 
     @DisplayName("When a valid hearing wrapper with joint party given buildHearingPartiesDetails returns the correct Hearing Parties Details")
@@ -314,6 +315,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                        .name(name)
                                        .build())
                         .build())
+            .benefitCode("002")
             .build();
 
         HearingWrapper wrapper = HearingWrapper.builder()
@@ -324,7 +326,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
         assertThat(partiesDetails.stream().anyMatch(o -> OTHER_PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())));
-        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isNotPresent();
+        assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
     }
 
     @DisplayName("When HearingOption is  Null return empty string")
@@ -1110,7 +1112,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
     @Test
     void buildHearingPartiesDetails_unavailabilityRanges() throws InvalidMappingException {
-
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(1);
         SscsCaseData caseData = SscsCaseData.builder()
@@ -1131,6 +1132,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                  .build())
                                        .build())
                         .build())
+            .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
             .caseData(caseData)

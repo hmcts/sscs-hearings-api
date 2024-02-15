@@ -83,9 +83,7 @@ public final class HearingsPartiesMapping {
 
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            partiesDetails.add(createDwpPartyDetails(caseData));
-        }
+        partiesDetails.add(createDwpPartyDetails(caseData));
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
             partiesDetails.addAll(
