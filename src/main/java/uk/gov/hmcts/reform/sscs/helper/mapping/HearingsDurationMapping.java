@@ -83,7 +83,10 @@ public final class HearingsDurationMapping {
     private static Integer handleAdjournmentHearingType(SscsCaseData caseData, HearingDurationsService durationsService, Integer duration) {
         Adjournment adjournment = caseData.getAdjournment();
         if (!adjournment.getTypeOfHearing().equals(adjournment.getTypeOfNextHearing())) {
-            return durationsService.getHearingDurationBenefitIssueCodes(caseData);
+            // update override value here otherwise it will not be correctly amended when change of hearing type
+            Integer newDuration = durationsService.getHearingDurationBenefitIssueCodes(caseData);
+            caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(newDuration);
+            return newDuration;
         }
         return duration;
     }

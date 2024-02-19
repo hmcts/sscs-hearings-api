@@ -38,6 +38,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
             .build();
         SchedulingAndListingFields slFields = SchedulingAndListingFields.builder()
             .defaultListingValues(defaultListingValues)
+            .overrideFields(defaultListingValues)
             .build();
 
         caseData.setSchedulingAndListingFields(slFields);
@@ -200,6 +201,7 @@ class HearingsDurationMappingAdjournmentTest extends HearingsMappingBase {
         adjournment.setTypeOfNextHearing(AdjournCaseTypeOfHearing.FACE_TO_FACE);
 
         caseData.getSchedulingAndListingFields().getDefaultListingValues().setDuration(30);
+        caseData.getSchedulingAndListingFields().getOverrideFields().setDuration(30);
 
         HearingDuration duration = new HearingDuration();
         duration.setBenefitCode(BenefitCode.PIP_NEW_CLAIM);
