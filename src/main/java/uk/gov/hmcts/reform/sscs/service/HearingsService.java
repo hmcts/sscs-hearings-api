@@ -84,9 +84,6 @@ public class HearingsService {
                 hearingRequest.getHearingState(),
                 hearingRequest.getHearingRoute(),
                 hearingRequest.getCancellationReason());
-        log.info("idam user email {} and password {}", idamOauth2UserEmail, idamOauth2UserPassword);
-        log.info("idam client id config: {}", idamClientId);
-        log.info("idam client id env: {}", System.getenv("IDAM_OAUTH2_CLIENT_ID"));
 
         processHearingWrapper(createWrapper(hearingRequest));
     }
