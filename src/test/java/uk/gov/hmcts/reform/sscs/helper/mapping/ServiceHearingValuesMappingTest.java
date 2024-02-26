@@ -247,13 +247,13 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
     @Test
     void shouldMapPartiesInServiceHearingValues() throws ListingException {
         // given
-
+        caseData.setDwpIsOfficerAttending(YesNo.YES.getValue());
         given(refData.getVenueService()).willReturn(venueService);
         // when
         final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
         //then
         assertThat(serviceHearingValues.getParties())
-            .hasSize(3)
+            .hasSize(4)
             .anySatisfy(partyDetails -> {
                 assertThat(partyDetails.getPartyID()).isEqualTo(APPELLANT_PARTY_ID.substring(0,15));
                 assertThat(partyDetails.getPartyRole()).isEqualTo(EntityRoleCode.APPELLANT.getHmcReference());
@@ -265,6 +265,10 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .anySatisfy(partyDetails -> {
                 assertThat(partyDetails.getPartyID()).isEqualTo(OTHER_PARTY_ID.substring(0,15));
                 assertThat(partyDetails.getPartyRole()).isEqualTo(EntityRoleCode.OTHER_PARTY.getHmcReference());
+            })
+            .anySatisfy(partyDetails -> {
+                assertThat(partyDetails.getPartyID()).isEqualTo("DWP");
+                assertThat(partyDetails.getPartyRole()).isEqualTo(EntityRoleCode.RESPONDENT.getHmcReference());
             });
     }
 
