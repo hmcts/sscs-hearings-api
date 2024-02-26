@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -45,7 +44,7 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
 public class HearingsService {
 
     @Value("${retry.hearing-response-update.max-retries}")
@@ -63,11 +62,11 @@ public class HearingsService {
     private static final Long HEARING_VERSION_NUMBER = 1L;
 
     @Retryable(
-        value = UpdateCaseException.class,
+        retryFor = UpdateCaseException.class,
         maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
         backoff = @Backoff(delayExpression = "${retry.hearing-response-update.backoff}"))
-    public void processHearingRequest(HearingRequest hearingRequest) throws GetCaseException,
-        UnhandleableHearingStateException, UpdateCaseException, ListingException {
+    public void processHearingRequest(HearingRequest hearingRequest) throws UnhandleableHearingStateException,
+        UpdateCaseException, ListingException {
         log.info("Processing Hearing Request for Case ID {}, Hearing State {} and Route {} and Cancellation Reason {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState(),
@@ -124,8 +123,8 @@ public class HearingsService {
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
-        String caseId = caseData.getCcdCaseId();
 
+        String caseId = caseData.getCcdCaseId();
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
         HmcUpdateResponse hmcUpdateResponse;
@@ -258,8 +257,7 @@ public class HearingsService {
         throw new ExhaustedRetryException("Cancellation request Response received, rethrowing exception", exception);
     }
 
-    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws GetCaseException,
-        UnhandleableHearingStateException {
+    private HearingWrapper createWrapper(HearingRequest hearingRequest) throws UnhandleableHearingStateException {
         if (isNull(hearingRequest.getHearingState())) {
             UnhandleableHearingStateException err = new UnhandleableHearingStateException();
             log.error(err.getMessage(), err);
