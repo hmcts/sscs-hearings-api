@@ -61,14 +61,6 @@ public class HearingsService {
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
 
-    @Value("${idam.oauth2.user.email}")
-    private String idamOauth2UserEmail;
-
-    @Value("${idam.oauth2.user.password}")
-    private String idamOauth2UserPassword;
-
-    @Value("${idam.client.id}")
-    private String idamClientId;
 
 
 
