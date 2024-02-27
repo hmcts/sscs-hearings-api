@@ -89,7 +89,22 @@ class HmcHearingsEventTopicListenerTest {
     }
 
     @Test
-    @DisplayName("Messages should be processed if no deployment id is provided.")
+    @DisplayName("Message should be processed if message deployment ID matches ours.")
+    void testOnMessage_deploymentApplicable() throws Exception {
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "test");
+        HmcMessage hmcMessage = createHmcMessage("BBA3");
+
+        byte[] messageBytes = OBJECT_MAPPER.writeValueAsString(hmcMessage).getBytes(StandardCharsets.UTF_8);
+        given(mockObjectMapper.readValue(any(String.class), eq(HmcMessage.class))).willReturn(hmcMessage);
+
+        hmcHearingsEventTopicListener.onMessage(bytesMessage);
+
+        verify(processHmcMessageService).processEventMessage((any(HmcMessage.class)));
+    }
+
+
+    @Test
+    @DisplayName("Messages should be processed if no deployment id is provided on message and service.")
     void testOnMessage_noDeployment() throws Exception {
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "");
         given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn(null);
@@ -101,6 +116,19 @@ class HmcHearingsEventTopicListenerTest {
         hmcHearingsEventTopicListener.onMessage(bytesMessage);
 
         verify(processHmcMessageService).processEventMessage((any(HmcMessage.class)));
+    }
+
+    @Test
+    @DisplayName("Messages should not be processed if deployment id is provided on message but not on service.")
+    void testOnMessage_noDeploymentInService() throws Exception {
+        ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "hmctsDeploymentId", "");
+        HmcMessage hmcMessage = createHmcMessage("BBA3");
+
+        byte[] messageBytes = OBJECT_MAPPER.writeValueAsString(hmcMessage).getBytes(StandardCharsets.UTF_8);
+
+        hmcHearingsEventTopicListener.onMessage(bytesMessage);
+
+        verify(processHmcMessageService, never()).processEventMessage((any(HmcMessage.class)));
     }
 
 
