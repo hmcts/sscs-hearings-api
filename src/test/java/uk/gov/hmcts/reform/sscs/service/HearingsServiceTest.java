@@ -10,35 +10,17 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
-import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
-import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.State;
-import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
-import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
-import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -69,7 +51,7 @@ class HearingsServiceTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
-    public static final String PROCESSING_VENUE = "Processing Venue";
+    private static final String PROCESSING_VENUE = "Processing Venue";
 
 
     private HearingWrapper wrapper;
@@ -144,7 +126,7 @@ class HearingsServiceTest {
     @EnumSource(
         value = HearingState.class,
         names = {"UPDATED_CASE","PARTY_NOTIFIED"})
-    void processHearingRequest(HearingState state) throws GetCaseException {
+    void processHearingRequest(HearingState state) {
         given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
@@ -154,7 +136,7 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid Hearing State and Cancellation reason is given addHearingResponse should run without error")
     @Test
-    void processHearingRequest() throws GetCaseException {
+    void processHearingRequest() {
         given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(UPDATED_CASE);
@@ -163,15 +145,13 @@ class HearingsServiceTest {
             .isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
 
-    @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an UnhandleableHearingState error")
+    @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an Unhandled HearingState error")
     @ParameterizedTest
     @NullSource
     void processHearingRequestInvalidState(HearingState state) {
         request.setHearingState(state);
 
-        UnhandleableHearingStateException thrown = assertThrows(UnhandleableHearingStateException.class, () -> {
-            hearingsService.processHearingRequest(request);
-        });
+        UnhandleableHearingStateException thrown = assertThrows(UnhandleableHearingStateException.class, () -> hearingsService.processHearingRequest(request));
 
         assertThat(thrown.getMessage()).isNotEmpty();
     }
@@ -278,7 +258,7 @@ class HearingsServiceTest {
     }
 
     @Test
-    void processHearingWrapperCreateExistingHearingWhenHearingDoesntExists() throws GetHearingException, UnhandleableHearingStateException, UpdateCaseException, ListingException {
+    void processHearingWrapperCreateExistingHearingWhenHearingDoesntExists() throws GetHearingException {
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false,false,SessionCategory.CATEGORY_03,null));
@@ -335,7 +315,6 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCancel() {
-
         given(hmcHearingApiService.sendCancelHearingRequest(any(HearingCancelRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());
 
