@@ -44,7 +44,7 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
 public class HearingsService {
 
     @Value("${retry.hearing-response-update.max-retries}")
@@ -123,8 +123,8 @@ public class HearingsService {
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
-        String caseId = caseData.getCcdCaseId();
 
+        String caseId = caseData.getCcdCaseId();
         HearingsGetResponse hearingsGetResponse = hmcHearingsApiService.getHearingsRequest(caseId, null);
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
         HmcUpdateResponse hmcUpdateResponse;

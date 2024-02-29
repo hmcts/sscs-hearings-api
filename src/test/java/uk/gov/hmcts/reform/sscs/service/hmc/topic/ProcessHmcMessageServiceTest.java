@@ -154,7 +154,7 @@ class ProcessHmcMessageServiceTest {
     void testReturnedStatusShouldUpdateDwpStateForCaseData() throws Exception {
         // given
         hearingGetResponse.getRequestDetails().setStatus(LISTED);
-        hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.FIXED);
+        hearingGetResponse.getHearingResponse().setListingStatus(FIXED);
         hmcMessage.getHearingUpdate().setHmcStatus(LISTED);
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))

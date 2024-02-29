@@ -84,9 +84,7 @@ public final class HearingsPartiesMapping {
 
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            partiesDetails.add(createDwpPartyDetails(caseData));
-        }
+        partiesDetails.add(createDwpPartyDetails(caseData));
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
             partiesDetails.addAll(
@@ -202,9 +200,9 @@ public final class HearingsPartiesMapping {
     public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) throws ListingException {
         return PartyDetails.builder()
             .partyID(DWP_ID)
-            .partyType(INDIVIDUAL)
+            .partyType(ORGANISATION)
             .partyRole(RESPONDENT.getHmcReference())
-            .individualDetails(getDwpIndividualDetails(caseData))
+            .organisationDetails(getDwpOrganisationDetails(caseData))
             .unavailabilityDayOfWeek(getDwpUnavailabilityDayOfWeek())
             .unavailabilityRanges(getPartyUnavailabilityRange(null))
             .build();
@@ -432,6 +430,17 @@ public final class HearingsPartiesMapping {
     public static OrganisationDetails getPartyOrganisationDetails() {
         // Not used as of now
         return null;
+    }
+
+    public static OrganisationDetails getDwpOrganisationDetails(SscsCaseData caseData) {
+        return OrganisationDetails.builder()
+            .name(getOrganisationName(caseData.getBenefitCode()))
+            .organisationType("ORG")
+            .build();
+    }
+
+    private static String getOrganisationName(String benefitCode) {
+        return List.of("015", "016", "030", "034", "050", "053", "054", "055", "057", "058").contains(benefitCode) ? "HMRC" : "DWP";
     }
 
     public static List<UnavailabilityDayOfWeek> getPartyUnavailabilityDayOfWeek() {

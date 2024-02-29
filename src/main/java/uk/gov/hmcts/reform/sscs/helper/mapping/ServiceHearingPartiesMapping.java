@@ -99,16 +99,14 @@ public final class ServiceHearingPartiesMapping {
     }
 
     public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) {
-        PartyDetails.PartyDetailsBuilder partyDetails = PartyDetails.builder();
-
-        partyDetails.partyID(DWP_ID);
-        partyDetails.partyType(INDIVIDUAL);
-        partyDetails.partyRole(RESPONDENT.getHmcReference());
-        partyDetails.individualDetails(HearingsPartiesMapping.getDwpIndividualDetails(caseData));
-        partyDetails.unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek());
-        partyDetails.unavailabilityRanges(null);
-
-        return partyDetails.build();
+        return PartyDetails.builder()
+            .partyID(DWP_ID)
+            .partyType(INDIVIDUAL)
+            .partyRole(RESPONDENT.getHmcReference())
+            .organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails(caseData))
+            .unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek())
+            .unavailabilityRanges(null)
+            .build();
     }
 
     public static PartyDetails createJointPartyDetails() {

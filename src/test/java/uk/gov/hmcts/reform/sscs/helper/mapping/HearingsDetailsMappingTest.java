@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
+import uk.gov.hmcts.reform.sscs.service.RegionalProcessingCenterService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingVenue.SAME_VENUE;
@@ -57,6 +59,9 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @Mock
     private VenueService venueService;
+
+    @Mock
+    private RegionalProcessingCenterService regionalProcessingCenterService;
 
     private static final String PROCESSING_VENUE_1 = "The Scarborough Justice Centre";
 
@@ -305,8 +310,35 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When hearing is paper case, return list of regional hearing locations based on RPC name")
     @Test
-    void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc()
-        throws ListingException {
+    void getRegionalHearingLocations_shouldReturnCorrespondingEpimsIdsForVenuesWithSameRpc() throws ListingException {
+        RegionalProcessingCenter rpc = RegionalProcessingCenter.builder()
+            .name(REGIONAL_PROCESSING_CENTRE)
+            .hearingRoute(HearingRoute.LIST_ASSIST)
+            .postcode("LS1 2ED").build();
+        caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending("No")
+            .regionalProcessingCenter(rpc)
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                            .wantsToAttend("N")
+                                            .build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
+        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
+            .willReturn(EPIMS_ID_LIST);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(regionalProcessingCenterService.getByPostcode("LS1 2ED")).willReturn(rpc);
+
+        List<HearingLocation> result = HearingsLocationMapping.getHearingLocations(caseData, refData);
+
+        checkHearingLocationResults(result, EPIMS_ID_1, EPIMS_ID_2, EPIMS_ID_3, EPIMS_ID_4);
+    }
+
+    @DisplayName("When hearing is paper case and rpc is invalid, throw listing exception")
+    @Test
+    void getRegionalHearingLocationsWithInvalidRpc_thenThrowListingException() {
         caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("No")
             .regionalProcessingCenter(RegionalProcessingCenter.builder().name(REGIONAL_PROCESSING_CENTRE).build())
@@ -317,15 +349,25 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
                         .build())
             .processingVenue(PROCESSING_VENUE_1)
             .build();
-        given(venueService.getActiveRegionalEpimsIdsForRpc(caseData.getRegionalProcessingCenter().getEpimsId()))
-            .willReturn(EPIMS_ID_LIST);
-        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getRegionalProcessingCenterService()).willReturn(regionalProcessingCenterService);
 
-        List<HearingLocation> result = HearingsLocationMapping.getHearingLocations(
-            caseData,
-            refData);
+        assertThrows(ListingException.class, () -> HearingsLocationMapping.getHearingLocations(caseData, refData));
+    }
 
-        checkHearingLocationResults(result, EPIMS_ID_1, EPIMS_ID_2, EPIMS_ID_3, EPIMS_ID_4);
+    @DisplayName("When hearing is paper case and rpc is null, throw listing exception")
+    @Test
+    void getRegionalHearingLocationsWithNullRpc_thenThrowListingException() {
+        caseData = SscsCaseData.builder()
+            .dwpIsOfficerAttending("No")
+            .appeal(Appeal.builder()
+                        .hearingOptions(HearingOptions.builder()
+                                            .wantsToAttend("N")
+                                            .build())
+                        .build())
+            .processingVenue(PROCESSING_VENUE_1)
+            .build();
+
+        assertThrows(ListingException.class, () -> HearingsLocationMapping.getHearingLocations(caseData, refData));
     }
 
     @DisplayName("getHearingPriority Parameterized Tests")
@@ -364,7 +406,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
     @DisplayName("When case data with a valid processing venue is given, getHearingLocations returns the correct venues")
     @ParameterizedTest
     @CsvSource(value = {"219164,court"}, nullValues = {"null"})
-    void getHearingLocations() {
+    void getHearingLocations() throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
             .appeal(Appeal.builder()
@@ -388,7 +430,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When override Hearing Venue Epims Ids is not empty getHearingLocations returns the override values")
     @Test
-    void getHearingLocationsOverride() {
+    void getHearingLocationsOverride() throws ListingException {
         buildOverrideHearingLocations();
 
         checkHearingLocationResults(HearingsLocationMapping.getHearingLocations(caseData, refData),
@@ -397,7 +439,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a case has been adjourned and a different venue has been selected, return the new venue")
     @Test
-    void getHearingLocationsAdjournmentNewVenue() {
+    void getHearingLocationsAdjournmentNewVenue() throws ListingException {
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
@@ -407,15 +449,14 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
 
         setupAdjournedHearingVenue(SOMEWHERE_ELSE, VENUE_ID);
 
-        List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(
-            caseData, refData);
+        List<HearingLocation> results = HearingsLocationMapping.getHearingLocations(caseData, refData);
 
         checkHearingLocationResults(results, EPIMS_ID_1);
     }
 
     @DisplayName("When a case has been adjourned and the same venue has been selected, return the same venue")
     @Test
-    void getHearingLocationsAdjournmentSameVenue() {
+    void getHearingLocationsAdjournmentSameVenue() throws ListingException {
         given(refData.isAdjournmentFlagEnabled()).willReturn(true);
         caseData.getAdjournment().setAdjournmentInProgress(YesNo.YES);
 
