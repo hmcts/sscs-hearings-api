@@ -29,10 +29,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.service.JudicialRefDataService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -385,6 +382,27 @@ class HearingUpdateServiceTest {
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
+    }
+
+    @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates hearing date issued to the correct date")
+    @Test
+    void testSetWorkBasketFieldsForHearingDateIssued() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .hearingId(String.valueOf(HEARING_ID))
+                           .start(zoneUtcStartDateTime)
+                           .time(HEARING_TIME_STR)
+                           .epimsId(EPIMS_ID)
+                           .build())
+                .build()));
+
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String expectedHearingDateIssued = zoneUtcStartDateTime.format(formatter);
+
+        assertThat(caseData.getWorkBasketFields().getHearingDateIssued()).isEqualTo(expectedHearingDateIssued);
     }
 
     @DisplayName("When a hearing with a valid start is given, getHearingDate returns the correct date")

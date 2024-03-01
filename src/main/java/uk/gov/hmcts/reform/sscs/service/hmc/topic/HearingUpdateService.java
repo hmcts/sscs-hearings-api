@@ -154,9 +154,13 @@ public class HearingUpdateService {
         if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
-            String hearingDateTime = getHearingDateIssuedTime(hearingId, sscsCaseData);
-            LocalDateTime hearingDateIssued = getLocalDateTime(String.valueOf(hearingDate), hearingDateTime);
+
+            LocalDateTime hearingDateIssuedTime = getHearingDateIssuedTime(hearingId, sscsCaseData);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String hearingDateIssued = hearingDateIssuedTime.format(formatter);
+            log.debug("Setting workBasketField hearingDateIssued {} for case id reference {}", hearingDateIssued, sscsCaseData.getCcdCaseId());
             workBasketFields.setHearingDateIssued(hearingDateIssued);
+
             String epimsId = getHearingEpimsId(hearingId, sscsCaseData);
             workBasketFields.setHearingEpimsId(epimsId);
         } else {
@@ -174,10 +178,10 @@ public class HearingUpdateService {
             .orElse(null);
     }
 
-    public String getHearingDateIssuedTime(String hearingId, @Valid SscsCaseData sscsCaseData) {
+    public LocalDateTime getHearingDateIssuedTime(String hearingId, @Valid SscsCaseData sscsCaseData) {
         return Optional.ofNullable(HearingsServiceHelper.getHearingById(Long.valueOf(hearingId), sscsCaseData))
             .map(Hearing::getValue)
-            .map(HearingDetails::getTime)
+            .map(HearingDetails::getStart)
             .orElse(null);
     }
 
