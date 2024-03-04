@@ -27,7 +27,6 @@ import uk.gov.hmcts.reform.sscs.service.VenueService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -183,12 +182,6 @@ public class HearingUpdateService {
             .map(Hearing::getValue)
             .map(HearingDetails::getStart)
             .orElse(null);
-    }
-
-    public static LocalDateTime getLocalDateTime(String localDateStr, String localTimeStr) {
-        LocalDate localDate = LocalDate.parse(localDateStr);
-        LocalTime localTime = LocalTime.parse(localTimeStr);
-        return LocalDateTime.of(localDate, localTime);
     }
 
     public String getHearingEpimsId(String hearingId, @Valid SscsCaseData sscsCaseData) {
