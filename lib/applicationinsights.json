@@ -1,6 +1,26 @@
 {
   "connectionString": "${file:/mnt/secrets/sscs/app-insights-connection-string}",
+  "sampling": {
+    "percentage": 100
+  },
   "role": {
     "name": "SSCS Hearings API"
+  },
+  "preview": {
+    "sampling": {
+      "overrides": [
+        {
+          "telemetryType": "request",
+          "attributes": [
+            {
+              "key": "http.url",
+              "value": "https?://[^/]+/health.*",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 1
+        }
+      ]
+    }
   }
 }
