@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -71,7 +70,6 @@ class TribunalsHearingsEventTopicListenerTest {
 
     private static Stream<Arguments> throwableParameters() {
         return Stream.of(
-            Arguments.of(GetCaseException.class),
             Arguments.of(UnhandleableHearingStateException.class),
             Arguments.of(UpdateCaseException.class)
         );
