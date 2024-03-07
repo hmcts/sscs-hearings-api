@@ -25,6 +25,7 @@ import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.LANGUAGE_INTERPRETER_FLAG;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.SIGN_LANGUAGE_TYPE;
 import static uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyFlagsMap.URGENT_CASE;
+import static uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil.isInterpreterRequired;
 
 public final class PartyFlagsMapping {
 
@@ -138,7 +139,7 @@ public final class PartyFlagsMapping {
     public static PartyFlags getLanguageInterpreterFlag(SscsCaseData caseData) {
         PartyFlags adjournCasePartyFlag = null;
 
-        if (HearingsCaseMapping.isInterpreterRequired(caseData)) {
+        if (isInterpreterRequired(caseData)) {
             adjournCasePartyFlag = PartyFlags.builder()
                 .flagId(LANGUAGE_INTERPRETER_FLAG.getFlagId())
                 .flagDescription(LANGUAGE_INTERPRETER_FLAG.getFlagDescription())

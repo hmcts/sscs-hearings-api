@@ -5,24 +5,22 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
-import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
-import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
-import uk.gov.hmcts.reform.sscs.reference.data.model.HearingDuration;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.*;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -39,10 +37,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.ADJOURN_CREATE_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CANCEL_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.UPDATED_CASE;
@@ -55,7 +51,7 @@ class HearingsServiceTest {
     private static final long CASE_ID = 1625080769409918L;
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
-    public static final String PROCESSING_VENUE = "Processing Venue";
+    private static final String PROCESSING_VENUE = "Processing Venue";
 
 
     private HearingWrapper wrapper;
@@ -72,7 +68,7 @@ class HearingsServiceTest {
     private CcdCaseService ccdCaseService;
 
     @Mock
-    private ReferenceDataServiceHolder referenceDataServiceHolder;
+    private ReferenceDataServiceHolder refData;
 
     @Mock
     public HearingDurationsService hearingDurations;
@@ -130,8 +126,8 @@ class HearingsServiceTest {
     @EnumSource(
         value = HearingState.class,
         names = {"UPDATED_CASE","PARTY_NOTIFIED"})
-    void processHearingRequest(HearingState state) throws GetCaseException {
-        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+    void processHearingRequest(HearingState state) {
+        given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(state);
         assertThatNoException()
@@ -140,8 +136,8 @@ class HearingsServiceTest {
 
     @DisplayName("When wrapper with a valid Hearing State and Cancellation reason is given addHearingResponse should run without error")
     @Test
-    void processHearingRequest() throws GetCaseException {
-        given(ccdCaseService.getCaseDetails(String.valueOf(CASE_ID))).willReturn(expectedCaseDetails);
+    void processHearingRequest() {
+        given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any())).willReturn(expectedCaseDetails);
 
         request.setHearingState(UPDATED_CASE);
         request.setCancellationReason(OTHER);
@@ -149,15 +145,13 @@ class HearingsServiceTest {
             .isThrownBy(() -> hearingsService.processHearingRequest(request));
     }
 
-    @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an UnhandleableHearingState error")
+    @DisplayName("When wrapper with a invalid Hearing State is given addHearingResponse should throw an Unhandled HearingState error")
     @ParameterizedTest
     @NullSource
     void processHearingRequestInvalidState(HearingState state) {
         request.setHearingState(state);
 
-        UnhandleableHearingStateException thrown = assertThrows(UnhandleableHearingStateException.class, () -> {
-            hearingsService.processHearingRequest(request);
-        });
+        UnhandleableHearingStateException thrown = assertThrows(UnhandleableHearingStateException.class, () -> hearingsService.processHearingRequest(request));
 
         assertThat(thrown.getMessage()).isNotEmpty();
     }
@@ -177,20 +171,41 @@ class HearingsServiceTest {
         }
     }
 
+    @DisplayName("When wrapper with a valid adjourn create Hearing State is given addHearingResponse should run without error")
+    @Test
+    void processHearingWrapperAdjournmentCreate() {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
+
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
+            .willReturn(HmcUpdateResponse.builder().build());
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
+            .willReturn(HearingsGetResponse.builder().build());
+
+        wrapper.setHearingState(ADJOURN_CREATE_HEARING);
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCreate() {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                60,75,30));
-
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
@@ -208,7 +223,23 @@ class HearingsServiceTest {
 
     @DisplayName("When create Hearing is given and there is already a hearing requested/awaiting listing addHearingResponse should run without error")
     @Test
-    void processHearingWrapperCreateExistingHearing() {
+    void processHearingWrapperCreateExistingHearing() throws GetHearingException {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        var details = uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build();
+        RequestDetails requestDetails = RequestDetails.builder().versionNumber(2L).build();
+        HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
+            .hearingDetails(details)
+            .requestDetails(requestDetails)
+            .caseDetails(CaseDetails.builder().build())
+            .partyDetails(List.of())
+            .hearingResponse(HearingResponse.builder().build())
+            .build();
+        given(hmcHearingApiService.getHearingRequest(anyString())).willReturn(hearingGetResponse);
         HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
             .caseHearings(List.of(CaseHearing.builder()
                 .hearingId(HEARING_REQUEST_ID)
@@ -226,23 +257,45 @@ class HearingsServiceTest {
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
     }
 
+    @Test
+    void processHearingWrapperCreateExistingHearingWhenHearingDoesntExists() throws GetHearingException {
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false,false,SessionCategory.CATEGORY_03,null));
+        given(refData.getVenueService()).willReturn(venueService);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(hmcHearingApiService.getHearingRequest(anyString())).willThrow(new GetHearingException(""));
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
+            .caseHearings(List.of(CaseHearing.builder()
+                                      .hearingId(HEARING_REQUEST_ID)
+                                      .hmcStatus(HmcStatus.HEARING_REQUESTED)
+                                      .requestVersion(1L)
+                                      .build()))
+            .build();
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
+            .willReturn(hearingsGetResponse);
+
+        wrapper.setHearingState(CREATE_HEARING);
+
+        assertThatNoException()
+            .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
+    }
+
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperUpdate() {
-        given(hearingDurations.getHearingDuration(BENEFIT_CODE,ISSUE_CODE))
-            .willReturn(new HearingDuration(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                60,75,30));
-
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                 false,false,SessionCategory.CATEGORY_03,null));
 
-        given(referenceDataServiceHolder.getHearingDurations()).willReturn(hearingDurations);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
+        given(refData.getVenueService()).willReturn(venueService);
 
         given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());
@@ -262,7 +315,6 @@ class HearingsServiceTest {
     @DisplayName("When wrapper with a valid cancel Hearing State is given addHearingResponse should run without error")
     @Test
     void processHearingWrapperCancel() {
-
         given(hmcHearingApiService.sendCancelHearingRequest(any(HearingCancelRequestPayload.class), anyString()))
                 .willReturn(HmcUpdateResponse.builder().build());
 
@@ -276,56 +328,5 @@ class HearingsServiceTest {
         wrapper.setCancellationReasons(List.of(OTHER));
 
         assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-    }
-
-    @DisplayName("When wrapper with a valid create Hearing State is given but hearing duration is not multiple of five then send to listing error")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "31",
-        "32",
-        "33",
-        "34",
-    })
-    void testGetServiceHearingValueWithListingDurationNotMultipleOfFive(Integer hearingDuration) throws Exception {
-
-        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,false,SessionCategory.CATEGORY_03,null);
-
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false)).willReturn(sessionCategoryMap);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
-        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null))).willReturn(HearingsGetResponse.builder().build());
-
-        wrapper.setHearingState(CREATE_HEARING);
-        wrapper.getCaseData().getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
-
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-        verify(ccdCaseService, times(1)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
-    }
-
-    @DisplayName("When wrapper with a valid create Hearing State is given and hearing duration is multiple of five then addHearingResponse should run without error")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "30",
-        "35",
-        "40",
-        "45",
-    })
-    void testGetServiceHearingValueWithListingDurationMultipleOfFive(Integer hearingDuration) throws Exception {
-
-        SessionCategoryMap sessionCategoryMap = new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD, false,false,SessionCategory.CATEGORY_03,null);
-
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE,ISSUE_CODE,false,false)).willReturn(sessionCategoryMap);
-        given(referenceDataServiceHolder.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(referenceDataServiceHolder.getVenueService()).willReturn(venueService);
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
-        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class))).willReturn(HmcUpdateResponse.builder().build());
-        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null))).willReturn(HearingsGetResponse.builder().build());
-
-        wrapper.setHearingState(CREATE_HEARING);
-        wrapper.getCaseData().getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
-
-        assertThatNoException().isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
-        verify(ccdCaseService, times(0)).updateCaseData(any(SscsCaseData.class), eq(LISTING_ERROR), anyString(), eq("Listing duration must be multiple of 5.0 minutes"));
     }
 }

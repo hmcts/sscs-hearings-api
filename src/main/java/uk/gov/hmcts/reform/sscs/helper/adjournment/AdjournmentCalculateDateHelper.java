@@ -23,6 +23,7 @@ public final class AdjournmentCalculateDateHelper {
     }
 
     public static LocalDate getHearingWindowStart(@Valid SscsCaseData caseData) {
+        log.debug("Get Adjournment Hearing Window Start Date for Case ID {}", caseData.getCcdCaseId());
         String dateType = String.valueOf(caseData.getAdjournment().getNextHearingDateType());
 
         if (FIRST_AVAILABLE_DATE.equals(dateType)) {
@@ -30,19 +31,13 @@ public final class AdjournmentCalculateDateHelper {
         } else if (FIRST_AVAILABLE_DATE_AFTER.equals(dateType)) {
             return handleFirstAvailableDateAfter(caseData);
         } else if (DATE_TO_BE_FIXED.equals(dateType)) {
-            return handleDateToBeFixed(caseData);
+            return null;
         } else {
             throw new IllegalArgumentException(String.format(
                 "Unexpected nextHearingDateType for case id %s: '%s'",
                 caseData.getCcdCaseId(),
                 dateType));
         }
-    }
-
-    public static LocalDate handleDateToBeFixed(SscsCaseData caseData) {
-        // TODO add to "Other" field "Date to be fixed" SSCS-11224
-        logAdjournmentDate(caseData, "date to be fixed");
-        return null;
     }
 
     public static LocalDate handleFirstAvailableDate(SscsCaseData caseData) {
