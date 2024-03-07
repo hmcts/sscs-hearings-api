@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -57,6 +58,8 @@ public class HearingsService {
     private final CcdCaseService ccdCaseService;
 
     private final ReferenceDataServiceHolder refData;
+    @Value("${feature.hearings-case-updateV2.enabled:false}")
+    private boolean hearingsCaseUpdateV2Enabled;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
@@ -208,6 +211,43 @@ public class HearingsService {
             hearingRequestId,
             wrapper.getHearingState().getState());
 
+        HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
+        log.info("Updating case with event {} description is {}", event, event.getDescription());
+
+        if (hearingsCaseUpdateV2Enabled) {
+            Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseData);
+
+            log.info("Updating case with hearing response using updateCaseDataV2 for event {} description {}", event, event.getDescription());
+            ccdCaseService.updateCaseDataV2(caseId, event, caseDataConsumer);
+            log.info("Case Updated using updateCaseDataV2 with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
+                     caseId,
+                     hearingRequestId,
+                     wrapper.getHearingState().getState(),
+                     event.getEventType().getCcdType());
+
+        } else {
+            updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
+            var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
+
+            if (nonNull(details)) {
+                log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
+                         details.getState(),
+                         details.getEventId(),
+                         details.getEventToken(),
+                         details.getCallbackResponseStatus(),
+                         details.getCaseTypeId()
+                );
+            }
+        }
+
+        log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
+            caseId,
+            hearingRequestId,
+            wrapper.getHearingState().getState(),
+            event.getEventType().getCcdType());
+    }
+
+    private void updateCaseDataWithHearingResponse(HmcUpdateResponse response, Long hearingRequestId, SscsCaseData caseData) {
         Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
 
         if (isNull(hearing)) {
@@ -220,29 +260,9 @@ public class HearingsService {
 
         if (refData.isAdjournmentFlagEnabled()
             && YesNo.isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseId);
+            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseData.getCcdCaseId());
             caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
         }
-
-        HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
-        log.info("Updating case with event {} description is {}", event, event.getDescription());
-        var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
-
-        if (nonNull(details)) {
-            log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
-                     details.getState(),
-                     details.getEventId(),
-                     details.getEventToken(),
-                     details.getCallbackResponseStatus(),
-                     details.getCaseTypeId()
-            );
-        }
-
-        log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
-            caseId,
-            hearingRequestId,
-            wrapper.getHearingState().getState(),
-            event.getEventType().getCcdType());
     }
 
     @Recover

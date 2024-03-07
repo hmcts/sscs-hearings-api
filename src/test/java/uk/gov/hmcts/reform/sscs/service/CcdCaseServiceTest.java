@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,26 +17,34 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
+import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingStatus;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CcdCaseServiceTest {
@@ -59,6 +69,12 @@ class CcdCaseServiceTest {
 
     @Mock
     private CoreCaseDataApi coreCaseDataApi;
+
+    @Mock
+    private UpdateCcdCaseService updateCcdCaseService;
+
+    @Captor
+    private ArgumentCaptor<Consumer<SscsCaseData>> consumerCaptor;
 
     @Test
     void getByCaseId_shouldReturnCaseDetails() throws GetCaseException {
@@ -137,6 +153,58 @@ class CcdCaseServiceTest {
         assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
                 () -> ccdCaseService.updateCaseData(
                         testCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION));
+    }
+
+    @Test
+    void shouldUpdateCaseDetailsWithHearingForUpdateCaseDataV2() throws UpdateCaseException {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+
+        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> sscsCaseData.setHearings(List.of(
+            Hearing.builder().value(HearingDetails.builder().hearingStatus(HearingStatus.AWAITING_LISTING).build()).build()));
+
+        HearingEvent event = HearingEvent.CREATE_HEARING;
+        ccdCaseService.updateCaseDataV2(String.valueOf(CASE_ID), event, caseDataConsumer);
+
+        verify(updateCcdCaseService).updateCaseV2(
+            eq(CASE_ID),
+            eq(event.getEventType().getCcdType()),
+            eq(event.getSummary()),
+            eq(event.getDescription()),
+            any(),
+            consumerCaptor.capture()
+        );
+
+        SscsCaseData caseData = SscsCaseData.builder().ccdCaseId(String.valueOf(CASE_ID)).build();
+        Consumer<SscsCaseData> consumerCaptorValue = consumerCaptor.getValue();
+        consumerCaptorValue.accept(caseData);
+
+        assertThat(caseData.getHearings()).isNotEmpty();
+        assertEquals(HearingStatus.AWAITING_LISTING, caseData.getHearings().get(0).getValue().getHearingStatus());
+    }
+
+    @Test
+    void shouldThrowUpdateCaseExceptionWhenCaseUpdateV2Fails() {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        Request request = Request.create(Request.HttpMethod.GET, "url",
+                                         new HashMap<>(), null, new RequestTemplate()
+        );
+
+        HearingEvent event = HearingEvent.CREATE_HEARING;
+
+        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> sscsCaseData.setHearings(List.of(
+            Hearing.builder().value(HearingDetails.builder().hearingStatus(HearingStatus.AWAITING_LISTING).build()).build()));
+
+        given(updateCcdCaseService.updateCaseV2(
+            eq(CASE_ID),
+            eq(event.getEventType().getCcdType()),
+            eq(event.getSummary()),
+            eq(event.getDescription()),
+            any(),
+            eq(caseDataConsumer)
+        )).willThrow(new FeignException.InternalServerError("test error", request, null, null));
+
+        assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
+            () -> ccdCaseService.updateCaseDataV2(String.valueOf(CASE_ID), event, caseDataConsumer));
     }
 
     @ParameterizedTest
