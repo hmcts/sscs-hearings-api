@@ -133,6 +133,14 @@ public class HearingsService {
 
         if (isNull(hearing)) {
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
+
+            Integer duration = hearingPayload.getHearingDetails().getDuration();
+            boolean isMultipleOfFive = duration % 5 == 0;
+            if (!isMultipleOfFive) {
+                ccdCaseService.updateCaseData(caseData, EventType.LISTING_ERROR, "", "Listing duration must be multiple of 5.0 minutes");
+                return;
+            }
+
             log.debug("Sending Create Hearing Request for Case ID {}", caseId);
             hmcUpdateResponse = hmcHearingApiService.sendCreateHearingRequest(hearingPayload);
 
