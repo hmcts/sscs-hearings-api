@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,9 +35,12 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
@@ -55,10 +61,12 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -108,6 +116,12 @@ class HearingsServiceTest {
 
     @Mock
     private VenueService venueService;
+
+    @Mock
+    private IdamService idamService;
+
+    @Mock
+    private UpdateCcdCaseService updateCcdCaseService;
 
     @Captor
     private ArgumentCaptor<Consumer<SscsCaseData>> caseDataConsumerCaptor;
@@ -208,37 +222,25 @@ class HearingsServiceTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void processHearingWrapperAdjournmentCreate(boolean caseUpdateV2Enabled) throws UpdateCaseException {
-
         ReflectionTestUtils.setField(hearingsService, "hearingsCaseUpdateV2Enabled", caseUpdateV2Enabled);
+        mockHearingResponseForAdjournmentCreate(caseUpdateV2Enabled);
 
-        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false))
-            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
-                                               false, false, SessionCategory.CATEGORY_03, null));
-
-        given(refData.getHearingDurations()).willReturn(hearingDurations);
-        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-        given(refData.getVenueService()).willReturn(venueService);
-
-        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
-
-        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
-            .willReturn(HmcUpdateResponse.builder().hearingRequestId(123L).versionNumber(1234L).status(HmcStatus.HEARING_REQUESTED).build());
-
-        given(hmcHearingsApiService.getHearingsRequest(anyString(), eq(null)))
-            .willReturn(HearingsGetResponse.builder().build());
-
+        HearingEvent hearingEvent = HearingEvent.ADJOURN_CREATE_HEARING;
         wrapper.setHearingState(ADJOURN_CREATE_HEARING);
+        wrapper.setEventId(hearingEvent.getEventType().getCcdType());
 
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
 
         if (caseUpdateV2Enabled) {
-            verify(ccdCaseService).updateCaseDataV2(
-                eq(String.valueOf(CASE_ID)),
-                any(HearingEvent.class),
+            verify(updateCcdCaseService).updateCaseV2(
+                eq(CASE_ID),
+                eq(hearingEvent.getEventType().getCcdType()),
+                eq(hearingEvent.getSummary()),
+                eq(hearingEvent.getDescription()),
+                any(),
                 caseDataConsumerCaptor.capture()
             );
-
             SscsCaseData caseData = wrapper.getCaseData();
             assertThat(caseData.getHearings()).isNull(); // before case updated with new hearing
 
@@ -258,6 +260,51 @@ class HearingsServiceTest {
             );
         }
     }
+
+    @Test
+    void shouldThrowUpdateCaseExceptionWhenCaseUpdateWithHearingResponseV2Fails() {
+        ReflectionTestUtils.setField(hearingsService, "hearingsCaseUpdateV2Enabled", true);
+        mockHearingResponseForAdjournmentCreate(true);
+
+        HearingEvent event = HearingEvent.ADJOURN_CREATE_HEARING;
+        wrapper.setHearingState(ADJOURN_CREATE_HEARING);
+        wrapper.setEventId(event.getEventType().getCcdType());
+        Request request = Request.create(Request.HttpMethod.GET, "url", new HashMap<>(), null, new RequestTemplate());
+
+        given(updateCcdCaseService.updateCaseV2(
+            eq(CASE_ID),
+            eq(event.getEventType().getCcdType()),
+            eq(event.getSummary()),
+            eq(event.getDescription()),
+            any(),
+            any()
+        )).willThrow(new FeignException.InternalServerError("test error", request, null, null));
+
+        assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
+            () -> hearingsService.processHearingWrapper(wrapper));
+    }
+
+    private void mockHearingResponseForAdjournmentCreate(boolean caseUpdateV2Enabled) {
+        if (caseUpdateV2Enabled) {
+            given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        }
+        given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false))
+            .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false, false, SessionCategory.CATEGORY_03, null));
+
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
+
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
+            .willReturn(HmcUpdateResponse.builder().hearingRequestId(123L).versionNumber(1234L).status(HmcStatus.HEARING_REQUESTED).build());
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(), eq(null)))
+            .willReturn(HearingsGetResponse.builder().build());
+    }
+
 
     @DisplayName("When wrapper with a valid create Hearing State is given addHearingResponse should run without error")
     @Test

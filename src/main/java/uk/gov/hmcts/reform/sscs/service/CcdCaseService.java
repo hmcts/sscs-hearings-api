@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
-import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -24,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,19 +36,14 @@ public class CcdCaseService {
     private final IdamService idamService;
     private final SscsCcdConvertService sscsCcdConvertService;
     private final CoreCaseDataApi coreCaseDataApi;
-    private final UpdateCcdCaseService updateCcdCaseService;
 
     @Autowired
-    public CcdCaseService(CcdService ccdService,
-                          IdamService idamService,
-                          CoreCaseDataApi coreCaseDataApi,
-                          SscsCcdConvertService sscsCcdConvertService,
-                          UpdateCcdCaseService updateCcdCaseService) {
+    public CcdCaseService(CcdService ccdService, IdamService idamService, CoreCaseDataApi coreCaseDataApi,
+                          SscsCcdConvertService sscsCcdConvertService) {
         this.ccdService = ccdService;
         this.idamService = idamService;
         this.coreCaseDataApi = coreCaseDataApi;
         this.sscsCcdConvertService = sscsCcdConvertService;
-        this.updateCcdCaseService = updateCcdCaseService;
     }
 
     public SscsCaseDetails getCaseDetails(String caseId) throws GetCaseException {
@@ -60,7 +53,7 @@ public class CcdCaseService {
     public SscsCaseDetails getCaseDetails(long caseId) throws GetCaseException {
 
         log.info("Retrieving case details using Case id : {}",
-                caseId);
+                 caseId);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
 
@@ -90,11 +83,11 @@ public class CcdCaseService {
             String ccdType = event.getEventType().getCcdType();
             log.info("Updating case id {} with ccdType {}", caseId, ccdType);
             return ccdService.updateCase(caseData, caseId, wrapper.getEventId(), wrapper.getEventToken(),
-                                            ccdType, event.getSummary(), event.getDescription(), idamTokens);
+                                         ccdType, event.getSummary(), event.getDescription(), idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
-                    String.format("The case with Case id: %s could not be updated with status %s, %s",
-                            caseId, e.status(), e));
+                String.format("The case with Case id: %s could not be updated with status %s, %s",
+                              caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
         }
@@ -113,30 +106,7 @@ public class CcdCaseService {
             return ccdService.updateCase(caseData, caseId, event.getCcdType(), summary, description, idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
-                    String.format("The case with Case id: %s could not be updated with status %s, %s",
-                            caseId, e.status(), e));
-            log.error(exc.getMessage(), exc);
-            throw exc;
-        }
-    }
-
-    public void updateCaseDataV2(String caseId, HearingEvent event, Consumer<SscsCaseData> caseDataConsumer)
-        throws UpdateCaseException {
-        String eventType = event.getEventType().getCcdType();
-
-        try {
-            log.info("Updating case using v2 for case reference {} with event {}", caseId, eventType);
-            updateCcdCaseService.updateCaseV2(
-                Long.parseLong(caseId),
-                eventType,
-                event.getSummary(),
-                event.getDescription(),
-                idamService.getIdamTokens(),
-                caseDataConsumer
-            );
-        } catch (FeignException e) {
-            UpdateCaseException exc = new UpdateCaseException(
-                String.format("The case with Case id: %s could not be updated using updateCaseV2 with status %s, %s",
+                String.format("The case with Case id: %s could not be updated with status %s, %s",
                               caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
