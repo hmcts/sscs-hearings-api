@@ -65,7 +65,7 @@ class CcdCaseServiceTest {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
 
         SscsCaseDetails expectedCaseDetails =
-            SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build();
+                SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build();
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(expectedCaseDetails);
 
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(CASE_ID);
@@ -78,7 +78,7 @@ class CcdCaseServiceTest {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
 
         SscsCaseDetails expectedCaseDetails =
-            SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build();
+                SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build();
         given(ccdService.getByCaseId(eq(CASE_ID), any(IdamTokens.class))).willReturn(expectedCaseDetails);
 
         SscsCaseDetails caseDetails = ccdCaseService.getCaseDetails(String.valueOf(CASE_ID));
@@ -92,28 +92,28 @@ class CcdCaseServiceTest {
         given(ccdService.getByCaseId(eq(MISSING_CASE_ID), any(IdamTokens.class))).willReturn(null);
 
         assertThatExceptionOfType(GetCaseException.class).isThrownBy(
-            () -> ccdCaseService.getCaseDetails(MISSING_CASE_ID));
+                () -> ccdCaseService.getCaseDetails(MISSING_CASE_ID));
     }
 
     @Test
     void getByCaseId_shouldThrowGetCaseExceptionWhenStringNotLong() {
         assertThatExceptionOfType(NumberFormatException.class).isThrownBy(
-            () -> ccdCaseService.getCaseDetails(INVALID_CASE_ID));
+                () -> ccdCaseService.getCaseDetails(INVALID_CASE_ID));
     }
 
     @Test
     void updateCase_shouldUpdateCaseDetails() throws UpdateCaseException {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         SscsCaseDetails expectedCaseDetails =
-            SscsCaseDetails.builder()
-                .data(SscsCaseData.builder()
-                          .ccdCaseId(String.valueOf(CASE_ID)).build()).build();
+                SscsCaseDetails.builder()
+                        .data(SscsCaseData.builder()
+                                .ccdCaseId(String.valueOf(CASE_ID)).build()).build();
         given(ccdService.updateCase(
-            any(SscsCaseData.class), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
-            .willReturn(expectedCaseDetails);
+                any(SscsCaseData.class), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
+                .willReturn(expectedCaseDetails);
 
         SscsCaseDetails caseDetails = ccdCaseService.updateCaseData(
-            expectedCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION);
+                expectedCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION);
 
         assertThat(expectedCaseDetails).isEqualTo(caseDetails);
     }
@@ -122,21 +122,21 @@ class CcdCaseServiceTest {
     void updateCase_shouldThrowUpdateCaseExceptionWhenCaseUpdateFails() {
         given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         Request request = Request.create(Request.HttpMethod.GET, "url",
-                                         new HashMap<>(), null, new RequestTemplate());
+                new HashMap<>(), null, new RequestTemplate());
 
         given(ccdService.updateCase(
-            any(SscsCaseData.class), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
-            .willThrow(
-                new FeignException.InternalServerError("Test Error", request, null, null));
+                any(SscsCaseData.class), eq(CASE_ID), anyString(), anyString(), anyString(), any(IdamTokens.class)))
+                .willThrow(
+                        new FeignException.InternalServerError("Test Error", request, null, null));
 
         SscsCaseDetails testCaseDetails =
-            SscsCaseDetails.builder()
-                .data(SscsCaseData.builder()
-                          .ccdCaseId(String.valueOf(CASE_ID)).build()).build();
+                SscsCaseDetails.builder()
+                        .data(SscsCaseData.builder()
+                                .ccdCaseId(String.valueOf(CASE_ID)).build()).build();
 
         assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
-            () -> ccdCaseService.updateCaseData(
-                testCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION));
+                () -> ccdCaseService.updateCaseData(
+                        testCaseDetails.getData(), EventType.READY_TO_LIST, SUMMARY, DESCRIPTION));
     }
 
     @ParameterizedTest

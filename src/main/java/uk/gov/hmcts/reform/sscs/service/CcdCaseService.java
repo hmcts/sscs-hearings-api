@@ -53,7 +53,7 @@ public class CcdCaseService {
     public SscsCaseDetails getCaseDetails(long caseId) throws GetCaseException {
 
         log.info("Retrieving case details using Case id : {}",
-                 caseId);
+                caseId);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
 
@@ -83,11 +83,11 @@ public class CcdCaseService {
             String ccdType = event.getEventType().getCcdType();
             log.info("Updating case id {} with ccdType {}", caseId, ccdType);
             return ccdService.updateCase(caseData, caseId, wrapper.getEventId(), wrapper.getEventToken(),
-                                         ccdType, event.getSummary(), event.getDescription(), idamTokens);
+                                            ccdType, event.getSummary(), event.getDescription(), idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
-                String.format("The case with Case id: %s could not be updated with status %s, %s",
-                              caseId, e.status(), e));
+                    String.format("The case with Case id: %s could not be updated with status %s, %s",
+                            caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
         }
@@ -106,8 +106,8 @@ public class CcdCaseService {
             return ccdService.updateCase(caseData, caseId, event.getCcdType(), summary, description, idamTokens);
         } catch (FeignException e) {
             UpdateCaseException exc = new UpdateCaseException(
-                String.format("The case with Case id: %s could not be updated with status %s, %s",
-                              caseId, e.status(), e));
+                    String.format("The case with Case id: %s could not be updated with status %s, %s",
+                            caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
         }
