@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
@@ -64,9 +65,10 @@ public class ProcessHmcMessageService {
         SscsCaseData caseData = ccdCaseService.getCaseDetails(caseId).getData();
 
         DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcMessageStatus);
-        if (resolvedState != null) {
+        if (nonNull(resolvedState)) {
             caseData.setDwpState(resolvedState);
         }
+
         if (isHearingUpdated(hmcMessageStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
