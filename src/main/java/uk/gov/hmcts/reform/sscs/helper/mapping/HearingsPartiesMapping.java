@@ -478,11 +478,9 @@ public final class HearingsPartiesMapping {
         LocalDate endDate = dateRange.getEndDate();
 
 
-        if (isNull(startDate)) {
-            if (isNull(endDate)) {
-                log.info("startDate and endDate are both null, returning null for UnavailabilityRange object");
-                return null;
-            }
+        if (isNull(startDate) && isNull(endDate)) {
+            log.info("startDate and endDate are both null, returning null for UnavailabilityRange object");
+            return null;
         }
 
         if (!isNull(startDate)) {
