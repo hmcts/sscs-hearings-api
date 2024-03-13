@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.mapping;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
@@ -58,6 +59,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATIO
 
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.TooManyMethods", "PMD.CyclomaticComplexity"})
 // TODO Unsuppress in future
+@Slf4j
 public final class HearingsPartiesMapping {
 
     public static final String LANGUAGE_REFERENCE_TEMPLATE = "%s%s";
@@ -473,15 +475,25 @@ public final class HearingsPartiesMapping {
 
     private static UnavailabilityRange getUnavailabilityRange(DateRange dateRange) throws ListingException {
         LocalDate startDate = dateRange.getStartDate();
-
-        if (isNull(startDate)) {
-            return null;
-        }
-
         LocalDate endDate = dateRange.getEndDate();
 
-        if (endDate.isBefore(startDate)) {
-            throw new ListingException("End date is after start date");
+
+        if (isNull(startDate)) {
+            if (isNull(endDate)) {
+                log.info("startDate and endDate are both null, returning null for UnavailabilityRange object");
+                return null;
+            }
+            log.info("startDate is null, setting endDate {} as startDate", endDate);
+            startDate = dateRange.getEndDate();
+        }
+
+        if (!isNull(startDate)) {
+            if (endDate.isBefore(startDate)) {
+                throw new ListingException("endDate is before startDate");
+            }
+            if (startDate.isAfter(endDate)) {
+                throw new ListingException("startDate is after endDate");
+            }
         }
 
         return UnavailabilityRange.builder()
