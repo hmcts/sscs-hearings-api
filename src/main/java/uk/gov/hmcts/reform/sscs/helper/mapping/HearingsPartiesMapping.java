@@ -483,16 +483,11 @@ public final class HearingsPartiesMapping {
                 log.info("startDate and endDate are both null, returning null for UnavailabilityRange object");
                 return null;
             }
-            log.info("startDate is null, setting endDate {} as startDate", endDate);
-            startDate = dateRange.getEndDate();
         }
 
         if (!isNull(startDate)) {
             if (endDate.isBefore(startDate)) {
                 throw new ListingException("endDate is before startDate");
-            }
-            if (startDate.isAfter(endDate)) {
-                throw new ListingException("startDate is after endDate");
             }
         }
 
