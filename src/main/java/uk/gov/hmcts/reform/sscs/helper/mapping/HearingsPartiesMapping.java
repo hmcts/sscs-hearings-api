@@ -483,10 +483,8 @@ public final class HearingsPartiesMapping {
             return null;
         }
 
-        if (!isNull(startDate)) {
-            if (endDate.isBefore(startDate)) {
-                throw new ListingException("endDate is before startDate");
-            }
+        if (!isNull(startDate) && endDate.isBefore(startDate)) {
+            throw new ListingException("endDate is before startDate");
         }
 
         return UnavailabilityRange.builder()
