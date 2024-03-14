@@ -154,7 +154,7 @@ public class HearingUpdateService {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
 
-            if (!isNull(workBasketFields.getHearingDateIssued())) {
+            if (isNull(workBasketFields.getHearingDateIssued())) {
                 LocalDateTime hearingDateIssuedTime = LocalDateTime.now();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                 String hearingDateIssued = hearingDateIssuedTime.format(formatter);
