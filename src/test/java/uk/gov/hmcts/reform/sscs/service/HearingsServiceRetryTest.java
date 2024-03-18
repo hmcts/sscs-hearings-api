@@ -29,7 +29,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
@@ -86,6 +88,12 @@ class HearingsServiceRetryTest {
     @Mock
     private SessionCategoryMapService sessionCategoryMaps;
 
+    @MockBean
+    private IdamService idamService;
+
+    @MockBean
+    private UpdateCcdCaseService updateCcdCaseService;
+
     @Autowired
     private HearingsService hearingsService;
 
@@ -133,7 +141,7 @@ class HearingsServiceRetryTest {
     }, nullValues = {"null"})
     void updateHearingResponse(HearingState state, HearingEvent event) throws UpdateCaseException {
         given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any(EventType.class))).willReturn(caseDetails);
-        
+
         given(ccdCaseService.updateCaseData(
             any(SscsCaseData.class),
             any(EventType.class),
@@ -189,12 +197,12 @@ class HearingsServiceRetryTest {
             any(HearingCancelRequestPayload.class),
             anyString()))
             .willReturn(hmcUpdateResponse);
-        
+
         var hearingRequest = HearingRequest.builder(String.valueOf(CASE_ID))
             .hearingState(HearingState.UPDATE_HEARING)
             .hearingRoute(HearingRoute.LIST_ASSIST)
             .build();
-            
+
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingRequest(hearingRequest));
 
