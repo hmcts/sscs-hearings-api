@@ -10,3 +10,4 @@ java:
     CCD_CALLBACK_ORCHESTRATOR_API_URL: "http://sscs-ccd-callback-orchestrator-aat.service.core-compute-aat.internal"
     IDAM_API_URL: https://idam-api.aat.platform.hmcts.net
     COMMON_REF_API_URL: "http://rd-commondata-api-aat.service.core-compute-aat.internal"
+    SERVICE_HEARING_SERVICE_V2_ENABLED: true

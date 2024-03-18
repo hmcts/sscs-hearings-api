@@ -150,6 +150,8 @@ flags:
     enabled: ${POST_HEARING_ENABLED:false}
   deployment-filter:
     enabled: ${HMC_DEPLOYMENT_FILTER_ENABLED:false}
+  service-hearing-service-v2:
+    enabled: ${SERVICE_HEARING_SERVICE_V2_ENABLED:false}
 
 retry:
   hearing-response-update:
