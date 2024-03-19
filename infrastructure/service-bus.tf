@@ -19,7 +19,6 @@ resource "azurerm_servicebus_subscription_rule" "topic_filter_rule_sscs" {
   }
 }
 
-
 data "azurerm_key_vault" "hmc-key-vault" {
   name                = "hmc-${var.env}"
   resource_group_name = "hmc-shared-${var.env}"

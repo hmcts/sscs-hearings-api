@@ -72,9 +72,6 @@ public class HearingsService {
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
 
-
-
-
     @Retryable(
         retryFor = UpdateCaseException.class,
         maxAttemptsExpression = "${retry.hearing-response-update.max-retries}",
