@@ -249,7 +249,7 @@ class HearingUpdateServiceTest {
     @EnumSource(
         value = HmcStatus.class,
         mode = EnumSource.Mode.EXCLUDE,
-        names = {"UPDATE_REQUESTED", "UPDATE_SUBMITTED", "CANCELLATION_REQUESTED", "CANCELLATION_SUBMITTED"})
+        names = {"UPDATE_REQUESTED", "UPDATE_SUBMITTED", "CANCELLATION_REQUESTED", "CANCELLATION_SUBMITTED", "NOT_FOUND"})
     void testSetHearingStatus(HmcStatus value) {
 
         caseData.setHearings(Lists.newArrayList(
