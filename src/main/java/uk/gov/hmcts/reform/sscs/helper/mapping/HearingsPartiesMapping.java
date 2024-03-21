@@ -381,17 +381,19 @@ public final class HearingsPartiesMapping {
 
     public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype)throws ListingException {
         List<String> emails = new ArrayList<>();
-        if (nonNull(hearingSubtype)) {
-            String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
 
-            if (isNotBlank(hearingVideoEmail)) {
-                if (isYes(hearingSubtype.getWantsHearingTypeVideo())
-                    && !EmailUtil.isEmailValid(hearingVideoEmail)) {
-                    throw new ListingException("Hearing video email address must be valid email address");
-                }
+        if (isNull(hearingSubtype)) {
+            return emails;
+        }
 
-                emails.add(hearingVideoEmail);
+        String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
+
+        if (isNotBlank(hearingVideoEmail)) {
+            if (isYes(hearingSubtype.getWantsHearingTypeVideo())
+                && !EmailUtil.isEmailValid(hearingVideoEmail)) {
+                throw new ListingException("Hearing video email address must be valid email address");
             }
+            emails.add(hearingVideoEmail);
         }
         return emails;
     }
