@@ -92,6 +92,7 @@ public class FeignClientErrorDecoderIntegrationTest {
                 () -> hmcHearingApi.getHearingRequest(
                     IDAM_OAUTH2_TOKEN,
                     SERVICE_AUTHORIZATION_TOKEN,
+                    null,
                     CASE_ID,
                     null))
             .extracting(STATUS).isEqualTo(expectedHttpStatus);

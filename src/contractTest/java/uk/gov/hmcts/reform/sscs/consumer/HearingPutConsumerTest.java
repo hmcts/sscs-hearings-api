@@ -163,6 +163,7 @@ class HearingPutConsumerTest extends BasePactTest {
         HmcUpdateResponse hmcUpdateResponse = hmcHearingApi.updateHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
+            null,
             VALID_CASE_ID,
             generateHearingRequest()
         );
