@@ -90,7 +90,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                      .id(PARTY_ID)
                      .name(Name.builder()
@@ -129,7 +129,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                    .id(PARTY_ID)
                    .name(Name.builder()
@@ -170,7 +170,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                      .id(PARTY_ID)
                      .name(Name.builder()
@@ -215,7 +215,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                     .id(PARTY_ID)
                     .name(Name.builder()
@@ -246,7 +246,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .id(otherPartyId)
                         .name(Name.builder()
                                   .title("title")
@@ -259,7 +259,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -272,7 +272,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-            .caseData(caseData)
             .caseData(caseData)
             .build();
 
@@ -312,7 +311,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(name)
@@ -387,7 +386,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             party,
             null,
             hearingOptions,
-            HearingSubtype.builder().build(),
+            HearingSubtype.builder().hearingVideoEmail("email@email.com").build(),
             null,
             refData,
             null
@@ -442,7 +441,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                       .build())
             .build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build();
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(
             party,
@@ -495,7 +494,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             party,
             null,
             hearingOptions,
-            HearingSubtype.builder().build(),
+            HearingSubtype.builder().hearingVideoEmail("email@email.com").build(),
             null,
             refData,
             null
@@ -527,7 +526,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         PartyDetails partyDetails = HearingsPartiesMapping.createHearingPartyDetails(
             entity,
             hearingOptions,
-            HearingSubtype.builder().build(),
+            HearingSubtype.builder().hearingVideoEmail("email@email.com").build(),
             PARTY_ID,
             null,
             refData,
@@ -961,9 +960,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .hearingVideoEmail(value)
             .build();
 
-        List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype);
-
-        assertThat(result).isEmpty();
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype));
     }
 
     @DisplayName("When a hearingVideoEmail has an email, and wants video hearing getIndividualHearingChannelEmail "
@@ -1162,7 +1159,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                                                  .end(end.toString()).build()).build()))
                                             .wantsToAttend("yes").build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()

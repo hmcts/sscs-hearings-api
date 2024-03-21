@@ -388,13 +388,12 @@ public final class HearingsPartiesMapping {
 
         String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
 
-        if (isNotBlank(hearingVideoEmail)) {
-            if (isYes(hearingSubtype.getWantsHearingTypeVideo())
-                && !EmailUtil.isEmailValid(hearingVideoEmail)) {
-                throw new ListingException("Hearing video email address must be valid email address");
-            }
-            emails.add(hearingVideoEmail);
+        if (isBlank(hearingVideoEmail)
+            || isYes(hearingSubtype.getWantsHearingTypeVideo()) && !EmailUtil.isEmailValid(hearingVideoEmail)) {
+            throw new ListingException("Hearing video email address must be valid email address");
         }
+
+        emails.add(hearingVideoEmail);
         return emails;
     }
 

@@ -141,7 +141,7 @@ class HearingsServiceTest {
                 .rep(Representative.builder().hasRepresentative("No").build())
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                     .name(Name.builder().firstName("first").lastName("surname").build())
                     .build())
