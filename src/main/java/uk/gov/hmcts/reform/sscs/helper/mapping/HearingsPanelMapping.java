@@ -135,11 +135,16 @@ public final class HearingsPanelMapping {
 
     public static String getPanelMemberSpecialism(PanelMember panelMember,
                                                   String doctorSpecialism, String doctorSpecialismSecond) {
-        return switch (panelMember) {
-            case MQPM1 -> getReference(doctorSpecialism);
-            case MQPM2 -> getReference(doctorSpecialismSecond);
-            default -> panelMember.getReference();
-        };
+        switch (panelMember) {
+            case FQPM:
+                return null;
+            case MQPM1:
+                return getReference(doctorSpecialism);
+            case MQPM2:
+                return getReference(doctorSpecialismSecond);
+            default:
+                return panelMember.getReference();
+        }
     }
 
     public static String getReference(String panelMemberSubtypeCcdRef) {
