@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
@@ -29,7 +30,8 @@ import java.util.stream.Collectors;
 @Service
 public class CcdCaseService {
 
-    private static final String CASE_TYPE = "Benefit";
+    @Value("${core_case_data.caseTypeId}")
+    private String caseType;
     public static final String CASE_ID_TERM = "reference.keyword";
 
     private final CcdService ccdService;
@@ -140,7 +142,7 @@ public class CcdCaseService {
         return coreCaseDataApi.searchCases(
             idamTokens.getIdamOauth2Token(),
             idamTokens.getServiceAuthorization(),
-            CASE_TYPE,
+            caseType,
             searchBuilder.toString());
     }
 }
