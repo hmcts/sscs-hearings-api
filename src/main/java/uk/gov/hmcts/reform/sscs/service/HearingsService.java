@@ -184,6 +184,16 @@ public class HearingsService {
         if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
             OverridesMapping.setOverrideValues(wrapper, refData);
         }
+        Integer duration = wrapper
+            .getCaseData()
+            .getSchedulingAndListingFields()
+            .getOverrideFields()
+            .getDuration();
+        boolean isMultipleOfFive = duration % 5 == 0;
+        if (!isMultipleOfFive) {
+            throw new ListingException("Listing duration must be multiple of 5.0 minutes");
+        }
+
         HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
         String hearingId = getHearingId(wrapper);
         log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
