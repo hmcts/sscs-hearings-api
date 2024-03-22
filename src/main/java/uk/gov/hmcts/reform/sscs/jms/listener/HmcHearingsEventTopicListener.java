@@ -34,6 +34,8 @@ public class HmcHearingsEventTopicListener {
 
     @Value("${flags.deployment-filter.enabled}")
     private boolean isDeploymentFilterEnabled;
+    @Value("${flags.process-event-message-v2.enabled}")
+    private boolean processEventMessageV2Enabled;
 
     private static final String HMCTS_DEPLOYMENT_ID = "hmctsDeploymentId";
 
@@ -68,7 +70,11 @@ public class HmcHearingsEventTopicListener {
                 log.info("Attempting to process message from HMC hearings topic for event {}, Case ID {}, and Hearing ID {}.",
                     hmcMessage.getHearingUpdate().getHmcStatus(), caseId, hearingId);
 
-                processHmcMessageService.processEventMessage(hmcMessage);
+                if (processEventMessageV2Enabled) {
+                    processHmcMessageService.processEventMessageV2(hmcMessage);
+                } else {
+                    processHmcMessageService.processEventMessage(hmcMessage);
+                }
             }
         }  catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
             throw new HmcEventProcessingException(String.format("Unable to successfully deliver HMC message: %s",
