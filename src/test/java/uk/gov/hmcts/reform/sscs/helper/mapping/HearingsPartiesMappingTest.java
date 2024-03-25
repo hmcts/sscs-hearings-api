@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Representative;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType;
@@ -54,9 +55,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.DayOfWeekUnavailabilityType.ALL_DAY;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPELLANT;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.APPOINTEE;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.OTHER_PARTY;
@@ -78,7 +81,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper with language interpreter is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
-    void buildHearingPartiesDetailsAdjournCaseInterpreterLanguageProvided() throws InvalidMappingException {
+    void buildHearingPartiesDetailsAdjournCaseInterpreterLanguageProvided() throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .adjournment(Adjournment.builder()
                  .interpreterRequired(YES)
@@ -87,7 +90,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                      .id(PARTY_ID)
                      .name(Name.builder()
@@ -121,12 +124,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper without OtherParties or joint party is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
-    void buildHearingPartiesDetails() throws InvalidMappingException {
+    void buildHearingPartiesDetails() throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                    .id(PARTY_ID)
                    .name(Name.builder()
@@ -160,14 +163,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper when PO attending is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
-    void buildHearingPartiesDetailsPoAttending() throws InvalidMappingException {
+    void buildHearingPartiesDetailsPoAttending() throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending("Yes")
             .benefitCode("001")
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                      .id(PARTY_ID)
                      .name(Name.builder()
@@ -206,13 +209,13 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @ValueSource(strings = {"No"})
     @NullAndEmptySource
-    void buildHearingPartiesDetailsPoAttending(String officerAttending) throws InvalidMappingException {
+    void buildHearingPartiesDetailsPoAttending(String officerAttending) throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
             .dwpIsOfficerAttending(officerAttending)
             .appeal(Appeal.builder()
                 .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                 .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                 .appellant(Appellant.builder()
                     .id(PARTY_ID)
                     .name(Name.builder()
@@ -238,12 +241,12 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When a valid hearing wrapper is given with OtherParties buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @Test
-    void buildHearingPartiesDetailsOtherParties() throws InvalidMappingException {
+    void buildHearingPartiesDetailsOtherParties() throws ListingException {
         String otherPartyId = OTHER_PARTY_ID;
         List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
         otherParties.add(new CcdValue<>(OtherParty.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .id(otherPartyId)
                         .name(Name.builder()
                                   .title("title")
@@ -256,7 +259,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -269,7 +272,6 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .benefitCode("002")
             .build();
         HearingWrapper wrapper = HearingWrapper.builder()
-            .caseData(caseData)
             .caseData(caseData)
             .build();
 
@@ -292,7 +294,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @EnumSource(value = YesNo.class)
     @NullSource
-    void buildHearingPartiesDetailsJointParty(YesNo jointParty) throws InvalidMappingException {
+    void buildHearingPartiesDetailsJointParty(YesNo jointParty) throws ListingException {
         Name name = Name.builder()
             .title("title")
             .firstName("first")
@@ -309,7 +311,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             .appeal(Appeal.builder()
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(name)
@@ -359,7 +361,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         "null,false",
         ",false",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsAppointee(String isAppointee, boolean expected) throws InvalidMappingException {
+    void buildHearingPartiesPartyDetailsAppointee(String isAppointee, boolean expected) throws ListingException {
         Appointee appointee = Appointee.builder()
             .id(OTHER_PARTY_ID)
             .name(Name.builder()
@@ -384,7 +386,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             party,
             null,
             hearingOptions,
-            HearingSubtype.builder().build(),
+            HearingSubtype.builder().hearingVideoEmail("email@email.com").build(),
             null,
             refData,
             null
@@ -411,14 +413,14 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("buildHearingPartiesPartyDetails when Rep is not null Parameterised Tests")
     @ParameterizedTest
     @CsvSource(value = {
-        "Yes,true,true",
-        "Yes,true,false",
-        "No,false,true",
-        "No,false,false",
-        "null,false,true",
-        ",false,true",
+        "Yes,true",
+        "Yes,true",
+        "No,false",
+        "No,false",
+        "null,false",
+        ",false",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected, boolean named) throws InvalidMappingException {
+    void buildHearingPartiesPartyDetailsRep(String hasRepresentative, boolean expected) throws ListingException {
         Representative rep = Representative.builder()
             .id(OTHER_PARTY_ID)
             .hasRepresentative(hasRepresentative)
@@ -431,15 +433,15 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
         Party party = Appellant.builder()
             .id(PARTY_ID)
-            .organisation(named ? "" : "organisation")
+            .organisation("organisation")
             .name(Name.builder()
-                      .title(named ? "title" : "")
-                      .firstName(named ? "first" : "")
-                      .lastName(named ? "last" : "")
+                      .title("title")
+                      .firstName("first")
+                      .lastName("last")
                       .build())
             .build();
         HearingOptions hearingOptions = HearingOptions.builder().wantsToAttend("yes").build();
-        HearingSubtype hearingSubtype = HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build();
+        HearingSubtype hearingSubtype = HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build();
 
         List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesPartyDetails(
             party,
@@ -477,7 +479,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         "null,false",
         ",false",
     }, nullValues = {"null"})
-    void buildHearingPartiesPartyDetailsAppointeeRepNull() throws InvalidMappingException {
+    void buildHearingPartiesPartyDetailsAppointeeRepNull() throws ListingException {
         Party party = Appellant.builder()
             .id(PARTY_ID)
             .name(Name.builder()
@@ -492,7 +494,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
             party,
             null,
             hearingOptions,
-            HearingSubtype.builder().build(),
+            HearingSubtype.builder().hearingVideoEmail("email@email.com").build(),
             null,
             refData,
             null
@@ -511,7 +513,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("createHearingPartyDetails Test")
     @Test
-    void createHearingPartyDetails() throws InvalidMappingException {
+    void createHearingPartyDetails() throws ListingException {
         Entity entity = Appellant.builder()
             .id(PARTY_ID)
             .name(Name.builder()
@@ -524,7 +526,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         PartyDetails partyDetails = HearingsPartiesMapping.createHearingPartyDetails(
             entity,
             hearingOptions,
-            HearingSubtype.builder().build(),
+            HearingSubtype.builder().hearingVideoEmail("email@email.com").build(),
             PARTY_ID,
             null,
             refData,
@@ -603,30 +605,39 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualTo(reference);
     }
 
-    @DisplayName("getIndividualFirstName Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "test,test",
-        "null,null",
-    }, nullValues = {"null"})
-    void getIndividualFirstName(String value, String expected) {
-        Entity entity = Appellant.builder().name(Name.builder().firstName(value).build()).build();
-        String result = HearingsPartiesMapping.getIndividualFirstName(entity);
+    @DisplayName("getIndividualFirstName when null")
+    @Test
+    void getIndividualFirstNameWhenNull() {
+        Entity entity = Appellant.builder().name(Name.builder().build()).build();
 
-        assertEquals(expected, result);
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualFirstName(entity));
     }
 
-    @DisplayName("getIndividualLastName Parameterised Tests")
-    @ParameterizedTest
-    @CsvSource(value = {
-        "test,test",
-        "null,null",
-    }, nullValues = {"null"})
-    void getIndividualLastName(String value, String expected) {
-        Entity entity = Appellant.builder().name(Name.builder().lastName(value).build()).build();
+    @DisplayName("getIndividualFirstName")
+    @Test
+    void getIndividualFirstName() throws ListingException {
+        String firstName = "firstname";
+        Entity entity = Appellant.builder().name(Name.builder().firstName(firstName).build()).build();
+        String result = HearingsPartiesMapping.getIndividualFirstName(entity);
+
+        assertEquals(firstName, result);
+    }
+
+    @DisplayName("getIndividualLastName")
+    @Test
+    void getIndividualLastName() throws ListingException {
+        String lastName = "lastname";
+        Entity entity = Appellant.builder().name(Name.builder().lastName(lastName).build()).build();
         String result = HearingsPartiesMapping.getIndividualLastName(entity);
 
-        assertEquals(expected, result);
+        assertEquals(lastName, result);
+    }
+
+    @DisplayName("getIndividualLastName when null")
+    @Test
+    void getIndividualLastNameWhenNull() {
+        Entity entity = Appellant.builder().name(Name.builder().build()).build();
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualFirstName(entity));
     }
 
     @DisplayName("When language passed in should return correct LOV format")
@@ -651,7 +662,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @ValueSource(strings = {"Test"})
     @NullAndEmptySource
-    void testGetIndividualInterpreterLanguage(String value) throws InvalidMappingException {
+    void testGetIndividualInterpreterLanguage(String value) {
         given(verbalLanguages.getVerbalLanguage(value))
             .willReturn(null);
 
@@ -693,7 +704,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @ParameterizedTest
     @ValueSource(strings = {"Test"})
     @NullAndEmptySource
-    void testGetIndividualInterpreterSignLanguage(String value) throws InvalidMappingException {
+    void testGetIndividualInterpreterSignLanguage(String value) {
         given(signLanguages.getSignLanguage(value))
             .willReturn(null);
 
@@ -925,7 +936,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @DisplayName("When a hearingVideoEmail has a email, getIndividualHearingChannelEmail "
         + "returns a list with only that email ")
     @Test
-    void testGetIndividualHearingChannelEmail() {
+    void testGetIndividualHearingChannelEmail() throws ListingException {
 
         HearingSubtype subtype = HearingSubtype.builder()
             .hearingVideoEmail(EMAIL_ADDRESS)
@@ -942,22 +953,48 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         + "returns an empty list")
     @ParameterizedTest
     @NullAndEmptySource
-    void testGetIndividualHearingChannelEmail(String value) {
+    void testGetIndividualHearingChannelEmailBlank(String value) throws ListingException {
 
         HearingSubtype subtype = HearingSubtype.builder()
+            .wantsHearingTypeVideo(YES.getValue())
             .hearingVideoEmail(value)
+            .build();
+
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype));
+    }
+
+    @DisplayName("When a hearingVideoEmail has an email, and wants video hearing getIndividualHearingChannelEmail "
+        + "returns a list with only that email ")
+    @Test
+    void testGetIndividualHearingChannelEmailWithWantsVideo() throws ListingException {
+        HearingSubtype subtype = HearingSubtype.builder()
+            .hearingVideoEmail(EMAIL_ADDRESS)
+            .wantsHearingTypeVideo(YES.getValue())
             .build();
 
         List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype);
 
         assertThat(result)
-            .isEmpty();
+            .hasSize(1)
+            .containsOnly(EMAIL_ADDRESS);
+    }
+
+    @DisplayName("When a hearingVideoEmail has an invalid email, and wants video hearing getIndividualHearingChannelEmail "
+        + "throws a listing error")
+    @Test
+    void testGetIndividualHearingChannelEmailWithInvalidEmail() {
+        HearingSubtype subtype = HearingSubtype.builder()
+            .hearingVideoEmail("invalidemailaddress")
+            .wantsHearingTypeVideo(YES.getValue())
+            .build();
+
+        assertThrows(ListingException.class, () -> HearingsPartiesMapping.getIndividualHearingChannelEmail(subtype));
     }
 
     @DisplayName("When a HearingSubtype is null, getIndividualHearingChannelEmail "
         + "returns an empty list")
     @Test
-    void testGetIndividualHearingChannelEmailNull() {
+    void testGetIndividualHearingChannelEmailNull() throws ListingException {
         List<String> result = HearingsPartiesMapping.getIndividualHearingChannelEmail(null);
 
         assertThat(result)
@@ -1069,7 +1106,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When Valid DateRanges are given getPartyUnavailabilityRange returns the correct list of Unavailability Ranges")
     @Test
-    void getPartyUnavailabilityRange() {
+    void getPartyUnavailabilityRange() throws ListingException {
         List<ExcludeDate> excludeDates = new ArrayList<>();
         excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
                                                          .start("2022-02-01")
@@ -1102,7 +1139,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When null ExcludeDates is given getPartyUnavailabilityRange returns an empty list")
     @Test
-    void getPartyUnavailabilityRangeNullValue() {
+    void getPartyUnavailabilityRangeNullValue() throws ListingException {
         HearingOptions hearingOptions = HearingOptions.builder().build();
         List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
 
@@ -1111,7 +1148,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
     @Test
-    void buildHearingPartiesDetails_unavailabilityRanges() throws InvalidMappingException {
+    void buildHearingPartiesDetails_unavailabilityRanges() throws ListingException, InvalidMappingException {
         LocalDate start = LocalDate.now();
         LocalDate end = start.plusDays(1);
         SscsCaseData caseData = SscsCaseData.builder()
@@ -1122,7 +1159,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
                                                                                  .end(end.toString()).build()).build()))
                                             .wantsToAttend("yes").build())
                         .hearingType("test")
-                        .hearingSubtype(HearingSubtype.builder().wantsHearingTypeFaceToFace("yes").build())
+                        .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
                         .appellant(Appellant.builder()
                                        .id(PARTY_ID)
                                        .name(Name.builder()
@@ -1151,6 +1188,56 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(unavailabilityRange.getUnavailabilityType()).isEqualTo(DayOfWeekUnavailabilityType.ALL_DAY.getLabel());
         assertThat(unavailabilityRange.getUnavailableFromDate()).isEqualTo(start);
         assertThat(unavailabilityRange.getUnavailableToDate()).isEqualTo(end);
+    }
+
+    @DisplayName("When the start and end date ranges are both null, then return null")
+    @Test
+    void getPartyUnavailabilityRangeWhenBothDatesAreNull() throws ListingException {
+        List<ExcludeDate> excludeDates = new ArrayList<>();
+        excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
+                                                         .build())
+                             .build());
+        HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("When the start date is null and end date is valid, then return the unavailability range")
+    @Test
+    void getPartyUnavailabilityRangeWhenStartDateIsNull() throws ListingException {
+        List<ExcludeDate> excludeDates = new ArrayList<>();
+        excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
+                                                         .end(LocalDate.now().toString())
+                                                         .build())
+                             .build());
+        HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(UnavailabilityRange.builder()
+                                                .unavailableToDate(LocalDate.now())
+                                                .unavailableFromDate(LocalDate.now())
+                                                .unavailabilityType(ALL_DAY.getLabel()).build());
+    }
+
+    @DisplayName("When the start date is in a wrong format and the end date is correct, then return the unavailability range")
+    @Test
+    void getPartyUnavailabilityRangeWhenOneDateIsInvalidAndOtherIsCorrect() throws ListingException {
+        List<ExcludeDate> excludeDates = new ArrayList<>();
+        excludeDates.add(ExcludeDate.builder().value(DateRange.builder()
+                                                         .start("234234")
+                                                         .end(LocalDate.now().toString())
+                                                         .build())
+                             .build());
+        HearingOptions hearingOptions = HearingOptions.builder().excludeDates(excludeDates).build();
+        List<UnavailabilityRange> result = HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(UnavailabilityRange.builder()
+                                                .unavailableToDate(LocalDate.now())
+                                                .unavailableFromDate(LocalDate.now())
+                                                .unavailabilityType(ALL_DAY.getLabel()).build());
     }
 
     @DisplayName("Unavailability ranges must be set from the excluded dates. Each range must have an UnavailabilityType.")
