@@ -134,6 +134,7 @@ class HearingPostConsumerTest extends BasePactTest {
         HmcUpdateResponse hmcUpdateResponse = hmcHearingApi.createHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
+            null,
             ContractTestDataProvider.generateHearingRequest()
         );
 

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
@@ -20,12 +21,15 @@ public class HmcHearingApiService {
 
     private final HmcHearingApi hmcHearingApi;
     private final IdamService idamService;
+    @Value("${hmc.deployment-id}")
+    private  String hmctsDeploymentId;
 
     public HearingGetResponse getHearingRequest(String hearingId) throws GetHearingException {
         log.debug("Sending Get Hearing Request for Hearing ID {}", hearingId);
         HearingGetResponse hearingResponse = hmcHearingApi.getHearingRequest(
                 getIdamTokens().getIdamOauth2Token(),
                 getIdamTokens().getServiceAuthorization(),
+                hmctsDeploymentId,
                 hearingId,
             null);
         if (isNull(hearingResponse)) {
@@ -41,6 +45,7 @@ public class HmcHearingApiService {
         return hmcHearingApi.createHearingRequest(
                 getIdamTokens().getIdamOauth2Token(),
                 getIdamTokens().getServiceAuthorization(),
+                hmctsDeploymentId,
                 hearingPayload);
     }
 
@@ -52,6 +57,7 @@ public class HmcHearingApiService {
         return hmcHearingApi.updateHearingRequest(
                 getIdamTokens().getIdamOauth2Token(),
                 getIdamTokens().getServiceAuthorization(),
+                hmctsDeploymentId,
                 hearingId,
                 hearingPayload);
     }
@@ -63,6 +69,7 @@ public class HmcHearingApiService {
         return hmcHearingApi.cancelHearingRequest(
                 getIdamTokens().getIdamOauth2Token(),
                 getIdamTokens().getServiceAuthorization(),
+                hmctsDeploymentId,
                 hearingId,
                 hearingPayload);
     }

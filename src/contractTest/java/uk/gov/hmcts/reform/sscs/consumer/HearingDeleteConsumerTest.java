@@ -146,6 +146,7 @@ class HearingDeleteConsumerTest extends BasePactTest {
         HmcUpdateResponse hmcUpdateResponse = hmcHearingApi.cancelHearingRequest(
             ContractTestDataProvider.IDAM_OAUTH2_TOKEN,
             ContractTestDataProvider.SERVICE_AUTHORIZATION_TOKEN,
+            null,
             VALID_CASE_ID,
             ContractTestDataProvider.generateHearingDeleteRequest()
         );
