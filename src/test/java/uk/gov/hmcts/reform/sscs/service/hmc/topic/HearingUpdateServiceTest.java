@@ -59,6 +59,7 @@ class HearingUpdateServiceTest {
     private static final String VENUE_NAME = "VenueName";
     private static final String JUDGE_ID = "1";
     private static final List<String> PANEL_IDS = List.of("2", "3");
+    private static final String HEARING_TIME_STR = "10:00:00";
 
     private VenueDetails venueDetails;
     private SscsCaseData caseData;
@@ -249,7 +250,7 @@ class HearingUpdateServiceTest {
     @EnumSource(
         value = HmcStatus.class,
         mode = EnumSource.Mode.EXCLUDE,
-        names = {"UPDATE_REQUESTED", "UPDATE_SUBMITTED", "CANCELLATION_REQUESTED", "CANCELLATION_SUBMITTED"})
+        names = {"UPDATE_REQUESTED", "UPDATE_SUBMITTED", "CANCELLATION_REQUESTED", "CANCELLATION_SUBMITTED", "NOT_FOUND"})
     void testSetHearingStatus(HmcStatus value) {
 
         caseData.setHearings(Lists.newArrayList(
@@ -321,6 +322,7 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .start(zoneUtcStartDateTime)
+                    .time(HEARING_TIME_STR)
                     .epimsId(EPIMS_ID)
                     .build())
                 .build()));
@@ -339,13 +341,14 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .epimsId(EPIMS_ID)
+                    .start(zoneUtcStartDateTime)
+                    .time(HEARING_TIME_STR)
                     .build())
                 .build()));
 
         hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
-        assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
     }
 
 
@@ -357,6 +360,7 @@ class HearingUpdateServiceTest {
                 .value(HearingDetails.builder()
                     .hearingId(String.valueOf(HEARING_ID))
                     .start(zoneUtcStartDateTime)
+                    .time(HEARING_TIME_STR)
                     .build())
                 .build()));
 
@@ -381,6 +385,27 @@ class HearingUpdateServiceTest {
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
+    }
+
+    @DisplayName("When a HmcStatus with a listing and the hearing has a valid start date, setWorkBasketFields updates hearing date issued to the correct date")
+    @Test
+    void testSetWorkBasketFieldsForHearingDateIssued() {
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .hearingId(String.valueOf(HEARING_ID))
+                           .start(zoneUtcStartDateTime)
+                           .time(HEARING_TIME_STR)
+                           .epimsId(EPIMS_ID)
+                           .build())
+                .build()));
+
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String expectedHearingDateIssued = zoneUtcStartDateTime.format(formatter);
+
+        assertThat(caseData.getWorkBasketFields().getHearingDateIssued()).isEqualTo(expectedHearingDateIssued);
     }
 
     @DisplayName("When a hearing with a valid start is given, getHearingDate returns the correct date")

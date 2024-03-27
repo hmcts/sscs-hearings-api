@@ -34,7 +34,8 @@ public enum HmcStatus {
         "The hearing with id %s has been successfully cancelled"),
     AWAITING_ACTUALS("Awaiting Actuals", null, HearingStatus.AWAITING_ACTUALS, "", ""),
     COMPLETED("Completed", null, HearingStatus.COMPLETED, "", ""),
-    ADJOURNED("Adjourned", null, HearingStatus.ADJOURNED, "", "");
+    ADJOURNED("Adjourned", null, HearingStatus.ADJOURNED, "", ""),
+    NOT_FOUND("Not Found", null, null, "", "");
 
     private final String label;
     private final BiFunction<HearingGetResponse, SscsCaseData, EventType> eventMapper;
