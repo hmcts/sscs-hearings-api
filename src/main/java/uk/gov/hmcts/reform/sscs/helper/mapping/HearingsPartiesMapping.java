@@ -272,7 +272,7 @@ public final class HearingsPartiesMapping {
 
     public static String getIndividualLastName(Entity entity) throws ListingException {
         String org = getIndividualOrganisation(entity);
-        if (!isEmpty(org)) {
+        if (isNotEmpty(org)) {
             return ORGANISATION_NAME_REPLACEMENT;
         }
 
