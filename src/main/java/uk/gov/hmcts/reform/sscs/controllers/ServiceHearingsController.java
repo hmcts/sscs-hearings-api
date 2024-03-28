@@ -18,11 +18,14 @@ import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.service.ServiceHearingRequest;
+import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.ServiceHearingValues;
 import uk.gov.hmcts.reform.sscs.model.service.linkedcases.ServiceLinkedCases;
 import uk.gov.hmcts.reform.sscs.service.ServiceHearingsService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER;
 import static org.springframework.http.ResponseEntity.status;
@@ -55,7 +58,37 @@ public class ServiceHearingsController {
 
             ServiceHearingValues model = serviceHearingsService.getServiceHearingValues(request);
 
-            log.info("serviceHearingValues response {}", model);
+            var modelForLogging =  List.of(
+                Optional.ofNullable(model.getCaseDeepLink()),
+                Optional.ofNullable(model.getCaseManagementLocationCode()),
+                Optional.ofNullable(model.isCaseRestrictedFlag()),
+                Optional.ofNullable(model.getCaseSlaStartDate()),
+                Optional.ofNullable(model.getExternalCaseReference()),
+                Optional.ofNullable(model.getHearingChannels()),
+                Optional.ofNullable(model.isAutoListFlag()),
+                Optional.ofNullable(model.getHearingType()),
+                Optional.ofNullable(model.getCaseType()),
+                Optional.ofNullable(model.getCaseCategories()),
+                Optional.ofNullable(model.getHearingWindow()),
+                Optional.ofNullable(model.getDuration()),
+                Optional.ofNullable(model.getHearingPriorityType()),
+                Optional.ofNullable(model.getNumberOfPhysicalAttendees()),
+                Optional.ofNullable(model.isHearingInWelshFlag()),
+                Optional.ofNullable(model.getHearingLocations()),
+                Optional.ofNullable(model.getCaseAdditionalSecurityFlag()),
+                Optional.ofNullable(model.getFacilitiesRequired()),
+                Optional.ofNullable(model.getListingComments()),
+                Optional.ofNullable(model.getHearingRequester()),
+                Optional.ofNullable(model.isPrivateHearingRequiredFlag()),
+                Optional.ofNullable(model.getPanelRequirements()),
+                Optional.ofNullable(model.getLeadJudgeContractType()),
+                Optional.ofNullable(model.getJudiciary()),
+                Optional.ofNullable(model.isHearingIsLinkedFlag()),
+                Optional.ofNullable(getListOfPartyDetailsForLog(model.getParties())),
+                Optional.ofNullable(model.getCaseFlags())
+            );
+
+            log.info("serviceHearingValues response {}", modelForLogging);
 
             return status(HttpStatus.OK).body(model);
         } catch (Exception exc) {
@@ -63,7 +96,6 @@ public class ServiceHearingsController {
             throw exc;
         }
     }
-
 
     @PostMapping("/serviceLinkedCases")
     @Operation(description = "Get linked cases for a Case and it's Hearing")
@@ -102,5 +134,31 @@ public class ServiceHearingsController {
         } else if (exc instanceof ListingException) {
             log.error("Listing Exception for case id {}", caseId, exc);
         }
+    }
+
+    private List getListOfPartyDetailsForLog(List<PartyDetails> partyDetails) {
+        if (partyDetails != null) {
+            List<List<?>> partyDetailsForLog = new ArrayList<>();
+            for (PartyDetails party : partyDetails) {
+                partyDetailsForLog.add(
+                    List.of(
+                        Optional.ofNullable(party.getPartyID()),
+                        Optional.ofNullable(party.getPartyType()),
+                        Optional.ofNullable(party.getPartyChannel()),
+                        Optional.ofNullable(party.getPartyRole()),
+                        Optional.ofNullable(party.getIndividualDetails().getPreferredHearingChannel()),
+                        Optional.ofNullable(party.getIndividualDetails().getInterpreterLanguage()),
+                        Optional.ofNullable(party.getIndividualDetails().getReasonableAdjustments()),
+                        Optional.ofNullable(party.getIndividualDetails().isVulnerableFlag()),
+                        Optional.ofNullable(party.getIndividualDetails().getCustodyStatus()),
+                        Optional.ofNullable(party.getIndividualDetails().getOtherReasonableAdjustmentDetails()),
+                        Optional.ofNullable(party.getOrganisationDetails()),
+                        Optional.ofNullable(party.getUnavailabilityDow()),
+                        Optional.ofNullable(party.getUnavailabilityRanges())
+                    ));
+            }
+            return partyDetailsForLog;
+        }
+        return List.of();
     }
 }
