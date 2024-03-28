@@ -257,30 +257,28 @@ public final class HearingsPartiesMapping {
     }
 
     public static String getIndividualFirstName(Entity entity) throws ListingException {
-        String firstName = entity.getName().getFirstName();
-
-        if (isEmpty(firstName)) {
-            throw new ListingException("Missing first name");
-        }
-
         String org = getIndividualOrganisation(entity);
         if (isNotEmpty(org)) {
             return ORGANISATION_NAME_REPLACEMENT;
+        }
+
+        String firstName = entity.getName().getFirstName();
+        if (isEmpty(firstName)) {
+            throw new ListingException("Missing first name");
         }
 
         return firstName;
     }
 
     public static String getIndividualLastName(Entity entity) throws ListingException {
-        String firstName = entity.getName().getLastName();
-
-        if (isEmpty(firstName)) {
-            throw new ListingException("Missing last name");
-        }
-
         String org = getIndividualOrganisation(entity);
         if (!isEmpty(org)) {
             return ORGANISATION_NAME_REPLACEMENT;
+        }
+
+        String firstName = entity.getName().getLastName();
+        if (isEmpty(firstName)) {
+            throw new ListingException("Missing last name");
         }
 
         return firstName;
