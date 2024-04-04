@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@SuppressWarnings({"PMD.UseObjectForClearerAPI"})
 @FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = FeignClientConfig.class)
 public interface HmcHearingsApi {
 
@@ -22,6 +23,7 @@ public interface HmcHearingsApi {
     HearingsGetResponse getHearingsRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = "hmctsDeploymentId", required = false) String hmctsDeploymentId,
         @PathVariable String caseId,
         @RequestParam(name = "status", required = false) HmcStatus hmcStatus
     );

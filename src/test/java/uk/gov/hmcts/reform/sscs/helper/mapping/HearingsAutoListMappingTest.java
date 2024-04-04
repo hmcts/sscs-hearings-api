@@ -285,20 +285,20 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         caseData.setDwpIsOfficerAttending("No");
         caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCase(caseData);
 
         assertThat(result).isTrue();
     }
 
-    @DisplayName("When wants to attend is No and PO is attending is Yes, isPaperCaseAndPoNotAttending return False")
+    @DisplayName("When wants to attend is No and PO is attending is Yes, isPaperCaseAndPoNotAttending return True")
     @Test
     void testIsPaperCaseAndPoNotAttendingPoAttending() {
         caseData.setDwpIsOfficerAttending("Yes");
         caseData.getAppeal().getHearingOptions().setWantsToAttend("No");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCase(caseData);
 
-        assertThat(result).isFalse();
+        assertThat(result).isTrue();
     }
 
     @DisplayName("When wants to attend is Yes and PO is attending is No, isPaperCaseAndPoNotAttending return False")
@@ -307,7 +307,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         caseData.setDwpIsOfficerAttending("No");
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCase(caseData);
 
         assertThat(result).isFalse();
     }
@@ -318,7 +318,7 @@ class HearingsAutoListMappingTest extends HearingsMappingBase {
         caseData.setDwpIsOfficerAttending("Yes");
         caseData.getAppeal().getHearingOptions().setWantsToAttend("Yes");
 
-        boolean result = HearingsAutoListMapping.isPaperCaseAndPoNotAttending(caseData);
+        boolean result = HearingsAutoListMapping.isPaperCase(caseData);
 
         assertThat(result).isFalse();
     }

@@ -96,10 +96,11 @@ public class ServiceHearingsController {
 
     private void logException(Exception exc, String caseId) {
         if (exc instanceof GetCaseException) {
-            log.error("Case not found for case id {}, {}", caseId, exc);
-        }
-        if (exc instanceof UpdateCaseException) {
-            log.error("Error updating case id {}, {}", caseId, exc);
+            log.error("Case not found for case id {}", caseId, exc);
+        } else if (exc instanceof UpdateCaseException) {
+            log.error("Error updating case id {}", caseId, exc);
+        } else if (exc instanceof ListingException) {
+            log.error("Listing Exception for case id {}", caseId, exc);
         }
     }
 }
