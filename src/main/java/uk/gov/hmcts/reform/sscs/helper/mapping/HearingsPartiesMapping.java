@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityDayOfWeek;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.UnavailabilityRange;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
+import uk.gov.hmcts.reform.sscs.utility.EmailUtil;
 import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.time.LocalDate;
@@ -376,11 +377,23 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype) {
+    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype)throws ListingException {
         List<String> emails = new ArrayList<>();
-        if (nonNull(hearingSubtype) && isNotBlank(hearingSubtype.getHearingVideoEmail())) {
-            emails.add(hearingSubtype.getHearingVideoEmail());
+
+        if (isNull(hearingSubtype)) {
+            return emails;
         }
+
+        String hearingVideoEmail = hearingSubtype.getHearingVideoEmail();
+
+        if (isNotBlank(hearingVideoEmail) && EmailUtil.isEmailValid(hearingVideoEmail)) {
+            emails.add(hearingVideoEmail);
+            return emails;
+        }
+        if (isYes(hearingSubtype.getWantsHearingTypeVideo())) {
+            throw new ListingException("Hearing video email address must be valid email address");
+        }
+
         return emails;
     }
 
