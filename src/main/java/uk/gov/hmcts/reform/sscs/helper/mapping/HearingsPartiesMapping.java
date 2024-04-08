@@ -377,7 +377,7 @@ public final class HearingsPartiesMapping {
         return null;
     }
 
-    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype)throws ListingException {
+    public static List<String> getIndividualHearingChannelEmail(HearingSubtype hearingSubtype) throws ListingException {
         List<String> emails = new ArrayList<>();
 
         if (isNull(hearingSubtype)) {
