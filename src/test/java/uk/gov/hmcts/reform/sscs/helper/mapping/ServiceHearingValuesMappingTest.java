@@ -197,10 +197,10 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
         given(refData.getSignLanguages()).willReturn(signLanguages);
 
         given(refData.getVerbalLanguages().getVerbalLanguage("Bulgarian"))
-                .willReturn(new Language("bul","Test",null,null,List.of("Bulgarian")));
+                .willReturn(new Language("bul","Test", null, null,null,List.of("Bulgarian")));
 
         given(refData.getSignLanguages().getSignLanguage("Makaton"))
-                .willReturn(new Language("sign-mkn","Test",null,null,List.of("Makaton")));
+                .willReturn(new Language("sign-mkn","Test",null, null,null,List.of("Makaton")));
     }
 
     @Test
