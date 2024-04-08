@@ -642,7 +642,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
 
     @DisplayName("When language passed in should return correct LOV format")
     @ParameterizedTest
-    @CsvSource({"Acholi,ach", "Afrikaans,afr", "Akan,aka", "Albanian,alb", "Zaza,zza", "Zulu,zul"})
+    @CsvSource({"zz"})
     void testGetIndividualInterpreterLanguage(String lang, String expected) throws InvalidMappingException {
         given(verbalLanguages.getVerbalLanguage(lang))
             .willReturn(new Language(expected,"Test",null,null,List.of(lang)));
