@@ -157,11 +157,14 @@ class HearingsServiceRetryTest {
         assertThatNoException()
             .isThrownBy(() -> hearingsService.hearingResponseUpdate(wrapper, response));
 
-        verify(ccdCaseService, times(1))
-            .updateCaseData(
-                any(SscsCaseData.class),
-                eq(wrapper),
-                any(HearingEvent.class));
+        verify(updateCcdCaseService, times(1)).updateCaseV2(
+            eq(CASE_ID),
+            eq(event.getEventType().getCcdType()),
+            eq(event.getSummary()),
+            eq(event.getDescription()),
+            any(),
+            any()
+        );
     }
 
 

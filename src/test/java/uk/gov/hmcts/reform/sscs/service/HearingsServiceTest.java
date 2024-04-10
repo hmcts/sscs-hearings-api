@@ -10,13 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -219,11 +217,9 @@ class HearingsServiceTest {
     }
 
     @DisplayName("When wrapper with a valid adjourn create Hearing State is given addHearingResponse should run without error")
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void processHearingWrapperAdjournmentCreate(boolean caseUpdateV2Enabled) throws UpdateCaseException {
-        ReflectionTestUtils.setField(hearingsService, "hearingsCaseUpdateV2Enabled", caseUpdateV2Enabled);
-        mockHearingResponseForAdjournmentCreate(caseUpdateV2Enabled);
+    @Test
+    void processHearingWrapperAdjournmentCreate() {
+        mockHearingResponseForAdjournmentCreate();
 
         HearingEvent hearingEvent = HearingEvent.ADJOURN_CREATE_HEARING;
         wrapper.setHearingState(ADJOURN_CREATE_HEARING);
@@ -232,39 +228,29 @@ class HearingsServiceTest {
         assertThatNoException()
             .isThrownBy(() -> hearingsService.processHearingWrapper(wrapper));
 
-        if (caseUpdateV2Enabled) {
-            verify(updateCcdCaseService).updateCaseV2(
-                eq(CASE_ID),
-                eq(hearingEvent.getEventType().getCcdType()),
-                eq(hearingEvent.getSummary()),
-                eq(hearingEvent.getDescription()),
-                any(),
-                caseDataConsumerCaptor.capture()
-            );
-            SscsCaseData caseData = wrapper.getCaseData();
-            assertThat(caseData.getHearings()).isNull(); // before case updated with new hearing
+        verify(updateCcdCaseService).updateCaseV2(
+            eq(CASE_ID),
+            eq(hearingEvent.getEventType().getCcdType()),
+            eq(hearingEvent.getSummary()),
+            eq(hearingEvent.getDescription()),
+            any(),
+            caseDataConsumerCaptor.capture()
+        );
+        SscsCaseData caseData = wrapper.getCaseData();
+        assertThat(caseData.getHearings()).isNull(); // before case updated with new hearing
 
-            Consumer<SscsCaseData> sscsCaseDataConsumer = caseDataConsumerCaptor.getValue();
-            sscsCaseDataConsumer.accept(caseData);
-            List<Hearing> hearings = caseData.getHearings();
-            assertThat(hearings).isNotEmpty();
-            assertEquals(1, hearings.size()); // hearing added
-            assertEquals("123", hearings.get(0).getValue().getHearingId());
-            assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
-
-        } else {
-            verify(ccdCaseService).updateCaseData(
-                any(SscsCaseData.class),
-                eq(wrapper),
-                any(HearingEvent.class)
-            );
-        }
+        Consumer<SscsCaseData> sscsCaseDataConsumer = caseDataConsumerCaptor.getValue();
+        sscsCaseDataConsumer.accept(caseData);
+        List<Hearing> hearings = caseData.getHearings();
+        assertThat(hearings).isNotEmpty();
+        assertEquals(1, hearings.size()); // hearing added
+        assertEquals("123", hearings.get(0).getValue().getHearingId());
+        assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
     }
 
     @Test
     void shouldThrowUpdateCaseExceptionWhenCaseUpdateWithHearingResponseV2Fails() {
-        ReflectionTestUtils.setField(hearingsService, "hearingsCaseUpdateV2Enabled", true);
-        mockHearingResponseForAdjournmentCreate(true);
+        mockHearingResponseForAdjournmentCreate();
 
         HearingEvent event = HearingEvent.ADJOURN_CREATE_HEARING;
         wrapper.setHearingState(ADJOURN_CREATE_HEARING);
@@ -284,10 +270,8 @@ class HearingsServiceTest {
             () -> hearingsService.processHearingWrapper(wrapper));
     }
 
-    private void mockHearingResponseForAdjournmentCreate(boolean caseUpdateV2Enabled) {
-        if (caseUpdateV2Enabled) {
-            given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
-        }
+    private void mockHearingResponseForAdjournmentCreate() {
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
         given(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false))
             .willReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
                                                false, false, SessionCategory.CATEGORY_03, null));

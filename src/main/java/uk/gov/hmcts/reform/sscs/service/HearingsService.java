@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 
@@ -66,8 +65,6 @@ public class HearingsService {
 
     private final IdamService idamService;
 
-    @Value("${feature.hearings-case-updateV2.enabled:false}")
-    private boolean hearingsCaseUpdateV2Enabled;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
@@ -221,24 +218,7 @@ public class HearingsService {
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
         log.info("Updating case with event {} description is {}", event, event.getDescription());
-
-        if (hearingsCaseUpdateV2Enabled) {
-            updateCaseWithHearingResponseV2(wrapper, response, hearingRequestId, event, caseId);
-        } else {
-            updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
-            var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
-
-            if (nonNull(details)) {
-                log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
-                         details.getState(),
-                         details.getEventId(),
-                         details.getEventToken(),
-                         details.getCallbackResponseStatus(),
-                         details.getCaseTypeId()
-                );
-            }
-        }
-
+        updateCaseWithHearingResponseV2(wrapper, response, hearingRequestId, event, caseId);
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",
             caseId,
             hearingRequestId,
