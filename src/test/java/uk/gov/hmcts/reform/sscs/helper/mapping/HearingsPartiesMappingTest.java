@@ -645,7 +645,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @CsvSource({"Acholi,ach", "Afrikaans,afr", "Akan,aka", "Albanian,alb", "Zaza,zza", "Zulu,zul"})
     void testGetIndividualInterpreterLanguage(String lang, String expected) throws InvalidMappingException {
         given(verbalLanguages.getVerbalLanguage(lang))
-            .willReturn(new Language(expected,"Test",null,null,List.of(lang)));
+            .willReturn(new Language(expected,"Test",null,null,null,List.of(lang)));
 
         given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
@@ -687,7 +687,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     void testGetIndividualInterpreterSignLanguage(String signLang, String expected) throws InvalidMappingException {
 
         given(signLanguages.getSignLanguage(signLang))
-            .willReturn(new Language(expected,"Test",null,null,List.of(signLang)));
+            .willReturn(new Language(expected,"Test",null,null,null,List.of(signLang)));
 
         given(refData.getSignLanguages()).willReturn(signLanguages);
 
@@ -761,7 +761,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void testGetIndividualInterpreterLanguageOverrideNullIsInterpreterWanted() throws InvalidMappingException {
         given(verbalLanguages.getVerbalLanguage("Acholi"))
-            .willReturn(new Language("ach","Test",null,null,List.of()));
+            .willReturn(new Language("ach","Test",null,null,null,List.of()));
 
         given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
@@ -784,7 +784,7 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
     @Test
     void testGetIndividualInterpreterLanguageOverrideNullAppellantInterpreter() throws InvalidMappingException {
         given(verbalLanguages.getVerbalLanguage("Acholi"))
-            .willReturn(new Language("ach","Test",null,null,List.of()));
+            .willReturn(new Language("ach","Test",null,null,null,List.of()));
 
         given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
