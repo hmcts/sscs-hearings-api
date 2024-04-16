@@ -122,8 +122,8 @@ public class HearingsService {
 
 
         switch (wrapper.getHearingState()) {
-            case ADJOURN_CREATE_HEARING -> adjournCreateHearingCaseUpdater.createHearingAndUpdate(wrapper);
-            case CREATE_HEARING -> createHearingCaseUpdater.createHearingAndUpdate(wrapper);
+            case ADJOURN_CREATE_HEARING -> adjournCreateHearingCaseUpdater.createHearingAndUpdateCase(wrapper);
+            case CREATE_HEARING -> createHearingCaseUpdater.createHearingAndUpdateCase(wrapper);
             case UPDATE_HEARING -> updateHearingCaseUpdater.updateHearingAndCase(wrapper);
             case UPDATED_CASE -> log.info(
                 "Updated case API not supported. Case ID {}",
