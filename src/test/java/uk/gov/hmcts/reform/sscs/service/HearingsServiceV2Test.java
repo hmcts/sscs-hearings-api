@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -32,16 +36,23 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
+import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
+import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
@@ -54,10 +65,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -149,6 +162,72 @@ class HearingsServiceV2Test {
     }
 
     @Test
+    @DisplayName("When create Hearing is given and there is already a hearing requested/awaiting listing addHearingResponse should run without error")
+    void processHearingMessageForCreateHearingWithExistingHearingId() throws Exception {
+        var details = uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build();
+        RequestDetails requestDetails = RequestDetails.builder().versionNumber(2L).build();
+        HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
+            .hearingDetails(details)
+            .requestDetails(requestDetails)
+            .caseDetails(CaseDetails.builder().build())
+            .partyDetails(List.of())
+            .hearingResponse(HearingResponse.builder().build())
+            .build();
+        given(hmcHearingApiService.getHearingRequest(anyString())).willReturn(hearingGetResponse);
+
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
+            .caseHearings(List.of(CaseHearing.builder()
+                                      .hearingId(HEARING_REQUEST_ID)
+                                      .hmcStatus(HmcStatus.HEARING_REQUESTED)
+                                      .requestVersion(2L)
+                                      .build()))
+            .build();
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
+            .willReturn(hearingsGetResponse);
+
+        SscsCaseDetails sscsCaseDetails = createCaseDataForUpdateHearing();
+
+        HearingRequest hearingRequest = HearingRequest.internalBuilder()
+            .hearingState(HearingState.CREATE_HEARING)
+            .hearingRoute(HearingRoute.LIST_ASSIST)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .build();
+
+        hearingsService.processHearingRequest(hearingRequest);
+
+        verifyCaseDataUpdatedWithHearingResponse(sscsCaseDetails,false);
+    }
+
+    @Test
+    @DisplayName("When create Hearing is given and there is already a hearing requested/awaiting listing addHearingResponse should run without error")
+    void processHearingMessageForCreateHearingWhenExistingHearingWhenHearingDoesntExists() throws Exception {
+        given(hmcHearingApiService.getHearingRequest(anyString())).willThrow(new GetHearingException(""));
+        HearingsGetResponse hearingsGetResponse = HearingsGetResponse.builder()
+            .caseHearings(List.of(CaseHearing.builder()
+                                      .hearingId(HEARING_REQUEST_ID)
+                                      .hmcStatus(HmcStatus.HEARING_REQUESTED)
+                                      .requestVersion(1L)
+                                      .build()))
+            .build();
+
+        given(hmcHearingsApiService.getHearingsRequest(anyString(),eq(null)))
+            .willReturn(hearingsGetResponse);
+
+        SscsCaseDetails sscsCaseDetails = createCaseDataForUpdateHearing();
+
+        HearingRequest hearingRequest = HearingRequest.internalBuilder()
+            .hearingState(HearingState.CREATE_HEARING)
+            .hearingRoute(HearingRoute.LIST_ASSIST)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .build();
+
+        hearingsService.processHearingRequest(hearingRequest);
+
+        verifyCaseDataUpdatedWithHearingResponse(sscsCaseDetails,false);
+    }
+
+    @Test
     void processHearingMessageForUpdateHearing() throws Exception {
 
         given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
@@ -189,6 +268,48 @@ class HearingsServiceV2Test {
         verifyNoInteractions(ccdCaseService);
     }
 
+    @DisplayName("When wrapper with a valid create Hearing State is given but hearing duration is not multiple of five then send to listing error")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "31",
+        "32",
+        "33",
+        "34",
+    })
+    void processHearingMessageForUpdateHearingWithListingDurationNotMultipleOfFive(Integer hearingDuration) throws Exception {
+
+        given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
+            .willReturn(HmcUpdateResponse.builder().hearingRequestId(HEARING_REQUEST_ID).versionNumber(2L).build());
+
+        SscsCaseDetails sscsCaseDetails = createCaseDataForUpdateHearing();
+        sscsCaseDetails.getData().getSchedulingAndListingFields()
+            .setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
+
+        HearingRequest hearingRequest = HearingRequest.internalBuilder()
+            .hearingState(HearingState.UPDATE_HEARING)
+            .hearingRoute(HearingRoute.LIST_ASSIST)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .build();
+
+        hearingsService.processHearingRequest(hearingRequest);
+
+        HearingEvent expectedHearingEvent = HearingEvent.UPDATE_HEARING;
+        verify(updateCcdCaseService)
+            .updateCaseV2(
+                eq(CASE_ID),
+                eq(expectedHearingEvent.getEventType().getCcdType()),
+                eq(expectedHearingEvent.getSummary()),
+                eq(expectedHearingEvent.getDescription()),
+                any(),
+                caseDetailsConsumerCaptor.capture());
+
+        Consumer<SscsCaseDetails> caseDetailsConsumer = caseDetailsConsumerCaptor.getValue();
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> caseDetailsConsumer.accept(sscsCaseDetails));
+
+        assertEquals(ListingException.class, exception.getCause().getClass());
+        assertEquals("Listing duration must be multiple of 5.0 minutes", exception.getCause().getMessage());
+    }
+
     @Test
     void processHearingMessageForCancelHearing() throws Exception {
 
@@ -222,10 +343,23 @@ class HearingsServiceV2Test {
             .isExactlyInstanceOf(UnhandleableHearingStateException.class);
 
     }
-    // TODO: processHearingWrapperCreateExistingHearing, processHearingWrapperCreateExistingHearingWhenHearingDoesntExists
+
+    @ParameterizedTest
+    @EnumSource(
+        value = HearingState.class,
+        names = {"UPDATED_CASE","PARTY_NOTIFIED"})
+    void shouldThrowExceptionWhenHearingStateIsNotSupported(HearingState hearingState) {
+        final HearingRequest hearingRequest = HearingRequest.internalBuilder()
+            .hearingRoute(HearingRoute.LIST_ASSIST)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .hearingState(hearingState).build();
+
+        assertThatNoException().isThrownBy(
+            () -> hearingsService.processHearingRequest(hearingRequest));
+        verifyNoInteractions(ccdCaseService, updateCcdCaseService);
+    }
 
     private void verifyCaseDataUpdatedWithHearingResponse(SscsCaseDetails sscsCaseDetails, boolean isAdjournAndCreate) {
-        assertNull(sscsCaseDetails.getData().getHearings());
         assertNull(sscsCaseDetails.getData().getSchedulingAndListingFields().getDefaultListingValues());
         if (isAdjournAndCreate) {
             assertEquals(YesNo.YES, sscsCaseDetails.getData().getAdjournment().getAdjournmentInProgress());

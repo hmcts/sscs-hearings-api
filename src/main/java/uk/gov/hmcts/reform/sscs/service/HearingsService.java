@@ -49,7 +49,7 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.GodClass", "PMD.AvoidThrowingRawExceptionTypes", "PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
 // TODO: remove PMD.GodClass when cleaning up the feature toggle "feature.hearings-case-updateV2.enabled"
 public class HearingsService {
 
@@ -191,7 +191,7 @@ public class HearingsService {
                         wrapper.setHearingState(HearingState.CREATE_HEARING);
                         createHearing(wrapper);
                     } catch (UnhandleableHearingStateException | UpdateCaseException | ListingException e) {
-                        logHearingRequestFailure(hearingRequest, e);
+                        handleHearingMessageFailure(hearingRequest, e);
                     }
                 };
                 return Optional.of(consumer);
@@ -202,7 +202,7 @@ public class HearingsService {
                         HearingWrapper wrapper = createWrapperV2(hearingRequest, caseDetails);
                         createHearing(wrapper);
                     } catch (UnhandleableHearingStateException | UpdateCaseException | ListingException e) {
-                        logHearingRequestFailure(hearingRequest, e);
+                        handleHearingMessageFailure(hearingRequest, e);
                     }
                 };
                 return Optional.of(consumer);
@@ -213,7 +213,7 @@ public class HearingsService {
                         HearingWrapper wrapper = createWrapperV2(hearingRequest, caseDetails);
                         updateHearing(wrapper);
                     } catch (UnhandleableHearingStateException | UpdateCaseException | ListingException e) {
-                        logHearingRequestFailure(hearingRequest, e);
+                        handleHearingMessageFailure(hearingRequest, e);
                     }
                 };
                 return Optional.of(consumer);
@@ -249,10 +249,11 @@ public class HearingsService {
         }
     }
 
-    private static void logHearingRequestFailure(HearingRequest hearingRequest, Exception exc) {
+    private static void handleHearingMessageFailure(HearingRequest hearingRequest, Exception exception) {
         log.error("Failed to process Hearing Request for Case ID {}, Hearing State {} error {}",
-                  hearingRequest.getCcdCaseId(), hearingRequest.getHearingState(), exc.getMessage(), exc
+                  hearingRequest.getCcdCaseId(), hearingRequest.getHearingState(), exception.getMessage(), exception
         );
+        throw new RuntimeException(exception.getMessage(), exception);
     }
 
     private boolean caseStatusInvalid(HearingWrapper wrapper) {
