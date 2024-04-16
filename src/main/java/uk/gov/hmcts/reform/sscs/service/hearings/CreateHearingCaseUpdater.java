@@ -59,7 +59,7 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
     }
 
 
-    public void createHearingAndUpdate(HearingWrapper hearingWrapper) throws UpdateCcdCaseDetailsException {
+    public void createHearingAndUpdateCase(HearingWrapper hearingWrapper) throws UpdateCcdCaseDetailsException {
         HearingEvent event = HearingsServiceHelper.getHearingEvent(hearingWrapper.getHearingState());
         updateCase(Long.valueOf(hearingWrapper.getCaseData().getCcdCaseId()), event.getEventType().getCcdType(), idamService.getIdamTokens(),
             hearingWrapper);
