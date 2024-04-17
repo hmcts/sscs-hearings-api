@@ -6,9 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
@@ -21,6 +23,7 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
+import uk.gov.hmcts.reform.sscs.service.hearings.HearingsServiceV2;
 
 import java.util.stream.Stream;
 
@@ -39,31 +42,51 @@ class TribunalsHearingsEventTopicListenerTest {
 
     @Mock
     private HearingsService hearingsService;
+    @Mock
+    private HearingsServiceV2 hearingsServiceV2;
 
     @Mock
     private CcdCaseService ccdCaseService;
 
     private static final String CASE_ID = "1001";
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
     @DisplayName("When a valid request comes in make sure processHearingRequest is hit")
-    void whenAValidRequestComesIn_makeSureProcessHearingRequestIsHit() throws Exception {
-
+    void whenAValidRequestComesIn_makeSureProcessHearingRequestIsHit(boolean caseUpdateV2Enabled) throws Exception {
+        ReflectionTestUtils.setField(tribunalsHearingsEventQueueListener, "hearingsCaseUpdateV2Enabled", caseUpdateV2Enabled);
         HearingRequest hearingRequest = createHearingRequest();
 
         tribunalsHearingsEventQueueListener.handleIncomingMessage(hearingRequest);
 
-        verify(hearingsService, times(1)).processHearingRequest((hearingRequest));
+        if (caseUpdateV2Enabled) {
+            verify(hearingsServiceV2, times(1)).processHearingRequest((hearingRequest));
+
+        } else {
+            verify(hearingsService, times(1)).processHearingRequest((hearingRequest));
+        }
     }
 
     @ParameterizedTest
     @DisplayName("When an invalid request comes in make sure exception is thrown")
     @MethodSource("throwableParameters")
     void whenAnInvalidRequestComesIn_makeSureExceptionIsThrown(Class<? extends Throwable> throwable) throws Exception {
-
+        ReflectionTestUtils.setField(tribunalsHearingsEventQueueListener, "hearingsCaseUpdateV2Enabled", false);
         HearingRequest hearingRequest = new HearingRequest();
 
         doThrow(throwable).when(hearingsService).processHearingRequest(hearingRequest);
+
+        assertThrows(TribunalsEventProcessingException.class, () -> tribunalsHearingsEventQueueListener.handleIncomingMessage(hearingRequest));
+    }
+
+    @ParameterizedTest
+    @DisplayName("When an invalid request comes in make sure exception is thrown")
+    @MethodSource("throwableParameters")
+    void whenAnInvalidRequestComesIn_makeSureHearingsServiceV2ThrowsException(Class<? extends Throwable> throwable) throws Exception {
+        ReflectionTestUtils.setField(tribunalsHearingsEventQueueListener, "hearingsCaseUpdateV2Enabled", true);
+        HearingRequest hearingRequest = new HearingRequest();
+
+        doThrow(throwable).when(hearingsServiceV2).processHearingRequest(hearingRequest);
 
         assertThrows(TribunalsEventProcessingException.class, () -> tribunalsHearingsEventQueueListener.handleIncomingMessage(hearingRequest));
     }
