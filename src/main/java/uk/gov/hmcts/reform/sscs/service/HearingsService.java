@@ -124,7 +124,6 @@ public class HearingsService {
     }
 
     private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
-
         SscsCaseData caseData = wrapper.getCaseData();
 
         String caseId = caseData.getCcdCaseId();
@@ -299,8 +298,7 @@ public class HearingsService {
 
     @Recover
     public void hearingResponseUpdateRecover(UpdateCaseException exception, HearingWrapper wrapper, HmcUpdateResponse response) {
-        log.info(
-            "Updating Case with Hearing Response has failed {} times, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
+        log.info("Updating Case with Hearing Response has failed {} times, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
             hearingResponseUpdateMaxRetries,
             wrapper.getCaseData().getCcdCaseId(),
             response.getHearingRequestId(),
