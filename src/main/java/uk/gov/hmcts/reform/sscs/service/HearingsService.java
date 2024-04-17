@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +10,11 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
-import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
@@ -23,7 +22,6 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.HearingsRequestMapping;
 import uk.gov.hmcts.reform.sscs.helper.mapping.OverridesMapping;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
-import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
@@ -34,14 +32,9 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
-import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
-import uk.gov.hmcts.reform.sscs.service.hearings.AdjournCreateHearingCaseUpdater;
-import uk.gov.hmcts.reform.sscs.service.hearings.CreateHearingCaseUpdater;
-import uk.gov.hmcts.reform.sscs.service.hearings.UpdateHearingCaseUpdater;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -65,17 +58,8 @@ public class HearingsService {
 
     private final ReferenceDataServiceHolder refData;
 
-    private final UpdateCcdCaseService updateCcdCaseService;
-
-    private final IdamService idamService;
-
-    private final CreateHearingCaseUpdater createHearingCaseUpdater;
-    private final AdjournCreateHearingCaseUpdater adjournCreateHearingCaseUpdater;
-    private final UpdateHearingCaseUpdater updateHearingCaseUpdater;
-
-    @Value("${feature.hearings-case-updateV2.enabled:false}")
-    private boolean hearingsCaseUpdateV2Enabled;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
+    // TODO: Add validation when adding invalid case states
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
 
@@ -91,40 +75,33 @@ public class HearingsService {
             hearingRequest.getHearingRoute(),
             hearingRequest.getCancellationReason());
 
-        try {
-            processHearingWrapper(createWrapper(hearingRequest));
-        } catch (UpdateCcdCaseDetailsException e) {
-            if (e.getException() instanceof UpdateCaseException) {
-                throw (UpdateCaseException) e.getException();
-            } else if (e.getException() instanceof ListingException) {
-                throw (ListingException) e.getException();
-            } else {
-                throw new UpdateCaseException("Failed to update case with hearing response");
-            }
-        }
+        processHearingWrapper(createWrapper(hearingRequest));
     }
 
     public void processHearingWrapper(HearingWrapper wrapper)
-        throws UnhandleableHearingStateException, UpdateCcdCaseDetailsException {
+        throws UnhandleableHearingStateException, UpdateCaseException, ListingException {
 
         String caseId = wrapper.getCaseData().getCcdCaseId();
         log.info("Processing Hearing Wrapper for Case ID {}, Case State {} and Hearing State {}",
-            caseId,
-            wrapper.getCaseState().toString(),
-            wrapper.getHearingState().getState());
+                 caseId,
+                 wrapper.getCaseState().toString(),
+                 wrapper.getHearingState().getState());
 
         if (caseStatusInvalid(wrapper)) {
             log.info("Case is in an invalid state for a hearing request. No requests sent to the HMC. Case ID {} and Case State {}",
-                caseId,
-                wrapper.getCaseState().toString());
+                     caseId,
+                     wrapper.getCaseState().toString());
             return;
         }
 
-
         switch (wrapper.getHearingState()) {
-            case ADJOURN_CREATE_HEARING -> adjournCreateHearingCaseUpdater.createHearingAndUpdateCase(wrapper);
-            case CREATE_HEARING -> createHearingCaseUpdater.createHearingAndUpdateCase(wrapper);
-            case UPDATE_HEARING -> updateHearingCaseUpdater.updateHearingAndCase(wrapper);
+            case ADJOURN_CREATE_HEARING -> {
+                wrapper.getCaseData().getAdjournment().setAdjournmentInProgress(YesNo.YES);
+                wrapper.setHearingState(HearingState.CREATE_HEARING);
+                createHearing(wrapper);
+            }
+            case CREATE_HEARING -> createHearing(wrapper);
+            case UPDATE_HEARING -> updateHearing(wrapper);
             case UPDATED_CASE -> log.info(
                 "Updated case API not supported. Case ID {}",
                 caseId
@@ -247,21 +224,17 @@ public class HearingsService {
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
         log.info("Updating case with event {} description is {}", event, event.getDescription());
 
-        if (hearingsCaseUpdateV2Enabled) {
-            updateCaseWithHearingResponseV2(wrapper, response, hearingRequestId, event, caseId);
-        } else {
-            updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
-            var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
+        updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
+        var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
 
-            if (nonNull(details)) {
-                log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
-                    details.getState(),
-                    details.getEventId(),
-                    details.getEventToken(),
-                    details.getCallbackResponseStatus(),
-                    details.getCaseTypeId()
-                );
-            }
+        if (nonNull(details)) {
+            log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
+                details.getState(),
+                details.getEventId(),
+                details.getEventToken(),
+                details.getCallbackResponseStatus(),
+                details.getCaseTypeId()
+            );
         }
 
         log.info("Case Updated with Hearing Response for Case ID {}, Hearing ID {}, Hearing State {} and CCD Event {}",

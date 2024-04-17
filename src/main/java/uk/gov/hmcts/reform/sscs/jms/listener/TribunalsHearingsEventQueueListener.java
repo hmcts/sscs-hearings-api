@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.jms.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.retry.ExhaustedRetryException;
@@ -16,6 +17,7 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
+import uk.gov.hmcts.reform.sscs.service.HearingsServiceV2;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
@@ -27,8 +29,11 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
+    private final HearingsServiceV2 hearingsServiceV2;
 
     private final CcdCaseService ccdCaseService;
+    @Value("${feature.hearings-case-updateV2.enabled:false}")
+    private boolean hearingsCaseUpdateV2Enabled;
 
     @JmsListener(
         destination = "${azure.service-bus.tribunals-to-hearings-api.queueName}",
@@ -44,7 +49,11 @@ public class TribunalsHearingsEventQueueListener {
         log.info("Attempting to process hearing event {} from hearings event queue for case ID {}",
                  event, caseId);
         try {
-            hearingsService.processHearingRequest(message);
+            if (hearingsCaseUpdateV2Enabled) {
+                hearingsServiceV2.processHearingRequest(message);
+            } else {
+                hearingsService.processHearingRequest(message);
+            }
             log.info("Hearing event {} for case ID {} successfully processed", event, caseId);
         } catch (ExhaustedRetryException e) {
             handleException(e.getCause(), caseId);

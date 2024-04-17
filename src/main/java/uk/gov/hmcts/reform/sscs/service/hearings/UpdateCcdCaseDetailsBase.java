@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDataContent;
-import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.StartEventResponse;
 import uk.gov.hmcts.reform.sscs.ccd.client.CcdClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
@@ -25,8 +24,8 @@ public abstract class UpdateCcdCaseDetailsBase<D> {
     public SscsCaseDetails updateCase(Long caseId, String eventType, IdamTokens idamTokens, D dto) throws UpdateCcdCaseDetailsException {
         log.info("UpdateCaseV2 for caseId {} and eventType {}", caseId, eventType);
         StartEventResponse startEventResponse = ccdClient.startEvent(idamTokens, caseId, eventType);
-        CaseDetails caseDetails = startEventResponse.getCaseDetails();
-        var data = sscsCcdConvertService.getCaseData(caseDetails.getData());
+        SscsCaseDetails caseDetails = sscsCcdConvertService.getCaseDetails(startEventResponse);
+        SscsCaseData data = caseDetails.getData();
 
         /**
          * @see uk.gov.hmcts.reform.sscs.ccd.deserialisation.SscsCaseCallbackDeserializer#deserialize(String)
@@ -35,13 +34,12 @@ public abstract class UpdateCcdCaseDetailsBase<D> {
         data.setCcdCaseId(caseId.toString());
         data.sortCollections();
 
-        UpdateCcdCaseService.UpdateResult result = applyUpdate(data, dto);
-
+        UpdateCcdCaseService.UpdateResult result = applyUpdate(caseDetails, dto);
 
         CaseDataContent caseDataContent = sscsCcdConvertService.getCaseDataContent(data, startEventResponse, result.summary(), result.description());
 
         return sscsCcdConvertService.getCaseDetails(ccdClient.submitEventForCaseworker(idamTokens, caseId, caseDataContent));
     }
 
-    protected abstract UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseData data, D dto) throws UpdateCcdCaseDetailsException;
+    protected abstract UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails data, D dto) throws UpdateCcdCaseDetailsException;
 }
