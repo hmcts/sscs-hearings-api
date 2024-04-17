@@ -17,7 +17,7 @@ import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
-import uk.gov.hmcts.reform.sscs.service.HearingsServiceV2;
+import uk.gov.hmcts.reform.sscs.service.hearings.HearingsServiceV2;
 
 import static java.util.Objects.isNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;

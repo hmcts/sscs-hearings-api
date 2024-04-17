@@ -61,8 +61,6 @@ class HearingsServiceTest {
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     private static final String PROCESSING_VENUE = "Processing Venue";
-
-
     private HearingWrapper wrapper;
     private HearingRequest request;
     private SscsCaseDetails expectedCaseDetails;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs.service;
+package uk.gov.hmcts.reform.sscs.service.hearings;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +21,9 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
+import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
-import uk.gov.hmcts.reform.sscs.service.hearings.AdjournCreateHearingCaseUpdater;
-import uk.gov.hmcts.reform.sscs.service.hearings.CreateHearingCaseUpdater;
-import uk.gov.hmcts.reform.sscs.service.hearings.UpdateHearingCaseUpdater;
 
 import java.util.List;
 
@@ -66,11 +65,7 @@ public class HearingsServiceV2 {
             hearingRequest.getHearingRoute(),
             hearingRequest.getCancellationReason());
 
-        if (isNull(hearingRequest.getHearingState())) {
-            UnhandleableHearingStateException err = new UnhandleableHearingStateException();
-            log.error(err.getMessage(), err);
-            throw err;
-        }
+        validateHearingState(hearingRequest);
 
         try {
             process(hearingRequest);
@@ -80,6 +75,14 @@ public class HearingsServiceV2 {
             } else if (e.getException() instanceof ListingException) {
                 throw (ListingException) e.getException();
             }
+        }
+    }
+
+    private static void validateHearingState(HearingRequest hearingRequest) throws UnhandleableHearingStateException {
+        if (isNull(hearingRequest.getHearingState())) {
+            UnhandleableHearingStateException err = new UnhandleableHearingStateException();
+            log.error(err.getMessage(), err);
+            throw err;
         }
     }
 
