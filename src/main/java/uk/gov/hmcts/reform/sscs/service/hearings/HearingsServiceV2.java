@@ -86,7 +86,7 @@ public class HearingsServiceV2 {
         }
     }
 
-    void process(HearingRequest hearingRequest)
+    private void process(HearingRequest hearingRequest)
         throws UnhandleableHearingStateException, UpdateCcdCaseDetailsException {
 
         String caseId = hearingRequest.getCcdCaseId();
