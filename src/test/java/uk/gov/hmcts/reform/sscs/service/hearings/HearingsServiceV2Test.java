@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.sscs.service.hearings;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
@@ -48,7 +48,6 @@ class HearingsServiceV2Test {
     private AdjournCreateHearingCaseUpdater adjournCreateHearingCaseUpdater;
     @Mock
     private UpdateHearingCaseUpdater updateHearingCaseUpdater;
-    @InjectMocks
     private HearingsServiceV2 hearingsService;
 
     private static final long CASE_ID = 1625080769409918L;
@@ -56,6 +55,17 @@ class HearingsServiceV2Test {
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     private static final String PROCESSING_VENUE = "Processing Venue";
+
+    @BeforeEach
+    void setup() {
+        hearingsService = new HearingsServiceV2(
+            hmcHearingApiService,
+            ccdCaseService,
+            createHearingCaseUpdater,
+            adjournCreateHearingCaseUpdater,
+            updateHearingCaseUpdater
+        );
+    }
 
     @Test
     void processHearingRequestThrowsExceptionWhenHearingStateIsNull() {
@@ -108,6 +118,7 @@ class HearingsServiceV2Test {
             .hearingState(HearingState.CREATE_HEARING).build();
 
         hearingsService.processHearingRequest(hearingRequest);
+
         verify(createHearingCaseUpdater).createHearingAndUpdateCase(eq(hearingRequest));
         verifyNoInteractions(updateHearingCaseUpdater, ccdCaseService);
     }
