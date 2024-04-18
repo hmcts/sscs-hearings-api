@@ -33,7 +33,6 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHeari
 
 @Slf4j
 @Component
-@SuppressWarnings("squid:S1192") // can be removed when deleting HearingService
 public class CreateHearingCaseUpdater extends HearingSaveActionBase {
 
     private final HmcHearingApiService hmcHearingApiService;
