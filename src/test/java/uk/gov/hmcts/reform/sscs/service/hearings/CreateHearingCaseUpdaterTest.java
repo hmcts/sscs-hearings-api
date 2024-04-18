@@ -128,7 +128,7 @@ class CreateHearingCaseUpdaterTest extends HearingSaveActionBaseTest {
 
         assertDoesNotThrow(() -> createHearingCaseUpdater.createHearingAndUpdateCase(hearingRequest));
 
-        verify(hmcHearingsApiService).getHearingsRequest(eq(String.valueOf(CASE_ID)), eq(null));
+        verify(hmcHearingsApiService).getHearingsRequest(String.valueOf(CASE_ID), null);
         verify(hmcHearingApiService).sendCreateHearingRequest(any(HearingRequestPayload.class));
     }
 
@@ -167,7 +167,7 @@ class CreateHearingCaseUpdaterTest extends HearingSaveActionBaseTest {
 
         assertDoesNotThrow(() -> createHearingCaseUpdater.createHearingAndUpdateCase(hearingRequest));
 
-        verify(hmcHearingsApiService).getHearingsRequest(eq(String.valueOf(CASE_ID)), eq(null));
+        verify(hmcHearingsApiService).getHearingsRequest(String.valueOf(CASE_ID), null);
         verify(hmcHearingApiService).getHearingRequest(String.valueOf(HEARING_REQUEST_ID));
         verifyNoMoreInteractions(hmcHearingApiService, hmcHearingsApiService);
     }
