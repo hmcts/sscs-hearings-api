@@ -84,8 +84,10 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
             return new UpdateCcdCaseService.UpdateResult("Hearing created", "Hearing created");
 
         } catch (UpdateCaseException | ListingException e) {
-            log.error("Failed to update case with hearing response for case id: {}", caseDetails.getId(), e);
-            throw new UpdateCcdCaseDetailsException("Failed to update case with hearing response", e);
+            log.error("Failed to update case with hearing response for case id: {}",
+                      caseDetails.getId(), e);
+            throw new UpdateCcdCaseDetailsException(
+                "Failed to update case with hearing response for update hearing ", e);
         }
     }
 
