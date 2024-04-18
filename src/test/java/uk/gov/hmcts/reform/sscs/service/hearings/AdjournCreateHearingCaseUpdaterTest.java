@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
@@ -26,6 +27,7 @@ import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
@@ -99,7 +101,12 @@ class AdjournCreateHearingCaseUpdaterTest extends HearingSaveActionBaseTest {
             .build();
         SscsCaseDetails caseDetails = SscsCaseDetails.builder().data(sscsCaseData).build();
 
-        HearingRequest hearingRequest = createHearingRequestForState(HearingState.ADJOURN_CREATE_HEARING);
+        HearingRequest hearingRequest = HearingRequest.internalBuilder()
+            .hearingState(HearingState.ADJOURN_CREATE_HEARING)
+            .cancellationReason(CancellationReason.PARTY_DID_NOT_ATTEND)
+            .hearingRoute(HearingRoute.LIST_ASSIST)
+            .ccdCaseId(String.valueOf(CASE_ID))
+            .build();
 
         Assertions.assertDoesNotThrow(
             () -> adjournCreateHearingCaseUpdater.applyUpdate(caseDetails, hearingRequest));
