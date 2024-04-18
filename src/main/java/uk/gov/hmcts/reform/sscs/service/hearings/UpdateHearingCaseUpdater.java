@@ -48,13 +48,14 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
     }
 
     @Override
-    protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails sscsCaseDetails, HearingRequest dto) throws UpdateCcdCaseDetailsException {
+    protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails sscsCaseDetails, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException {
         try {
-            updateHearing(createWrapper(dto, sscsCaseDetails));
+            updateHearing(createWrapper(hearingRequest, sscsCaseDetails));
             return new UpdateCcdCaseService.UpdateResult("Hearing updated", "Hearing updated");
         } catch (UpdateCaseException | ListingException e) {
-            log.error("Failed to update case with hearing response for case id: {}", sscsCaseDetails.getId(), e);
-            throw new UpdateCcdCaseDetailsException("Failed to update case with hearing response", e);
+            log.error("Failed to update case with hearing response for case id: {} hearing state: {}",
+                      sscsCaseDetails.getId(), hearingRequest.getHearingState(), e);
+            throw new UpdateCcdCaseDetailsException("Failed to update case with hearing response for create hearing", e);
         }
     }
 
