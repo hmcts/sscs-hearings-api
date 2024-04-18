@@ -9,7 +9,6 @@ public class UpdateCcdCaseDetailsException extends Exception {
         this.ex = ex;
     }
 
-
     public Exception getException() {
         return ex;
     }

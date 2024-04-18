@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
-import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.OverridesMapping;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
@@ -53,7 +52,7 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
         try {
             updateHearing(createWrapper(dto, sscsCaseDetails));
             return new UpdateCcdCaseService.UpdateResult("Hearing updated", "Hearing updated");
-        } catch (UpdateCaseException | ListingException | UnhandleableHearingStateException e) {
+        } catch (UpdateCaseException | ListingException e) {
             log.error("Failed to update case with hearing response for case id: {}", sscsCaseDetails.getId(), e);
             throw new UpdateCcdCaseDetailsException("Failed to update case with hearing response", e);
         }

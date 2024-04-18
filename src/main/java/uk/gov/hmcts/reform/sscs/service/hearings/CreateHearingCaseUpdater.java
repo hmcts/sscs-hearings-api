@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.GetHearingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
-import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.mapping.OverridesMapping;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
@@ -45,7 +44,6 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
     private final IdamService idamService;
 
     private static final Long HEARING_VERSION_NUMBER = 1L;
-
 
     @Autowired
     public CreateHearingCaseUpdater(CcdClient ccdClient, SscsCcdConvertService sscsCcdConvertService, HmcHearingApiService hmcHearingApiService,
@@ -85,13 +83,13 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
 
             return new UpdateCcdCaseService.UpdateResult("Hearing created", "Hearing created");
 
-        } catch (UpdateCaseException | ListingException | UnhandleableHearingStateException e) {
+        } catch (UpdateCaseException | ListingException e) {
             log.error("Failed to update case with hearing response for case id: {}", caseDetails.getId(), e);
             throw new UpdateCcdCaseDetailsException("Failed to update case with hearing response", e);
         }
     }
 
-    void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
+    private void createHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         String caseId = caseData.getCcdCaseId();

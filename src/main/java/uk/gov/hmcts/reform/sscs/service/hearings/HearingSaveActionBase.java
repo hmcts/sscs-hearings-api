@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.State;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
-import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper;
 import uk.gov.hmcts.reform.sscs.model.HearingEvent;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -28,7 +27,7 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
 
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     // TODO: add validation when invalid states are changed
-    public static final List<State> INVALID_CASE_STATES = List.of();
+    protected static final List<State> INVALID_CASE_STATES = List.of();
 
     public HearingSaveActionBase(CcdClient ccdClient,
                                  SscsCcdConvertService sscsCcdConvertService, ReferenceDataServiceHolder referenceDataServiceHolder) {
@@ -36,7 +35,7 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
         this.referenceDataServiceHolder = referenceDataServiceHolder;
     }
 
-    HearingWrapper createWrapper(HearingRequest hearingRequest, SscsCaseDetails sscsCaseDetails) throws UnhandleableHearingStateException {
+    HearingWrapper createWrapper(HearingRequest hearingRequest, SscsCaseDetails sscsCaseDetails) {
         List<CancellationReason> cancellationReasons = null;
 
         if (hearingRequest.getCancellationReason() != null) {
@@ -53,7 +52,7 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
             .build();
     }
 
-    public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) {
+    protected void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) {
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
         String caseId = caseData.getCcdCaseId();
