@@ -106,7 +106,7 @@ class HearingsServiceV2Test {
             .hearingState(HearingState.ADJOURN_CREATE_HEARING).build();
 
         hearingsService.processHearingRequest(hearingRequest);
-        verify(adjournCreateHearingCaseUpdater).createHearingAndUpdateCase(eq(hearingRequest));
+        verify(adjournCreateHearingCaseUpdater).createHearingAndUpdateCase(hearingRequest);
         verifyNoInteractions(updateHearingCaseUpdater, ccdCaseService);
     }
 
@@ -119,7 +119,7 @@ class HearingsServiceV2Test {
 
         hearingsService.processHearingRequest(hearingRequest);
 
-        verify(createHearingCaseUpdater).createHearingAndUpdateCase(eq(hearingRequest));
+        verify(createHearingCaseUpdater).createHearingAndUpdateCase(hearingRequest);
         verifyNoInteractions(updateHearingCaseUpdater, ccdCaseService);
     }
 
@@ -131,7 +131,7 @@ class HearingsServiceV2Test {
             .hearingState(HearingState.UPDATE_HEARING).build();
 
         hearingsService.processHearingRequest(hearingRequest);
-        verify(updateHearingCaseUpdater).updateHearingAndCase(eq(hearingRequest));
+        verify(updateHearingCaseUpdater).updateHearingAndCase(hearingRequest);
         verifyNoInteractions(createHearingCaseUpdater, adjournCreateHearingCaseUpdater, ccdCaseService);
     }
 
@@ -152,7 +152,7 @@ class HearingsServiceV2Test {
             .processingVenue(PROCESSING_VENUE)
             .build();
 
-        when(ccdCaseService.getStartEventResponse(eq(CASE_ID), eq(CASE_UPDATED)))
+        when(ccdCaseService.getStartEventResponse(CASE_ID, CASE_UPDATED))
             .thenReturn(SscsCaseDetails.builder().data(sscsCaseData).build());
 
         final HearingRequest hearingRequest = HearingRequest.internalBuilder()
@@ -161,13 +161,10 @@ class HearingsServiceV2Test {
             .hearingState(HearingState.CANCEL_HEARING).build();
 
         hearingsService.processHearingRequest(hearingRequest);
-        verify(ccdCaseService).getStartEventResponse(eq(CASE_ID), eq(CASE_UPDATED));
+        verify(ccdCaseService).getStartEventResponse(CASE_ID, CASE_UPDATED);
         verify(hmcHearingApiService).sendCancelHearingRequest(
             any(HearingCancelRequestPayload.class), eq(HEARING_REQUEST_ID));
         verifyNoInteractions(createHearingCaseUpdater, adjournCreateHearingCaseUpdater, updateHearingCaseUpdater);
     }
 
-    @Test
-    void hearingResponseUpdateRecover() {
-    }
 }

@@ -59,7 +59,7 @@ public class HearingsService {
     private final ReferenceDataServiceHolder refData;
 
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
-    // TODO: Add validation when adding invalid case states
+    // Add validation when adding invalid case states
     public static final List<State> INVALID_CASE_STATES = List.of();
     private static final Long HEARING_VERSION_NUMBER = 1L;
 

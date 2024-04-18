@@ -50,7 +50,7 @@ public class HearingsServiceV2 {
     private boolean hearingsCaseUpdateV2Enabled;
 
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
-    // TODO: Add validation when adding invalid case states
+    // Add validation when adding invalid case states
     public static final List<State> INVALID_CASE_STATES = List.of();
 
     @Retryable(

@@ -25,11 +25,7 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
 
     protected final ReferenceDataServiceHolder referenceDataServiceHolder;
 
-    // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
-    // TODO: add validation when invalid states are changed
-    protected static final List<State> INVALID_CASE_STATES = List.of();
-
-    public HearingSaveActionBase(CcdClient ccdClient,
+    protected HearingSaveActionBase(CcdClient ccdClient,
                                  SscsCcdConvertService sscsCcdConvertService, ReferenceDataServiceHolder referenceDataServiceHolder) {
         super(ccdClient, sscsCcdConvertService);
         this.referenceDataServiceHolder = referenceDataServiceHolder;
