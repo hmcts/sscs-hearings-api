@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sscs.service.hearings;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,11 +56,6 @@ class HearingsServiceV2Test {
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     private static final String PROCESSING_VENUE = "Processing Venue";
-
-    @BeforeEach
-    void setup() {
-
-    }
 
     @Test
     void processHearingRequestThrowsExceptionWhenHearingStateIsNull() {
