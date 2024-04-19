@@ -46,9 +46,6 @@ public class HearingsServiceV2 {
     private final AdjournCreateHearingCaseUpdater adjournCreateHearingCaseUpdater;
     private final UpdateHearingCaseUpdater updateHearingCaseUpdater;
 
-    @Value("${feature.hearings-case-updateV2.enabled:false}")
-    private boolean hearingsCaseUpdateV2Enabled;
-
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
     // Add validation when adding invalid case states
     public static final List<State> INVALID_CASE_STATES = List.of();
