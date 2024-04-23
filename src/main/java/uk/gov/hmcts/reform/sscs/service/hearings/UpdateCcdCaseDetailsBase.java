@@ -22,7 +22,7 @@ public abstract class UpdateCcdCaseDetailsBase<D> {
     private final SscsCcdConvertService sscsCcdConvertService;
 
     public SscsCaseDetails updateCase(Long caseId, String eventType, IdamTokens idamTokens, D dto) throws UpdateCcdCaseDetailsException {
-        log.info("UpdateCaseV2 for caseId {} and eventType {}", caseId, eventType);
+        log.info("UpdateCaseV3 for caseId {} and eventType {}", caseId, eventType);
         StartEventResponse startEventResponse = ccdClient.startEvent(idamTokens, caseId, eventType);
         SscsCaseDetails caseDetails = sscsCcdConvertService.getCaseDetails(startEventResponse);
         SscsCaseData data = caseDetails.getData();
