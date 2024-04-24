@@ -11,17 +11,18 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public abstract class UpdateCcdCaseDetailsBase<D> {
+public abstract class UpdateCcdCaseDetailsBase<T extends HearingRequest> {
 
     private final CcdClient ccdClient;
     private final SscsCcdConvertService sscsCcdConvertService;
 
-    public SscsCaseDetails updateCase(Long caseId, String eventType, IdamTokens idamTokens, D dto) throws UpdateCcdCaseDetailsException {
+    public SscsCaseDetails updateCase(Long caseId, String eventType, IdamTokens idamTokens, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException {
         log.info("UpdateCaseV3 for caseId {} and eventType {}", caseId, eventType);
         StartEventResponse startEventResponse = ccdClient.startEvent(idamTokens, caseId, eventType);
         SscsCaseDetails caseDetails = sscsCcdConvertService.getCaseDetails(startEventResponse);
@@ -34,12 +35,12 @@ public abstract class UpdateCcdCaseDetailsBase<D> {
         data.setCcdCaseId(caseId.toString());
         data.sortCollections();
 
-        UpdateCcdCaseService.UpdateResult result = applyUpdate(caseDetails, dto);
+        UpdateCcdCaseService.UpdateResult result = applyUpdate(caseDetails, hearingRequest);
 
         CaseDataContent caseDataContent = sscsCcdConvertService.getCaseDataContent(data, startEventResponse, result.summary(), result.description());
 
         return sscsCcdConvertService.getCaseDetails(ccdClient.submitEventForCaseworker(idamTokens, caseId, caseDataContent));
     }
 
-    protected abstract UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails data, D dto) throws UpdateCcdCaseDetailsException;
+    protected abstract UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails data, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException;
 }
