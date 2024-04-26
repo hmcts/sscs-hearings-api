@@ -33,12 +33,10 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingsApiService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
-import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -127,13 +125,12 @@ class UpdateHearingCaseUpdaterTest extends HearingSaveActionBaseTest {
 
         HearingRequest hearingRequest = createHearingRequestForState(HearingState.UPDATE_HEARING);
 
-        UpdateCcdCaseDetailsException exception = assertThrows(
-            UpdateCcdCaseDetailsException.class,
+        ListingException exception = assertThrows(
+            ListingException.class,
             () -> updateHearingCaseUpdater.applyUpdate(sscsCaseDetails, hearingRequest)
         );
 
-        assertInstanceOf(ListingException.class, exception.getException());
-        assertEquals("Listing duration must be multiple of 5.0 minutes", exception.getException().getMessage());
+        assertEquals("Listing duration must be multiple of 5.0 minutes", exception.getMessage());
     }
 
 }

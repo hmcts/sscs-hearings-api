@@ -10,9 +10,9 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
-import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
 
 @Slf4j
 @Component
@@ -22,7 +22,7 @@ public abstract class UpdateCcdCaseDetailsBase<T extends HearingRequest> {
     private final CcdClient ccdClient;
     private final SscsCcdConvertService sscsCcdConvertService;
 
-    public SscsCaseDetails updateCase(Long caseId, String eventType, IdamTokens idamTokens, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException {
+    public SscsCaseDetails updateCase(Long caseId, String eventType, IdamTokens idamTokens, HearingRequest hearingRequest) throws ListingException {
         log.info("UpdateCaseV3 for caseId {} and eventType {}", caseId, eventType);
         StartEventResponse startEventResponse = ccdClient.startEvent(idamTokens, caseId, eventType);
         SscsCaseDetails caseDetails = sscsCcdConvertService.getCaseDetails(startEventResponse);
@@ -42,5 +42,5 @@ public abstract class UpdateCcdCaseDetailsBase<T extends HearingRequest> {
         return sscsCcdConvertService.getCaseDetails(ccdClient.submitEventForCaseworker(idamTokens, caseId, caseDataContent));
     }
 
-    protected abstract UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails data, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException;
+    protected abstract UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails data, HearingRequest hearingRequest) throws ListingException;
 }

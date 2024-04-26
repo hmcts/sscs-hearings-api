@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.CancellationReason;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
-import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
 
 import java.util.List;
 
@@ -63,16 +62,7 @@ public class HearingsServiceV2 {
             hearingRequest.getCancellationReason());
 
         validateHearingState(hearingRequest);
-
-        try {
-            process(hearingRequest);
-        } catch (UpdateCcdCaseDetailsException e) {
-            if (e.getException() instanceof UpdateCaseException) {
-                throw (UpdateCaseException) e.getException();
-            } else if (e.getException() instanceof ListingException) {
-                throw (ListingException) e.getException();
-            }
-        }
+        process(hearingRequest);
     }
 
     private static void validateHearingState(HearingRequest hearingRequest) throws UnhandleableHearingStateException {
@@ -84,7 +74,7 @@ public class HearingsServiceV2 {
     }
 
     private void process(HearingRequest hearingRequest)
-        throws UnhandleableHearingStateException, UpdateCcdCaseDetailsException {
+        throws UnhandleableHearingStateException, UpdateCaseException, ListingException {
 
         String caseId = hearingRequest.getCcdCaseId();
         log.info("Processing Hearing Request for Case ID {} and Hearing State {}",

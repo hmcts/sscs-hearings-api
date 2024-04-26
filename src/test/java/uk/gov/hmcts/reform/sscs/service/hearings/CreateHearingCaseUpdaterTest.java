@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service.hearings;
 
+import feign.FeignException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
@@ -45,7 +48,9 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -130,6 +135,31 @@ class CreateHearingCaseUpdaterTest extends HearingSaveActionBaseTest {
 
         verify(hmcHearingsApiService).getHearingsRequest(String.valueOf(CASE_ID), null);
         verify(hmcHearingApiService).sendCreateHearingRequest(any(HearingRequestPayload.class));
+    }
+
+    @Test
+    void shouldThrowUpdateCaseExceptionWhenCcdClientThrowsFeignException() throws ListingException {
+        given(hmcHearingApiService.sendCreateHearingRequest(any(HearingRequestPayload.class)))
+            .willReturn(HmcUpdateResponse.builder().hearingRequestId(123L).versionNumber(1234L).status(HmcStatus.HEARING_REQUESTED).build());
+        given(hmcHearingsApiService.getHearingsRequest(anyString(), eq(null)))
+            .willReturn(HearingsGetResponse.builder().build());
+
+        SscsCaseDetails sscsCaseDetails = createCaseData();
+        given(idamService.getIdamTokens()).willReturn(IdamTokens.builder().build());
+        given(ccdClient.startEvent(any(), eq(CASE_ID), eq(EventType.ADD_HEARING.getCcdType())))
+            .willReturn(StartEventResponse.builder().build());
+        given(sscsCcdConvertService.getCaseDetails(any(StartEventResponse.class)))
+            .willReturn(sscsCaseDetails);
+        given(ccdClient.submitEventForCaseworker(any(), anyLong(), any()))
+            .willThrow(FeignException.class);
+
+        HearingRequest hearingRequest = createHearingRequestForState(HearingState.CREATE_HEARING);
+
+        assertThrows(
+            UpdateCaseException.class,
+            () -> createHearingCaseUpdater.createHearingAndUpdateCase(hearingRequest)
+        );
+
     }
 
     @Test
