@@ -7,11 +7,11 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
+import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingsApiService;
-import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 
@@ -27,7 +27,7 @@ public class AdjournCreateHearingCaseUpdater extends CreateHearingCaseUpdater {
     }
 
     @Override
-    protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails caseDetails, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException {
+    protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails caseDetails, HearingRequest hearingRequest) throws ListingException {
         caseDetails.getData().getAdjournment().setAdjournmentInProgress(YesNo.YES);
         return super.applyUpdate(caseDetails, hearingRequest);
     }

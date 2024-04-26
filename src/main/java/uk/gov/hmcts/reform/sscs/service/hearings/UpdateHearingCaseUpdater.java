@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service.hearings;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.client.CcdClient;
@@ -17,7 +18,6 @@ import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingRequestPayload;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
-import uk.gov.hmcts.reform.sscs.service.exceptions.UpdateCcdCaseDetailsException;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static java.util.Objects.isNull;
@@ -41,25 +41,32 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
         this.idamService = idamService;
     }
 
-    public void updateHearingAndCase(HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException {
+    public void updateHearingAndCase(HearingRequest hearingRequest) throws ListingException, UpdateCaseException {
         HearingEvent event = HearingsServiceHelper.getHearingEvent(hearingRequest.getHearingState());
-        updateCase(Long.valueOf(hearingRequest.getCcdCaseId()), event.getEventType().getCcdType(), idamService.getIdamTokens(),
-            hearingRequest);
-    }
-
-    @Override
-    protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails sscsCaseDetails, HearingRequest hearingRequest) throws UpdateCcdCaseDetailsException {
         try {
-            updateHearing(createWrapper(hearingRequest, sscsCaseDetails));
-            return new UpdateCcdCaseService.UpdateResult("Hearing updated", "Hearing updated");
-        } catch (UpdateCaseException | ListingException e) {
-            log.error("Failed to update case with hearing response for case id: {} hearing state: {}",
-                      sscsCaseDetails.getId(), hearingRequest.getHearingState(), e);
-            throw new UpdateCcdCaseDetailsException("Failed to update case with hearing response for create hearing", e);
+            updateCase(
+                Long.valueOf(hearingRequest.getCcdCaseId()),
+                event.getEventType().getCcdType(),
+                idamService.getIdamTokens(),
+                hearingRequest
+            );
+        } catch (FeignException ex) {
+            UpdateCaseException exception = new UpdateCaseException(
+                String.format("Failed to update case with Case id: %s could not be updated for hearing event %s, %s",
+                              hearingRequest.getCcdCaseId(), event.getEventType().getCcdType(), ex
+                ));
+            log.error(exception.getMessage(), exception);
+            throw exception;
         }
     }
 
-    private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
+    @Override
+    protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails sscsCaseDetails, HearingRequest hearingRequest) throws ListingException {
+        updateHearing(createWrapper(hearingRequest, sscsCaseDetails));
+        return new UpdateCcdCaseService.UpdateResult("Hearing updated", "Hearing updated");
+    }
+
+    private void updateHearing(HearingWrapper wrapper) throws ListingException {
         if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
             OverridesMapping.setOverrideValues(wrapper, referenceDataServiceHolder);
         }
@@ -78,10 +85,12 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
         log.debug("Sending Update Hearing Request for Case ID {}", wrapper.getCaseData().getCcdCaseId());
         HmcUpdateResponse response = hmcHearingApiService.sendUpdateHearingRequest(hearingPayload, hearingId);
 
-        log.debug("Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
+        log.debug(
+            "Received Update Hearing Request Response for Case ID {}, Hearing State {} and Response:\n{}",
             wrapper.getCaseData().getCcdCaseId(),
             wrapper.getHearingState().getState(),
-            response);
+            response
+        );
 
         hearingResponseUpdate(wrapper, response);
     }
