@@ -48,7 +48,7 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
             .build();
     }
 
-    protected void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) {
+    protected HearingEvent hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) {
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
         String caseId = caseData.getCcdCaseId();
@@ -59,9 +59,10 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
             wrapper.getHearingState().getState());
 
         HearingEvent event = HearingsServiceHelper.getHearingEvent(wrapper.getHearingState());
-        log.info("Updating case {} with event {} description is {}", caseId, event, event.getDescription());
+        log.info("Updating case using V3 {} with event {} description is {}", caseId, event, event.getDescription());
 
         updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
+        return event;
     }
 
     private void updateCaseDataWithHearingResponse(HmcUpdateResponse response, Long hearingRequestId, SscsCaseData caseData) {
@@ -77,7 +78,7 @@ public abstract class HearingSaveActionBase extends UpdateCcdCaseDetailsBase<Hea
 
         if (referenceDataServiceHolder.isAdjournmentFlagEnabled()
             && YesNo.isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseData.getCcdCaseId());
+            log.debug("Updating case with AdjournmentInProgress to NO for Case ID {}", caseData.getCcdCaseId());
             caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
         }
     }

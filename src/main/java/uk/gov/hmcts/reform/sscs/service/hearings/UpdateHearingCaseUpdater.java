@@ -62,11 +62,11 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
 
     @Override
     protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails sscsCaseDetails, HearingRequest hearingRequest) throws ListingException {
-        updateHearing(createWrapper(hearingRequest, sscsCaseDetails));
-        return new UpdateCcdCaseService.UpdateResult("Hearing updated", "Hearing updated");
+        HearingEvent hearingEvent = updateHearing(createWrapper(hearingRequest, sscsCaseDetails));
+        return new UpdateCcdCaseService.UpdateResult(hearingEvent.getSummary(), hearingEvent.getDescription());
     }
 
-    private void updateHearing(HearingWrapper wrapper) throws ListingException {
+    private HearingEvent updateHearing(HearingWrapper wrapper) throws ListingException {
         if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
             OverridesMapping.setOverrideValues(wrapper, referenceDataServiceHolder);
         }
@@ -92,7 +92,7 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
             response
         );
 
-        hearingResponseUpdate(wrapper, response);
+        return hearingResponseUpdate(wrapper, response);
     }
 
 
