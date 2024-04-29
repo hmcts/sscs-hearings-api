@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.ccd.client.CcdClient;
+import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
@@ -29,6 +30,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingsApiService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.buildHearingPayload;
 
 @Slf4j
@@ -57,25 +59,35 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
     }
 
     public void createHearingAndUpdateCase(HearingRequest hearingRequest) throws ListingException, UpdateCaseException {
-        HearingEvent event = HearingsServiceHelper.getHearingEvent(hearingRequest.getHearingState());
+        EventType event = HearingsServiceHelper.getCcdEvent(hearingRequest.getHearingState());
         try {
-            updateCase(
+            SscsCaseDetails details = updateCase(
                 Long.valueOf(hearingRequest.getCcdCaseId()),
-                event.getEventType().getCcdType(),
+                event.getCcdType(),
                 idamService.getIdamTokens(),
                 hearingRequest
             );
+
+            if (nonNull(details)) {
+                log.info("Case update details CCD state {}  event id: {} event token: {} callbackresponsestatus: {} caseid {}",
+                         details.getState(),
+                         details.getEventId(),
+                         details.getEventToken(),
+                         details.getCallbackResponseStatus(),
+                         details.getCaseTypeId()
+                );
+            }
 
             log.info(
                 "Case Updated using updateCaseV3 with Hearing Response for Case ID {}, Hearing State {} and CCD Event {}",
                 hearingRequest.getCcdCaseId(),
                 hearingRequest.getHearingState().getState(),
-                event.getEventType().getCcdType()
+                event.getCcdType()
             );
         } catch (FeignException ex) {
             UpdateCaseException exception = new UpdateCaseException(
                 String.format("Failed to update case with Case id: %s could not be updated for hearing event %s, %s",
-                              hearingRequest.getCcdCaseId(), event.getEventType().getCcdType(), ex
+                              hearingRequest.getCcdCaseId(), event.getCcdType(), ex
                 ));
             log.error(exception.getMessage(), exception);
             throw exception;
@@ -90,12 +102,12 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
             hearingWrapper.setHearingState(HearingState.CREATE_HEARING);
         }
 
-        createHearing(hearingWrapper);
+        HearingEvent hearingEvent = createHearing(hearingWrapper);
 
-        return new UpdateCcdCaseService.UpdateResult("Hearing created", "Hearing created");
+        return new UpdateCcdCaseService.UpdateResult(hearingEvent.getSummary(), hearingEvent.getDescription());
     }
 
-    private void createHearing(HearingWrapper wrapper) throws ListingException {
+    private HearingEvent createHearing(HearingWrapper wrapper) throws ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
 
         String caseId = caseData.getCcdCaseId();
@@ -133,7 +145,7 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
             );
         }
 
-        hearingResponseUpdate(wrapper, hmcUpdateResponse);
+        return hearingResponseUpdate(wrapper, hmcUpdateResponse);
     }
 
     private Long getHearingVersionNumber(CaseHearing hearing) {

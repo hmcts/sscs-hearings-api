@@ -28,6 +28,11 @@ public class AdjournCreateHearingCaseUpdater extends CreateHearingCaseUpdater {
 
     @Override
     protected UpdateCcdCaseService.UpdateResult applyUpdate(SscsCaseDetails caseDetails, HearingRequest hearingRequest) throws ListingException {
+        log.info("Setting adjournment fields for Case ID {}, Case State {} and Hearing State {}",
+                 caseDetails.getId(),
+                 caseDetails.getState(),
+                 hearingRequest.getHearingState().getState());
+
         caseDetails.getData().getAdjournment().setAdjournmentInProgress(YesNo.YES);
         return super.applyUpdate(caseDetails, hearingRequest);
     }
