@@ -16,10 +16,13 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HearingsService;
@@ -29,6 +32,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,6 +53,12 @@ class TribunalsHearingsEventTopicListenerTest {
 
     @Mock
     private CcdCaseService ccdCaseService;
+
+    @Mock
+    private UpdateCcdCaseService updateCcdCaseService;
+
+    @Mock
+    private IdamService idamService;
 
     private static final String CASE_ID = "1001";
 
@@ -114,6 +126,7 @@ class TribunalsHearingsEventTopicListenerTest {
     @Test
     @DisplayName("When a listing exception is thrown, catch the error and update the state")
     void whenListingExceptionThrown_UpdateCaseDataState() throws Exception {
+        ReflectionTestUtils.setField(tribunalsHearingsEventQueueListener, "hearingsCaseUpdateV2Enabled", false);
         SscsCaseData caseData = SscsCaseData.builder().build();
         SscsCaseDetails caseDetails = SscsCaseDetails.builder().data(caseData).build();
         HearingRequest hearingRequest = createHearingRequest();
@@ -128,6 +141,42 @@ class TribunalsHearingsEventTopicListenerTest {
                                            null,
                                            null)).thenReturn(caseDetails);
 
+        verify(updateCcdCaseService, times(0)).triggerCaseEventV2(
+            anyLong(),
+            anyString(),
+            anyString(),
+            anyString(),
+            any(IdamTokens.class)
+        );
+        assertDoesNotThrow(() -> tribunalsHearingsEventQueueListener.handleIncomingMessage(hearingRequest));
+    }
+
+    @Test
+    @DisplayName("When a listing exception is thrown, with hearingsCaseUpdateV2Enabled, catch the error and update the state")
+    void whenListingExceptionThrownWithV2Enabled_UpdateCaseDataState() throws Exception {
+        ReflectionTestUtils.setField(tribunalsHearingsEventQueueListener, "hearingsCaseUpdateV2Enabled", true);
+        SscsCaseData caseData = SscsCaseData.builder().build();
+        SscsCaseDetails caseDetails = SscsCaseDetails.builder().data(caseData).build();
+        HearingRequest hearingRequest = createHearingRequest();
+
+        doThrow(ListingException.class)
+            .when(hearingsServiceV2)
+            .processHearingRequest(hearingRequest);
+
+        when(updateCcdCaseService.triggerCaseEventV2(
+            1001L,
+            EventType.LISTING_ERROR.getCcdType(),
+            null,
+            null,
+            idamService.getIdamTokens()
+        )).thenReturn(caseDetails);
+
+        verify(ccdCaseService, times(0)).updateCaseData(
+            any(SscsCaseData.class),
+            any(EventType.class),
+            anyString(),
+            anyString()
+        );
         assertDoesNotThrow(() -> tribunalsHearingsEventQueueListener.handleIncomingMessage(hearingRequest));
     }
 }
