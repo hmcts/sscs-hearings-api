@@ -75,8 +75,6 @@ class HearingsServiceTest {
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     private static final String PROCESSING_VENUE = "Processing Venue";
-
-
     private HearingWrapper wrapper;
     private HearingRequest request;
     private SscsCaseDetails expectedCaseDetails;
@@ -109,7 +107,7 @@ class HearingsServiceTest {
     private UpdateCcdCaseService updateCcdCaseService;
 
     @Captor
-    private ArgumentCaptor<Consumer<SscsCaseData>> caseDataConsumerCaptor;
+    private ArgumentCaptor<Consumer<SscsCaseDetails>> caseDataConsumerCaptor;
 
     @InjectMocks
     private HearingsService hearingsService;
@@ -227,10 +225,11 @@ class HearingsServiceTest {
                 caseDataConsumerCaptor.capture()
             );
             SscsCaseData caseData = wrapper.getCaseData();
+            SscsCaseDetails sscsCaseDetails = SscsCaseDetails.builder().data(caseData).build();
             assertThat(caseData.getHearings()).isNull(); // before case updated with new hearing
 
-            Consumer<SscsCaseData> sscsCaseDataConsumer = caseDataConsumerCaptor.getValue();
-            sscsCaseDataConsumer.accept(caseData);
+            Consumer<SscsCaseDetails> sscsCaseDataConsumer = caseDataConsumerCaptor.getValue();
+            sscsCaseDataConsumer.accept(sscsCaseDetails);
             List<Hearing> hearings = caseData.getHearings();
             assertThat(hearings).isNotEmpty();
             assertEquals(1, hearings.size()); // hearing added
