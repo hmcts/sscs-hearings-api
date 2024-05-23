@@ -601,7 +601,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         if (nonNull(otherPartiesComments)) {
             for (String otherPartyComment : splitCsvParamArray(otherPartiesComments)) {
                 otherParties.add(new CcdValue<>(OtherParty.builder()
-                                                    .hearingOptions(HearingOptions.builder().other(otherPartyComment).build())
+                                                    .hearingOptions(null)
                                                     .build()));
             }
         } else {
