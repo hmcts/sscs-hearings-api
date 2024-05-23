@@ -588,6 +588,45 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         assertThat(result).isEqualToNormalizingNewlines(expected.replace("\\n", String.format("%n")));
     }
 
+    @Test
+    void listingCommentsShouldNotThrowNpeWhenHearingOptionsNull() {
+        List<CcdValue<OtherParty>> otherParties = new ArrayList<>();
+        otherParties.add(new CcdValue<>(OtherParty.builder()
+                                            .name(Name.builder()
+                                                      .title("Mr")
+                                                      .firstName("Null")
+                                                      .lastName("Comment")
+                                                      .build())
+                                            .hearingOptions(null)
+                                            .build()));
+
+        otherParties.add(new CcdValue<>(OtherParty.builder()
+                                            .name(Name.builder()
+                                                      .title("Mr")
+                                                      .firstName("OtherParty")
+                                                      .lastName("Comment")
+                                                      .build())
+                                            .hearingOptions(HearingOptions.builder().other("Test").build())
+                                            .build()));
+
+        Appeal appeal = Appeal.builder().appellant(Appellant.builder()
+                 .name(Name.builder()
+                           .title("Mr")
+                           .firstName("Test")
+                           .lastName("Appellant")
+                           .build())
+                 .build()).build();
+
+        caseData = SscsCaseData.builder()
+            .appeal(appeal)
+            .otherParties(otherParties)
+            .build();
+
+        String result = HearingsDetailsMapping.getListingComments(caseData);
+
+        assertThat(result).isEqualToNormalizingNewlines("Other Party - Mr OtherParty Comment:\n" + "Test");
+    }
+
     @DisplayName("When all null or empty comments are given getListingComments returns null")
     @ParameterizedTest
     @CsvSource(value = {
@@ -601,7 +640,7 @@ class HearingsDetailsMappingTest extends HearingsMappingBase {
         if (nonNull(otherPartiesComments)) {
             for (String otherPartyComment : splitCsvParamArray(otherPartiesComments)) {
                 otherParties.add(new CcdValue<>(OtherParty.builder()
-                                                    .hearingOptions(null)
+                                                    .hearingOptions(HearingOptions.builder().other(otherPartyComment).build())
                                                     .build()));
             }
         } else {
