@@ -71,7 +71,7 @@ public class HmcHearingsEventTopicListener {
                     hmcMessage.getHearingUpdate().getHmcStatus(), caseId, hearingId);
 
                 if (processEventMessageV2Enabled) {
-                    processHmcMessageService.processEventMessageV2(hmcMessage);
+                    processHmcMessageService.processEventMessage(hmcMessage);
                 } else {
                     processHmcMessageService.processEventMessage(hmcMessage);
                 }
