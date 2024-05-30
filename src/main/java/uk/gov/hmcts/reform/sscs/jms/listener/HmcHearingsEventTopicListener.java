@@ -53,6 +53,7 @@ public class HmcHearingsEventTopicListener {
         containerFactory = "hmcHearingsEventTopicContainerFactory"
     )
     public void onMessage(JmsBytesMessage message) throws JMSException, HmcEventProcessingException {
+
         if (isDeploymentFilterEnabled && !isMessageReleventForDeployment(message)) {
             return;
         }
@@ -67,8 +68,12 @@ public class HmcHearingsEventTopicListener {
                 Long caseId = hmcMessage.getCaseId();
                 String hearingId = hmcMessage.getHearingId();
 
-                log.info("Attempting to process message from HMC hearings topic for event {}, Case ID {}, and Hearing ID {}.",
-                    hmcMessage.getHearingUpdate().getHmcStatus(), caseId, hearingId);
+                log.info(
+                    "Attempting to process message from HMC hearings topic for event {}, Case ID {}, and Hearing ID {}.",
+                    hmcMessage.getHearingUpdate().getHmcStatus(),
+                    caseId,
+                    hearingId
+                );
 
                 if (processEventMessageV2Enabled) {
                     processHmcMessageService.processEventMessageV2(hmcMessage);
@@ -76,10 +81,13 @@ public class HmcHearingsEventTopicListener {
                     processHmcMessageService.processEventMessage(hmcMessage);
                 }
             }
-        }  catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
-            throw new HmcEventProcessingException(String.format("Unable to successfully deliver HMC message: %s",
-                convertedMessage), ex);
+        } catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
+            throw new HmcEventProcessingException(String.format(
+                "Unable to successfully deliver HMC message: %s",
+                convertedMessage
+            ), ex);
         }
+
     }
 
     private boolean isMessageRelevantForService(HmcMessage hmcMessage) {
@@ -87,7 +95,7 @@ public class HmcHearingsEventTopicListener {
     }
 
     private boolean isMessageReleventForDeployment(JmsBytesMessage message) throws JMSException {
-        return hmctsDeploymentId == null
+        return hmctsDeploymentId.isEmpty()
             && message.getStringProperty(HMCTS_DEPLOYMENT_ID) == null
             || message.getStringProperty(HMCTS_DEPLOYMENT_ID) != null
             && message.getStringProperty(HMCTS_DEPLOYMENT_ID).equals(hmctsDeploymentId);

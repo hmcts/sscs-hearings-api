@@ -18,17 +18,20 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@SuppressWarnings({"PMD.UseObjectForClearerAPI"})
 @FeignClient(name = "hmc-hearing", url = "${hmc.url}", configuration = FeignClientConfig.class)
 public interface HmcHearingApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     String HEARING_ENDPOINT = "/hearing";
     String ID = "id";
+    String HMCTS_DEPLOYMENT_ID = "hmctsDeploymentId";
 
     @PostMapping(value = HEARING_ENDPOINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     HmcUpdateResponse createHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = HMCTS_DEPLOYMENT_ID, required = false) String hmctsDeploymentId,
         @RequestBody HearingRequestPayload hearingPayload
     );
 
@@ -36,6 +39,7 @@ public interface HmcHearingApi {
     HmcUpdateResponse updateHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = HMCTS_DEPLOYMENT_ID, required = false) String hmctsDeploymentId,
         @PathVariable String id,
         @RequestBody HearingRequestPayload hearingPayload
     );
@@ -44,6 +48,7 @@ public interface HmcHearingApi {
     HmcUpdateResponse cancelHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = HMCTS_DEPLOYMENT_ID, required = false) String hmctsDeploymentId,
         @PathVariable String id,
         @RequestBody HearingCancelRequestPayload hearingDeletePayload
     );
@@ -52,6 +57,7 @@ public interface HmcHearingApi {
     HearingGetResponse getHearingRequest(
         @RequestHeader(AUTHORIZATION) String authorisation,
         @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuthorization,
+        @RequestHeader(value = HMCTS_DEPLOYMENT_ID, required = false) String hmctsDeploymentId,
         @PathVariable String id,
         @RequestParam(name = "isValid", required = false) Boolean isValid
     );

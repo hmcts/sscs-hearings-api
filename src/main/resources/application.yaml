@@ -128,10 +128,6 @@ judicial-ref:
   api:
     url: ${JUDICIAL_REF_API_URL:http://localhost:8093}
 
-ccd-callback-orchestrator:
-  api:
-    url: ${CCD_CALLBACK_ORCHESTRATOR_API_URL:http://localhost:8070}
-
 exui:
   url: ${EXUI_API_URL:http://localhost:3455}
 

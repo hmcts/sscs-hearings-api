@@ -96,6 +96,7 @@ class HearingGetConsumerTest extends BasePactTest {
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
+            null,
             VALID_CASE_ID,
             null
         );
@@ -127,6 +128,7 @@ class HearingGetConsumerTest extends BasePactTest {
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
+            null,
             VALID_CASE_ID,
             OPTION_FIELD_IS_VALID_VALUE
         );
@@ -159,6 +161,7 @@ class HearingGetConsumerTest extends BasePactTest {
         HearingGetResponse result = hmcHearingApi.getHearingRequest(
             IDAM_OAUTH2_TOKEN,
             SERVICE_AUTHORIZATION_TOKEN,
+            null,
             VALID_NO_CONTENT_CASE_ID,
             null
         );
@@ -191,6 +194,7 @@ class HearingGetConsumerTest extends BasePactTest {
             () -> hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
+                null,
                 BAD_REQUEST_CASE_ID,
                 null
             )).extracting(STATUS).isEqualTo(BAD_REQUEST);
@@ -221,6 +225,7 @@ class HearingGetConsumerTest extends BasePactTest {
             () -> hmcHearingApi.getHearingRequest(
                 UNAUTHORISED_IDAM_OAUTH2_TOKEN,
                 UNAUTHORISED_SERVICE_AUTHORIZATION_TOKEN,
+                null,
                 UNAUTHORISED_CASE_ID,
                 null
             )).extracting(STATUS).isEqualTo(UNAUTHORIZED);
@@ -250,6 +255,7 @@ class HearingGetConsumerTest extends BasePactTest {
             () -> hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
+                null,
                 FORBIDDEN_CASE_ID,
                 null
             )).extracting(STATUS).isEqualTo(FORBIDDEN);
@@ -280,6 +286,7 @@ class HearingGetConsumerTest extends BasePactTest {
             () -> hmcHearingApi.getHearingRequest(
                 IDAM_OAUTH2_TOKEN,
                 SERVICE_AUTHORIZATION_TOKEN,
+                null,
                 NOT_FOUND_CASE_ID,
                 null
             )).extracting(STATUS).isEqualTo(NOT_FOUND);

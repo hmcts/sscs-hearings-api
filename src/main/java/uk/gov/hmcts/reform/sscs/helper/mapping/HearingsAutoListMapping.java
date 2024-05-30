@@ -45,7 +45,7 @@ public final class HearingsAutoListMapping {
                 || shouldBeAdditionalSecurityFlag(caseData)
                 || isInterpreterRequired(caseData)
                 || HearingsDetailsMapping.isCaseLinked(caseData)
-                || isPaperCaseAndPoNotAttending(caseData)
+                || isPaperCase(caseData)
                 || hasMqpmOrFqpm(caseData, refData)
                 || isThereOtherComments(caseData)
                 || doesNotHaveDwpResponseDate(caseData)
@@ -71,9 +71,8 @@ public final class HearingsAutoListMapping {
                 && isYes(rep.getHasRepresentative()) && isNotBlank(rep.getOrganisation());
     }
 
-    public static boolean isPaperCaseAndPoNotAttending(@Valid SscsCaseData caseData) {
-        return HearingChannelUtil.isPaperCase(caseData)
-                && !HearingsDetailsMapping.isPoOfficerAttending(caseData);
+    public static boolean isPaperCase(@Valid SscsCaseData caseData) {
+        return HearingChannelUtil.isPaperCase(caseData);
     }
 
     public static boolean isThereOtherComments(@Valid SscsCaseData caseData) {
