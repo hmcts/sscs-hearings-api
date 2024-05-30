@@ -6,16 +6,24 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
+import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService.DynamicEventUpdateResult;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
+import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.idam.IdamService;
+import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
@@ -37,6 +45,106 @@ public class ProcessHmcMessageService {
     private final CcdCaseService ccdCaseService;
 
     private final HearingUpdateService hearingUpdateService;
+    private final UpdateCcdCaseService updateCcdCaseService;
+    private final IdamService idamService;
+
+    public void processEventMessageV2(HmcMessage hmcMessage)
+        throws CaseException, MessageProcessingException {
+
+        Long caseId = hmcMessage.getCaseId();
+        String hearingId = hmcMessage.getHearingId();
+
+        HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
+
+        HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
+
+        if (stateNotHandled(hmcMessageStatus, hearingResponse)) {
+            logStateNotHandled(hearingId, caseId);
+            return;
+        }
+
+        logProcessingHmcMessage(hmcMessageStatus, hearingResponse, hearingId, caseId);
+
+        Function<SscsCaseDetails, Optional<DynamicEventUpdateResult>> mutator = sscsCaseDetails -> {
+
+            SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+            try {
+                updateCaseDataMutator(sscsCaseData, hmcMessageStatus, hearingResponse, hearingId);
+            } catch (MessageProcessingException e) {
+                throw new RuntimeException(e);
+            } catch (InvalidMappingException e) {
+                throw new RuntimeException(e);
+            }
+
+            return resolveEventType(sscsCaseData, hmcMessageStatus, hearingResponse, hearingId);
+
+        };
+
+        IdamTokens idamTokens = idamService.getIdamTokens();
+
+        updateCcdCaseService.updateCaseV2DynamicEvent(caseId, idamTokens, mutator);
+
+        logMessageProceeded(hmcMessage);
+    }
+
+    private static void logMessageProceeded(HmcMessage hmcMessage) {
+        log.info(
+            "Hearing message {} processed for case reference {}",
+            hmcMessage.getHearingId(),
+            hmcMessage.getCaseId()
+        );
+    }
+
+    private void updateCaseDataMutator(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) throws MessageProcessingException, InvalidMappingException {
+        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcMessageStatus);
+        if (resolvedState != null) {
+            caseData.setDwpState(resolvedState);
+        }
+        if (isHearingUpdated(hmcMessageStatus, hearingResponse)) {
+            hearingUpdateService.updateHearing(hearingResponse, caseData);
+        }
+
+        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcMessageStatus);
+
+        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcMessageStatus);
+    }
+
+    private static Optional<DynamicEventUpdateResult> resolveEventType(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) {
+        BiFunction<HearingGetResponse, SscsCaseData, EventType> eventMapper = hmcMessageStatus.getEventMapper();
+        log.info("PostponementRequest {}", caseData.getPostponement());
+
+        if (isNull(eventMapper)) {
+            log.info("Case has not been updated for HMC Status {} with null eventMapper for the Case ID {}",
+                     hmcMessageStatus, caseData.getCcdCaseId());
+            return Optional.empty();
+        }
+
+        EventType eventType = eventMapper.apply(hearingResponse, caseData);
+        if (isNull(eventType)) {
+            log.info("Case has not been updated for HMC Status {} with null eventType for the Case ID {}",
+                     hmcMessageStatus, caseData.getCcdCaseId());
+            return Optional.empty();
+        }
+
+        String ccdUpdateDescription = String.format(hmcMessageStatus.getCcdUpdateDescription(), hearingId);
+
+        return Optional.of(new DynamicEventUpdateResult(hmcMessageStatus.getCcdUpdateSummary(), ccdUpdateDescription, true, eventType.getCcdType()));
+    }
+
+    private static void logProcessingHmcMessage(HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId, Long caseId) {
+        log.info("Processing message for HMC status {} with cancellation reasons {} for the Hearing ID {} and Case ID"
+                     + " {}",
+                 hmcMessageStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
+                 hearingId, caseId
+        );
+    }
+
+    private static void logStateNotHandled(String hearingId, Long caseId) {
+        log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
+                 hearingId, caseId
+        );
+    }
 
     public void processEventMessage(HmcMessage hmcMessage)
         throws CaseException, MessageProcessingException {
