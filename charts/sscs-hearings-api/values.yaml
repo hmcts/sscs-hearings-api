@@ -3,6 +3,8 @@ java:
   applicationPort: 8083
   readinessPath: '/health/readiness'
   aadIdentityName: sscs
+  autoscaling:
+    enabled: false
   ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   keyVaults:
     sscs:
