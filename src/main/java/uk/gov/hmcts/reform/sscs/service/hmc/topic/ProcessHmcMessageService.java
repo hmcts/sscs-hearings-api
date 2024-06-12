@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.DwpState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.helper.processing.ProcessHmcMessageHelper;
-import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
@@ -32,8 +30,6 @@ public class ProcessHmcMessageService {
     private final CcdCaseService ccdCaseService;
 
     private final HearingUpdateService hearingUpdateService;
-    private final UpdateCcdCaseService updateCcdCaseService;
-    private final IdamService idamService;
 
     public void processEventMessage(HmcMessage hmcMessage)
         throws CaseException, MessageProcessingException {

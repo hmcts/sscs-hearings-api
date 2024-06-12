@@ -18,21 +18,12 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
-import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.AWAITING_LISTING;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.EXCEPTION;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBMITTED;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CNCL;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
 @Slf4j
 @Service
@@ -40,9 +31,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 public class ProcessHmcMessageServiceV2 {
 
     private final HmcHearingApiService hmcHearingApiService;
-
-    private final CcdCaseService ccdCaseService;
-
     private final HearingUpdateService hearingUpdateService;
     private final UpdateCcdCaseService updateCcdCaseService;
     private final IdamService idamService;
