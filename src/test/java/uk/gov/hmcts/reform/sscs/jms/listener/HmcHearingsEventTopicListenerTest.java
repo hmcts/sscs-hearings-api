@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageService;
+import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageServiceV2;
 
 import java.nio.charset.StandardCharsets;
 import javax.jms.JMSException;
@@ -40,6 +41,9 @@ class HmcHearingsEventTopicListenerTest {
     private ProcessHmcMessageService processHmcMessageService;
 
     @Mock
+    private ProcessHmcMessageServiceV2 processHmcMessageServiceV2;
+
+    @Mock
     private JmsBytesMessage bytesMessage;
 
     @Mock
@@ -49,7 +53,7 @@ class HmcHearingsEventTopicListenerTest {
 
     @BeforeEach
     void setup() throws JMSException {
-        hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService);
+        hmcHearingsEventTopicListener = new HmcHearingsEventTopicListener(SERVICE_CODE, processHmcMessageService, processHmcMessageServiceV2);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "objectMapper", mockObjectMapper);
         ReflectionTestUtils.setField(hmcHearingsEventTopicListener, "sscsServiceCode", SERVICE_CODE);
         given(bytesMessage.getStringProperty("hmctsDeploymentId")).willReturn("test");

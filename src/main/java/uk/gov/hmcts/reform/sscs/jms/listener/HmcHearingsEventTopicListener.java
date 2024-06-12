@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.sscs.exception.HmcEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageService;
+import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageServiceV2;
 
 import java.nio.charset.StandardCharsets;
 import javax.jms.JMSException;
@@ -29,6 +30,8 @@ public class HmcHearingsEventTopicListener {
 
     private final ProcessHmcMessageService processHmcMessageService;
 
+    private final ProcessHmcMessageServiceV2 processHmcMessageServiceV2;
+
     @Value("${hmc.deployment-id}")
     private String hmctsDeploymentId;
 
@@ -40,9 +43,10 @@ public class HmcHearingsEventTopicListener {
     private static final String HMCTS_DEPLOYMENT_ID = "hmctsDeploymentId";
 
     public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
-                                         ProcessHmcMessageService processHmcMessageService) {
+                                         ProcessHmcMessageService processHmcMessageService, ProcessHmcMessageServiceV2 processHmcMessageServiceV2) {
         this.sscsServiceCode = sscsServiceCode;
         this.processHmcMessageService = processHmcMessageService;
+        this.processHmcMessageServiceV2 = processHmcMessageServiceV2;
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -76,7 +80,7 @@ public class HmcHearingsEventTopicListener {
                 );
 
                 if (processEventMessageV2Enabled) {
-                    processHmcMessageService.processEventMessageV2(hmcMessage);
+                    processHmcMessageServiceV2.processEventMessageV2(hmcMessage);
                 } else {
                     processHmcMessageService.processEventMessage(hmcMessage);
                 }
