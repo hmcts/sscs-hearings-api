@@ -12,7 +12,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBM
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CNCL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
-public class ProcessHmcMessageHelper {
+public final class ProcessHmcMessageHelper {
 
     private ProcessHmcMessageHelper() {
     }

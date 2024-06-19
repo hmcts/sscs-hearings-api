@@ -36,7 +36,7 @@ public class ProcessHmcMessageServiceV2 {
     private final IdamService idamService;
 
     public void processEventMessageV2(HmcMessage hmcMessage)
-        throws CaseException, MessageProcessingException {
+        throws CaseException, MessageProcessingException, InvalidMappingException {
 
         Long caseId = hmcMessage.getCaseId();
         String hearingId = hmcMessage.getHearingId();
@@ -62,11 +62,21 @@ public class ProcessHmcMessageServiceV2 {
 
             SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
-            try {
-                updateCaseDataMutator(sscsCaseData, hmcMessageStatus, hearingResponse, hearingId);
-            } catch (MessageProcessingException | InvalidMappingException e) {
-                throw new RuntimeException(e);
+            DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcMessageStatus);
+            if (resolvedState != null) {
+                sscsCaseData.setDwpState(resolvedState);
             }
+            if (ProcessHmcMessageHelper.isHearingUpdated(hmcMessageStatus, hearingResponse)) {
+                try {
+                    hearingUpdateService.updateHearing(hearingResponse, sscsCaseData);
+                } catch (InvalidMappingException | MessageProcessingException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+
+            hearingUpdateService.setHearingStatus(hearingId, sscsCaseData, hmcMessageStatus);
+
+            hearingUpdateService.setWorkBasketFields(hearingId, sscsCaseData, hmcMessageStatus);
 
             return resolveEventType(sscsCaseData, hmcMessageStatus, hearingResponse, hearingId);
 
@@ -81,20 +91,6 @@ public class ProcessHmcMessageServiceV2 {
             hmcMessage.getHearingId(),
             hmcMessage.getCaseId()
         );
-    }
-
-    private void updateCaseDataMutator(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) throws MessageProcessingException, InvalidMappingException {
-        DwpState resolvedState = hearingUpdateService.resolveDwpState(hmcMessageStatus);
-        if (resolvedState != null) {
-            caseData.setDwpState(resolvedState);
-        }
-        if (ProcessHmcMessageHelper.isHearingUpdated(hmcMessageStatus, hearingResponse)) {
-            hearingUpdateService.updateHearing(hearingResponse, caseData);
-        }
-
-        hearingUpdateService.setHearingStatus(hearingId, caseData, hmcMessageStatus);
-
-        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcMessageStatus);
     }
 
     private static DynamicEventUpdateResult resolveEventType(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) {
@@ -120,32 +116,4 @@ public class ProcessHmcMessageServiceV2 {
 
         return new DynamicEventUpdateResult(hmcMessageStatus.getCcdUpdateSummary(), ccdUpdateDescription, true, eventType.getCcdType());
     }
-
-//    private boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-//        return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
-//            || isStatusException(hmcStatus));
-//    }
-//
-//    private boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-//        return isHearingListedOrUpdateSubmitted(hmcStatus)
-//            && isStatusFixed(hearingResponse);
-//    }
-//
-//    private boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {
-//        return hmcStatus == LISTED || hmcStatus == AWAITING_LISTING || hmcStatus == UPDATE_SUBMITTED;
-//    }
-//
-//    private boolean isStatusFixed(HearingGetResponse hearingResponse) {
-//        return FIXED == hearingResponse.getHearingResponse().getListingStatus();
-//    }
-//
-//    private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-//        return hmcStatus == CANCELLED
-//            || isNotEmpty(hearingResponse.getRequestDetails().getCancellationReasonCodes())
-//            || CNCL == hearingResponse.getHearingResponse().getListingStatus();
-//    }
-//
-//    private boolean isStatusException(HmcStatus hmcStatus) {
-//        return hmcStatus == EXCEPTION;
-//    }
 }
