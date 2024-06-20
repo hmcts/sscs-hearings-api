@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService.DynamicEventUpdateResult;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
+import uk.gov.hmcts.reform.sscs.exception.HearingUpdateException;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.helper.processing.ProcessHmcMessageHelper;
@@ -70,7 +71,8 @@ public class ProcessHmcMessageServiceV2 {
                 try {
                     hearingUpdateService.updateHearing(hearingResponse, sscsCaseData);
                 } catch (InvalidMappingException | MessageProcessingException e) {
-                    throw new RuntimeException(e.getMessage(), e);
+                    log.error("Error updating hearing for hearing ID {} and case ID {}", hearingId, caseId, e);
+                    throw new HearingUpdateException(e.getMessage(), e);
                 }
             }
 
