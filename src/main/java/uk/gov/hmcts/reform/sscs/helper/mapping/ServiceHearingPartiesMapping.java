@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 
 @SuppressWarnings("PMD.ExcessiveImports")
 public final class ServiceHearingPartiesMapping {
@@ -101,7 +101,7 @@ public final class ServiceHearingPartiesMapping {
     public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) {
         return PartyDetails.builder()
             .partyID(DWP_ID)
-            .partyType(INDIVIDUAL)
+            .partyType(ORGANISATION)
             .partyRole(RESPONDENT.getHmcReference())
             .organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails(caseData))
             .unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek())
