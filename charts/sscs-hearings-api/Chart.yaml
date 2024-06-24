@@ -3,10 +3,10 @@ appVersion: "1.0"
 description: A Helm chart for sscs-hearings-api App
 name: sscs-hearings-api
 home: https://github.com/hmcts/sscs-hearings-api
-version: 0.0.37
+version: 0.0.38
 maintainers:
   - name: HMCTS sscs team
 dependencies:
   - name: java
-    version: 5.0.0
+    version: 5.2.0
     repository: 'https://hmctspublic.azurecr.io/helm/v1/repo/'
