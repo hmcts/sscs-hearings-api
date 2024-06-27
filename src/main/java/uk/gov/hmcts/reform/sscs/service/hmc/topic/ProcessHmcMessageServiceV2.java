@@ -39,6 +39,8 @@ public class ProcessHmcMessageServiceV2 {
     public void processEventMessageV2(HmcMessage hmcMessage)
         throws CaseException, MessageProcessingException, InvalidMappingException {
 
+        log.info("In ProcessHmcMessageServiceV2");
+
         Long caseId = hmcMessage.getCaseId();
         String hearingId = hmcMessage.getHearingId();
 
