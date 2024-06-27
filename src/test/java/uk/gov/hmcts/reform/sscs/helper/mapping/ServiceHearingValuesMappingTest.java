@@ -286,6 +286,22 @@ class ServiceHearingValuesMappingTest extends HearingsMappingBase {
             .containsOnly(INDIVIDUAL);
     }
 
+    @Test
+    void shouldNotThrowErrorWhenOtherPartyHearingOptionsNull() throws ListingException {
+        given(refData.getVenueService()).willReturn(venueService);
+        SscsCaseData editedCaseData = caseData;
+        CcdValue<OtherParty> otherParty = new CcdValue<>(
+            OtherParty.builder()
+                .name(Name.builder().firstName("Test").lastName("Test").build())
+                .hearingOptions(null).build());
+        editedCaseData.setOtherParties(List.of(otherParty));
+        final ServiceHearingValues serviceHearingValues = ServiceHearingValuesMapping.mapServiceHearingValues(caseData, refData);
+        assertThat(serviceHearingValues.getParties())
+            .filteredOn(partyDetails -> EntityRoleCode.OTHER_PARTY.getHmcReference().equals(partyDetails.getPartyRole()))
+            .extracting(PartyDetails::getPartyChannel)
+            .containsOnlyNulls();
+    }
+
     private List<Event> getEventsOfCaseData() {
         return new ArrayList<>() {{
                 add(Event.builder()
