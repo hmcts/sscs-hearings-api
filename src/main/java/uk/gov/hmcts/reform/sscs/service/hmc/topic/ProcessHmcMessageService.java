@@ -72,7 +72,6 @@ public class ProcessHmcMessageService {
         }
 
         hearingUpdateService.setHearingStatus(hearingId, caseData, hmcMessageStatus);
-
         hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcMessageStatus);
 
         String ccdUpdateDescription = String.format(hmcMessageStatus.getCcdUpdateDescription(), hearingId);

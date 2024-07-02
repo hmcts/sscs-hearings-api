@@ -23,7 +23,7 @@ public enum HmcStatus {
     LISTED("Listed", (response, caseData) -> HEARING_BOOKED, HearingStatus.LISTED, "Hearing Listed",
         "New hearing %s has been listed and added to case"),
     UPDATE_REQUESTED("Update requested", null, null, "", ""),
-    UPDATE_SUBMITTED("Update submitted", (response, caseData) -> UPDATE_CASE_ONLY, null, "Hearing Updated",
+    UPDATE_SUBMITTED("Update submitted", (response, caseData) -> HEARING_BOOKED, null, "Hearing Updated",
         "The hearing with id %s has been updated and has been updated on the case"),
     EXCEPTION("Exception", (response, caseData) -> HANDLING_ERROR, HearingStatus.EXCEPTION, "Hearing Exception",
         "An error has occurred when trying to process the hearing with id %s"),

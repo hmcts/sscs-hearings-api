@@ -53,25 +53,9 @@ public class HearingUpdateService {
 
     public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
         throws MessageProcessingException, InvalidMappingException {
-
         Long hearingId = Long.valueOf(hearingGetResponse.getRequestDetails().getHearingRequestId());
-
-        List<HearingDaySchedule> hearingSessions = hearingGetResponse.getHearingResponse().getHearingSessions();
-
-        if (hearingSessions.size() != EXPECTED_SESSIONS) {
-            throw new InvalidHearingDataException(
-                String.format(
-                    "Invalid HearingDaySchedule, should have 1 session but instead has %d sessions, for Case Id %s and Hearing Id %s",
-                    hearingSessions.size(),
-                    sscsCaseData.getCcdCaseId(),
-                    hearingId
-                ));
-        }
-
-        HearingDaySchedule hearingDaySchedule = hearingSessions.get(0);
-
+        HearingDaySchedule hearingDaySchedule = getHearingDaySchedule(hearingGetResponse, sscsCaseData, hearingId);
         String hearingEpimsId = hearingDaySchedule.getHearingVenueEpimsId();
-
         VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(hearingEpimsId);
 
         if (isNull(venueDetails)) {
@@ -122,6 +106,22 @@ public class HearingUpdateService {
             sscsCaseData.getCcdCaseId(),
             hearingId
         );
+    }
+
+    private static HearingDaySchedule getHearingDaySchedule(HearingGetResponse hearingGetResponse, SscsCaseData sscsCaseData,
+                                                            Long hearingId) throws InvalidHearingDataException {
+        List<HearingDaySchedule> hearingSessions = hearingGetResponse.getHearingResponse().getHearingSessions();
+
+        if (hearingSessions.size() != EXPECTED_SESSIONS) {
+            throw new InvalidHearingDataException(
+                String.format(
+                    "Invalid HearingDaySchedule, should have 1 session but instead has %d sessions, for Case Id %s and Hearing Id %s",
+                    hearingSessions.size(),
+                    sscsCaseData.getCcdCaseId(),
+                    hearingId
+                ));
+        }
+        return hearingSessions.get(0);
     }
 
     public void setHearingStatus(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
