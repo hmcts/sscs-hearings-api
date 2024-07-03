@@ -86,8 +86,11 @@ public class HearingUpdateService {
         hearingDetails.setHearingDate(hearingDate);
         String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
         hearingDetails.setTime(hearingTime);
-        hearingDetails.setHearingChannel(HearingsServiceHelper.getHearingBookedChannel(hearingGetResponse));
 
+        var hearingChannel = HearingsServiceHelper.getHearingSubChannel(hearingGetResponse);
+        if (!isNull(hearingChannel)) {
+            hearingDetails.setHearingChannel(hearingChannel);
+        }
         List<String> panelMemberIds = hearingDaySchedule.getPanelMemberIds();
 
         if (isPostHearingsEnabled && nonNull(panelMemberIds)) {

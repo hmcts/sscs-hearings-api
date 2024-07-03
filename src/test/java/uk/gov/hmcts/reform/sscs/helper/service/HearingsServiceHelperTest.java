@@ -14,7 +14,15 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.Attendees;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.CaseDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingResponse;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.PartyDetails;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.RequestDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -24,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getHearingId;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLED;
@@ -245,5 +254,97 @@ class HearingsServiceHelperTest {
         boolean result = HearingsServiceHelper.isCaseHearingRequestedOrAwaitingListing(value);
 
         assertThat(result).isFalse();
+    }
+
+    @DisplayName("getHearingSubChannel should return correct HearingChannel")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "TEL,TELEPHONE",
+        "TELBTM,TELEPHONE",
+        "TELCVP,TELEPHONE",
+        "TELOTHER,TELEPHONE",
+        "TELSKYP,TELEPHONE",
+        "INTER,FACE_TO_FACE",
+        "NA,NOT_ATTENDING",
+        "ONPPRS,PAPER",
+        "VID,VIDEO",
+        "VIDCVP,VIDEO",
+        "VIDOTHER,VIDEO",
+        "VIDPVL,VIDEO",
+        "VIDSKYPE,VIDEO",
+        "VIDTEAMS,VIDEO",
+        "VIDVHS,VIDEO"
+    })
+    void testGetHearingSubChannel(String subHearingChannel, HearingChannel hearingChannel) {
+        Attendees attendees = Attendees.builder()
+            .hearingSubChannel(subHearingChannel)
+            .build();
+        HearingDaySchedule hearingDaySchedule = HearingDaySchedule.builder()
+            .attendees(List.of(attendees))
+            .build();
+        HearingResponse hearingResponse = HearingResponse.builder()
+            .hearingSessions(List.of(hearingDaySchedule))
+            .build();
+        HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
+            .requestDetails(RequestDetails.builder().build())
+            .hearingDetails(uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build())
+            .caseDetails(CaseDetails.builder().build())
+            .hearingResponse(hearingResponse)
+            .partyDetails(List.of(PartyDetails.builder().build()))
+            .build();
+
+        var response = HearingsServiceHelper.getHearingSubChannel(hearingGetResponse);
+        assertNotNull(response);
+        assertEquals(hearingChannel, response);
+    }
+
+    @DisplayName("getHearingSubChannel should return null when subHearingChannel is null")
+    @Test
+    void testGetHearingSubChannel_whenSubHearingChannelIsNull() {
+        Attendees attendees = Attendees.builder()
+            .build();
+        HearingDaySchedule hearingDaySchedule = HearingDaySchedule.builder()
+            .attendees(List.of(attendees))
+            .build();
+        HearingResponse hearingResponse = HearingResponse.builder()
+            .hearingSessions(List.of(hearingDaySchedule))
+            .build();
+        HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
+            .requestDetails(RequestDetails.builder().build())
+            .hearingDetails(uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build())
+            .caseDetails(CaseDetails.builder().build())
+            .hearingResponse(hearingResponse)
+            .partyDetails(List.of(PartyDetails.builder().build()))
+            .build();
+
+        var response = HearingsServiceHelper.getHearingSubChannel(hearingGetResponse);
+        assertNull(response);
+    }
+
+    @DisplayName("getHearingSubChannel should return null when subHearingChannel is not mapped to HearingChannel")
+    @ParameterizedTest
+    @CsvSource(value = {
+        "' '", "incorrectChannel"
+    })
+    void testGetHearingSubChannel_whenSubHearingChannelIsNotMapped(String subHearingChannel) {
+        Attendees attendees = Attendees.builder()
+            .hearingSubChannel(subHearingChannel)
+            .build();
+        HearingDaySchedule hearingDaySchedule = HearingDaySchedule.builder()
+            .attendees(List.of(attendees))
+            .build();
+        HearingResponse hearingResponse = HearingResponse.builder()
+            .hearingSessions(List.of(hearingDaySchedule))
+            .build();
+        HearingGetResponse hearingGetResponse = HearingGetResponse.builder()
+            .requestDetails(RequestDetails.builder().build())
+            .hearingDetails(uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDetails.builder().build())
+            .caseDetails(CaseDetails.builder().build())
+            .hearingResponse(hearingResponse)
+            .partyDetails(List.of(PartyDetails.builder().build()))
+            .build();
+
+        var response = HearingsServiceHelper.getHearingSubChannel(hearingGetResponse);
+        assertNull(response);
     }
 }
