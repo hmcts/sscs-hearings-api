@@ -69,7 +69,7 @@ public class HearingUpdateService {
         HearingDetails hearingDetails = hearing.getValue();
         hearingDetails.setEpimsId(hearingEpimsId);
         hearingDetails.setVenue(venue);
-        LocalDateTime hearingDateIssued = setHearingDates(hearingDaySchedule, hearingDetails);
+        LocalDateTime hearingDateIssued = updateHearingDates(hearingDaySchedule, hearingDetails);
         List<String> panelMemberIds = hearingDaySchedule.getPanelMemberIds();
 
         if (isPostHearingsEnabled && nonNull(panelMemberIds)) {
@@ -118,7 +118,7 @@ public class HearingUpdateService {
         return hearingSessions.get(0);
     }
 
-    private LocalDateTime setHearingDates(HearingDaySchedule hearingDaySchedule, HearingDetails hearingDetails) {
+    private LocalDateTime updateHearingDates(HearingDaySchedule hearingDaySchedule, HearingDetails hearingDetails) {
         LocalDateTime hearingDateIssued = null;
         LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
         LocalDateTime hearingEndDateTime = hearingDaySchedule.getHearingEndDateTime();
