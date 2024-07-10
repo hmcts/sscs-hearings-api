@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
     public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.now();
@@ -326,8 +328,7 @@ class HearingUpdateServiceTest {
                     .epimsId(EPIMS_ID)
                     .build())
                 .build()));
-
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(zoneUtcStartDateTime.toLocalDate());
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
@@ -346,7 +347,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
     }
@@ -364,7 +365,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(zoneUtcStartDateTime.toLocalDate());
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
@@ -381,7 +382,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, ADJOURNED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, ADJOURNED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
@@ -400,7 +401,7 @@ class HearingUpdateServiceTest {
                            .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String expectedHearingDateIssued = zoneUtcStartDateTime.format(formatter);
