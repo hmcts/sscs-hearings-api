@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
-import uk.gov.hmcts.reform.sscs.exception.ExitRetryableException;
+import uk.gov.hmcts.reform.sscs.exception.HearingUpdateException;
 import uk.gov.hmcts.reform.sscs.exception.HmcEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
@@ -87,7 +87,7 @@ public class HmcHearingsEventTopicListener {
                 }
             }
         } catch (JsonProcessingException | CaseException | MessageProcessingException
-                 | ExitRetryableException ex) {
+                 | HearingUpdateException ex) {
             log.error("Unable to successfully deliver HMC message: {}", convertedMessage, ex);
             throw new HmcEventProcessingException(String.format(
                 "Unable to successfully deliver HMC message: %s",
