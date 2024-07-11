@@ -48,7 +48,7 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods", "AvoidThrowingRawExceptionTypes"})
 public class HearingsService {
 
     @Value("${retry.hearing-response-update.max-retries}")
@@ -140,7 +140,7 @@ public class HearingsService {
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
         HmcUpdateResponse hmcUpdateResponse;
 
-        OverridesMapping.setDefaultListingValues(wrapper, refData);
+        OverridesMapping.setDefaultListingValues(wrapper.getCaseData(), refData);
 
         if (isNull(hearing)) {
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
@@ -182,7 +182,7 @@ public class HearingsService {
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
-            OverridesMapping.setOverrideValues(wrapper, refData);
+            OverridesMapping.setOverrideValues(wrapper.getCaseData(), refData);
         }
         Integer duration = wrapper
             .getCaseData()
@@ -219,7 +219,7 @@ public class HearingsService {
         // TODO process hearing response
     }
 
-    public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException {
+    protected void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
         String caseId = caseData.getCcdCaseId();
@@ -256,13 +256,21 @@ public class HearingsService {
             event.getEventType().getCcdType());
     }
 
-    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException {
-        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> updateCaseDataWithHearingResponseCaseDetails(response, hearingRequestId, sscsCaseDetails);
+    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException, ListingException {
+        //the consumer is not updating the DefaultListingValues, even though the wrapper has -> in the v1 scenario, the caseData has this info, in v2, it is GOT from CCD
 
         log.info("Updating case with hearing response using updateCaseDataV2 for event {} description {}",
                  event, event.getDescription());
 
         try {
+            Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> {
+                try {
+                    updateCaseDataWithHearingResponseCaseDetailsV2(response, hearingRequestId, sscsCaseDetails);
+                } catch (ListingException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+
             updateCcdCaseService.updateCaseV2(
                 Long.parseLong(caseId),
                 event.getEventType().getCcdType(),
@@ -283,10 +291,14 @@ public class HearingsService {
                               caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
+        } catch (RuntimeException e) {
+            throw new ListingException(e.getMessage());
         }
+
     }
 
-    private void updateCaseDataWithHearingResponseCaseDetails(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) {
+    private void updateCaseDataWithHearingResponseCaseDetailsV2(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) throws ListingException {
+        OverridesMapping.setDefaultListingValues(sscsCaseDetails.getData(), refData);
         updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseDetails.getData());
     }
 

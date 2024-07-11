@@ -68,15 +68,18 @@ public final class HearingsDurationMapping {
 
         Integer existingDuration = OverridesMapping.getDefaultListingValues(caseData).getDuration();
         if (nonNull(existingDuration) && durationType == STANDARD) {
+            log.debug("existingDuration with STANDARD for caseId={}", caseData.getCcdCaseId());
             existingDuration = handleAdjournmentHearingType(caseData, hearingDurationsService, existingDuration);
             return handleStandardDuration(caseData, existingDuration);
         }
 
         Integer nextDuration = caseData.getAdjournment().getNextHearingListingDuration();
         if (nonNull(nextDuration) && durationType == NON_STANDARD) {
+            log.debug("existingDuration with NON_STANDARD for caseId={}", caseData.getCcdCaseId());
             return handleNonStandardDuration(caseData, nextDuration);
         }
 
+        log.debug("getHearingDurationBenefitIssueCodes for caseId={}", caseData.getCcdCaseId());
         return hearingDurationsService.getHearingDurationBenefitIssueCodes(caseData);
     }
 
