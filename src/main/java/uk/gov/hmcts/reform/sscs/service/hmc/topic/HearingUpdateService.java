@@ -58,8 +58,7 @@ public class HearingUpdateService {
 
         List<HearingDaySchedule> hearingSessions = hearingGetResponse.getHearingResponse().getHearingSessions();
 
-        // TODO THIS IS A DUMMY CHANGE AND NEEDS TO BE REVERTED
-        if (hearingSessions.size() == EXPECTED_SESSIONS) {
+        if (hearingSessions.size() != EXPECTED_SESSIONS) {
             throw new InvalidHearingDataException(
                 String.format(
                     "Invalid HearingDaySchedule, should have 1 session but instead has %d sessions, for Case Id %s and Hearing Id %s",
