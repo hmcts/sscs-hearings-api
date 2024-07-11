@@ -8,6 +8,7 @@ import org.apache.qpid.jms.message.JmsBytesMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.HearingUpdateException;
@@ -87,7 +88,7 @@ public class HmcHearingsEventTopicListener {
                 }
             }
         } catch (JsonProcessingException | CaseException | MessageProcessingException
-                 | HearingUpdateException ex) {
+                 | HearingUpdateException | ExhaustedRetryException ex) {
             log.error("Unable to successfully deliver HMC message: {}", convertedMessage, ex);
             throw new HmcEventProcessingException(String.format(
                 "Unable to successfully deliver HMC message: %s",
