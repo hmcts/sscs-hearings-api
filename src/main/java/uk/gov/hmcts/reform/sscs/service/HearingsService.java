@@ -285,8 +285,6 @@ public class HearingsService {
                               caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
-        } catch (RuntimeException e) {
-            throw new ListingException(e.getMessage());
         }
 
     }

@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.sscs.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -86,13 +88,18 @@ public class HearingServiceConsumerTest {
             .processingVenue(PROCESSING_VENUE)
             .build();
 
-        given(response.getHearingRequestId()).willReturn(123L);
-        given(response.getVersionNumber()).willReturn(1234L);
-
     }
 
-    @Test
-    public void testCreateHearingCaseDetailsConsumer() {
+    private void setupResponse() {
+        given(response.getHearingRequestId()).willReturn(123L);
+        given(response.getVersionNumber()).willReturn(1234L);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void testCreateHearingCaseDetailsConsumer(boolean adjournmentFlagEnabled) {
+        setupResponse();
+        given(refData.isAdjournmentFlagEnabled()).willReturn(adjournmentFlagEnabled);
         given(sessionCategoryMaps.getSessionCategory(
             BENEFIT_CODE,
             ISSUE_CODE,
@@ -138,7 +145,28 @@ public class HearingServiceConsumerTest {
     }
 
     @Test
+    public void testCreateHearingCaseDetailsConsumerWithListingException() {
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+
+        SscsCaseDetails sscsCaseDetails = SscsCaseDetails.builder().data(caseData).build();
+
+        Consumer<SscsCaseDetails> sscsCaseDetailsConsumer = hearingServiceConsumer.getCreateHearingCaseDetailsConsumerV2(
+            response,
+            HEARING_REQUEST_ID
+        );
+        //reset the DLVs
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
+        try {
+            sscsCaseDetailsConsumer.accept(sscsCaseDetails);
+        } catch (RuntimeException re) {
+            assertThat(re.getMessage()).contains("Incorrect benefit/issue code combination");
+        }
+    }
+
+    @Test
     public void testCreateHearingCaseDataConsumer() {
+        setupResponse();
 
         Consumer<SscsCaseData> sscsCaseDataConsumer = hearingServiceConsumer.getCreateHearingCaseDataConsumer(
             response,
