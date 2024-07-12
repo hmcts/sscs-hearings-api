@@ -164,6 +164,90 @@ class HearingUpdateServiceTest {
         assertThat(hearings.get(0).getValue().getPanel().getAllPanelMembers().size()).isEqualTo(3);
     }
 
+    @DisplayName("When hearing start date is same hearingDateIssued should be null")
+    @Test
+    void testHearingDateIssuedIsNull() throws Exception {
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+            HearingDaySchedule.builder()
+                .hearingStartDateTime(zoneUtcStartDateTime.minusHours(1))
+                .hearingEndDateTime(zoneUtcEndDateTime.minusHours(1))
+                .hearingVenueEpimsId(EPIMS_ID)
+                .hearingJudgeId(JUDGE_ID)
+                .panelMemberIds(PANEL_IDS)
+                .build()));
+
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId(EPIMS_ID)
+                           .start(zoneUtcStartDateTime)
+                           .hearingId(String.valueOf(HEARING_ID))
+                           .build())
+                .build(),
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId("23453")
+                           .hearingId("35533")
+                           .build())
+                .build()
+        ));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String date = zoneUtcStartDateTime.format(formatter);
+        caseData.getWorkBasketFields().setHearingDateIssued(date);
+
+        given(judicialRefDataService.getJudicialUserFromPersonalCode(any())).willReturn(new JudicialUserBase(
+            "idamId",
+            "personalCode"
+        ));
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID)).thenReturn(venueDetails);
+
+        // when
+        var hearingDateIssued = hearingUpdateService.updateHearing(hearingGetResponse, caseData);
+        assertThat(hearingDateIssued).isNull();
+    }
+
+    @DisplayName("When hearing start date is different hearingDateIssued should be not null")
+    @Test
+    void testHearingDateIssuedIsNotNull() throws Exception {
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+            HearingDaySchedule.builder()
+                .hearingStartDateTime(zoneUtcStartDateTime.plusHours(1))
+                .hearingEndDateTime(zoneUtcEndDateTime.plusHours(1))
+                .hearingVenueEpimsId(EPIMS_ID)
+                .hearingJudgeId(JUDGE_ID)
+                .panelMemberIds(PANEL_IDS)
+                .build()));
+
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId(EPIMS_ID)
+                           .start(zoneUtcStartDateTime)
+                           .hearingId(String.valueOf(HEARING_ID))
+                           .build())
+                .build(),
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId("23453")
+                           .hearingId("35533")
+                           .build())
+                .build()
+        ));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String date = zoneUtcStartDateTime.format(formatter);
+        caseData.getWorkBasketFields().setHearingDateIssued(date);
+
+        given(judicialRefDataService.getJudicialUserFromPersonalCode(any())).willReturn(new JudicialUserBase(
+            "idamId",
+            "personalCode"
+        ));
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID)).thenReturn(venueDetails);
+
+        // when
+        var hearingDateIssued = hearingUpdateService.updateHearing(hearingGetResponse, caseData);
+        assertThat(hearingDateIssued).isNotNull();
+    }
+
     @DisplayName("When caseData with no hearing that matches one from hearingGetResponse is given,"
             + "updateHearing adds the correct hearing")
     @Test
