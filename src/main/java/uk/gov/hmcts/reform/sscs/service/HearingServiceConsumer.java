@@ -26,9 +26,8 @@ public class HearingServiceConsumer {
 
 
     public Consumer<SscsCaseData> getCreateHearingCaseDataConsumer(HmcUpdateResponse response, Long hearingRequestId) {
-        return sscsCaseData -> {
-            updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseData);
-        };
+        return sscsCaseData -> updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseData);
+
     }
 
     public Consumer<SscsCaseDetails> getCreateHearingCaseDetailsConsumerV2(HmcUpdateResponse response, Long hearingRequestId) {

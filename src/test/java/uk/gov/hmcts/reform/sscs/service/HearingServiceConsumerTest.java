@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.BenefitCode;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingDetails;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingSubtype;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Issue;
@@ -31,6 +32,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -181,4 +183,22 @@ public class HearingServiceConsumerTest {
         assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
     }
 
+    @Test
+    public void testCreateHearingCaseDataConsumerWithHearing() {
+        setupResponse();
+
+        caseData.setHearings(new ArrayList<>());
+        caseData.getHearings().add(Hearing.builder().value(HearingDetails.builder().hearingId(String.valueOf(HEARING_REQUEST_ID)).build()).build());
+        Consumer<SscsCaseData> sscsCaseDataConsumer = hearingServiceConsumer.getCreateHearingCaseDataConsumer(
+            response,
+            HEARING_REQUEST_ID
+        );
+        sscsCaseDataConsumer.accept(caseData);
+
+        List<Hearing> hearings = caseData.getHearings();
+        assertThat(hearings).isNotEmpty();
+        assertEquals(1, hearings.size()); // hearing added
+        assertEquals("123", hearings.get(0).getValue().getHearingId());
+        assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
+    }
 }
