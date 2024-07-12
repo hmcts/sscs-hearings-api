@@ -387,7 +387,6 @@ class HearingsServiceTest {
 
         given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
-
         given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
 
         given(refData.getVenueService()).willReturn(venueService);
@@ -433,12 +432,11 @@ class HearingsServiceTest {
         "33",
         "34",
     })
-    void testGetServiceHearingValueWithListingDurationNotMultipleOfFive(Integer hearingDuration) throws Exception {
+    void testGetServiceHearingValueWithListingDurationNotMultipleOfFive(Integer hearingDuration) {
 
         wrapper.setHearingState(UPDATE_HEARING);
         wrapper.getCaseData().getSchedulingAndListingFields().setOverrideFields(OverrideFields.builder().duration(hearingDuration).build());
 
         assertThrows(ListingException.class, () -> hearingsService.processHearingWrapper(wrapper));
     }
-
 }

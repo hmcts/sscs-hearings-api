@@ -51,11 +51,58 @@ public class HearingUpdateService {
     @Value("${flags.postHearings.enabled}")
     private boolean isPostHearingsEnabled;
 
-    public void updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
+    public LocalDateTime updateHearing(HearingGetResponse hearingGetResponse, @Valid SscsCaseData sscsCaseData)
         throws MessageProcessingException, InvalidMappingException {
 
         Long hearingId = Long.valueOf(hearingGetResponse.getRequestDetails().getHearingRequestId());
+        HearingDaySchedule hearingDaySchedule = getHearingDaySchedule(hearingGetResponse, sscsCaseData, hearingId);
+        String hearingEpimsId = hearingDaySchedule.getHearingVenueEpimsId();
+        VenueDetails venueDetails = getVenueDetails(sscsCaseData, hearingEpimsId);
+        Venue venue = mapVenueDetailsToVenue(venueDetails);
+        Hearing hearing = HearingsServiceHelper.getHearingById(hearingId, sscsCaseData);
 
+        if (isNull(hearing)) {
+            hearing = HearingsServiceHelper.createHearing(hearingId);
+            HearingsServiceHelper.addHearing(hearing, sscsCaseData);
+        }
+
+        HearingDetails hearingDetails = hearing.getValue();
+        hearingDetails.setEpimsId(hearingEpimsId);
+        hearingDetails.setVenue(venue);
+        LocalDateTime hearingDateIssued = updateHearingDates(hearingDaySchedule, hearingDetails);
+        List<String> panelMemberIds = hearingDaySchedule.getPanelMemberIds();
+
+        if (isPostHearingsEnabled && nonNull(panelMemberIds)) {
+            JudicialUserPanel panel = JudicialUserPanel.builder()
+                .assignedTo(judicialRefDataService.getJudicialUserFromPersonalCode(hearingDaySchedule.getHearingJudgeId()))
+                .panelMembers(panelMemberIds.stream().map(id -> new CollectionItem<>(id, judicialRefDataService.getJudicialUserFromPersonalCode(id))).toList())
+                .build();
+            hearingDetails.setPanel(panel);
+        }
+
+        log.info(
+            "Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
+            hearingDetails.getEpimsId(),
+            hearingEpimsId,
+            sscsCaseData.getCcdCaseId(),
+            hearingId
+        );
+        return hearingDateIssued;
+    }
+
+    private VenueDetails getVenueDetails(SscsCaseData sscsCaseData, String hearingEpimsId) throws InvalidMappingException {
+        VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(hearingEpimsId);
+        if (isNull(venueDetails)) {
+            throw new InvalidMappingException(String.format(
+                "Invalid epims Id %s, unable to find active venue with that id, regarding Case Id %s",
+                hearingEpimsId,
+                sscsCaseData.getCcdCaseId()
+            ));
+        }
+        return venueDetails;
+    }
+
+    private static HearingDaySchedule getHearingDaySchedule(HearingGetResponse hearingGetResponse, SscsCaseData sscsCaseData, Long hearingId) throws InvalidHearingDataException {
         List<HearingDaySchedule> hearingSessions = hearingGetResponse.getHearingResponse().getHearingSessions();
 
         if (hearingSessions.size() != EXPECTED_SESSIONS) {
@@ -68,60 +115,26 @@ public class HearingUpdateService {
                 ));
         }
 
-        HearingDaySchedule hearingDaySchedule = hearingSessions.get(0);
+        return hearingSessions.get(0);
+    }
 
-        String hearingEpimsId = hearingDaySchedule.getHearingVenueEpimsId();
-
-        VenueDetails venueDetails = venueService.getVenueDetailsForActiveVenueByEpimsId(hearingEpimsId);
-
-        if (isNull(venueDetails)) {
-            throw new InvalidMappingException(String.format(
-                "Invalid epims Id %s, unable to find active venue with that id, regarding Case Id %s",
-                hearingEpimsId,
-                sscsCaseData.getCcdCaseId()
-            ));
-        }
-
-        Venue venue = mapVenueDetailsToVenue(venueDetails);
-
-        Hearing hearing = HearingsServiceHelper.getHearingById(hearingId, sscsCaseData);
-
-        if (isNull(hearing)) {
-            hearing = HearingsServiceHelper.createHearing(hearingId);
-            HearingsServiceHelper.addHearing(hearing, sscsCaseData);
-        }
-
-        HearingDetails hearingDetails = hearing.getValue();
-        hearingDetails.setEpimsId(hearingEpimsId);
-        hearingDetails.setVenue(venue);
+    private LocalDateTime updateHearingDates(HearingDaySchedule hearingDaySchedule, HearingDetails hearingDetails) {
+        LocalDateTime hearingDateIssued = null;
         LocalDateTime hearingStartDateTime = hearingDaySchedule.getHearingStartDateTime();
         LocalDateTime hearingEndDateTime = hearingDaySchedule.getHearingEndDateTime();
+
+        if (!convertUtcToUk(hearingStartDateTime).equals(hearingDetails.getStart())) {
+            hearingDateIssued = LocalDateTime.now();
+        }
+
         hearingDetails.setStart(convertUtcToUk(hearingStartDateTime));
         hearingDetails.setEnd(convertUtcToUk(hearingEndDateTime));
         String hearingDate = hearingStartDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         hearingDetails.setHearingDate(hearingDate);
         String hearingTime = hearingStartDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
         hearingDetails.setTime(hearingTime);
-        hearingDetails.setHearingChannel(HearingsServiceHelper.getHearingBookedChannel(hearingGetResponse));
 
-        List<String> panelMemberIds = hearingDaySchedule.getPanelMemberIds();
-
-        if (isPostHearingsEnabled && nonNull(panelMemberIds)) {
-            JudicialUserPanel panel = JudicialUserPanel.builder()
-                .assignedTo(judicialRefDataService.getJudicialUserFromPersonalCode(hearingDaySchedule.getHearingJudgeId()))
-                .panelMembers(panelMemberIds.stream().map(id -> new CollectionItem<>(id, judicialRefDataService.getJudicialUserFromPersonalCode(id))).toList())
-                .build();
-
-            hearingDetails.setPanel(panel);
-        }
-
-        log.info(
-            "Venue has been updated from epimsId '{}' to '{}' for Case Id: {} with hearingId {}",
-            hearingDetails.getEpimsId(),
-            hearingEpimsId,
-            sscsCaseData.getCcdCaseId(),
-            hearingId
-        );
+        return hearingDateIssued;
     }
 
     public void setHearingStatus(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus hmcStatus) {
@@ -146,32 +159,28 @@ public class HearingUpdateService {
         }
     }
 
-    public void setWorkBasketFields(String hearingId, @Valid SscsCaseData sscsCaseData, HmcStatus listAssistCaseStatus) {
-
+    public void setWorkBasketFields(String hearingId, LocalDateTime hearingDateIssued, @Valid SscsCaseData sscsCaseData,
+                                    HmcStatus listAssistCaseStatus) {
         WorkBasketFields workBasketFields = sscsCaseData.getWorkBasketFields();
 
         if (isCaseListed(listAssistCaseStatus)) {
             LocalDate hearingDate = getHearingDate(hearingId, sscsCaseData);
             workBasketFields.setHearingDate(hearingDate);
-
-            if (isNull(workBasketFields.getHearingDateIssued())) {
-                LocalDateTime hearingDateIssuedTime = LocalDateTime.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                String hearingDateIssued = hearingDateIssuedTime.format(formatter);
-                log.debug(
-                    "Setting workBasketField hearingDateIssued {} for case id reference {}",
-                    hearingDateIssued,
-                    sscsCaseData.getCcdCaseId()
-                );
-                workBasketFields.setHearingDateIssued(hearingDateIssued);
-            }
-
+            setHearingDateIssued(hearingDateIssued, workBasketFields);
             String epimsId = getHearingEpimsId(hearingId, sscsCaseData);
             workBasketFields.setHearingEpimsId(epimsId);
         } else {
             workBasketFields.setHearingDate(null);
             workBasketFields.setHearingDateIssued(null);
             workBasketFields.setHearingEpimsId(null);
+        }
+    }
+
+    private static void setHearingDateIssued(LocalDateTime hearingDateIssuedTime, WorkBasketFields workBasketFields) {
+        if (!isNull(hearingDateIssuedTime)) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String hearingDateIssued = hearingDateIssuedTime.format(formatter);
+            workBasketFields.setHearingDateIssued(hearingDateIssued);
         }
     }
 

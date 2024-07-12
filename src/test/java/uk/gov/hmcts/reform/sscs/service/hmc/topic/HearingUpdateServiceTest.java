@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service.hmc.topic;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.ADJOURNED;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.LISTED;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class HearingUpdateServiceTest {
     public static final LocalDateTime HEARING_START_DATE_TIME = LocalDateTime.now();
@@ -160,6 +162,90 @@ class HearingUpdateServiceTest {
             .containsOnly(VENUE_NAME);
 
         assertThat(hearings.get(0).getValue().getPanel().getAllPanelMembers().size()).isEqualTo(3);
+    }
+
+    @DisplayName("When hearing start date is same hearingDateIssued should be null")
+    @Test
+    void testHearingDateIssuedIsNull() throws Exception {
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+            HearingDaySchedule.builder()
+                .hearingStartDateTime(zoneUtcStartDateTime.minusHours(1))
+                .hearingEndDateTime(zoneUtcEndDateTime.minusHours(1))
+                .hearingVenueEpimsId(EPIMS_ID)
+                .hearingJudgeId(JUDGE_ID)
+                .panelMemberIds(PANEL_IDS)
+                .build()));
+
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId(EPIMS_ID)
+                           .start(zoneUtcStartDateTime)
+                           .hearingId(String.valueOf(HEARING_ID))
+                           .build())
+                .build(),
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId("23453")
+                           .hearingId("35533")
+                           .build())
+                .build()
+        ));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String date = zoneUtcStartDateTime.format(formatter);
+        caseData.getWorkBasketFields().setHearingDateIssued(date);
+
+        given(judicialRefDataService.getJudicialUserFromPersonalCode(any())).willReturn(new JudicialUserBase(
+            "idamId",
+            "personalCode"
+        ));
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID)).thenReturn(venueDetails);
+
+        // when
+        var hearingDateIssued = hearingUpdateService.updateHearing(hearingGetResponse, caseData);
+        assertThat(hearingDateIssued).isNull();
+    }
+
+    @DisplayName("When hearing start date is different hearingDateIssued should be not null")
+    @Test
+    void testHearingDateIssuedIsNotNull() throws Exception {
+        hearingGetResponse.getHearingResponse().setHearingSessions(List.of(
+            HearingDaySchedule.builder()
+                .hearingStartDateTime(zoneUtcStartDateTime.plusHours(1))
+                .hearingEndDateTime(zoneUtcEndDateTime.plusHours(1))
+                .hearingVenueEpimsId(EPIMS_ID)
+                .hearingJudgeId(JUDGE_ID)
+                .panelMemberIds(PANEL_IDS)
+                .build()));
+
+        caseData.setHearings(Lists.newArrayList(
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId(EPIMS_ID)
+                           .start(zoneUtcStartDateTime)
+                           .hearingId(String.valueOf(HEARING_ID))
+                           .build())
+                .build(),
+            Hearing.builder()
+                .value(HearingDetails.builder()
+                           .epimsId("23453")
+                           .hearingId("35533")
+                           .build())
+                .build()
+        ));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String date = zoneUtcStartDateTime.format(formatter);
+        caseData.getWorkBasketFields().setHearingDateIssued(date);
+
+        given(judicialRefDataService.getJudicialUserFromPersonalCode(any())).willReturn(new JudicialUserBase(
+            "idamId",
+            "personalCode"
+        ));
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(EPIMS_ID)).thenReturn(venueDetails);
+
+        // when
+        var hearingDateIssued = hearingUpdateService.updateHearing(hearingGetResponse, caseData);
+        assertThat(hearingDateIssued).isNotNull();
     }
 
     @DisplayName("When caseData with no hearing that matches one from hearingGetResponse is given,"
@@ -326,8 +412,7 @@ class HearingUpdateServiceTest {
                     .epimsId(EPIMS_ID)
                     .build())
                 .build()));
-
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(zoneUtcStartDateTime.toLocalDate());
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
@@ -346,7 +431,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isEqualTo(EPIMS_ID);
     }
@@ -364,7 +449,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isEqualTo(zoneUtcStartDateTime.toLocalDate());
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
@@ -381,7 +466,7 @@ class HearingUpdateServiceTest {
                     .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, ADJOURNED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, ADJOURNED);
 
         assertThat(caseData.getWorkBasketFields().getHearingDate()).isNull();
         assertThat(caseData.getWorkBasketFields().getHearingEpimsId()).isNull();
@@ -400,7 +485,7 @@ class HearingUpdateServiceTest {
                            .build())
                 .build()));
 
-        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), caseData, LISTED);
+        hearingUpdateService.setWorkBasketFields(String.valueOf(HEARING_ID), LocalDateTime.now(), caseData, LISTED);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String expectedHearingDateIssued = zoneUtcStartDateTime.format(formatter);

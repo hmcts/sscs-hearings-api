@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
+import java.time.LocalDateTime;
 import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
@@ -45,7 +46,6 @@ public class ProcessHmcMessageService {
         String hearingId = hmcMessage.getHearingId();
 
         HearingGetResponse hearingResponse = hmcHearingApiService.getHearingRequest(hearingId);
-
         HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
 
         if (stateNotHandled(hmcMessageStatus, hearingResponse)) {
@@ -67,16 +67,16 @@ public class ProcessHmcMessageService {
         if (resolvedState != null) {
             caseData.setDwpState(resolvedState);
         }
+
+        LocalDateTime hearingDateIssued = null;
         if (isHearingUpdated(hmcMessageStatus, hearingResponse)) {
-            hearingUpdateService.updateHearing(hearingResponse, caseData);
+            hearingDateIssued = hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
         hearingUpdateService.setHearingStatus(hearingId, caseData, hmcMessageStatus);
-
-        hearingUpdateService.setWorkBasketFields(hearingId, caseData, hmcMessageStatus);
+        hearingUpdateService.setWorkBasketFields(hearingId, hearingDateIssued, caseData, hmcMessageStatus);
 
         String ccdUpdateDescription = String.format(hmcMessageStatus.getCcdUpdateDescription(), hearingId);
-
         resolveEventAndUpdateCase(hearingResponse, hmcMessageStatus, caseData, ccdUpdateDescription);
 
         log.info(
@@ -118,8 +118,7 @@ public class ProcessHmcMessageService {
     }
 
     private boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
-        return isHearingListedOrUpdateSubmitted(hmcStatus)
-            && isStatusFixed(hearingResponse);
+        return isHearingListedOrUpdateSubmitted(hmcStatus) && isStatusFixed(hearingResponse);
     }
 
     private boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {

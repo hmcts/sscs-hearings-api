@@ -128,7 +128,6 @@ class ProcessHmcMessageServiceTest {
     @EnumSource(value = HmcStatus.class, names = {"LISTED", "AWAITING_LISTING", "UPDATE_SUBMITTED"})
     void testUpdateHearingListingStatusCancelled(HmcStatus hmcStatus) throws Exception {
         // given
-
         hearingGetResponse.getRequestDetails().setStatus(hmcStatus);
         hearingGetResponse.getHearingResponse().setListingStatus(ListingStatus.CNCL);
 
@@ -147,7 +146,7 @@ class ProcessHmcMessageServiceTest {
         verifyUpdateCaseDataCalledCorrectlyForHmcStatus(caseData, hmcStatus);
         verify(hearingUpdateService, never()).updateHearing(any(),any());
         verify(hearingUpdateService).setHearingStatus(HEARING_ID, caseData, hmcStatus);
-        verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, caseData, hmcStatus);
+        verify(hearingUpdateService).setWorkBasketFields(HEARING_ID, null, caseData, hmcStatus);
     }
 
     @Test
