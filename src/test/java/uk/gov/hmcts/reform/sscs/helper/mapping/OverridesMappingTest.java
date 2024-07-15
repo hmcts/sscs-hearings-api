@@ -548,7 +548,7 @@ class OverridesMappingTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstDateTimeMustBe()).isNull();
-        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getDateRangeStart()).isEqualTo("2022-01-01");
         assertThat(result.getDateRangeEnd()).isNull();
     }
 

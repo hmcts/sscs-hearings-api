@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
@@ -90,7 +91,8 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, refData));
-        partyDetails.partyChannel(HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null).getHmcReference());
+        HearingChannel partyChannel = HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
+        partyDetails.partyChannel(partyChannel != null ? partyChannel.getHmcReference() : null);
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
