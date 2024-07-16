@@ -40,6 +40,7 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.VerbalLanguagesService;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
+import uk.gov.hmcts.reform.sscs.service.HearingsService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingsApi;
 import uk.gov.hmcts.reform.sscs.service.RegionalProcessingCenterService;
@@ -67,10 +68,11 @@ public class HearingsListenerTest {
     private static final String CASE_ID = "1234123412341234";
     private static final String PROCESSING_VENUE_1 = "Cardiff";
 
-    @Autowired
     private TribunalsHearingsEventQueueListener tribunalsHearingsEventQueueListener;
     @Autowired
     private ObjectMapper mapper;
+    @Autowired
+    private HearingsService hearingsService;
 
     @MockBean
     private IdamService idamService;
@@ -98,6 +100,7 @@ public class HearingsListenerTest {
 
     @Test
     public void testHearingsUpdateCaseV2() throws UpdateCaseException, TribunalsEventProcessingException, GetCaseException {
+        tribunalsHearingsEventQueueListener = new TribunalsHearingsEventQueueListener(hearingsService, ccdCaseService);
         IdamTokens idamTokens = IdamTokens.builder().build();
         when(idamService.getIdamTokens()).thenReturn(idamTokens);
         when(ccdCaseService.getStartEventResponse(anyLong(), any())).thenReturn(SscsCaseDetails.builder().data(
