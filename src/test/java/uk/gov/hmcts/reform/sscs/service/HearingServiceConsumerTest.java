@@ -38,8 +38,11 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDateType.FIRST_AVAILABLE_DATE;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.YES;
 
 @ExtendWith(MockitoExtension.class)
 public class HearingServiceConsumerTest {
@@ -76,7 +79,7 @@ public class HearingServiceConsumerTest {
             .benefitCode(BENEFIT_CODE)
             .issueCode(ISSUE_CODE)
             .caseManagementLocation(CaseManagementLocation.builder().build())
-            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).build())
+            .adjournment(Adjournment.builder().adjournmentInProgress(YesNo.NO).nextHearingDateType(FIRST_AVAILABLE_DATE).build())
             .appeal(Appeal.builder()
                         .rep(Representative.builder().hasRepresentative("No").build())
                         .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
@@ -128,6 +131,10 @@ public class HearingServiceConsumerTest {
         );
         //reset the DLVs
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(adjournmentFlagEnabled ? YES : NO)
+                                    .nextHearingDateType(FIRST_AVAILABLE_DATE)
+                                    .build());
+
         sscsCaseDetailsConsumer.accept(sscsCaseDetails);
         //if the mutator has been applied then a defaultListingValue should have been added
         OverrideFields defaultListingValues = sscsCaseDetails.getData().getSchedulingAndListingFields().getDefaultListingValues();
@@ -138,6 +145,8 @@ public class HearingServiceConsumerTest {
         assertThat(defaultListingValues.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
         assertThat(defaultListingValues.getAppellantInterpreter().getIsInterpreterWanted()).isEqualTo(NO);
         assertThat(defaultListingValues.getHearingVenueEpimsIds().get(0)).isNotNull();
+        //this flag is either reset to NO from YES, or keeps at NO
+        assertThat(caseData.getAdjournment().getAdjournmentInProgress()).isEqualTo(NO);
 
         List<Hearing> hearings = caseData.getHearings();
         assertThat(hearings).isNotEmpty();
@@ -147,7 +156,7 @@ public class HearingServiceConsumerTest {
     }
 
     @Test
-    public void testCreateHearingCaseDetailsConsumerWithListingException() {
+    public void testCreateHearingCaseDetailsConsumerWithListingExceptionMessage() {
         given(refData.getHearingDurations()).willReturn(hearingDurations);
         given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
 
@@ -159,11 +168,9 @@ public class HearingServiceConsumerTest {
         );
         //reset the DLVs
         caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
-        try {
-            sscsCaseDetailsConsumer.accept(sscsCaseDetails);
-        } catch (RuntimeException re) {
-            assertThat(re.getMessage()).contains("Incorrect benefit/issue code combination");
-        }
+        RuntimeException re = assertThrows(RuntimeException.class, () -> sscsCaseDetailsConsumer.accept(sscsCaseDetails));
+        assertThat(re.getMessage()).contains("Incorrect benefit/issue code combination");
+        assertThat(caseData.getSchedulingAndListingFields().getDefaultListingValues()).isNull();
     }
 
     @Test
