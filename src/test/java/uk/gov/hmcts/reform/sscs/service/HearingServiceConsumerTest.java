@@ -155,6 +155,61 @@ public class HearingServiceConsumerTest {
         assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void testCreateHearingCaseDetailsConsumerWithAdjournmentFlagEnabled(boolean adjournmentInProgress) {
+        setupResponse();
+        given(refData.isAdjournmentFlagEnabled()).willReturn(true);
+        given(sessionCategoryMaps.getSessionCategory(
+            BENEFIT_CODE,
+            ISSUE_CODE,
+            false,
+            false
+        )).willReturn(new SessionCategoryMap(
+            BenefitCode.PIP_NEW_CLAIM,
+            Issue.DD,
+            false,
+            false,
+            SessionCategory.CATEGORY_03,
+            null
+        ));
+        given(refData.getHearingDurations()).willReturn(hearingDurations);
+        given(refData.getSessionCategoryMaps()).willReturn(sessionCategoryMaps);
+        given(refData.getVenueService()).willReturn(venueService);
+        given(venueService.getEpimsIdForVenue(PROCESSING_VENUE)).willReturn("219164");
+
+        SscsCaseDetails sscsCaseDetails = SscsCaseDetails.builder().data(caseData).build();
+
+        Consumer<SscsCaseDetails> sscsCaseDetailsConsumer = hearingServiceConsumer.getCreateHearingCaseDetailsConsumerV2(
+            response,
+            HEARING_REQUEST_ID
+        );
+        //reset the DLVs
+        caseData.getSchedulingAndListingFields().setDefaultListingValues(null);
+        caseData.setAdjournment(Adjournment.builder().adjournmentInProgress(adjournmentInProgress ? YES : NO)
+                                    .nextHearingDateType(FIRST_AVAILABLE_DATE)
+                                    .build());
+
+        sscsCaseDetailsConsumer.accept(sscsCaseDetails);
+        //if the mutator has been applied then a defaultListingValue should have been added
+        OverrideFields defaultListingValues = sscsCaseDetails.getData().getSchedulingAndListingFields().getDefaultListingValues();
+        assertThat(defaultListingValues).isNotNull();
+        assertThat(defaultListingValues.getDuration()).isEqualTo(0);
+        assertThat(defaultListingValues.getAutoList()).isEqualTo(NO);
+        assertThat(defaultListingValues.getHearingWindow().getDateRangeStart()).isNotNull();
+        assertThat(defaultListingValues.getAppellantHearingChannel()).isEqualTo(HearingChannel.FACE_TO_FACE);
+        assertThat(defaultListingValues.getAppellantInterpreter().getIsInterpreterWanted()).isEqualTo(NO);
+        assertThat(defaultListingValues.getHearingVenueEpimsIds().get(0)).isNotNull();
+        //this flag is either reset to NO from YES, or keeps at NO
+        assertThat(caseData.getAdjournment().getAdjournmentInProgress()).isEqualTo(NO);
+
+        List<Hearing> hearings = caseData.getHearings();
+        assertThat(hearings).isNotEmpty();
+        assertEquals(1, hearings.size()); // hearing added
+        assertEquals("123", hearings.get(0).getValue().getHearingId());
+        assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
+    }
+
     @Test
     public void testCreateHearingCaseDetailsConsumerWithListingExceptionMessage() {
         given(refData.getHearingDurations()).willReturn(hearingDurations);
