@@ -13,15 +13,14 @@ import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.CaseHearing;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingDaySchedule;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingSubChannel;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.SessionCategoryMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
@@ -114,11 +113,29 @@ public final class HearingsServiceHelper {
             || HmcStatus.AWAITING_LISTING == hmcStatus;
     }
 
-    public static HearingChannel getHearingBookedChannel(HearingGetResponse hearingGetResponse) {
-        return Optional.ofNullable(hearingGetResponse.getHearingDetails().getHearingChannels())
-            .orElse(Collections.emptyList()).stream()
-            .findFirst()
+    public static HearingChannel getHearingSubChannel(HearingGetResponse hearingGetResponse) {
+        List<HearingDaySchedule> hearingDaySchedules = hearingGetResponse.getHearingResponse().getHearingSessions();
+
+        if (isNull(hearingDaySchedules) || hearingDaySchedules.isEmpty()) {
+            return null;
+        }
+
+        var attendees = hearingDaySchedules.stream()
+            .min(Comparator.comparing(HearingDaySchedule::getHearingStartDateTime))
+            .map(HearingDaySchedule::getAttendees)
             .orElse(null);
+
+        if (isNull(attendees)) {
+            return null;
+        }
+
+        var hearingSubChannel = attendees.stream().filter(a -> !"DWP".equals(a.getPartyID()))
+            .filter(c -> !isNull(c.getHearingSubChannel()))
+            .map(b -> HearingSubChannel.getHearingSubChannel(b.getHearingSubChannel()))
+            .findFirst()
+            .orElse(Optional.empty());
+
+        return hearingSubChannel.map(HearingSubChannel::getHearingChannel).orElse(null);
     }
 
     public static void checkBenefitIssueCode(SessionCategoryMap sessionCategoryMap) throws ListingException {
