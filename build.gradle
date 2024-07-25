@@ -74,35 +74,35 @@ sourceSets {
   }
 }
 
-task integration(type: Test) {
+tasks.register('integration', Test) {
   description = "Runs integration tests"
   group = "Verification"
   setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
   setClasspath(sourceSets.integrationTest.runtimeClasspath)
 }
 
-task functional(type: Test) {
+tasks.register('functional', Test) {
   group = 'Verification'
   description = 'Executes non-destructive functional tests in AAT against a running CCD and notification service.'
   setTestClassesDirs(sourceSets.functionalTest.output.classesDirs)
   setClasspath(sourceSets.functionalTest.runtimeClasspath)
 }
 
-task smoke(type: Test) {
+tasks.register('smoke', Test) {
   group = 'Verification'
   description = 'Executes non-destructive smoke tests against a running SSCS hearings API application.'
   setTestClassesDirs(sourceSets.smokeTest.output.classesDirs)
   setClasspath(sourceSets.smokeTest.runtimeClasspath)
 }
 
-task contract(type: Test) {
+tasks.register('contract', Test) {
   group = 'Verification'
   description = 'Executes consumer Pact tests.'
   setTestClassesDirs(sourceSets.contractTest.output.classesDirs)
   setClasspath(sourceSets.contractTest.runtimeClasspath)
 }
 
-task runAndPublishConsumerPactTests(type: Test){
+tasks.register('runAndPublishConsumerPactTests', Test) {
   logger.lifecycle("Runs pact Tests")
   testClassesDirs = sourceSets.contractTest.output.classesDirs
   classpath = sourceSets.contractTest.runtimeClasspath
@@ -125,7 +125,7 @@ configurations {
   contractTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror" << '-Xlint:deprecation'
 }
 
@@ -134,7 +134,7 @@ tasks.withType(JavaExec).configureEach {
   javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
   useJUnitPlatform()
 
   testLogging {
@@ -193,11 +193,14 @@ jacocoTestReport {
   reports {
     xml.required = true
     csv.required = false
-    xml.destination file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.outputLocation = layout.buildDirectory.file("/reports/jacoco/test/jacocoTestReport.xml")
   }
 }
 
-project.tasks['sonarqube'].dependsOn test, integration, jacocoTestReport
+project.tasks.named('sonarqube') {
+  dependsOn test, integration, jacocoTestReport
+}
+
 check.dependsOn integration
 checkstyleMain.shouldRunAfter(compileJava)
 test.shouldRunAfter(checkstyleTest)
@@ -208,7 +211,7 @@ sonarqube {
   properties {
     property "sonar.projectName", "SSCS - Hearings Api"
     property "sonar.projectKey", "SSCSHA"
-    property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
+    property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.outputLocation}"
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
@@ -231,15 +234,15 @@ pitest {
   mutationThreshold = 80
 }
 
-task installLocalGitHook(type: Copy) {
+tasks.register('installLocalGitHook', Copy) {
   from new File(rootProject.rootDir, 'config/git/pre-commit')
-  into { new File(rootProject.rootDir, '.git/hooks')}
+  into { new File(rootProject.rootDir, '.git/hooks') }
   fileMode 0775
 }
 
 compileJava.dependsOn installLocalGitHook
 
-task runGitPreCommitTasks {
+tasks.register('runGitPreCommitTasks') {
   dependsOn 'test'
   dependsOn 'pmdMain'
   dependsOn 'pmdTest'
@@ -247,7 +250,10 @@ task runGitPreCommitTasks {
   dependsOn 'checkstyleTest'
 }
 
-project.tasks['pitest'].group = "Verification"
+project.tasks.named('pitest') {
+  group = "Verification"
+}
+
 // before committing a change, make sure task still works
 dependencyUpdates {
   def isNonStable = { String version ->
@@ -457,22 +463,22 @@ bootJar {
 
 // Gradle 7.x issue, workaround from: https://github.com/gradle/gradle/issues/17236#issuecomment-894768083
 rootProject.tasks.named("processSmokeTestResources") {
-  duplicatesStrategy = 'include'
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 rootProject.tasks.named("processFunctionalTestResources") {
-  duplicatesStrategy = 'include'
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 rootProject.tasks.named("processContractTestResources") {
-  duplicatesStrategy = 'include'
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 rootProject.tasks.named("processIntegrationTestResources") {
-  duplicatesStrategy = 'include'
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-task fortifyScan(type: JavaExec)  {
+tasks.register('fortifyScan', JavaExec) {
   mainClass = "uk.gov.hmcts.fortifyclient.FortifyClientMainApp"
   classpath += sourceSets.test.runtimeClasspath
   jvmArgs = ['--add-opens=java.base/java.lang.reflect=ALL-UNNAMED']
