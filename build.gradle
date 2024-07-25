@@ -207,7 +207,7 @@ test.shouldRunAfter(checkstyleTest)
 integration.shouldRunAfter(checkstyleIntegrationTest)
 integration.shouldRunAfter(test)
 
-sonarqube {
+sonar {
   properties {
     property "sonar.projectName", "SSCS - Hearings Api"
     property "sonar.projectKey", "SSCSHA"
