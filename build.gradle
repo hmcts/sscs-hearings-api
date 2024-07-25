@@ -298,14 +298,14 @@ repositories {
 }
 
 dependencies {
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: springBoot.class.package.implementationVersion
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq', version: springBoot.class.package.implementationVersion
 
   implementation group: 'org.springframework.security', name: 'spring-security-oauth2-resource-server', version: '5.7.10'
   implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.7.10'
