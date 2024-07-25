@@ -25,6 +25,7 @@ gitProperties {
   dateFormatTimeZone = "GMT"
 }
 
+generateGitProperties.dependsOn(':installLocalGitHook')
 processResources.dependsOn(':generateGitProperties')
 
 group = 'uk.gov.hmcts.reform'
