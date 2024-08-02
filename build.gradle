@@ -198,7 +198,7 @@ jacocoTestReport {
   }
 }
 
-project.tasks.named('sonar') {
+project.tasks.named('sonarqube') {
   dependsOn test, integration, jacocoTestReport
 }
 
@@ -208,7 +208,7 @@ test.shouldRunAfter(checkstyleTest)
 integration.shouldRunAfter(checkstyleIntegrationTest)
 integration.shouldRunAfter(test)
 
-sonar {
+sonarqube {
   properties {
     property "sonar.projectName", "SSCS - Hearings Api"
     property "sonar.projectKey", "SSCSHA"
