@@ -160,7 +160,6 @@ class HearingsServiceTest {
                 .ccdCaseId(String.valueOf(CASE_ID))
                 .build())
             .build();
-
     }
 
     @DisplayName("When wrapper with a valid Hearing State is given addHearingResponse should run without error")
