@@ -141,7 +141,7 @@ flags:
   tribunals-to-hearings-api:
     enabled: ${TRIBUNALS_HEARINGS_LISTENING_ENABLED:false}
   adjournment:
-    enabled: ${ADJOURNMENT_ENABLED:false}
+    enabled: ${ADJOURNMENT_ENABLED:true}
   postHearings:
     enabled: ${POST_HEARING_ENABLED:false}
   deployment-filter:
