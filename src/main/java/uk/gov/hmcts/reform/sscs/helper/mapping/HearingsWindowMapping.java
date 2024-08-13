@@ -19,7 +19,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 @Slf4j
 public final class HearingsWindowMapping {
 
-    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 28;
+    public static final int DAYS_TO_ADD_HEARING_WINDOW_DWP_RESPONDED = 31;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY_POSTPONEMENT = 14;
     public static final int DAYS_TO_ADD_HEARING_WINDOW_TODAY = 1;
 

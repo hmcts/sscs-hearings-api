@@ -235,6 +235,26 @@ class HearingsNumberAttendeesMappingTest {
         assertThat(result).isEqualTo(2);
     }
 
+    @DisplayName("When an other party doesn't have hearingOptions, getNumberOfAppellantAttendees should not throw an exception")
+    @Test
+    void testGetNumberOfOtherPartyAttendeesWhenHearingOptionsNull() {
+        List<CcdValue<OtherParty>> otherParties = List.of(
+            CcdValue.<OtherParty>builder()
+                .value(OtherParty.builder()
+                    .hearingOptions(HearingOptions.builder().wantsToAttend("Yes").build())
+                    .build())
+                .build(),
+            CcdValue.<OtherParty>builder()
+                .value(OtherParty.builder()
+                    .hearingOptions(null)
+                    .build())
+                .build());
+
+        long result = HearingsNumberAttendeesMapping.getNumberOfOtherPartyAttendees(otherParties);
+
+        assertThat(result).isEqualTo(1);
+    }
+
     @DisplayName("When hearing not face to face and adjournment flag is enabled, getNumberOfPhysicalAttendees returns zero")
     @Test
     void testGetNumberOfOtherPartyAttendeesWithReferenceData() {

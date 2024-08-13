@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HearingUpdate {
-
     private LocalDateTime hearingResponseReceivedDateTime;
     private LocalDateTime hearingEventBroadcastDateTime;
     @NonNull
