@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.YesNo;
 import uk.gov.hmcts.reform.sscs.exception.InvalidMappingException;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.HearingLocation;
-import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.reference.data.model.Language;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
@@ -62,14 +61,14 @@ public final class OverridesMapping {
             .orElse(Collections.emptyList());
     }
 
-    public static void setDefaultListingValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+    public static void setDefaultListingValues(SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
 
-        OverrideFields defaultListingValues = wrapper.getCaseData().getSchedulingAndListingFields().getDefaultListingValues();
+        //this is NOT being set in the consumer during V2 process
+        OverrideFields defaultListingValues = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
         if (isNull(defaultListingValues) || defaultListingValues.isAllNull()) {
-            OverrideFields defaultOverrideValues = getOverrideFieldValues(wrapper, refData);
-            SscsCaseData caseData = wrapper.getCaseData();
+            OverrideFields defaultOverrideValues = getOverrideFieldValues(caseData, refData);
             caseData.getSchedulingAndListingFields().setDefaultListingValues(defaultOverrideValues);
 
             log.debug("Default Override Listing Values set to {} for Case ID {}",
@@ -78,11 +77,10 @@ public final class OverridesMapping {
         }
     }
 
-    public static void setOverrideValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+    public static void setOverrideValues(SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
 
-        OverrideFields overrideFields = getOverrideFieldValues(wrapper, refData);
-        SscsCaseData caseData = wrapper.getCaseData();
+        OverrideFields overrideFields = getOverrideFieldValues(caseData, refData);
         caseData.getSchedulingAndListingFields().setOverrideFields(overrideFields);
         caseData.getSchedulingAndListingFields().getOverrideFields().setHearingWindow(overrideFields.getHearingWindow());
 
@@ -91,11 +89,10 @@ public final class OverridesMapping {
                   caseData.getCcdCaseId());
     }
 
-    private static OverrideFields getOverrideFieldValues(HearingWrapper wrapper, ReferenceDataServiceHolder refData)
+    private static OverrideFields getOverrideFieldValues(SscsCaseData caseData, ReferenceDataServiceHolder refData)
         throws ListingException {
 
         // get case data from hearing wrapper and required appeal fields
-        SscsCaseData caseData = wrapper.getCaseData();
         Appeal appeal = caseData.getAppeal();
         HearingSubtype subtype = appeal.getHearingSubtype();
         HearingOptions options = appeal.getHearingOptions();
