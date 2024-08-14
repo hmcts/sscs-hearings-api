@@ -7,7 +7,7 @@ import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
-import au.com.dius.pact.core.model.annotations.PactFolder;
+import au.com.dius.pact.core.model.annotations.PactDirectory;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQ
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
-@PactFolder("pacts")
+@PactDirectory("pacts")
 class HearingPutConsumerTest extends BasePactTest {
 
     @Autowired
