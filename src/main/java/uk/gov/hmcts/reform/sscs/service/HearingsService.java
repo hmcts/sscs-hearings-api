@@ -10,7 +10,6 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
@@ -48,7 +47,7 @@ import static uk.gov.hmcts.reform.sscs.helper.service.HearingsServiceHelper.getH
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods"})
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.UnusedFormalParameter", "PMD.TooManyMethods", "AvoidThrowingRawExceptionTypes"})
 public class HearingsService {
 
     @Value("${retry.hearing-response-update.max-retries}")
@@ -65,6 +64,8 @@ public class HearingsService {
     private final UpdateCcdCaseService updateCcdCaseService;
 
     private final IdamService idamService;
+
+    private final HearingServiceConsumer hearingServiceConsumer;
 
     @Value("${feature.hearings-case-updateV2.enabled:false}")
     private boolean hearingsCaseUpdateV2Enabled;
@@ -141,7 +142,7 @@ public class HearingsService {
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
         HmcUpdateResponse hmcUpdateResponse;
 
-        OverridesMapping.setDefaultListingValues(wrapper, refData);
+        OverridesMapping.setDefaultListingValues(wrapper.getCaseData(), refData);
 
         if (isNull(hearing)) {
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);
@@ -183,7 +184,7 @@ public class HearingsService {
 
     private void updateHearing(HearingWrapper wrapper) throws UpdateCaseException, ListingException {
         if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
-            OverridesMapping.setOverrideValues(wrapper, refData);
+            OverridesMapping.setOverrideValues(wrapper.getCaseData(), refData);
         }
         Integer duration = wrapper
             .getCaseData()
@@ -220,7 +221,7 @@ public class HearingsService {
         // TODO process hearing response
     }
 
-    public void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException {
+    protected void hearingResponseUpdate(HearingWrapper wrapper, HmcUpdateResponse response) throws UpdateCaseException, ListingException {
         SscsCaseData caseData = wrapper.getCaseData();
         Long hearingRequestId = response.getHearingRequestId();
         String caseId = caseData.getCcdCaseId();
@@ -236,7 +237,8 @@ public class HearingsService {
         if (hearingsCaseUpdateV2Enabled) {
             updateCaseWithHearingResponseV2(wrapper, response, hearingRequestId, event, caseId);
         } else {
-            updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
+            hearingServiceConsumer.getCreateHearingCaseDataConsumer(response, hearingRequestId).accept(wrapper.getCaseData());
+
             var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
 
             if (nonNull(details)) {
@@ -257,14 +259,13 @@ public class HearingsService {
             event.getEventType().getCcdType());
     }
 
-    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event,
-                                                 String caseId) throws UpdateCaseException {
-        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> updateCaseDataWithHearingResponseCaseDetails(response, hearingRequestId, sscsCaseDetails);
-
+    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException, ListingException {
         log.info("Updating case with hearing response using updateCaseDataV2 for event {} description {}",
                  event, event.getDescription());
 
         try {
+            Consumer<SscsCaseDetails> caseDataConsumer = hearingServiceConsumer.getCreateHearingCaseDetailsConsumerV2(response, hearingRequestId);
+
             updateCcdCaseService.updateCaseV2(
                 Long.parseLong(caseId),
                 event.getEventType().getCcdType(),
@@ -286,6 +287,7 @@ public class HearingsService {
             log.error(exc.getMessage(), exc);
             throw exc;
         }
+
     }
 
     private void updateCaseDataWithHearingResponseCaseDetails(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) {
@@ -309,7 +311,7 @@ public class HearingsService {
             caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
         }
     }
-
+  
     @Recover
     public void hearingResponseUpdateRecover(UpdateCaseException exception, HearingWrapper wrapper, HmcUpdateResponse response) {
         log.info("Updating Case with Hearing Response has failed {} times, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
