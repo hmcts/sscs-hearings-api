@@ -11,7 +11,7 @@ plugins {
   id 'org.sonarqube' version '4.3.0.3225'
   id 'info.solidsoft.pitest' version '1.9.11'
   id 'com.gorylenko.gradle-git-properties' version '2.4.1'
-  id 'au.com.dius.pact' version '4.3.10'
+  id 'au.com.dius.pact' version '4.3.15'
 }
 
 apply plugin: 'org.springframework.boot'
@@ -403,7 +403,7 @@ dependencies {
   testImplementation group: 'org.mockito', name: 'mockito-inline', version: '5.1.1'
 
   //pact contract testing
-  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.1.7'
+  contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.3.15'
   contractTestImplementation group: 'au.com.dius.pact.consumer', name: 'java8', version: '4.1.7'
   contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'junit5', version: '4.1.7'
   contractTestRuntimeOnly group: 'au.com.dius.pact.consumer', name: 'java8',  version: '4.1.7'
