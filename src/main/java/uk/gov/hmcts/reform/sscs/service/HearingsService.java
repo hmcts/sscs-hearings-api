@@ -258,9 +258,7 @@ public class HearingsService {
             event.getEventType().getCcdType());
     }
 
-    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException {
-        Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> updateCaseDataWithHearingResponseCaseDetails(response, hearingRequestId, sscsCaseDetails);
-
+    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException, ListingException {
         log.info("Updating case with hearing response using updateCaseDataV2 for event {} description {}",
                  event, event.getDescription());
 
@@ -288,15 +286,6 @@ public class HearingsService {
             log.error(exc.getMessage(), exc);
             throw exc;
         }
-    }
-
-    private void updateCaseDataWithHearingResponseCaseDetails(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) {
-        updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseDetails.getData());
-    }
-
-    private void updateCaseDataWithHearingResponse(HmcUpdateResponse response, Long hearingRequestId, SscsCaseData caseData) {
-        Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
-
     }
 
     @Recover

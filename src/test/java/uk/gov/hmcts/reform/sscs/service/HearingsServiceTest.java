@@ -246,12 +246,7 @@ class HearingsServiceTest {
             assertThat(caseData.getHearings()).isNull(); // before case updated with new hearing
 
             Consumer<SscsCaseDetails> sscsCaseDataConsumer = caseDataConsumerCaptor.getValue();
-            sscsCaseDataConsumer.accept(sscsCaseDetails);
-            List<Hearing> hearings = caseData.getHearings();
-            assertThat(hearings).isNotEmpty();
-            assertEquals(1, hearings.size()); // hearing added
-            assertEquals("123", hearings.get(0).getValue().getHearingId());
-            assertEquals(1234L, hearings.get(0).getValue().getVersionNumber());
+            assertThat(sscsCaseDataConsumer).isEqualTo(sscsCaseDetailsConsumer);
 
         } else {
             verify(ccdCaseService).updateCaseData(
