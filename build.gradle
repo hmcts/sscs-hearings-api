@@ -380,8 +380,8 @@ dependencies {
   testImplementation group: 'io.rest-assured', name: 'xml-path', version: '4.5.1'
   testImplementation group: 'io.rest-assured', name: 'json-path', version: '4.5.1'
 
-  testImplementation group: 'org.projectlombok', name:'lombok', version: versions.lombok
-  testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: versions.lombok
+  testImplementation group: 'org.projectlombok', name:'lombok', version: '1.18.28'
+  testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: '1.18.28'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
