@@ -69,4 +69,5 @@
   <rule ref="category/java/performance.xml"/>
   <rule ref="category/java/security.xml"/>
 
+  <rule ref="category/java/bestpractices.xml/AvoidThrowingRawExceptionTypes" />
 </ruleset>

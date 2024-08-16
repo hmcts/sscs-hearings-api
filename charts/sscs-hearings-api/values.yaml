@@ -6,6 +6,8 @@ java:
   autoscaling:
     enabled: false
   ingressHost: sscs-hearings-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+  spotInstances:
+    enabled: false
   keyVaults:
     sscs:
       secrets:
