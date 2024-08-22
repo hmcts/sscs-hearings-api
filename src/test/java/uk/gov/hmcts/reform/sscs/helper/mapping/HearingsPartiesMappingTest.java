@@ -161,53 +161,9 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
     }
 
-    @DisplayName("When a valid hearing wrapper when PO attending is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
-    @Test
-    void buildHearingPartiesDetailsPoAttending() throws ListingException {
-        SscsCaseData caseData = SscsCaseData.builder()
-            .dwpIsOfficerAttending("Yes")
-            .benefitCode("001")
-            .appeal(Appeal.builder()
-                .hearingOptions(HearingOptions.builder().wantsToAttend("yes").build())
-                .hearingType("test")
-                .hearingSubtype(HearingSubtype.builder().hearingVideoEmail("email@email.com").wantsHearingTypeFaceToFace("yes").build())
-                .appellant(Appellant.builder()
-                     .id(PARTY_ID)
-                     .name(Name.builder()
-                         .title("title")
-                         .firstName("first")
-                         .lastName("last")
-                         .build())
-                     .build())
-                .build())
-            .build();
-        HearingWrapper wrapper = HearingWrapper.builder()
-            .caseData(caseData)
-            .caseData(caseData)
-            .build();
-
-        List<PartyDetails> partiesDetails = HearingsPartiesMapping.buildHearingPartiesDetails(wrapper, refData);
-
-        assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
-
-        assertThat(partiesDetails)
-            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
-            .hasSize(1)
-            .extracting(
-                PartyDetails::getPartyType,
-                PartyDetails::getPartyRole,
-                PartyDetails::getOrganisationDetails,
-                PartyDetails::getUnavailabilityDayOfWeek,
-                PartyDetails::getUnavailabilityRanges)
-            .contains(tuple(ORGANISATION, "RESP", OrganisationDetails.builder()
-                .name("DWP")
-                .organisationType("ORG")
-                .build(), List.of(), List.of()));
-    }
-
-    @DisplayName("When a valid hearing wrapper when PO attending is not Yes given buildHearingPartiesDetails returns the correct Hearing Parties Details")
+    @DisplayName("When a valid hearing wrapper when PO attending/is not attending is given buildHearingPartiesDetails returns the correct Hearing Parties Details")
     @ParameterizedTest
-    @ValueSource(strings = {"No"})
+    @ValueSource(strings = {"Yes", "No"})
     @NullAndEmptySource
     void buildHearingPartiesDetailsPoAttending(String officerAttending) throws ListingException {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -237,6 +193,20 @@ class HearingsPartiesMappingTest extends HearingsMappingBase {
         assertThat(partiesDetails.stream().filter(o -> PARTY_ID.substring(0,15).equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
 
         assertThat(partiesDetails.stream().filter(o -> DWP_ID.equalsIgnoreCase(o.getPartyID())).findFirst()).isPresent();
+
+        assertThat(partiesDetails)
+            .filteredOn(partyDetails -> DWP_ID.equals(partyDetails.getPartyID()))
+            .hasSize(1)
+            .extracting(
+                PartyDetails::getPartyType,
+                PartyDetails::getPartyRole,
+                PartyDetails::getOrganisationDetails,
+                PartyDetails::getUnavailabilityDayOfWeek,
+                PartyDetails::getUnavailabilityRanges)
+            .contains(tuple(ORGANISATION, "RESP", OrganisationDetails.builder()
+                .name("DWP")
+                .organisationType("ORG")
+                .build(), List.of(), List.of()));
     }
 
     @DisplayName("When a valid hearing wrapper is given with OtherParties buildHearingPartiesDetails returns the correct Hearing Parties Details")
