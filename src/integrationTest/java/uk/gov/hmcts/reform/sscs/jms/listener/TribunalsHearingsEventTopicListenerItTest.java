@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sscs;
+package uk.gov.hmcts.reform.sscs.jms.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Adjournment;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
@@ -29,7 +30,6 @@ import uk.gov.hmcts.reform.sscs.exception.TribunalsEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
-import uk.gov.hmcts.reform.sscs.jms.listener.TribunalsHearingsEventQueueListener;
 import uk.gov.hmcts.reform.sscs.model.VenueDetails;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.multi.hearing.HearingsGetResponse;
@@ -63,12 +63,13 @@ import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMappingBase.ISSUE_
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("integration")
-@TestPropertySource(locations = "classpath:config/application_it_updateCaseV2.properties")
-public class HearingsListenerTest {
+@TestPropertySource(locations = "classpath:config/application_it.properties")
+public class TribunalsHearingsEventTopicListenerItTest {
     private static final String CASE_ID = "1234123412341234";
     private static final String PROCESSING_VENUE_1 = "Cardiff";
 
     private TribunalsHearingsEventQueueListener tribunalsHearingsEventQueueListener;
+
     @Autowired
     private ObjectMapper mapper;
     @Autowired
@@ -99,27 +100,52 @@ public class HearingsListenerTest {
     private UpdateCcdCaseService updateCcdCaseService;
 
     @Test
+    public void testHearingsUpdateCase() throws UpdateCaseException, TribunalsEventProcessingException, GetCaseException {
+        ReflectionTestUtils.setField(hearingsService, "hearingsCaseUpdateV2Enabled", false);
+
+        tribunalsHearingsEventQueueListener = new TribunalsHearingsEventQueueListener(hearingsService, ccdCaseService);
+        SscsCaseDetails sscsCaseDetails = createSscsCaseDetails();
+        IdamTokens idamTokens = IdamTokens.builder().build();
+        when(idamService.getIdamTokens()).thenReturn(idamTokens);
+        when(ccdCaseService.getStartEventResponse(anyLong(), any())).thenReturn(sscsCaseDetails);
+        when(hmcHearingsApi.getHearingsRequest(any(), any(), any(), any(), any()))
+            .thenReturn(HearingsGetResponse.builder().build());
+
+        when(sessionCategoryMaps.getSessionCategory(BENEFIT_CODE, ISSUE_CODE, false, false))
+            .thenReturn(new SessionCategoryMap(BenefitCode.PIP_NEW_CLAIM, Issue.DD,
+                                               false, false, SessionCategory.CATEGORY_06, null
+            ));
+
+        when(refData.getSessionCategoryMaps()).thenReturn(sessionCategoryMaps);
+        when(refData.getHearingDurations()).thenReturn(hearingDurationsService);
+        when(refData.getRegionalProcessingCenterService()).thenReturn(regionalProcessingCenterService);
+        when(regionalProcessingCenterService.getByPostcode(any())).thenReturn(RegionalProcessingCenter.builder().hearingRoute(
+            HearingRoute.LIST_ASSIST).build());
+        when(refData.getVenueService()).thenReturn(venueService);
+        when(venueService.getActiveRegionalEpimsIdsForRpc(any())).thenReturn(List.of(VenueDetails.builder().epimsId("1").build()));
+        when(refData.getVerbalLanguages()).thenReturn(verbalLanguages);
+        when(verbalLanguages.getVerbalLanguage(any())).thenReturn(Language.builder().reference("LANG").build());
+        HmcUpdateResponse response = HmcUpdateResponse.builder().hearingRequestId(22L).build();
+        when(hearingApi.createHearingRequest(any(), any(), any(), any())).thenReturn(response);
+
+        String message = "{\n"
+            + "  \"ccdCaseId\": \"" + CASE_ID + "\",\n"
+            + "  \"hearingRoute\": \"LIST_ASSIST\",\n"
+            + "  \"hearingState\": \"adjournCreateHearing\"\n"
+            + "}\n";
+        tribunalsHearingsEventQueueListener.handleIncomingMessage(deserialize(message));
+
+        verify(ccdCaseService).updateCaseData(eq(sscsCaseDetails.getData()), any(), any());
+    }
+
+    @Test
     public void testHearingsUpdateCaseV2() throws UpdateCaseException, TribunalsEventProcessingException, GetCaseException {
+        ReflectionTestUtils.setField(hearingsService, "hearingsCaseUpdateV2Enabled", true);
+
         tribunalsHearingsEventQueueListener = new TribunalsHearingsEventQueueListener(hearingsService, ccdCaseService);
         IdamTokens idamTokens = IdamTokens.builder().build();
         when(idamService.getIdamTokens()).thenReturn(idamTokens);
-        when(ccdCaseService.getStartEventResponse(anyLong(), any())).thenReturn(SscsCaseDetails.builder().data(
-            SscsCaseData.builder()
-                .ccdCaseId(CASE_ID)
-                .adjournment(Adjournment.builder().nextHearingDateType(FIRST_AVAILABLE_DATE).build())
-                .processingVenue(PROCESSING_VENUE_1)
-                .benefitCode(BENEFIT_CODE)
-                .issueCode(ISSUE_CODE)
-                .appeal(
-                    Appeal.builder().appellant(
-                        Appellant.builder()
-                            .id("11")
-                            .name(Name.builder().firstName("first").lastName("last").build())
-                            .build())
-                        .hearingOptions(HearingOptions.builder().languageInterpreter("Yes").build())
-                        .build())
-                .regionalProcessingCenter(RegionalProcessingCenter.builder().name("Bristol Magistrates").postcode("BA1 1AA").build())
-                .build()).build());
+        when(ccdCaseService.getStartEventResponse(anyLong(), any())).thenReturn(createSscsCaseDetails());
         when(hmcHearingsApi.getHearingsRequest(any(), any(), any(), any(), any()))
             .thenReturn(HearingsGetResponse.builder().build());
 
@@ -149,6 +175,27 @@ public class HearingsListenerTest {
 
         verify(updateCcdCaseService).updateCaseV2(
             eq(Long.parseLong(CASE_ID)), any(), any(), any(), any(), any());
+    }
+
+    private SscsCaseDetails createSscsCaseDetails() {
+        SscsCaseDetails sscsCaseDetails = SscsCaseDetails.builder().data(
+            SscsCaseData.builder()
+                .ccdCaseId(CASE_ID)
+                .adjournment(Adjournment.builder().nextHearingDateType(FIRST_AVAILABLE_DATE).build())
+                .processingVenue(PROCESSING_VENUE_1)
+                .benefitCode(BENEFIT_CODE)
+                .issueCode(ISSUE_CODE)
+                .appeal(
+                    Appeal.builder().appellant(
+                            Appellant.builder()
+                                .id("11")
+                                .name(Name.builder().firstName("first").lastName("last").build())
+                                .build())
+                        .hearingOptions(HearingOptions.builder().languageInterpreter("Yes").build())
+                        .build())
+                .regionalProcessingCenter(RegionalProcessingCenter.builder().name("Bristol Magistrates").postcode("BA1 1AA").build())
+                .build()).build();
+        return sscsCaseDetails;
     }
 
     private HearingRequest deserialize(String source) {
