@@ -97,7 +97,7 @@ public class ProcessHmcMessageServiceV2 {
         );
     }
 
-    private static DynamicEventUpdateResult resolveEventType(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) {
+    private DynamicEventUpdateResult resolveEventType(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) {
         BiFunction<HearingGetResponse, SscsCaseData, EventType> eventMapper = hmcMessageStatus.getEventMapper();
         log.info("PostponementRequest {}", caseData.getPostponement());
 
