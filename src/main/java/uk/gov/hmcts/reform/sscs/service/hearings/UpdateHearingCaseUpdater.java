@@ -68,7 +68,7 @@ public class UpdateHearingCaseUpdater extends HearingSaveActionBase {
 
     private HearingEvent updateHearing(HearingWrapper wrapper) throws ListingException {
         if (isNull(wrapper.getCaseData().getSchedulingAndListingFields().getOverrideFields())) {
-            OverridesMapping.setOverrideValues(wrapper, referenceDataServiceHolder);
+            OverridesMapping.setOverrideValues(wrapper.getCaseData(), referenceDataServiceHolder);
         }
         Integer duration = wrapper
             .getCaseData()
