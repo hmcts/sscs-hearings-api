@@ -35,11 +35,10 @@ public class ProcessHmcMessageServiceV2 {
     private final HearingUpdateService hearingUpdateService;
     private final UpdateCcdCaseService updateCcdCaseService;
     private final IdamService idamService;
+    private final ProcessHmcMessageHelper processHmcMessageHelper;
 
     public void processEventMessageV2(HmcMessage hmcMessage)
         throws CaseException, MessageProcessingException, InvalidMappingException {
-
-        log.info("In ProcessHmcMessageServiceV2");
 
         Long caseId = hmcMessage.getCaseId();
         String hearingId = hmcMessage.getHearingId();
@@ -48,14 +47,14 @@ public class ProcessHmcMessageServiceV2 {
 
         HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
 
-        if (ProcessHmcMessageHelper.stateNotHandled(hmcMessageStatus, hearingResponse)) {
-            log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
+        if (processHmcMessageHelper.stateNotHandled(hmcMessageStatus, hearingResponse)) {
+            log.info("CCD state has not been updated using V2 for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
             return;
         }
 
-        log.info("Processing message for HMC status {} with cancellation reasons {} for the Hearing ID {} and Case ID"
+        log.info("Processing message using V2 for HMC status {} with cancellation reasons {} for the Hearing ID {} and Case ID"
                      + " {}",
                  hmcMessageStatus, hearingResponse.getRequestDetails().getCancellationReasonCodes(),
                  hearingId, caseId
@@ -69,11 +68,11 @@ public class ProcessHmcMessageServiceV2 {
             if (resolvedState != null) {
                 sscsCaseData.setDwpState(resolvedState);
             }
-            if (ProcessHmcMessageHelper.isHearingUpdated(hmcMessageStatus, hearingResponse)) {
+            if (processHmcMessageHelper.isHearingUpdated(hmcMessageStatus, hearingResponse)) {
                 try {
                     hearingUpdateService.updateHearing(hearingResponse, sscsCaseData);
                 } catch (InvalidMappingException | MessageProcessingException e) {
-                    log.error("Error updating hearing for hearing ID {} and case ID {}", hearingId, caseId, e);
+                    log.error("Error updating hearing using V2 for hearing ID {} and case ID {}", hearingId, caseId, e);
                     throw new HearingUpdateException(e.getMessage(), e);
                 }
             }
@@ -91,7 +90,7 @@ public class ProcessHmcMessageServiceV2 {
         updateCcdCaseService.updateCaseV2DynamicEvent(caseId, idamTokens, mutator);
 
         log.info(
-            "Hearing message {} processed for case reference {}",
+            "Hearing message {} processed using V2 for case reference {}",
             hmcMessage.getHearingId(),
             hmcMessage.getCaseId()
         );
@@ -99,19 +98,19 @@ public class ProcessHmcMessageServiceV2 {
 
     private DynamicEventUpdateResult resolveEventType(SscsCaseData caseData, HmcStatus hmcMessageStatus, HearingGetResponse hearingResponse, String hearingId) {
         BiFunction<HearingGetResponse, SscsCaseData, EventType> eventMapper = hmcMessageStatus.getEventMapper();
-        log.info("PostponementRequest {}", caseData.getPostponement());
+        log.info("Using V2 PostponementRequest {}", caseData.getPostponement());
 
         DynamicEventUpdateResult noEventResult = new DynamicEventUpdateResult("", "", false, null);
 
         if (isNull(eventMapper)) {
-            log.info("Case has not been updated for HMC Status {} with null eventMapper for the Case ID {}",
+            log.info("Case has not been updated using V2 for HMC Status {} with null eventMapper for the Case ID {}",
                      hmcMessageStatus, caseData.getCcdCaseId());
             return noEventResult;
         }
 
         EventType eventType = eventMapper.apply(hearingResponse, caseData);
         if (isNull(eventType)) {
-            log.info("Case has not been updated for HMC Status {} with null eventType for the Case ID {}",
+            log.info("Case has not been updated using V2 for HMC Status {} with null eventType for the Case ID {}",
                      hmcMessageStatus, caseData.getCcdCaseId());
             return noEventResult;
         }

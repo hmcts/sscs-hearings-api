@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.helper.processing;
 
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
 
@@ -12,36 +13,37 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.UPDATE_SUBM
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.CNCL;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.ListingStatus.FIXED;
 
+@Component
 public final class ProcessHmcMessageHelper {
 
     private ProcessHmcMessageHelper() {
     }
 
-    public static boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
+    public boolean stateNotHandled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return !(isHearingUpdated(hmcStatus, hearingResponse) || isHearingCancelled(hmcStatus, hearingResponse)
             || isStatusException(hmcStatus));
     }
 
-    public static boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
+    public boolean isHearingUpdated(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return isHearingListedOrUpdateSubmitted(hmcStatus)
             && isStatusFixed(hearingResponse);
     }
 
-    private static boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {
+    private boolean isHearingListedOrUpdateSubmitted(HmcStatus hmcStatus) {
         return hmcStatus == LISTED || hmcStatus == AWAITING_LISTING || hmcStatus == UPDATE_SUBMITTED;
     }
 
-    private static boolean isStatusFixed(HearingGetResponse hearingResponse) {
+    private boolean isStatusFixed(HearingGetResponse hearingResponse) {
         return FIXED == hearingResponse.getHearingResponse().getListingStatus();
     }
 
-    private static boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
+    private boolean isHearingCancelled(HmcStatus hmcStatus, HearingGetResponse hearingResponse) {
         return hmcStatus == CANCELLED
             || isNotEmpty(hearingResponse.getRequestDetails().getCancellationReasonCodes())
             || CNCL == hearingResponse.getHearingResponse().getListingStatus();
     }
 
-    public static boolean isStatusException(HmcStatus hmcStatus) {
+    public boolean isStatusException(HmcStatus hmcStatus) {
         return hmcStatus == EXCEPTION;
     }
 }

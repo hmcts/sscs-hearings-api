@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.sscs.exception.CaseException;
 import uk.gov.hmcts.reform.sscs.exception.GetCaseException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.helper.processing.ProcessHmcMessageHelper;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HearingUpdate;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
@@ -68,6 +69,9 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
     @Mock
     private IdamService idamService;
+
+    @Mock
+    private ProcessHmcMessageHelper processHmcMessageHelper;
 
     @InjectMocks
     private ProcessHmcMessageService processHmcMessageService;
@@ -129,6 +133,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
+
+        given(processHmcMessageHelper.isHearingUpdated(hmcStatus, hearingGetResponse)).willReturn(true);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -219,6 +225,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
             .willReturn(hearingGetResponse);
 
+        given(processHmcMessageHelper.stateNotHandled(any(), any())).willReturn(true);
+
         // when
         callProcessEventMessage(processHmcMessageService, processHmcMessageServiceV2, hmcMessage);
 
@@ -239,6 +247,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
+
+        given(processHmcMessageHelper.stateNotHandled(LISTED, hearingGetResponse)).willReturn(true);
 
         // when
         callProcessEventMessage(processHmcMessageService, processHmcMessageServiceV2, hmcMessage);
@@ -371,6 +381,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
             .willReturn(hearingGetResponse);
 
+        given(processHmcMessageHelper.stateNotHandled(HEARING_REQUESTED, hearingGetResponse)).willReturn(true);
+
         // when
         callProcessEventMessage(processHmcMessageService, processHmcMessageServiceV2, hmcMessage);
 
@@ -392,6 +404,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
+
+        given(processHmcMessageHelper.stateNotHandled(value, hearingGetResponse)).willReturn(true);
 
         // when
         callProcessEventMessage(processHmcMessageService, processHmcMessageServiceV2, hmcMessage);

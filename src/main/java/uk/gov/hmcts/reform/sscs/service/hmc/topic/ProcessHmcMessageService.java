@@ -31,6 +31,8 @@ public class ProcessHmcMessageService {
 
     private final HearingUpdateService hearingUpdateService;
 
+    private final ProcessHmcMessageHelper processHmcMessageHelper;
+
     public void processEventMessage(HmcMessage hmcMessage)
         throws CaseException, MessageProcessingException {
 
@@ -41,7 +43,7 @@ public class ProcessHmcMessageService {
 
         HmcStatus hmcMessageStatus = hmcMessage.getHearingUpdate().getHmcStatus();
 
-        if (ProcessHmcMessageHelper.stateNotHandled(hmcMessageStatus, hearingResponse)) {
+        if (processHmcMessageHelper.stateNotHandled(hmcMessageStatus, hearingResponse)) {
             log.info("CCD state has not been updated for the Hearing ID {} and Case ID {}",
                      hearingId, caseId
             );
@@ -60,7 +62,7 @@ public class ProcessHmcMessageService {
         if (resolvedState != null) {
             caseData.setDwpState(resolvedState);
         }
-        if (ProcessHmcMessageHelper.isHearingUpdated(hmcMessageStatus, hearingResponse)) {
+        if (processHmcMessageHelper.isHearingUpdated(hmcMessageStatus, hearingResponse)) {
             hearingUpdateService.updateHearing(hearingResponse, caseData);
         }
 
