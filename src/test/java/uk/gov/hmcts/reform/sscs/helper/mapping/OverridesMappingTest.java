@@ -212,7 +212,7 @@ class OverridesMappingTest {
         given(refData.getVenueService()).willReturn(venueService);
         given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        OverridesMapping.setDefaultListingValues(wrapper, refData);
+        OverridesMapping.setDefaultListingValues(wrapper.getCaseData(), refData);
         OverrideFields result = caseData.getSchedulingAndListingFields().getDefaultListingValues();
 
         assertThat(result).isNotNull();
@@ -242,7 +242,7 @@ class OverridesMappingTest {
         given(refData.getVenueService()).willReturn(venueService);
         given(refData.getVerbalLanguages()).willReturn(verbalLanguages);
 
-        OverridesMapping.setOverrideValues(wrapper, refData);
+        OverridesMapping.setOverrideValues(wrapper.getCaseData(), refData);
         OverrideFields result = caseData.getSchedulingAndListingFields().getOverrideFields();
 
         assertThat(result).isNotNull();
@@ -280,7 +280,7 @@ class OverridesMappingTest {
             .duration(10)
             .build();
 
-        OverridesMapping.setOverrideValues(wrapper, refData);
+        OverridesMapping.setOverrideValues(wrapper.getCaseData(), refData);
         OverrideFields overrideFields = caseData.getSchedulingAndListingFields().getOverrideFields();
 
         assertThat(defaultListingValues).isNotNull();
@@ -548,7 +548,7 @@ class OverridesMappingTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstDateTimeMustBe()).isNull();
-        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getDateRangeStart()).isEqualTo("2022-01-01");
         assertThat(result.getDateRangeEnd()).isNull();
     }
 

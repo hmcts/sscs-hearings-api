@@ -115,7 +115,7 @@ public class CreateHearingCaseUpdater extends HearingSaveActionBase {
         CaseHearing hearing = HearingsServiceHelper.findExistingRequestedHearings(hearingsGetResponse);
         HmcUpdateResponse hmcUpdateResponse;
 
-        OverridesMapping.setDefaultListingValues(wrapper, refData);
+        OverridesMapping.setDefaultListingValues(wrapper.getCaseData(), refData);
 
         if (isNull(hearing)) {
             HearingRequestPayload hearingPayload = buildHearingPayload(wrapper, refData);

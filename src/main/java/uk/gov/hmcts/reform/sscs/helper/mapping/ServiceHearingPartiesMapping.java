@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
 import uk.gov.hmcts.reform.sscs.model.service.hearingvalues.PartyDetails;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.IndividualDetails;
+import uk.gov.hmcts.reform.sscs.reference.data.model.HearingChannel;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
@@ -23,7 +24,7 @@ import static java.util.Objects.nonNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.isYes;
 import static uk.gov.hmcts.reform.sscs.helper.mapping.HearingsMapping.DWP_ID;
 import static uk.gov.hmcts.reform.sscs.model.hmc.reference.EntityRoleCode.RESPONDENT;
-import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.INDIVIDUAL;
+import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATION;
 
 @SuppressWarnings("PMD.ExcessiveImports")
 public final class ServiceHearingPartiesMapping {
@@ -40,9 +41,7 @@ public final class ServiceHearingPartiesMapping {
 
         List<PartyDetails> partiesDetails = new ArrayList<>();
 
-        if (HearingsDetailsMapping.isPoOfficerAttending(caseData)) {
-            partiesDetails.add(createDwpPartyDetails(caseData));
-        }
+        partiesDetails.add(createDwpPartyDetails(caseData));
 
         if (isYes(caseData.getJointParty().getHasJointParty())) {
             partiesDetails.add(createJointPartyDetails());
@@ -90,7 +89,8 @@ public final class ServiceHearingPartiesMapping {
         partyDetails.partyRole(HearingsPartiesMapping.getPartyRole(entity));
         partyDetails.partyName(HearingsPartiesMapping.getIndividualFullName(entity));
         partyDetails.individualDetails(getPartyIndividualDetails(entity, hearingOptions, hearingSubtype, partyId, refData));
-        partyDetails.partyChannel(HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null).getHmcReference());
+        HearingChannel partyChannel = HearingChannelUtil.getIndividualPreferredHearingChannel(hearingSubtype, hearingOptions, null);
+        partyDetails.partyChannel(partyChannel != null ? partyChannel.getHmcReference() : null);
         partyDetails.organisationDetails(HearingsPartiesMapping.getPartyOrganisationDetails());
         partyDetails.unavailabilityDow(HearingsPartiesMapping.getPartyUnavailabilityDayOfWeek());
         partyDetails.unavailabilityRanges(HearingsPartiesMapping.getPartyUnavailabilityRange(hearingOptions));
@@ -101,7 +101,7 @@ public final class ServiceHearingPartiesMapping {
     public static PartyDetails createDwpPartyDetails(SscsCaseData caseData) {
         return PartyDetails.builder()
             .partyID(DWP_ID)
-            .partyType(INDIVIDUAL)
+            .partyType(ORGANISATION)
             .partyRole(RESPONDENT.getHmcReference())
             .organisationDetails(HearingsPartiesMapping.getDwpOrganisationDetails(caseData))
             .unavailabilityDow(HearingsPartiesMapping.getDwpUnavailabilityDayOfWeek())

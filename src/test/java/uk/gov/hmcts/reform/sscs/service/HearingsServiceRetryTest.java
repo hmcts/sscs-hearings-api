@@ -43,6 +43,8 @@ import uk.gov.hmcts.reform.sscs.reference.data.service.HearingDurationsService;
 import uk.gov.hmcts.reform.sscs.reference.data.service.SessionCategoryMapService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import java.util.function.Consumer;
+
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +55,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.CREATE_HEARING;
 
 @EnableRetry
@@ -94,6 +97,15 @@ class HearingsServiceRetryTest {
     @MockBean
     private UpdateCcdCaseService updateCcdCaseService;
 
+    @MockBean
+    private HearingServiceConsumer hearingServiceConsumer;
+
+    @MockBean
+    private Consumer<SscsCaseDetails> sscsCaseDetailsConsumer;
+
+    @Mock
+    private Consumer<SscsCaseData> sscsCaseDataConsumer;
+
     @Autowired
     private HearingsService hearingsService;
 
@@ -131,6 +143,11 @@ class HearingsServiceRetryTest {
             .eventId(EVENT_ID)
             .eventToken(EVENT_TOKEN)
             .build();
+
+        when(hearingServiceConsumer.getCreateHearingCaseDetailsConsumerV2(any(), any())).thenReturn(
+            sscsCaseDetailsConsumer);
+        when(hearingServiceConsumer.getCreateHearingCaseDataConsumer(any(), any())).thenReturn(sscsCaseDataConsumer);
+
     }
 
     @DisplayName("When wrapper with a valid HearingResponse is given updateHearingResponse should return updated valid HearingResponse")
@@ -145,7 +162,8 @@ class HearingsServiceRetryTest {
         given(ccdCaseService.updateCaseData(
             any(SscsCaseData.class),
             any(EventType.class),
-            anyString(), anyString()))
+            anyString(), anyString()
+        ))
             .willReturn(caseDetails);
 
         wrapper.setHearingState(state);
@@ -161,7 +179,8 @@ class HearingsServiceRetryTest {
             .updateCaseData(
                 any(SscsCaseData.class),
                 eq(wrapper),
-                any(HearingEvent.class));
+                any(HearingEvent.class)
+            );
     }
 
 
@@ -173,9 +192,10 @@ class HearingsServiceRetryTest {
         given(ccdCaseService.getStartEventResponse(eq(CASE_ID), any(EventType.class))).willReturn(caseDetails);
 
         given(ccdCaseService.updateCaseData(
-                any(SscsCaseData.class),
-                eq(wrapper),
-                any(HearingEvent.class)))
+            any(SscsCaseData.class),
+            eq(wrapper),
+            any(HearingEvent.class)
+        ))
             .willThrow(UpdateCaseException.class)
             .willReturn(caseDetails);
 
@@ -195,7 +215,8 @@ class HearingsServiceRetryTest {
 
         given(hmcHearingApiService.sendCancelHearingRequest(
             any(HearingCancelRequestPayload.class),
-            anyString()))
+            anyString()
+        ))
             .willReturn(hmcUpdateResponse);
 
         var hearingRequest = HearingRequest.builder(String.valueOf(CASE_ID))
@@ -210,7 +231,8 @@ class HearingsServiceRetryTest {
             .updateCaseData(
                 any(SscsCaseData.class),
                 eq(wrapper),
-                any(HearingEvent.class));
+                any(HearingEvent.class)
+            );
 
         verifyNoMoreInteractions(hmcHearingApiService);
     }
@@ -224,7 +246,8 @@ class HearingsServiceRetryTest {
             any(SscsCaseData.class),
             any(EventType.class),
             anyString(),
-            anyString()))
+            anyString()
+        ))
             .willThrow(UpdateCaseException.class);
 
         HmcUpdateResponse hmcUpdateResponse = HmcUpdateResponse.builder()
@@ -234,7 +257,8 @@ class HearingsServiceRetryTest {
 
         given(hmcHearingApiService.sendCancelHearingRequest(
             any(HearingCancelRequestPayload.class),
-            anyString()))
+            anyString()
+        ))
             .willReturn(hmcUpdateResponse);
 
         var hearingRequest = HearingRequest.builder(String.valueOf(CASE_ID))
@@ -249,6 +273,7 @@ class HearingsServiceRetryTest {
             .updateCaseData(
                 any(SscsCaseData.class),
                 eq(wrapper),
-                any(HearingEvent.class));
+                any(HearingEvent.class)
+            );
     }
 }

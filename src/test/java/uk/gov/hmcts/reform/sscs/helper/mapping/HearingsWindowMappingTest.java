@@ -45,7 +45,7 @@ class HearingsWindowMappingTest {
             .containsOnlyNulls();
 
         assertThat(result.getDateRangeStart())
-            .isEqualTo("2021-12-29");
+            .isEqualTo("2022-01-01");
     }
 
     @DisplayName("When a valid override Hearing Window given, buildHearingWindow returns the override Hearing Window")
@@ -99,7 +99,7 @@ class HearingsWindowMappingTest {
         HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, refData);
 
         assertThat(result.getFirstDateTimeMustBe()).isNull();
-        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getDateRangeStart()).isEqualTo("2022-01-01");
         assertThat(result.getDateRangeEnd()).isNull();
     }
 
@@ -107,7 +107,7 @@ class HearingsWindowMappingTest {
     @ParameterizedTest
     @CsvSource(value = {
         "2021-12-01,Yes,2021-12-02",
-        "2021-12-01,No,2021-12-29",
+        "2021-12-01,No,2022-01-01",
     }, nullValues = {"null"})
     void testGetHearingWindowStart(String dwpResponded, String isUrgent, LocalDate expected) {
         SscsCaseData caseData = SscsCaseData.builder()
@@ -183,7 +183,7 @@ class HearingsWindowMappingTest {
 
         HearingWindow result = HearingsWindowMapping.buildHearingWindow(caseData, refData);
         assertThat(result).isNotNull();
-        assertThat(result.getDateRangeStart()).isEqualTo("2021-12-29");
+        assertThat(result.getDateRangeStart()).isEqualTo("2022-01-01");
         assertThat(result.getFirstDateTimeMustBe()).isNull();
         assertThat(result.getDateRangeEnd()).isNull();
     }

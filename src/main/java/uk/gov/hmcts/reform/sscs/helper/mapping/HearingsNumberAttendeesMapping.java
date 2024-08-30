@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 
@@ -75,6 +76,7 @@ public final class HearingsNumberAttendeesMapping {
         return Optional.ofNullable(otherParties).orElse(Collections.emptyList()).stream()
             .map(CcdValue::getValue)
             .map(OtherParty::getHearingOptions)
+            .filter(Objects::nonNull)
             .map(HearingOptions::getWantsToAttend)
             .filter(YesNo::isYes)
             .count();
