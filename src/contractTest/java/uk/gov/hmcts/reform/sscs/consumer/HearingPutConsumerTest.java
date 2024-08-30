@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.sscs.consumer;
 
 import au.com.dius.pact.consumer.MockServer;
+import au.com.dius.pact.consumer.dsl.PactBuilder;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
-import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.RequestResponsePact;
+import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
-import au.com.dius.pact.core.model.annotations.PactFolder;
+import au.com.dius.pact.core.model.annotations.PactDirectory;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.HEARING_REQ
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
-@PactFolder("pacts")
+@PactDirectory("pacts")
 class HearingPutConsumerTest extends BasePactTest {
 
     @Autowired
@@ -72,8 +72,10 @@ class HearingPutConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact updateHearingRequestForValidRequest(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME + " successfully updating hearing request ")
+    public V4Pact updateHearingRequestForValidRequest(PactBuilder builder) {
+        return builder
+            .usingLegacyDsl()
+            .given(CONSUMER_NAME + " successfully updating hearing request ")
             .uponReceiving("Request to update hearing request to save details")
             .path(HEARING_PATH + "/" + VALID_CASE_ID)
             .method(HttpMethod.PUT.toString())
@@ -81,12 +83,14 @@ class HearingPutConsumerTest extends BasePactTest {
             .headers(authorisedHeaders).willRespondWith()
             .status(HttpStatus.OK.value())
             .body(generateHearingsJsonBody(MSG_200_HEARING, HEARING_REQUESTED))
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact validationErrorFromPutHearing(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME
+    public V4Pact validationErrorFromPutHearing(PactBuilder builder) {
+        return builder
+            .usingLegacyDsl()
+            .given(CONSUMER_NAME
                                  + " throws validation error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for invalid hearing request")
             .path(HEARING_PATH + "/" + VALID_CASE_ID)
@@ -100,12 +104,12 @@ class HearingPutConsumerTest extends BasePactTest {
                       .stringValue(FIELD_STATUS, BAD_REQUEST)
                       .eachLike(FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact unauthorisedRequestErrorFromPutHearing(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME
+    public V4Pact unauthorisedRequestErrorFromPutHearing(PactBuilder builder) {
+        return builder.usingLegacyDsl().given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for unauthorised hearing request")
             .path(HEARING_PATH + "/" + VALID_CASE_ID).method(HttpMethod.PUT.toString())
@@ -118,12 +122,12 @@ class HearingPutConsumerTest extends BasePactTest {
                           + " " + HttpStatus.UNAUTHORIZED.getReasonPhrase())
                       .eachLike(FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact forbiddenRequestErrorFromPutHearing(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME
+    public V4Pact forbiddenRequestErrorFromPutHearing(PactBuilder builder) {
+        return builder.usingLegacyDsl().given(CONSUMER_NAME
                                  + " throws forbidden error while trying to updating hearing")
             .uponReceiving("Request to UPDATE hearing for forbidden hearing request")
             .path(HEARING_PATH + "/" + FORBIDDEN_CASE_ID).method(HttpMethod.PUT.toString())
@@ -136,12 +140,12 @@ class HearingPutConsumerTest extends BasePactTest {
                           + " " + HttpStatus.FORBIDDEN.getReasonPhrase())
                       .eachLike(FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact notFoundRequestErrorFromPutHearing(PactDslWithProvider builder) {
-        return builder.given(CONSUMER_NAME
+    public V4Pact notFoundRequestErrorFromPutHearing(PactBuilder builder) {
+        return builder.usingLegacyDsl().given(CONSUMER_NAME
                                  + " throws not found request error while trying to update hearing")
             .uponReceiving("Request to UPDATE hearing for not found hearing request")
             .path(HEARING_PATH + "/" + NOT_FOUND_CASE_ID).method(HttpMethod.PUT.toString())
@@ -154,7 +158,7 @@ class HearingPutConsumerTest extends BasePactTest {
                           + " " + HttpStatus.NOT_FOUND.getReasonPhrase())
                       .eachLike(FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Test

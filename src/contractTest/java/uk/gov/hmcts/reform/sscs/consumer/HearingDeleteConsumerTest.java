@@ -5,9 +5,9 @@ import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.RequestResponsePact;
+import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
-import au.com.dius.pact.core.model.annotations.PactFolder;
+import au.com.dius.pact.core.model.annotations.PactDirectory;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus.CANCELLATIO
 @ActiveProfiles("contract")
 @SpringBootTest
 @PactTestFor(port = "10000")
-@PactFolder("pacts")
+@PactDirectory("pacts")
 class HearingDeleteConsumerTest extends BasePactTest {
 
     private static final String ID = "id";
@@ -51,7 +51,7 @@ class HearingDeleteConsumerTest extends BasePactTest {
     private HmcHearingApi hmcHearingApi;
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    RequestResponsePact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
+    V4Pact deleteHearingRequestForValidRequest(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME + " successfully deleting a hearing request ")
             .uponReceiving("Request to delete hearing request")
             .path(ContractTestDataProvider.HEARING_PATH + "/" + VALID_CASE_ID)
@@ -61,11 +61,11 @@ class HearingDeleteConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(generateHearingsJsonBody(MSG_200_HEARING,CANCELLATION_REQUESTED))
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact badRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
+    public V4Pact badRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws bad request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for bad hearing request")
@@ -80,11 +80,11 @@ class HearingDeleteConsumerTest extends BasePactTest {
                           + " " + HttpStatus.BAD_REQUEST.getReasonPhrase())
                       .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact unauthorisedRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
+    public V4Pact unauthorisedRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws unauthorised error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for unauthorised hearing request")
@@ -99,11 +99,11 @@ class HearingDeleteConsumerTest extends BasePactTest {
                           + " " + HttpStatus.UNAUTHORIZED.getReasonPhrase())
                       .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact forbiddenRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
+    public V4Pact forbiddenRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws forbidden error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for forbidden hearing request")
@@ -118,11 +118,11 @@ class HearingDeleteConsumerTest extends BasePactTest {
                           + " " + HttpStatus.FORBIDDEN.getReasonPhrase())
                       .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact notFoundRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
+    public V4Pact notFoundRequestErrorFromDeleteHearing(PactDslWithProvider builder) {
         return builder.given(CONSUMER_NAME
                                  + " throws not found request error while trying to delete hearing")
             .uponReceiving("Request to DELETE hearing for not found hearing request")
@@ -137,7 +137,7 @@ class HearingDeleteConsumerTest extends BasePactTest {
                           + " " + HttpStatus.NOT_FOUND.getReasonPhrase())
                       .eachLike(ContractTestDataProvider.FIELD_ERRORS, 1)
                       .closeArray())
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Test
