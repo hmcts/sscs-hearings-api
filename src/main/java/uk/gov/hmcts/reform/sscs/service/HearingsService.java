@@ -291,15 +291,6 @@ public class HearingsService {
 
     }
 
-    private void updateCaseDataWithHearingResponseCaseDetails(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) {
-        updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseDetails.getData());
-    }
-
-    private void updateCaseDataWithHearingResponse(HmcUpdateResponse response, Long hearingRequestId, SscsCaseData caseData) {
-        Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
-
-    }
-
     @Recover
     public void hearingResponseUpdateRecover(UpdateCaseException exception, HearingWrapper wrapper, HmcUpdateResponse response) {
         log.info("Updating Case with Hearing Response has failed {} times, rethrowing exception, for Case ID {}, Hearing ID {} and Hearing State {} with the exception: {}",
