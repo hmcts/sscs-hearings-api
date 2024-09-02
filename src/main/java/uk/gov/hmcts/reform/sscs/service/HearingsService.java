@@ -66,6 +66,8 @@ public class HearingsService {
 
     private final IdamService idamService;
 
+    private final HearingServiceConsumer hearingServiceConsumer;
+
     @Value("${feature.hearings-case-updateV2.enabled:false}")
     private boolean hearingsCaseUpdateV2Enabled;
     // Leaving blank for now until a future change is scoped and completed, then we can add the case states back in
@@ -235,7 +237,8 @@ public class HearingsService {
         if (hearingsCaseUpdateV2Enabled) {
             updateCaseWithHearingResponseV2(wrapper, response, hearingRequestId, event, caseId);
         } else {
-            updateCaseDataWithHearingResponse(response, hearingRequestId, wrapper.getCaseData());
+            hearingServiceConsumer.getCreateHearingCaseDataConsumer(response, hearingRequestId).accept(wrapper.getCaseData());
+
             var details = ccdCaseService.updateCaseData(caseData, wrapper, event);
 
             if (nonNull(details)) {
@@ -256,20 +259,13 @@ public class HearingsService {
             event.getEventType().getCcdType());
     }
 
-    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException, ListingException {
-        //the consumer is not updating the DefaultListingValues, even though the wrapper has -> in the v1 scenario, the caseData has this info, in v2, it is GOT from CCD
+    private void updateCaseWithHearingResponseV2(HearingWrapper wrapper, HmcUpdateResponse response, Long hearingRequestId, HearingEvent event, String caseId) throws UpdateCaseException {
 
         log.info("Updating case with hearing response using updateCaseDataV2 for event {} description {}",
                  event, event.getDescription());
 
         try {
-            Consumer<SscsCaseDetails> caseDataConsumer = sscsCaseDetails -> {
-                try {
-                    updateCaseDataWithHearingResponseCaseDetailsV2(response, hearingRequestId, sscsCaseDetails);
-                } catch (ListingException e) {
-                    throw new RuntimeException(e);
-                }
-            };
+            Consumer<SscsCaseDetails> caseDataConsumer = hearingServiceConsumer.getCreateHearingCaseDetailsConsumerV2(response, hearingRequestId);
 
             updateCcdCaseService.updateCaseV2(
                 Long.parseLong(caseId),
@@ -291,33 +287,17 @@ public class HearingsService {
                               caseId, e.status(), e));
             log.error(exc.getMessage(), exc);
             throw exc;
-        } catch (RuntimeException e) {
-            throw new ListingException(e.getMessage());
         }
 
     }
 
-    private void updateCaseDataWithHearingResponseCaseDetailsV2(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) throws ListingException {
-        OverridesMapping.setDefaultListingValues(sscsCaseDetails.getData(), refData);
+    private void updateCaseDataWithHearingResponseCaseDetails(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) {
         updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseDetails.getData());
     }
 
     private void updateCaseDataWithHearingResponse(HmcUpdateResponse response, Long hearingRequestId, SscsCaseData caseData) {
         Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
 
-        if (isNull(hearing)) {
-            hearing = HearingsServiceHelper.createHearing(hearingRequestId);
-            HearingsServiceHelper.addHearing(hearing, caseData);
-        }
-
-        HearingsServiceHelper.updateHearingId(hearing, response);
-        HearingsServiceHelper.updateVersionNumber(hearing, response);
-
-        if (refData.isAdjournmentFlagEnabled()
-            && YesNo.isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseData.getCcdCaseId());
-            caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
-        }
     }
 
     @Recover
