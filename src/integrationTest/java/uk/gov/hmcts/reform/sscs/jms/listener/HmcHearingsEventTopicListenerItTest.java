@@ -42,6 +42,7 @@ import java.time.LocalDateTime;
 import javax.jms.JMSException;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -156,7 +157,7 @@ public class HmcHearingsEventTopicListenerItTest {
 
         verify(hearingApi).getHearingRequest(any(), any(), any(), any(), any());
 
-        verify(updateCcdCaseService).updateCaseV2DynamicEvent(eq(Long.parseLong(CASE_ID)), eq(idamTokens), any());
+        verify(updateCcdCaseService).updateCaseV2DynamicEvent(eq(Long.parseLong(CASE_ID)), any(), anyBoolean(), eq(idamTokens), any());
 
     }
 

@@ -23,6 +23,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -45,7 +46,7 @@ class ProcessHmcMessageServiceTestV2 extends AbstractProcessHmcMessageServiceTes
 
     @Override
     void assertThatCall(UpdateCcdCaseService updateCcdCaseService, SscsCaseDetails sscsCaseDetails, DwpState dwpState) {
-        verify(updateCcdCaseService).updateCaseV2DynamicEvent(any(), any(), captor.capture());
+        verify(updateCcdCaseService).updateCaseV2DynamicEvent(any(), any(), anyBoolean(), any(), captor.capture());
 
         captor.getValue().apply(sscsCaseDetails);
 
@@ -55,7 +56,7 @@ class ProcessHmcMessageServiceTestV2 extends AbstractProcessHmcMessageServiceTes
     @Override
     void verifyUpdateCaseDataCalledCorrectlyForHmcStatus(CcdCaseService ccdCaseService, UpdateCcdCaseService updateCcdCaseService,
                                                          SscsCaseData caseData, HmcStatus hmcStatus, HearingGetResponse hearingGetResponse) throws UpdateCaseException {
-        verify(updateCcdCaseService).updateCaseV2DynamicEvent(any(), any(), captor.capture());
+        verify(updateCcdCaseService).updateCaseV2DynamicEvent(any(), any(), anyBoolean(), any(), captor.capture());
 
         UpdateCcdCaseService.DynamicEventUpdateResult dynamicEventUpdateResult = captor.getValue().apply(SscsCaseDetails.builder().data(caseData).build());
 

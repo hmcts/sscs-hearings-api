@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.model.hmc.reference.HmcStatus;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingGetResponse;
+import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
 import java.util.function.BiFunction;
@@ -36,6 +37,7 @@ public class ProcessHmcMessageServiceV2 {
     private final UpdateCcdCaseService updateCcdCaseService;
     private final IdamService idamService;
     private final ProcessHmcMessageHelper processHmcMessageHelper;
+    private final CcdCaseService ccdCaseService;
 
     public void processEventMessageV2(HmcMessage hmcMessage)
         throws CaseException, MessageProcessingException, InvalidMappingException {
@@ -85,9 +87,10 @@ public class ProcessHmcMessageServiceV2 {
 
         };
 
+        SscsCaseDetails initialSscsCaseDetails = ccdCaseService.getCaseDetails(caseId);
         IdamTokens idamTokens = idamService.getIdamTokens();
-
-        updateCcdCaseService.updateCaseV2DynamicEvent(caseId, idamTokens, mutator);
+        DynamicEventUpdateResult dynamicEventUpdateResult = mutator.apply(initialSscsCaseDetails);
+        updateCcdCaseService.updateCaseV2DynamicEvent(caseId, dynamicEventUpdateResult.eventType(), dynamicEventUpdateResult.willCommit(), idamTokens, mutator);
 
         log.info(
             "Hearing message {} processed using V2 for case reference {}",
@@ -116,7 +119,6 @@ public class ProcessHmcMessageServiceV2 {
         }
 
         String ccdUpdateDescription = String.format(hmcMessageStatus.getCcdUpdateDescription(), hearingId);
-
         return new DynamicEventUpdateResult(hmcMessageStatus.getCcdUpdateSummary(), ccdUpdateDescription, true, eventType.getCcdType());
     }
 }

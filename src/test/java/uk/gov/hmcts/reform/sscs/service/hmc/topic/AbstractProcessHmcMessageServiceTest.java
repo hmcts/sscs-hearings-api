@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -135,6 +136,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
                 .willReturn(hearingGetResponse);
 
         given(processHmcMessageHelper.isHearingUpdated(hmcStatus, hearingGetResponse)).willReturn(true);
+        given(ccdCaseService.getCaseDetails(anyLong()))
+            .willReturn(SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build());
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -160,6 +163,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
             .willReturn(hearingGetResponse);
+        given(ccdCaseService.getCaseDetails(anyLong()))
+            .willReturn(SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build());
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -187,6 +192,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hearingUpdateService.resolveDwpState(LISTED))
             .willReturn(DwpState.HEARING_DATE_ISSUED);
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
 
         // when
         callProcessEventMessage(processHmcMessageService, processHmcMessageServiceV2, hmcMessage);
@@ -204,6 +211,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
             .willReturn(hearingGetResponse);
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -275,7 +284,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
                 .willReturn(hearingGetResponse);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
-
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
         // when
         callProcessEventMessage(processHmcMessageService, processHmcMessageServiceV2, hmcMessage);
 
@@ -297,6 +307,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
             .willReturn(hearingGetResponse);
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -321,6 +333,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
             .willReturn(hearingGetResponse);
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -341,6 +355,8 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
@@ -361,6 +377,9 @@ abstract class AbstractProcessHmcMessageServiceTest {
 
         given(hmcHearingApiService.getHearingRequest(HEARING_ID))
                 .willReturn(hearingGetResponse);
+
+        given(ccdCaseService.getCaseDetails(CASE_ID))
+            .willReturn(sscsCaseDetails);
 
         givenWillReturn(ccdCaseService, updateCcdCaseService, CASE_ID, sscsCaseDetails, idamService);
 
