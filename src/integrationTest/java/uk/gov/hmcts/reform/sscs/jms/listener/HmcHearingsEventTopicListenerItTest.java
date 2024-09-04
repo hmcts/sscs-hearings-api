@@ -147,6 +147,8 @@ public class HmcHearingsEventTopicListenerItTest {
 
         when(mapper.readValue(any(String.class), eq(HmcMessage.class))).thenReturn(hmcMessage);
         when(idamService.getIdamTokens()).thenReturn(idamTokens);
+        when(ccdCaseService.getCaseDetails(anyLong())).thenReturn(SscsCaseDetails.builder().data(SscsCaseData.builder().build()).build());
+        when(venueService.getVenueDetailsForActiveVenueByEpimsId(any())).thenReturn(VenueDetails.builder().build());
 
         when(hearingApi.getHearingRequest(any(), any(), any(), any(), any()))
             .thenReturn(hearingGetResponse);
