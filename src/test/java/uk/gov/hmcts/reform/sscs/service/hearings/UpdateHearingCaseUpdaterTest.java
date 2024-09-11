@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service.hearings;
 
+import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SessionCategory;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.SscsCcdConvertService;
 import uk.gov.hmcts.reform.sscs.exception.ListingException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
@@ -35,6 +37,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingsApiService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,6 +46,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -104,6 +110,29 @@ class UpdateHearingCaseUpdaterTest extends HearingSaveActionBaseTest {
         verify(hmcHearingApiService).sendUpdateHearingRequest(
             any(HearingRequestPayload.class), eq(String.valueOf(HEARING_REQUEST_ID)));
         verifyNoMoreInteractions(hmcHearingsApiService, hmcHearingApiService);
+    }
+
+    @Test
+    void shouldThrowFeignExceptionOnupdateHearingAndCase() throws ListingException {
+        given(hmcHearingApiService.sendUpdateHearingRequest(any(HearingRequestPayload.class), anyString()))
+            .willReturn(HmcUpdateResponse.builder().hearingRequestId(HEARING_REQUEST_ID).versionNumber(2L).build());
+
+        SscsCaseDetails sscsCaseDetails = createCaseDataWithHearings();
+
+        given(sscsCcdConvertService.getCaseDetails(any(StartEventResponse.class)))
+            .willReturn(sscsCaseDetails);
+
+        HearingRequest hearingRequest = createHearingRequestForState(HearingState.UPDATE_HEARING);
+        UpdateHearingCaseUpdater spy = spy(updateHearingCaseUpdater);
+        FeignException feignException = mock(FeignException.class);
+
+        willThrow(feignException)
+            .given(spy)
+            .updateCase(any(), any(), any(), any());
+
+        assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
+                () -> spy.updateHearingAndCase(hearingRequest))
+            .withMessageContaining("Failed to update case with Case id");
     }
 
     @DisplayName("When wrapper with a valid create Hearing State is given but hearing duration is not multiple of five then send to listing error")

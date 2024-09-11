@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.retry.ExhaustedRetryException;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appeal;
 import uk.gov.hmcts.reform.sscs.ccd.domain.CaseManagementLocation;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
@@ -17,14 +18,18 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
 import uk.gov.hmcts.reform.sscs.exception.UnhandleableHearingStateException;
+import uk.gov.hmcts.reform.sscs.exception.UpdateCaseException;
+import uk.gov.hmcts.reform.sscs.model.HearingWrapper;
 import uk.gov.hmcts.reform.sscs.model.hearings.HearingRequest;
 import uk.gov.hmcts.reform.sscs.model.single.hearing.HearingCancelRequestPayload;
+import uk.gov.hmcts.reform.sscs.model.single.hearing.HmcUpdateResponse;
 import uk.gov.hmcts.reform.sscs.service.CcdCaseService;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingApiService;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.CASE_UPDATED;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingState.ADJOURN_CREATE_HEARING;
 
 @ExtendWith(MockitoExtension.class)
 class HearingsServiceV2Test {
@@ -166,5 +172,25 @@ class HearingsServiceV2Test {
             any(HearingCancelRequestPayload.class), eq(HEARING_REQUEST_ID));
         verifyNoInteractions(createHearingCaseUpdater, adjournCreateHearingCaseUpdater, updateHearingCaseUpdater);
     }
+
+    @Test
+    void shouldThrowExhaustedRetryException() {
+        HearingWrapper wrapper = HearingWrapper.builder()
+            .caseData(SscsCaseData.builder()
+                          .ccdCaseId("404")
+                          .build())
+            .hearingState(ADJOURN_CREATE_HEARING)
+            .build();
+
+        assertThatExceptionOfType(ExhaustedRetryException.class).isThrownBy(
+                () -> hearingsService.hearingResponseUpdateRecover(
+                    new UpdateCaseException("Retry exhausted"),
+                    wrapper,
+                    HmcUpdateResponse.builder()
+                        .hearingRequestId(404L)
+                        .build()))
+            .withMessageContaining("Cancellation request Response received, rethrowing exception");
+    }
+
 
 }

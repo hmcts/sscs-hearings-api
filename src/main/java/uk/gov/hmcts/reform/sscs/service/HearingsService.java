@@ -10,7 +10,6 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.EventType;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Hearing;
 import uk.gov.hmcts.reform.sscs.ccd.domain.HearingState;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
@@ -131,7 +130,7 @@ public class HearingsService {
         }
     }
 
-    private boolean caseStatusInvalid(HearingWrapper wrapper) {
+    public boolean caseStatusInvalid(HearingWrapper wrapper) {
         return INVALID_CASE_STATES.contains(wrapper.getCaseState());
     }
 
@@ -291,27 +290,6 @@ public class HearingsService {
 
     }
 
-    private void updateCaseDataWithHearingResponseCaseDetails(HmcUpdateResponse response, Long hearingRequestId, SscsCaseDetails sscsCaseDetails) {
-        updateCaseDataWithHearingResponse(response, hearingRequestId, sscsCaseDetails.getData());
-    }
-
-    private void updateCaseDataWithHearingResponse(HmcUpdateResponse response, Long hearingRequestId, SscsCaseData caseData) {
-        Hearing hearing = HearingsServiceHelper.getHearingById(hearingRequestId, caseData);
-
-        if (isNull(hearing)) {
-            hearing = HearingsServiceHelper.createHearing(hearingRequestId);
-            HearingsServiceHelper.addHearing(hearing, caseData);
-        }
-
-        HearingsServiceHelper.updateHearingId(hearing, response);
-        HearingsServiceHelper.updateVersionNumber(hearing, response);
-
-        if (refData.isAdjournmentFlagEnabled()
-            && YesNo.isYes(caseData.getAdjournment().getAdjournmentInProgress())) {
-            log.debug("Case Updated with AdjournmentInProgress to NO for Case ID {}", caseData.getCcdCaseId());
-            caseData.getAdjournment().setAdjournmentInProgress(YesNo.NO);
-        }
-    }
 
     @Recover
     public void hearingResponseUpdateRecover(UpdateCaseException exception, HearingWrapper wrapper, HmcUpdateResponse response) {
