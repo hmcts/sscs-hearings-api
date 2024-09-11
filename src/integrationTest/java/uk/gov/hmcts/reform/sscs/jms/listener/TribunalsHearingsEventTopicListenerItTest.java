@@ -51,8 +51,10 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.AdjournCaseNextHearingDateType.FIRST_AVAILABLE_DATE;
@@ -135,6 +137,7 @@ public class TribunalsHearingsEventTopicListenerItTest {
             + "}\n";
         tribunalsHearingsEventQueueListener.handleIncomingMessage(deserialize(message));
 
+        verify(updateCcdCaseService, never()).updateCaseV2DynamicEvent(anyLong(), any(), anyBoolean(), eq(idamTokens), any());
         verify(ccdCaseService).updateCaseData(eq(sscsCaseDetails.getData()), any(), any());
     }
 
@@ -172,6 +175,8 @@ public class TribunalsHearingsEventTopicListenerItTest {
             + "  \"hearingState\": \"adjournCreateHearing\"\n"
             + "}\n";
         tribunalsHearingsEventQueueListener.handleIncomingMessage(deserialize(message));
+
+        verify(ccdCaseService, never()).updateCaseData(any(), any(), any());
 
         verify(updateCcdCaseService).updateCaseV2(
             eq(Long.parseLong(CASE_ID)), any(), any(), any(), any(), any());

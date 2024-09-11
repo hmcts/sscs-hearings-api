@@ -45,6 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -123,6 +124,8 @@ public class HmcHearingsEventTopicListenerItTest {
 
         verify(hearingApi).getHearingRequest(any(), any(), any(), any(), any());
 
+        verify(updateCcdCaseService, never()).updateCaseV2DynamicEvent(anyLong(), any(), anyBoolean(), eq(idamTokens), any());
+
         verify(ccdCaseService).updateCaseData(
             eq(sscsCaseDetails.getData()),
             any(),
@@ -159,6 +162,7 @@ public class HmcHearingsEventTopicListenerItTest {
 
         verify(hearingApi).getHearingRequest(any(), any(), any(), any(), any());
 
+        verify(ccdCaseService, never()).updateCaseData(any(), any(), any());
         verify(updateCcdCaseService).updateCaseV2DynamicEvent(eq(Long.parseLong(CASE_ID)), any(), anyBoolean(), eq(idamTokens), any());
 
     }

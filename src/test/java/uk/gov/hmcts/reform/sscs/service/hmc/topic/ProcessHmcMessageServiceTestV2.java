@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,6 +57,7 @@ class ProcessHmcMessageServiceTestV2 extends AbstractProcessHmcMessageServiceTes
     @Override
     void verifyUpdateCaseDataCalledCorrectlyForHmcStatus(CcdCaseService ccdCaseService, UpdateCcdCaseService updateCcdCaseService,
                                                          SscsCaseData caseData, HmcStatus hmcStatus, HearingGetResponse hearingGetResponse) throws UpdateCaseException {
+        verify(ccdCaseService, never()).updateCaseData(any(), any(), any());
         verify(updateCcdCaseService).updateCaseV2DynamicEvent(any(), any(), anyBoolean(), any(), captor.capture());
 
         UpdateCcdCaseService.DynamicEventUpdateResult dynamicEventUpdateResult = captor.getValue().apply(SscsCaseDetails.builder().data(caseData).build());
