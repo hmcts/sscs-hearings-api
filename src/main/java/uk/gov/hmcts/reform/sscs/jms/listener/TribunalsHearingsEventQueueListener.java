@@ -23,7 +23,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("${flag.bypass-hearing-api-service.enabled:false} && ${flags.tribunals-to-hearings-api.enabled:true}")
+@ConditionalOnExpression("!${flags.bypass-hearing-api-service.enabled:false} && ${flags.tribunals-to-hearings-api.enabled:true}")
 public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
