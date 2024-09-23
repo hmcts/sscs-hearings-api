@@ -305,8 +305,8 @@ repositories {
 def versions = [
   springsecurity : '5.7.12',
   tomcat         : '9.0.86',
-  lombok         : '1.18.28',
-  jackson        : '2.15.2'
+  lombok         : '1.18.34',
+  jackson        : '2.17.2'
 ]
 
 dependencies {
