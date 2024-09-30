@@ -357,7 +357,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.13'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '234cfd3'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '5.12.0'
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
