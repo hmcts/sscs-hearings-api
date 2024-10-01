@@ -36,10 +36,15 @@ import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 import uk.gov.hmcts.reform.sscs.utility.HearingChannelUtil;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -61,11 +66,6 @@ import static uk.gov.hmcts.reform.sscs.model.hmc.reference.PartyType.ORGANISATIO
 // TODO Unsuppress in future
 @Slf4j
 public final class HearingsPartiesMapping {
-
-    public static final String LANGUAGE_REFERENCE_TEMPLATE = "%s%s";
-    public static final String LANGUAGE_DIALECT_TEMPLATE = "-%s";
-    public static final String DWP_PO_FIRST_NAME = "Presenting";
-    public static final String DWP_PO_LAST_NAME = "Officer";
 
     public static final String ORGANISATION_NAME_REPLACEMENT = "-";
 
@@ -304,11 +304,11 @@ public final class HearingsPartiesMapping {
             return null;
         }
 
-        return getLanguageReference(getLanguage(hearingOptions, refData));
+        return getLanguageReference(hearingOptions, refData);
     }
 
     @Nullable
-    public static Language getLanguage(HearingOptions hearingOptions, ReferenceDataServiceHolder refData)
+    public static String getLanguageReference(HearingOptions hearingOptions, ReferenceDataServiceHolder refData)
         throws InvalidMappingException {
 
         Language language = null;
@@ -328,28 +328,13 @@ public final class HearingsPartiesMapping {
                 throw new InvalidMappingException(String.format("The language %s cannot be mapped", verbalLanguage));
             }
         }
-        return language;
-    }
-
-    public static String getLanguageReference(Language language) {
-        if (isNull(language)) {
-            return null;
-        }
-        return String.format(LANGUAGE_REFERENCE_TEMPLATE,
-            language.getReference(), getDialectReference(language));
-    }
-
-    private static String getDialectReference(Language language) {
-        if (isBlank(language.getDialectReference())) {
-            return "";
-        }
-        return String.format(LANGUAGE_DIALECT_TEMPLATE, language.getDialectReference());
+        return nonNull(language) ? language.getFullReference() : null;
     }
 
     @Nullable
     public static String getOverrideInterpreterLanguage(OverrideFields overrideFields) {
         if (isYes(overrideFields.getAppellantInterpreter().getIsInterpreterWanted())) {
-            return Optional.ofNullable(overrideFields.getAppellantInterpreter().getInterpreterLanguage())
+            return ofNullable(overrideFields.getAppellantInterpreter().getInterpreterLanguage())
                 .map(DynamicList::getValue)
                 .map(DynamicListItem::getCode)
                 .orElse(null);
