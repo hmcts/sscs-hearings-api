@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 @Slf4j
@@ -124,7 +125,10 @@ public final class OverridesMapping {
                 .build();
         }
 
-        DynamicListItem listItem = new DynamicListItem(language.getFullReference(), language.getName());
+        String languageName = nonNull(language.getDialectEn()) ? language.getDialectEn() : language.getNameEn();
+        String languageReference = HearingsPartiesMapping.getLanguageReference(language);
+
+        DynamicListItem listItem = new DynamicListItem(languageReference, languageName);
         DynamicList interpreterLanguage = new DynamicList(listItem, List.of(listItem));
 
         YesNo interpreterWanted = getInterpreterWanted(hearingOptions);
