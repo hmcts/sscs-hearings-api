@@ -59,6 +59,7 @@ public class ServiceHearingsService {
                 "Updating caseDetails IDs",
                 "IDs updated for caseDetails due to ServiceHearingValues request");
         }
+
         return model;
     }
 
