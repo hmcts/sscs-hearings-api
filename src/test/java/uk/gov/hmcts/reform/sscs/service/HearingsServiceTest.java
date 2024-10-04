@@ -17,6 +17,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.service.UpdateCcdCaseService;
@@ -58,6 +59,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.HearingRoute.LIST_ASSIST;
@@ -75,8 +78,6 @@ class HearingsServiceTest {
     private static final String BENEFIT_CODE = "002";
     private static final String ISSUE_CODE = "DD";
     private static final String PROCESSING_VENUE = "Processing Venue";
-
-
     private HearingWrapper wrapper;
     private HearingRequest request;
     private SscsCaseDetails expectedCaseDetails;
@@ -212,6 +213,7 @@ class HearingsServiceTest {
         }
     }
 
+
     @DisplayName("When wrapper with a valid adjourn create Hearing State is given addHearingResponse should run without error")
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
@@ -247,7 +249,6 @@ class HearingsServiceTest {
 
             Consumer<SscsCaseDetails> sscsCaseDataConsumer = caseDataConsumerCaptor.getValue();
             assertThat(sscsCaseDataConsumer).isEqualTo(sscsCaseDetailsConsumer);
-
         } else {
             verify(ccdCaseService).updateCaseData(
                 any(SscsCaseData.class),
@@ -279,6 +280,40 @@ class HearingsServiceTest {
         assertThatExceptionOfType(UpdateCaseException.class).isThrownBy(
             () -> hearingsService.processHearingWrapper(wrapper));
     }
+
+
+    @Test
+    void shouldThrowExhaustedRetryException() {
+        HearingEvent event = HearingEvent.ADJOURN_CREATE_HEARING;
+        wrapper.setHearingState(ADJOURN_CREATE_HEARING);
+        wrapper.setEventId(event.getEventType().getCcdType());
+
+        assertThatExceptionOfType(ExhaustedRetryException.class).isThrownBy(
+            () -> hearingsService.hearingResponseUpdateRecover(
+                    new UpdateCaseException("Retry exhausted"),
+                    wrapper,
+                    HmcUpdateResponse.builder()
+                        .hearingRequestId(404L)
+                        .build()))
+            .withMessageContaining("Cancellation request Response received, rethrowing exception");
+    }
+
+
+    @Test
+    void shouldNotProcessTheRequest() throws UnhandleableHearingStateException, UpdateCaseException, ListingException {
+        HearingEvent event = HearingEvent.ADJOURN_CREATE_HEARING;
+        wrapper.setHearingState(ADJOURN_CREATE_HEARING);
+        wrapper.setEventId(event.getEventType().getCcdType());
+
+        HearingsService spy = spy(hearingsService);
+        given(spy.caseStatusInvalid(wrapper))
+            .willReturn(true);
+        HearingWrapper hearingWrapper = spy(wrapper);
+        spy.processHearingWrapper(wrapper);
+        verify(hearingWrapper,never())
+            .getHearingState();
+    }
+
 
     private void mockHearingResponseForAdjournmentCreate(boolean caseUpdateV2Enabled) {
         if (caseUpdateV2Enabled) {

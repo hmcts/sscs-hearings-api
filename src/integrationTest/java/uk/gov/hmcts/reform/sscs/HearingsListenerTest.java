@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -45,6 +46,7 @@ import uk.gov.hmcts.reform.sscs.service.HmcHearingApi;
 import uk.gov.hmcts.reform.sscs.service.HmcHearingsApi;
 import uk.gov.hmcts.reform.sscs.service.RegionalProcessingCenterService;
 import uk.gov.hmcts.reform.sscs.service.VenueService;
+import uk.gov.hmcts.reform.sscs.service.hearings.HearingsServiceV2;
 import uk.gov.hmcts.reform.sscs.service.holder.ReferenceDataServiceHolder;
 
 import java.io.IOException;
@@ -73,6 +75,8 @@ public class HearingsListenerTest {
     private ObjectMapper mapper;
     @Autowired
     private HearingsService hearingsService;
+    @SpyBean
+    private HearingsServiceV2 hearingsServiceV2;
 
     @MockBean
     private IdamService idamService;
@@ -100,7 +104,7 @@ public class HearingsListenerTest {
 
     @Test
     public void testHearingsUpdateCaseV2() throws UpdateCaseException, TribunalsEventProcessingException, GetCaseException {
-        tribunalsHearingsEventQueueListener = new TribunalsHearingsEventQueueListener(hearingsService, ccdCaseService);
+        tribunalsHearingsEventQueueListener = new TribunalsHearingsEventQueueListener(hearingsService, hearingsServiceV2, ccdCaseService);
         IdamTokens idamTokens = IdamTokens.builder().build();
         when(idamService.getIdamTokens()).thenReturn(idamTokens);
         when(ccdCaseService.getStartEventResponse(anyLong(), any())).thenReturn(SscsCaseDetails.builder().data(
