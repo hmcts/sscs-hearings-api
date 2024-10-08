@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <suppress until = "2024-10-05">
-    <!-- CVE-2023-36052 is a false positive -->
     <cve>CVE-2023-36052</cve>
     <cve>CVE-2024-45772</cve>
   </suppress>
