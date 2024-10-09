@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.sscs.jms.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.LISTING_ERROR;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+@ConditionalOnExpression("!${flags.bypass-hearing-api-service.enabled} && ${flags.tribunals-to-hearings-api.enabled}")
 public class TribunalsHearingsEventQueueListener {
 
     private final HearingsService hearingsService;
