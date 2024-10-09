@@ -43,6 +43,7 @@ by executing the following command:
   docker-compose up
 ```
 
+
 This will start the API container exposing the application's port
 (set to `8083` in this template app).
 
