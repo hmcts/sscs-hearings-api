@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.sscs.config.jms;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ import javax.jms.Session;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty("flags.tribunals-to-hearings-api.enabled")
+@ConditionalOnExpression("!${flags.bypass-hearing-api-service.enabled} && ${flags.tribunals-to-hearings-api.enabled}")
 public class TribunalsHearingsJmsConfig {
 
     @Value("${azure.service-bus.tribunals-to-hearings-api.namespace}")
