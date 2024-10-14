@@ -20,7 +20,7 @@ import javax.jms.JMSException;
 
 @Slf4j
 @Component
-@ConditionalOnExpression("!${flags.bypass-hearing-api-service.enabled:false} && ${flags.hmc-to-hearings-api.enabled:true}")
+@ConditionalOnExpression("!${flags.bypass-hearing-api-service.enabled} && ${flags.hmc-to-hearings-api.enabled}")
 public class HmcHearingsEventTopicListener {
 
     private final ObjectMapper objectMapper;
