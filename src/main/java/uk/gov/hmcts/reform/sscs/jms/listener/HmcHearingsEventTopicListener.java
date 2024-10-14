@@ -6,7 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.qpid.jms.message.JmsBytesMessage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
@@ -20,7 +20,7 @@ import javax.jms.JMSException;
 
 @Slf4j
 @Component
-@ConditionalOnProperty("flags.hmc-to-hearings-api.enabled")
+@ConditionalOnExpression("!${flags.bypass-hearing-api-service.enabled} && ${flags.hmc-to-hearings-api.enabled}")
 public class HmcHearingsEventTopicListener {
 
     private final ObjectMapper objectMapper;
