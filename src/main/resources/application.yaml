@@ -146,6 +146,8 @@ flags:
     enabled: ${POST_HEARING_ENABLED:false}
   deployment-filter:
     enabled: ${HMC_DEPLOYMENT_FILTER_ENABLED:false}
+  bypass-hearing-api-service:
+    enabled: ${BYPASS_HEARING_API_SERVICE:false}
 
 retry:
   hearing-response-update:
