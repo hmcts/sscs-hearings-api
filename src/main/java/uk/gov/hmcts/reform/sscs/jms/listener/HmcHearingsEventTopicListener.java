@@ -8,12 +8,15 @@ import org.apache.qpid.jms.message.JmsBytesMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.exception.CaseException;
+import uk.gov.hmcts.reform.sscs.exception.HearingUpdateException;
 import uk.gov.hmcts.reform.sscs.exception.HmcEventProcessingException;
 import uk.gov.hmcts.reform.sscs.exception.MessageProcessingException;
 import uk.gov.hmcts.reform.sscs.model.hmc.message.HmcMessage;
 import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageService;
+import uk.gov.hmcts.reform.sscs.service.hmc.topic.ProcessHmcMessageServiceV2;
 
 import java.nio.charset.StandardCharsets;
 import javax.jms.JMSException;
@@ -29,18 +32,23 @@ public class HmcHearingsEventTopicListener {
 
     private final ProcessHmcMessageService processHmcMessageService;
 
+    private final ProcessHmcMessageServiceV2 processHmcMessageServiceV2;
+
     @Value("${hmc.deployment-id}")
     private String hmctsDeploymentId;
 
     @Value("${flags.deployment-filter.enabled}")
     private boolean isDeploymentFilterEnabled;
+    @Value("${flags.process-event-message-v2.enabled}")
+    private boolean processEventMessageV2Enabled;
 
     private static final String HMCTS_DEPLOYMENT_ID = "hmctsDeploymentId";
 
     public HmcHearingsEventTopicListener(@Value("${sscs.serviceCode}") String sscsServiceCode,
-                                         ProcessHmcMessageService processHmcMessageService) {
+                                         ProcessHmcMessageService processHmcMessageService, ProcessHmcMessageServiceV2 processHmcMessageServiceV2) {
         this.sscsServiceCode = sscsServiceCode;
         this.processHmcMessageService = processHmcMessageService;
+        this.processHmcMessageServiceV2 = processHmcMessageServiceV2;
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -73,9 +81,15 @@ public class HmcHearingsEventTopicListener {
                     hearingId
                 );
 
-                processHmcMessageService.processEventMessage(hmcMessage);
+                if (processEventMessageV2Enabled) {
+                    processHmcMessageServiceV2.processEventMessageV2(hmcMessage);
+                } else {
+                    processHmcMessageService.processEventMessage(hmcMessage);
+                }
             }
-        } catch (JsonProcessingException | CaseException | MessageProcessingException ex) {
+        } catch (JsonProcessingException | CaseException | MessageProcessingException
+                 | HearingUpdateException | ExhaustedRetryException ex) {
+            log.error("Unable to successfully deliver HMC message: {}", convertedMessage, ex);
             throw new HmcEventProcessingException(String.format(
                 "Unable to successfully deliver HMC message: %s",
                 convertedMessage
