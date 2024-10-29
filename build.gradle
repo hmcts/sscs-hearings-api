@@ -218,7 +218,8 @@ sonarqube {
     property "sonar.exclusions", "src/main/java/uk/gov/hmcts/reform/sscs/HearingsApiApplication.java," +
             "src/main/java/uk/gov/hmcts/reform/sscs/config/**," +
             "src/main/java/uk/gov/hmcts/reform/sscs/model/**," +
-            "src/main/java/uk/gov/hmcts/reform/sscs/service/holder/**,"
+            "src/main/java/uk/gov/hmcts/reform/sscs/service/holder/**," +
+            "src/main/java/uk/gov/hmcts/reform/sscs/exception/**,"
   }
 }
 
@@ -357,7 +358,7 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.13'
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
 
-  implementation group: 'com.github.hmcts', name: 'sscs-common', version: '5.11.9'
+  implementation group: 'com.github.hmcts', name: 'sscs-common', version: 'fcdc27d'
   implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
 
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: versions.jackson
