@@ -3,7 +3,7 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'jacoco'
-  id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+  id 'io.spring.dependency-management' version '1.1.6'
   id 'org.springframework.boot' version '2.7.18'
   id 'uk.gov.hmcts.java' version '0.12.27'
   id 'org.owasp.dependencycheck' version '10.0.3'
@@ -303,7 +303,7 @@ repositories {
 }
 
 def versions = [
-  springsecurity : '5.7.12',
+  springsecurity : '5.8.15',
   tomcat         : '9.0.86',
   lombok         : '1.18.28',
   jackson        : '2.15.2'
@@ -328,7 +328,7 @@ dependencies {
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter'
 
-  implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.3'
+  implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
 
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: versions.tomcat
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
@@ -411,14 +411,14 @@ dependencies {
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2021.0.1"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:2021.0.9"
   }
   dependencies {
     // CVE-2022-38752
     dependency group: 'org.yaml', name: 'snakeyaml', version: '2.0'
 
     // CVE-2023-33202
-    dependency group: 'org.springframework.security', name: 'spring-security-rsa', version: '1.1.1'
+    dependency group: 'org.springframework.security', name: 'spring-security-rsa', version: '1.1.5'
   }
 }
 
