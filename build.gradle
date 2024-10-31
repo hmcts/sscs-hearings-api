@@ -304,7 +304,7 @@ repositories {
 
 def versions = [
   springsecurity : '5.7.12',
-  tomcat         : '9.0.86',
+  tomcat         : '11.0.0',
   lombok         : '1.18.28',
   jackson        : '2.15.2'
 ]
@@ -334,13 +334,13 @@ dependencies {
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-el', version: versions.tomcat
   implementation group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: versions.tomcat
 
-  implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '1.8.0'
+  implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '2.6.1'
 
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.17.1'
 
   implementation group: 'commons-io', name: 'commons-io', version: '2.13.0'
 
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.10'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.5'
   implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.12.0'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.15'
@@ -372,13 +372,13 @@ dependencies {
 
   implementation group: 'org.elasticsearch', name: 'elasticsearch', version: '7.17.12'
 
-  implementation group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '2.6.4'
+  implementation group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '3.6.2'
   // https://mvnrepository.com/artifact/com.microsoft.azure/applicationinsights-web
-  implementation group: 'com.microsoft.azure', name: 'applicationinsights-web', version: '2.6.4'
+  implementation group: 'com.microsoft.azure', name: 'applicationinsights-web', version: '3.6.2'
 
-  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '4.5.1'
-  testImplementation group: 'io.rest-assured', name: 'xml-path', version: '4.5.1'
-  testImplementation group: 'io.rest-assured', name: 'json-path', version: '4.5.1'
+  testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '5.5.0'
+  testImplementation group: 'io.rest-assured', name: 'xml-path', version: '5.5.0'
+  testImplementation group: 'io.rest-assured', name: 'json-path', version: '5.5.0'
 
   testImplementation group: 'org.projectlombok', name:'lombok', version: versions.lombok
   testAnnotationProcessor group: 'org.projectlombok', name:'lombok', version: versions.lombok
