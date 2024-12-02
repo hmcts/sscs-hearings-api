@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.sscs.consumer;
 
-import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
+import au.com.dius.pact.consumer.dsl.PactBuilder;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.RequestResponsePact;
+import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,9 +75,10 @@ class HearingGetConsumerTest extends BasePactTest {
 
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearing(PactDslWithProvider builder) {
+    public V4Pact getHearing(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given(STATE)
             .uponReceiving("Request to GET hearing for given valid case id")
             .matchPath(PATH_HEARING + "/" + VALID_CASE_ID)
@@ -86,7 +87,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date))
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
     @Test
@@ -105,9 +106,10 @@ class HearingGetConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearingWithRefCheck(PactDslWithProvider builder) {
+    public V4Pact getHearingWithRefCheck(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given("sscs hearing api successfully returns case and with ref check")
             .uponReceiving("Request to GET hearing for given valid case id and with ?isValid")
             .path(PATH_HEARING + "/" + VALID_CASE_ID)
@@ -117,7 +119,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(HttpStatus.OK.value())
             .body(ContractTestDataProvider.generateValidHearingGetResponsePactDslJsonBody(date))
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
 
@@ -139,9 +141,10 @@ class HearingGetConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearingWithNoContent(PactDslWithProvider builder) {
+    public V4Pact getHearingWithNoContent(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given("sscs hearing api successfully returns no case")
             .uponReceiving("Request to GET hearing and get nothing")
             .path(PATH_HEARING + "/" + VALID_NO_CONTENT_CASE_ID)
@@ -150,7 +153,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(NO_CONTENT.value())
             .body("")
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
 
@@ -171,9 +174,10 @@ class HearingGetConsumerTest extends BasePactTest {
 
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearingWithBadRequest(PactDslWithProvider builder) {
+    public V4Pact getHearingWithBadRequest(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given("sscs hearing api fail return with bad request status")
             .uponReceiving("Request to GET hearing for with bad request case id")
             .path(PATH_HEARING + "/" + BAD_REQUEST_CASE_ID)
@@ -182,7 +186,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(BAD_REQUEST.value())
             .body("")
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
 
@@ -202,9 +206,10 @@ class HearingGetConsumerTest extends BasePactTest {
 
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearingWithUnauthorized(PactDslWithProvider builder) {
+    public V4Pact getHearingWithUnauthorized(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given(STATE)
             .uponReceiving("Request to GET hearing for with unauthorized case id")
             .path(PATH_HEARING + "/" + UNAUTHORISED_CASE_ID)
@@ -213,7 +218,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(UNAUTHORIZED.value())
             .body("")
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
 
@@ -232,9 +237,10 @@ class HearingGetConsumerTest extends BasePactTest {
     }
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearingWithForbidden(PactDslWithProvider builder) {
+    public V4Pact getHearingWithForbidden(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given(STATE)
             .uponReceiving("Request to GET hearing for with forbidden case id")
             .path(PATH_HEARING + "/" + FORBIDDEN_CASE_ID)
@@ -243,7 +249,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(FORBIDDEN.value())
             .body("")
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
 
@@ -263,9 +269,10 @@ class HearingGetConsumerTest extends BasePactTest {
 
 
     @Pact(provider = PROVIDER_NAME, consumer = CONSUMER_NAME)
-    public RequestResponsePact getHearingWithNotFound(PactDslWithProvider builder) {
+    public V4Pact getHearingWithNotFound(PactBuilder builder) {
 
         return builder
+            .usingLegacyDsl()
             .given(STATE)
             .uponReceiving("Request to GET hearing for with not found case id")
             .path(PATH_HEARING + "/" + NOT_FOUND_CASE_ID)
@@ -274,7 +281,7 @@ class HearingGetConsumerTest extends BasePactTest {
             .willRespondWith()
             .status(NOT_FOUND.value())
             .body("")
-            .toPact();
+            .toPact(V4Pact.class);
     }
 
 
